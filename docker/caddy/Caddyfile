@@ -1,0 +1,14 @@
+http://grassroots.local {
+    log {
+		level DEBUG
+	}
+    route /api/* {
+        reverse_proxy localhost:3003
+    }
+    route /auth/* {
+        reverse_proxy localhost:3567
+    }
+    route /* {
+        reverse_proxy localhost:5173
+    }
+}

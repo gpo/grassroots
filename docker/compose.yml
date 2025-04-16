@@ -1,0 +1,62 @@
+# See https://supertokens.com/docs/deployment/self-host-supertokens for details.
+
+name: grassroots
+services:
+  # Note: If you are assigning a custom name to your db service on the line below, make sure it does not contain underscores
+  db:
+    container_name: db
+    image: "postgres:latest"
+    environment:
+      POSTGRES_USER: supertokens_user
+      POSTGRES_PASSWORD: somePassword
+      POSTGRES_DB: grassroots
+    ports:
+      - 5432:5432
+    networks:
+      - app_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "supertokens_user", "-d", "grassroots"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  supertokens:
+    container_name: supertokens
+    image: registry.supertokens.io/supertokens/supertokens-postgresql
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - 3567:3567
+    environment:
+      # TODO: factor out password things.
+      POSTGRESQL_CONNECTION_URI: "postgresql://supertokens_user:somePassword@db:5432/grassroots"
+      POSTGRESQL_DATABASE_NAME: grassroots
+      POSTGRESQL_TABLE_NAMES_PREFIX: supertokens
+      LOG_LEVEL: "DEBUG"
+    networks:
+      - app_network
+    restart: unless-stopped
+    #healthcheck:
+    #  test: >
+    #    bash -c 'exec 3<>/dev/tcp/127.0.0.1/3567 && echo -e "GET /hello HTTP/1.1\r\nhost: 127.0.0.1:3567\r\nConnection: close\r\n\r\n" >&3 && cat <&3 | grep "Hello"'
+    #  interval: 10s
+    #  timeout: 5s
+    #  retries: 5
+
+  caddy:
+    container_name: caddy_reverse_proxy
+    ports:
+      - 8081:80
+    volumes:
+      - ./data/caddy:/data
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    image: caddy
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+
+networks:
+  app_network:
+    driver: bridge

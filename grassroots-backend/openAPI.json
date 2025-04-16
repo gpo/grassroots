@@ -1,0 +1,242 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["App"]
+      }
+    },
+    "/contacts": {
+      "post": {
+        "operationId": "ContactController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PendingContactInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactEntityOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Contact"]
+      },
+      "get": {
+        "operationId": "ContactController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactEntityOutDTO"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Contact"]
+      }
+    },
+    "/contacts/search": {
+      "post": {
+        "operationId": "ContactController_search",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaginatedContactSearchInDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedContactOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": ["Contact"]
+      }
+    },
+    "/contacts/add-fakes/{count}": {
+      "post": {
+        "operationId": "ContactController_addFakesToDatabase",
+        "parameters": [
+          {
+            "name": "count",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": ["Contact"]
+      }
+    }
+  },
+  "info": {
+    "title": "Grassroots",
+    "description": "The Grassroots API description",
+    "version": "0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "PendingContactInDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": ["email", "firstName", "lastName"]
+      },
+      "ContactEntityOutDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "minimum": 0
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "email", "firstName", "lastName"]
+      },
+      "ContactSearchInDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "minimum": 0
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        }
+      },
+      "PaginatedInDTO": {
+        "type": "object",
+        "properties": {
+          "rowsToSkip": {
+            "type": "number"
+          },
+          "rowsToTake": {
+            "type": "number"
+          }
+        },
+        "required": ["rowsToSkip", "rowsToTake"]
+      },
+      "PaginatedContactSearchInDTO": {
+        "type": "object",
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/ContactSearchInDTO"
+          },
+          "paginated": {
+            "$ref": "#/components/schemas/PaginatedInDTO"
+          }
+        },
+        "required": ["contact", "paginated"]
+      },
+      "PaginatedOutDTO": {
+        "type": "object",
+        "properties": {
+          "rowsSkipped": {
+            "type": "number",
+            "minimum": 0
+          },
+          "rowsTotal": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": ["rowsSkipped", "rowsTotal"]
+      },
+      "PaginatedContactOutDTO": {
+        "type": "object",
+        "properties": {
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactEntityOutDTO"
+            }
+          },
+          "paginated": {
+            "$ref": "#/components/schemas/PaginatedOutDTO"
+          }
+        },
+        "required": ["contacts", "paginated"]
+      }
+    }
+  }
+}

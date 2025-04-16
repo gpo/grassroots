@@ -1,0 +1,17 @@
+ul#nav {
+  margin: 0;
+  padding: 0;
+  width: 10em;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+ul#nav > li {
+  list-style: none;
+}
+
+#logout {
+  margin-top: auto;
+  margin-bottom: 7em;
+}
