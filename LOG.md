@@ -1,3 +1,8 @@
+# Bootstrapping Vite
+```sh
+npm create vite@latest # typescript + SWC
+```
+
 # Generate Contacts Resource
 ```sh
 cd grassroots-backend
