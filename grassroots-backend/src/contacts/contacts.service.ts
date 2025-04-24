@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { CreateContactDto } from './dto/create-contact.dto';
-import { UpdateContactDto } from './dto/update-contact.dto';
+import { Injectable } from "@nestjs/common";
+import { CreateContactDto } from "./dto/create-contact.dto";
+import { UpdateContactDto } from "./dto/update-contact.dto";
 
 @Injectable()
 export class ContactsService {
   create(createContactDto: CreateContactDto) {
-    return 'This action adds a new contact';
+    return "This action adds a new contact";
   }
 
   findAll() {
