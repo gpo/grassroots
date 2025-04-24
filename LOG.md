@@ -1,3 +1,8 @@
+# Pulling in TypeORM
+
+Going with postgres (pg).
+Docker compose from [here](https://hub.docker.com/_/postgres).
+
 # Installing Tanstack Router
 
 Followed [these instructions](https://tanstack.com/router/latest/docs/framework/react/quick-start).
@@ -5,6 +10,7 @@ Followed [these instructions](https://tanstack.com/router/latest/docs/framework/
 # Installing Mantine
 
 Followed [these instructions](https://mantine.dev/guides/vite/).
+npm install ts-jest-resolver --save
 
 # Bootstrapping Vite
 
