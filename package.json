@@ -2,21 +2,16 @@
   "name": "grassroots",
   "version": "1.0.0",
   "description": "Political Campaign Software focused on voter outreach and volunteer management.",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/gpo/grassroots.git"
   },
-  "author": "",
-  "license": "ISC",
+  "license": "AGPLv3",
   "bugs": {
     "url": "https://github.com/gpo/grassroots/issues"
   },
   "homepage": "https://github.com/gpo/grassroots#readme",
-  "dependencies": {
+  "devDependencies": {
     "prettier": "^3.5.3"
   }
 }
