@@ -1,3 +1,11 @@
+# Installing Tanstack Router
+
+Followed [these instructions](https://tanstack.com/router/latest/docs/framework/react/quick-start).
+
+# Installing Mantine
+
+Followed [these instructions](https://mantine.dev/guides/vite/).
+
 # Bootstrapping Vite
 
 ```sh
