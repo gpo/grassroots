@@ -1,21 +1,30 @@
 import { ContactsController } from "./contacts.controller";
-import { getRootTestingModuleAndDataSource } from "../roottest.module";
-import { TestingModule } from "@nestjs/testing";
+import { getTestApp } from "../testing/getTestApp";
 import { INestApplication } from "@nestjs/common";
-
-let moduleRef: TestingModule | undefined;
-let app: INestApplication<any> | undefined;
+import {
+  rollbackTestTransaction,
+  startTestTransaction,
+} from "../testing/dbTransactions";
 
 describe("ContactsController", () => {
   let controller: ContactsController;
+  let app: INestApplication;
 
-  beforeEach(async () => {
-    [moduleRef, app] = await getRootTestingModuleAndDataSource();
-    controller = moduleRef.get<ContactsController>(ContactsController);
+  beforeAll(async () => {
+    app = await getTestApp();
+    controller = app.get<ContactsController>(ContactsController);
   });
 
   afterAll(async () => {
-    await app?.close();
+    await app.close();
+  });
+
+  beforeEach(async () => {
+    await startTestTransaction();
+  });
+
+  afterEach(async () => {
+    await rollbackTestTransaction();
   });
 
   it("should be defined", () => {

@@ -4,6 +4,7 @@ export class CreateContactInDto {
   email!: string;
   firstName!: string;
   lastName!: string;
+  phoneNumber!: string;
 }
 
 @Entity()

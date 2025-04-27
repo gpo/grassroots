@@ -1,14 +1,15 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { ContactsController } from "./contacts/contacts.controller";
-import { ContactsService } from "./contacts/contacts.service";
+import { Test } from "@nestjs/testing";
+import { ContactsController } from "../contacts/contacts.controller";
+import { ContactsService } from "../contacts/contacts.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ContactEntityOutDTO } from "./grassroots-shared/contact.entity.dto";
+import { ContactEntityOutDTO } from "../grassroots-shared/contact.entity.dto";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { INestApplication } from "@nestjs/common";
 
-export async function getRootTestingModuleAndDataSource(): Promise<
-  [TestingModule, INestApplication<any>]
-> {
+let app: INestApplication | undefined = undefined;
+
+export async function getTestApp(): Promise<INestApplication> {
+  if (app) return app;
   const moduleRef = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({
@@ -28,7 +29,6 @@ export async function getRootTestingModuleAndDataSource(): Promise<
             database: config.get<string>("POSTGRES_DB"),
             entities: [ContactEntityOutDTO],
             synchronize: true,
-            dropSchema: true,
             connectionTimeout: 30000, // Increased timeout to 30 seconds
           };
         },
@@ -40,7 +40,7 @@ export async function getRootTestingModuleAndDataSource(): Promise<
     providers: [ContactsService],
   }).compile();
 
-  const app = moduleRef.createNestApplication();
+  app = moduleRef.createNestApplication();
   await app.init();
-  return [moduleRef, app];
+  return app;
 }
