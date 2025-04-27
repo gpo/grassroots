@@ -1,12 +1,16 @@
 import { ContactsService } from "./contacts.service";
 import { getTestApp } from "../testing/getTestApp";
 import { INestApplication } from "@nestjs/common";
-import { CreateContactInDto } from "../grassroots-shared/contact.entity.dto";
+import {
+  ContactEntityOutDTO,
+  CreateContactInDto,
+} from "../grassroots-shared/contact.entity.dto";
 import {
   rollbackTestTransaction,
   startTestTransaction,
 } from "../testing/dbTransactions";
 import { QueryRunner } from "typeorm";
+import { plainToClass } from "class-transformer";
 
 describe("ContactsService", () => {
   let service: ContactsService;
@@ -41,13 +45,12 @@ describe("ContactsService", () => {
       lastName: "Test",
       phoneNumber: "999-999-9999",
     };
-    await service.create(contact, queryRunner);
+    const created = await service.create(contact, queryRunner);
 
     const allContacts = await service.findAll(queryRunner);
     expect(allContacts.length).toEqual(1);
-    expect(allContacts[0]).toEqual({
-      ...contact,
-      id: 1,
-    });
+    expect(allContacts[0]).toEqual(
+      plainToClass(ContactEntityOutDTO, { ...contact, id: created.id }),
+    );
   });
 });

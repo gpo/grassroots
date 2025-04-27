@@ -3,6 +3,11 @@
 Going with postgres (pg).
 Docker compose from [here](https://hub.docker.com/_/postgres).
 
+A few notes:
+
+- Use of rolled back transactions in tests seems to be best practice, but IDs appear to increment in rolled back transactions.
+-
+
 # Installing Tanstack Router
 
 Followed [these instructions](https://tanstack.com/router/latest/docs/framework/react/quick-start).
