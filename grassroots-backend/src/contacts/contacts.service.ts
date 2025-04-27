@@ -4,14 +4,13 @@ import {
   ContactEntityOutDTO,
   CreateContactInDto,
 } from "../grassroots-shared/contact.entity.dto";
-import { DataSource, Repository } from "typeorm";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class ContactsService {
   constructor(
     @InjectRepository(ContactEntityOutDTO)
     private readonly contactsRepository: Repository<ContactEntityOutDTO>,
-    private dataSource: DataSource,
   ) {}
 
   async create(

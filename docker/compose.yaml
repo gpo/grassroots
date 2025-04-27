@@ -4,9 +4,18 @@ services:
   db:
     image: postgres
     container_name: db
-    # set shared memory limit when using docker-compose
+    # set shared memory limit
     shm_size: 128mb
     ports:
       - 5432:5432
     env_file:
       - ../dev.env
+
+  test_db:
+    image: postgres
+    container_name: test_db
+    shm_size: 128mb
+    ports:
+      - 5433:5432
+    env_file:
+      - ../test.env

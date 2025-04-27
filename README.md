@@ -17,3 +17,8 @@ npm run start:dev
 cd grassroots-frontend
 npm run dev
 ```
+
+## Frequently Seen Problems
+
+`duplicate key value violates unique constraint "pg_class_relname_nsp_index"`
+You're modifying tables from multiple threads at the same time. Serialize whatever you're doing!

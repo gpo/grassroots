@@ -1,17 +1,21 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { ContactsController } from "./contacts.controller";
-import { ContactsService } from "./contacts.service";
+import { getRootTestingModuleAndDataSource } from "../roottest.module";
+import { TestingModule } from "@nestjs/testing";
+import { INestApplication } from "@nestjs/common";
+
+let moduleRef: TestingModule | undefined;
+let app: INestApplication<any> | undefined;
 
 describe("ContactsController", () => {
   let controller: ContactsController;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [ContactsController],
-      providers: [ContactsService],
-    }).compile();
+    [moduleRef, app] = await getRootTestingModuleAndDataSource();
+    controller = moduleRef.get<ContactsController>(ContactsController);
+  });
 
-    controller = module.get<ContactsController>(ContactsController);
+  afterAll(async () => {
+    await app?.close();
   });
 
   it("should be defined", () => {
