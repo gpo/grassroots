@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    /* Linting */
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "noUncheckedSideEffectImports": true,
+    "noUnusedLocals": false, // replaced by eslint no-unused-vars
+    "noUnusedParameters": false // replaced by eslint no-unused-vars
+  }
+}

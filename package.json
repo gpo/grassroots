@@ -13,7 +13,8 @@
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
     "format": "prettier . --write",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "check": "npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend && npx eslint . "
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.8",
