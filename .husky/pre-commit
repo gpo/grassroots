@@ -1,0 +1,9 @@
+#!/bin/bash
+npx concurrently \
+  "cd grassroots-backend && npm test" \
+  "cd grassroots-frontend && npm test" \
+  "npx syncpack list-mismatches" \
+  "npx tsc --noEmit --project grassroots-backend" \
+  "npx tsc --noEmit --project grassroots-frontend" \
+
+npx lint-staged
