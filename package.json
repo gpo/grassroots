@@ -12,6 +12,8 @@
   },
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
+    "prepare": "husky",
+    "test": "cd grassroots-frontend && npm run test && cd ../grassroots-backend && npm run test",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "check": "npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend && npx eslint . "
@@ -20,14 +22,18 @@
     "@eslint/compat": "^1.2.8",
     "@eslint/js": "^9.25.1",
     "@tanstack/eslint-plugin-router": "^1.115.0",
+    "concurrently": "^9.1.2",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-prettier": "^5.2.6",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.1",
     "prettier": "^3.5.3",
     "react": "^19.0.0",
+    "syncpack": "^13.0.4",
     "typescript-eslint": "^8.31.0"
   }
 }
