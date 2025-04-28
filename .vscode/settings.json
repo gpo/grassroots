@@ -9,7 +9,7 @@
     "**/routeTree.gen.ts": true
   },
   "typescript.tsdk": "node_modules/typescript/lib",
-  "typescript.preferences.quoteStyle": "single",
+  "typescript.preferences.quoteStyle": "double",
   "js/ts.implicitProjectConfig.experimentalDecorators": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[typescriptreact]": {
