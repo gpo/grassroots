@@ -11,6 +11,19 @@
     "url": "https://github.com/gpo/grassroots/issues"
   },
   "homepage": "https://github.com/gpo/grassroots#readme",
+<<<<<<< HEAD
+||||||| parent of 006eb8a (feat: consolidate tsconfig linting options)
+  "scripts": {
+    "format": "prettier . --write",
+    "lint": "eslint . --fix"
+  },
+=======
+  "scripts": {
+    "format": "prettier . --write",
+    "lint": "eslint . --fix",
+    "check": "npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend && npx eslint . "
+  },
+>>>>>>> 006eb8a (feat: consolidate tsconfig linting options)
   "devDependencies": {
     "prettier": "^3.5.3"
   }
