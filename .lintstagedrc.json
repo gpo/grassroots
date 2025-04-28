@@ -1,0 +1,4 @@
+{
+  "*.{ts,tsx}": ["npx eslint"],
+  "*": ["npx prettier --write --ignore-unknown"]
+}
