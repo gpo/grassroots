@@ -1,7 +1,7 @@
 import { DataSource, QueryRunner } from "typeorm";
 import { getTestApp } from "./getTestApp";
 
-let queryRunner: ReturnType<DataSource["createQueryRunner"]>;
+let queryRunner: ReturnType<DataSource["createQueryRunner"]> | undefined;
 
 export async function startTestTransaction(): Promise<QueryRunner> {
   const dataSource = (await getTestApp()).get(DataSource);
@@ -11,7 +11,7 @@ export async function startTestTransaction(): Promise<QueryRunner> {
   return queryRunner;
 }
 
-export async function rollbackTestTransaction() {
+export async function rollbackTestTransaction(): Promise<void> {
   if (!queryRunner) {
     throw new Error("Can't rollback transaction that was never started.");
   }

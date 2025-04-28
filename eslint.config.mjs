@@ -53,6 +53,7 @@ export default tseslint.config(
         "error",
         { assertionStyle: "never" },
       ],
+      "@typescript-eslint/no-misused-spread": "off",
     },
   },
 );
