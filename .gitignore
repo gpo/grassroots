@@ -1,2 +1,5 @@
 node_modules
 grassroots-backend/dist
+grassroots-frontend/src/**/*.js
+grassroots-frontend/vite.config.js
+
