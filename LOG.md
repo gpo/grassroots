@@ -1,3 +1,13 @@
+# Pulling in TypeORM
+
+Going with postgres (pg).
+Docker compose from [here](https://hub.docker.com/_/postgres).
+
+A few notes:
+
+- Use of rolled back transactions in tests seems to be best practice, but IDs appear to increment in rolled back transactions.
+- We've switched to running all tests sequentially, which will be bad for test performance on devices with a reasonable core count. Eventually we should try to reparallelize these.
+
 # Installing Tanstack Router
 
 Followed [these instructions](https://tanstack.com/router/latest/docs/framework/react/quick-start).
