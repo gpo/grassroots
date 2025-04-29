@@ -25,4 +25,9 @@ export class ContactsController {
   findOne(@Param("id") id: string): Promise<ContactEntityOutDTO | null> {
     return this.contactsService.findOne(+id);
   }
+
+  @Post("add-fakes/:count")
+  addFakesToDatabase(@Param("count") count: number): Promise<void> {
+    return this.contactsService.addFakesToDatabase(count);
+  }
 }
