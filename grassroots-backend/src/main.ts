@@ -53,9 +53,4 @@ async function bootstrap(): Promise<void> {
     console.log("Skip updating OpenAPI");
   }
 }
-<<<<<<< HEAD
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-bootstrap();
-=======
 void bootstrap();
->>>>>>> 57bb45d (Generate Typescript bindings.)
