@@ -1,3 +1,9 @@
+# Generating typescript fetch bindings.
+
+Use @nestjs/swagger to generate OpenAPI bindings, following [these instructions](https://docs.nestjs.com/openapi/introduction), followed by [these instructions](https://docs.nestjs.com/openapi/cli-plugin) for setting up the CLI plugin, which automatically adds the appropriate default decorators.
+
+Then use openapi-typescript (setup instructions)[https://openapi-ts.dev/introduction] and openapi-fetch (setup instructions)[https://openapi-ts.dev/openapi-fetch/].
+
 # Pulling in TypeORM
 
 Going with postgres (pg).
