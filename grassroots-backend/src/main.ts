@@ -11,7 +11,7 @@ import metadata from "./metadata";
 import path from "path";
 
 const openAPISchemaPath = "./openAPI.json";
-const openAPITSSchemaPath = "./src/grassroots-shared/openAPI.ts";
+const openAPITSSchemaPath = "./src/grassroots-shared/openAPI.gen.ts";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
