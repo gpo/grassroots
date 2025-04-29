@@ -53,4 +53,10 @@ describe("ContactsService", () => {
       plainToClass(ContactEntityOutDTO, { ...contact, id: created.id }),
     );
   });
+
+  it("should create 100 random contacts", async () => {
+    await service.addFakesToDatabase(100, queryRunner);
+    const allContacts = await service.findAll(queryRunner);
+    expect(allContacts.length).toEqual(100);
+  });
 });

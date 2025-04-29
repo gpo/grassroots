@@ -6,6 +6,7 @@ import {
 } from "../grassroots-shared/contact.entity.dto";
 import { DataSource, QueryRunner, Repository } from "typeorm";
 import { getRepo } from "../getRepo";
+import { faker } from "@faker-js/faker/.";
 
 @Injectable()
 export class ContactsService {
@@ -34,5 +35,28 @@ export class ContactsService {
   ): Promise<ContactEntityOutDTO | null> {
     const repo = getRepo(ContactEntityOutDTO, queryRunner, this.dataSource);
     return await repo.findOneBy({ id });
+  }
+
+  async addFakesToDatabase(
+    count: number,
+    queryRunnerForTest?: QueryRunner,
+  ): Promise<void> {
+    function getRandomContact(): CreateContactInDto {
+      return {
+        firstName: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        email: faker.internet.email(),
+        phoneNumber: faker.phone.number(),
+      };
+    }
+    const queryRunner =
+      queryRunnerForTest ?? this.dataSource.createQueryRunner();
+    const repo = getRepo(ContactEntityOutDTO, queryRunner, this.dataSource);
+
+    await queryRunner.startTransaction();
+    for (let i = 0; i < count; ++i) {
+      await repo.save(getRandomContact());
+    }
+    await queryRunner.commitTransaction();
   }
 }
