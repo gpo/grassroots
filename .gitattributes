@@ -1,2 +1,3 @@
 **/*.gen.ts linguist-generated=true
 **/metadata.ts linguist-generated=true
+**/openAPI.json linguist-generated=true
