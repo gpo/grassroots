@@ -9,4 +9,5 @@ import { ContactEntityOutDTO } from "../grassroots-shared/contact.entity.dto";
   controllers: [ContactsController],
   providers: [ContactsService],
 })
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class ContactsModule {}
