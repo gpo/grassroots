@@ -2,6 +2,10 @@
 
 Political Campaign Software focused on voter outreach and volunteer management.
 
+# Setup
+
+Run setup.sh.
+
 # Running in Dev Mode
 
 ## Backend
