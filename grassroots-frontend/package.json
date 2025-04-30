@@ -14,11 +14,15 @@
     "@mantine/hooks": "^7.17.4",
     "@tanstack/react-router": "^1.117.0",
     "@tanstack/react-router-devtools": "^1.117.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "typeorm": "^0.3.22"
   },
   "devDependencies": {
     "@tanstack/router-plugin": "^1.117.0",
+    "@types/node": "^22.15.3",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react-swc": "^3.8.0",
