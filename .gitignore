@@ -4,4 +4,5 @@ grassroots-frontend/dist
 grassroots-frontend/src/grassroots-shared
 grassroots-frontend/src/**/*.js
 grassroots-frontend/vite.config.js
-
+dev.env
+test.env
