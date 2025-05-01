@@ -17,7 +17,9 @@
             }
           }
         },
-        "tags": ["App"]
+        "tags": [
+          "App"
+        ]
       }
     },
     "/contacts": {
@@ -46,7 +48,9 @@
             }
           }
         },
-        "tags": ["Contacts"]
+        "tags": [
+          "Contacts"
+        ]
       },
       "get": {
         "operationId": "ContactsController_findAll",
@@ -66,7 +70,9 @@
             }
           }
         },
-        "tags": ["Contacts"]
+        "tags": [
+          "Contacts"
+        ]
       }
     },
     "/contacts/{id}": {
@@ -94,7 +100,9 @@
             }
           }
         },
-        "tags": ["Contacts"]
+        "tags": [
+          "Contacts"
+        ]
       }
     }
   },
@@ -125,7 +133,12 @@
             "type": "string"
           }
         },
-        "required": ["email", "firstName", "lastName", "phoneNumber"]
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "phoneNumber"
+        ]
       },
       "ContactEntityOutDTO": {
         "type": "object",
@@ -148,7 +161,13 @@
             "type": "string"
           }
         },
-        "required": ["id", "email", "firstName", "lastName", "phoneNumber"]
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "phoneNumber"
+        ]
       }
     }
   }
