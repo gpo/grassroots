@@ -9,9 +9,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // Create a new router instance
 const router = createRouter({ routeTree });
 
-console.log(import.meta.env.VITE_BACKEND_HOST);
-console.log(import.meta);
-
 // Register the router instance for type safety
 declare module "@tanstack/react-router" {
   interface Register {

@@ -49,7 +49,6 @@ function CreateContact(): JSX.Element {
       {/* This little typescript dance is required to make eslint happy.  */}
       <form onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}>
         <TextInput
-          id="firstName"
           label="First Name"
           {...form.register("firstName")}
         ></TextInput>
