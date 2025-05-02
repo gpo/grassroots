@@ -12,3 +12,4 @@ eslint_report.json
 
 # IDE
 .idea
+grassroots-backend/src/metadata.ts
