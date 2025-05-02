@@ -1,23 +1,25 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useCallback } from "react";
 
-import { TextInput } from "@mantine/core";
 import { CreateContactInDto } from "../grassroots-shared/contact.entity.dto";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { grassrootsAPI } from "../grassRootsAPI";
+import { classValidatorResolver } from "@hookform/resolvers/class-validator";
+import { TextField } from "../components/textField";
 
 export const Route = createFileRoute("/create-contact")({
   component: CreateContact,
 });
 
+const TextFieldMakeContact = TextField<CreateContactInDto>;
+
 function CreateContact(): JSX.Element {
-  // TODO: enable input validation.
-  const form =
-    useForm<CreateContactInDto>(/*{
-    resolver: classValidatorResolver(PendingContactInDto),
+  console.log("RENDER");
+  const form = useForm<CreateContactInDto>({
+    resolver: classValidatorResolver(CreateContactInDto),
     mode: "onBlur",
-  }*/);
+  });
 
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
@@ -48,16 +50,22 @@ function CreateContact(): JSX.Element {
     <FormProvider {...form}>
       {/* This little typescript dance is required to make eslint happy.  */}
       <form onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}>
-        <TextInput
+        <TextFieldMakeContact
           label="First Name"
-          {...form.register("firstName")}
-        ></TextInput>
-        <TextInput label="Last Name" {...form.register("lastName")}></TextInput>
-        <TextInput label="Email" {...form.register("email")}></TextInput>
-        <TextInput
+          field="firstName"
+        ></TextFieldMakeContact>
+        <TextFieldMakeContact
+          label="Last Name"
+          field="lastName"
+        ></TextFieldMakeContact>
+        <TextFieldMakeContact
+          label="Email"
+          field="email"
+        ></TextFieldMakeContact>
+        <TextFieldMakeContact
           label="Phone Number"
-          {...form.register("phoneNumber")}
-        ></TextInput>
+          field="phoneNumber"
+        ></TextFieldMakeContact>
         <input type="submit" />
       </form>
     </FormProvider>
