@@ -26,7 +26,7 @@ import { ContactEntityOutDTO } from "./grassroots-shared/contact.entity.dto";
       inject: [ConfigService],
     }),
     ConfigModule.forRoot({
-      envFilePath: "../dev.env",
+      envFilePath: "../.env.development",
       isGlobal: true,
     }),
     ContactsModule,

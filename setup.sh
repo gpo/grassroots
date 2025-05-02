@@ -14,7 +14,7 @@ popd
 # Instead of a traditional repo, we symlink shared code from the backend into the frontend.
 # Details on why are in the Readme.md.
 ln -sf "$(pwd)/grassroots-backend/src/grassroots-shared/" "$(pwd)/grassroots-frontend/src"
-cp dev.env.sample dev.env
-cp test.env.sample test.env
+cp .env.development.sample .env.development
+cp .env.test.sample .env.test
 
-echo "Update dev.env and test.env appropriately."
+echo "Update .env.development and .env.test appropriately."

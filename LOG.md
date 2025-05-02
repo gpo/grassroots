@@ -1,3 +1,12 @@
+# Tanstack Query
+
+Brought Tanstack Query into the frontend, based on the quickstart [here](https://tanstack.com/query/latest/docs/framework/react/quick-start).
+
+# Environment Variables
+
+Switched the format of env files to what Vite wants: .env.development and .env.production.
+To expose environment variables to the frontend, they must be prefixed with VITE\_, and added to vite-env.d.ts.
+
 # Generating typescript fetch bindings.
 
 Use @nestjs/swagger to generate OpenAPI bindings, following [these instructions](https://docs.nestjs.com/openapi/introduction), followed by [these instructions](https://docs.nestjs.com/openapi/cli-plugin) for setting up the CLI plugin, which automatically adds the appropriate default decorators.

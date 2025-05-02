@@ -13,7 +13,7 @@ export async function getTestApp(): Promise<INestApplication> {
   const moduleRef = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({
-        envFilePath: "../test.env",
+        envFilePath: "../.env.test",
         isGlobal: true,
       }),
       // https://stackoverflow.com/questions/52570212/nestjs-using-configservice-with-typeormmodule

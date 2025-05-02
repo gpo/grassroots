@@ -15,6 +15,10 @@ const openAPITSSchemaPath = "./src/grassroots-shared/openAPI.gen.ts";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+
+  // TODO: disable CORS once we have a dev environment giving us a consistent origin.
+  app.enableCors();
+
   await app.listen(process.env.PORT ?? 3000);
 
   const config = new DocumentBuilder()
@@ -53,4 +57,5 @@ async function bootstrap(): Promise<void> {
     console.log("Skip updating OpenAPI");
   }
 }
+
 void bootstrap();
