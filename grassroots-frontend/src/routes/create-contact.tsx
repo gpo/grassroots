@@ -15,7 +15,6 @@ export const Route = createFileRoute("/create-contact")({
 const TextFieldMakeContact = TextField<CreateContactInDto>;
 
 function CreateContact(): JSX.Element {
-  console.log("RENDER");
   const form = useForm<CreateContactInDto>({
     resolver: classValidatorResolver(CreateContactInDto),
     mode: "onBlur",
@@ -70,7 +69,7 @@ function CreateContact(): JSX.Element {
           label="Phone Number"
           name="phoneNumber"
         ></TextFieldMakeContact>
-        <input type="submit" />
+        <input type="submit" disabled={!form.formState.isValid} />
       </form>
     </FormProvider>
   );
