@@ -1,7 +1,0 @@
-/* eslint-disable */
-export default async () => {
-    const t = {
-        ["./grassroots-shared/contact.entity.dto"]: await import("./grassroots-shared/contact.entity.dto")
-    };
-    return { "@nestjs/swagger": { "models": [[import("./grassroots-shared/contact.entity.dto"), { "CreateContactInDto": { email: { required: true, type: () => String, format: "email" }, firstName: { required: true, type: () => String }, lastName: { required: true, type: () => String }, phoneNumber: { required: true, type: () => String } }, "ContactEntityOutDTO": { id: { required: true, type: () => Number, minimum: 0 }, email: { required: true, type: () => String, format: "email" }, firstName: { required: true, type: () => String }, lastName: { required: true, type: () => String }, phoneNumber: { required: true, type: () => String } } }], [import("./contacts/dto/create-contact.dto"), { "CreateContactDto": {} }], [import("./contacts/entities/contact.entity"), { "Contact": {} }]], "controllers": [[import("./app.controller"), { "AppController": { "getHello": { type: String } } }], [import("./contacts/contacts.controller"), { "ContactsController": { "create": { type: t["./grassroots-shared/contact.entity.dto"].ContactEntityOutDTO }, "findAll": { type: [t["./grassroots-shared/contact.entity.dto"].ContactEntityOutDTO] }, "findOne": { type: Object } } }]] } };
-};

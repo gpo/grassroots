@@ -7,3 +7,4 @@ grassroots-frontend/vite.config.js
 .env.development
 .env.test
 .env
+grassroots-backend/src/metadata.ts
