@@ -1,48 +1,47 @@
-import { TextInput } from "@mantine/core";
-import { HTMLInputTypeAttribute, JSX } from "react";
+import { TextInput, TextInputProps } from "@mantine/core";
+import { JSX } from "react";
 import {
   FieldValues,
-  Path,
   useController,
-  useFormContext,
+  UseControllerProps,
 } from "react-hook-form";
 
-interface FormFieldProps<T extends FieldValues> {
-  label: string;
-  field: Path<T>;
-  emptyAsUndefined?: boolean;
-  type?: HTMLInputTypeAttribute;
-}
+// Inspired by https://github.com/aranlucas/react-hook-form-mantine/blob/master/src/TextInput/TextInput.tsx
+export type TextFieldProps<T extends FieldValues> = Omit<
+  UseControllerProps<T>,
+  "defaultValue"
+> &
+  Required<Pick<UseControllerProps<T>, "defaultValue">> &
+  Omit<TextInputProps, "value" | "defaultValue"> & {
+    emptyAsUndefined?: boolean;
+  };
 
 export function TextField<T extends FieldValues>(
-  props: FormFieldProps<T>,
+  props: TextFieldProps<T>,
 ): JSX.Element {
-  // TODO: remove this.
-  const form = useFormContext<T>();
-
   const {
     field: { value, onChange, ...field },
     fieldState,
   } = useController<T>({
-    name: props.field,
-    control: form.control,
+    name: props.name,
+    defaultValue: props.defaultValue,
   });
 
-  const setValueAs = !props.emptyAsUndefined
-    ? undefined
-    : (value: unknown): unknown => {
+  const mapValue = !props.emptyAsUndefined
+    ? (x: string): string => x
+    : (value: string): string | undefined => {
         return value === "" ? undefined : value;
       };
 
-  console.log(fieldState);
   return (
     <>
       <TextInput
         value={value}
-        onChange={onChange}
+        onChange={(v) => {
+          onChange(mapValue(v.target.value));
+        }}
         label={props.label}
         error={fieldState.error?.message}
-        {...(form.register(props.field), setValueAs)}
         {...field}
       ></TextInput>
     </>

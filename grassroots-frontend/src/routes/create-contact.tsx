@@ -51,20 +51,24 @@ function CreateContact(): JSX.Element {
       {/* This little typescript dance is required to make eslint happy.  */}
       <form onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}>
         <TextFieldMakeContact
+          defaultValue=""
           label="First Name"
-          field="firstName"
+          name="firstName"
         ></TextFieldMakeContact>
         <TextFieldMakeContact
+          defaultValue=""
           label="Last Name"
-          field="lastName"
+          name="lastName"
         ></TextFieldMakeContact>
         <TextFieldMakeContact
+          defaultValue=""
           label="Email"
-          field="email"
+          name="email"
         ></TextFieldMakeContact>
         <TextFieldMakeContact
+          defaultValue=""
           label="Phone Number"
-          field="phoneNumber"
+          name="phoneNumber"
         ></TextFieldMakeContact>
         <input type="submit" />
       </form>
