@@ -13,5 +13,6 @@
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true
-  }
+  },
+  "exclude": ["src/testing/typetests/**"]
 }
