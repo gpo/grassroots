@@ -7,16 +7,6 @@ grassroots-frontend/vite.config.js
 .env.development
 .env.test
 .env
-<<<<<<< HEAD
-||||||| parent of 079ca5f (chore: ignore .idea files)
-
-# ci
-eslint_report.json
-=======
 
 # IDE
 .idea
-
-# ci
-eslint_report.json
->>>>>>> 079ca5f (chore: ignore .idea files)
