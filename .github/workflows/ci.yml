@@ -73,20 +73,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-
-      - name: Install dependencies
-        run: npm run install-all
+      - name: Setup Repo
+        uses: ./.github/actions/setup-repo
 
       - name: Run ESLint
-        run: npx eslint . --output-file eslint_report.json --format json
-        continue-on-error: true
-
-      - name: Annotate Code Linting Results
-        uses: ataylorme/eslint-annotate-action@3.0.0
-        with:
-          report-json: "eslint_report.json"
+        run: npx eslint .
 
   typecript:
     name: TypeScript Check
@@ -94,25 +85,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 2
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-
-      - name: Install dependencies
-        run: npm install
+      - name: Setup Repo
+        uses: ./.github/actions/setup-repo
 
       - name: Run TypeScript Check
-        run: npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend
-
-      - name: Annotate TypeScript Errors
-        if: failure()
-        uses: marocchino/sticky-pull-request-comment@v2
-        with:
-          header: "TypeScript Errors"
-          message: |
-            \`\`\`
-            $(npx tsc --noEmit --project grassroots-frontend 2>&1 && npx tsc --noEmit --project grassroots-backend 2>&1)
-            \`\`\`
+        run: |
+          npx tsc --noEmit --project grassroots-frontend
+          npx tsc --noEmit --project grassroots-backend
