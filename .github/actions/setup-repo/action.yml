@@ -25,6 +25,7 @@ runs:
           ${{ runner.os }}-grassroots-backend-
 
     - name: Install dependencies
+      shell: bash
       run: |
         npm install
         npm install --prefix grassroots-frontend
