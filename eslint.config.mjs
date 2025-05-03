@@ -45,15 +45,13 @@ export default tseslint.config(
       "@typescript-eslint/no-floating-promises": "error",
       "@typescript-eslint/no-unsafe-argument": "error",
       "@typescript-eslint/require-await": "error",
-      // This is a bit annoying, but worth it to ensure controller routes are typed correctly.
-      // Or maybe we should only turn it on for controllers?
-      // tdresser@: thinks it's probably fine to leave it on globally.
       "@typescript-eslint/explicit-function-return-type": "error",
       "@typescript-eslint/consistent-type-assertions": [
         "error",
         { assertionStyle: "never" },
       ],
       "@typescript-eslint/no-misused-spread": "off",
+      "react/jsx-no-useless-fragment": "error",
     },
   },
 );
