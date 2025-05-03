@@ -37,6 +37,10 @@ jobs:
       - name: Format code with Prettier
         run: npx prettier --write .
 
+      - name: Run ESLint
+        run: npx eslint . --output-file eslint_report.json --format json --fix
+        continue-on-error: true
+
       - name: Push Changes
         id: auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v5
@@ -49,3 +53,67 @@ jobs:
         run: |
           echo "There were modified files after running CI."
           exit 1
+
+      - name: Annotate Code Linting Results
+        uses: ataylorme/eslint-annotate-action@3.0.0
+        with:
+          report-json: "eslint_report.json"
+
+  # npx syncpack list-mismatches
+
+  eslint:
+    name: ESLint Check
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      pull-requests: read
+      checks: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run ESLint
+        run: npx eslint . --output-file eslint_report.json --format json
+        continue-on-error: true
+
+      - name: Annotate Code Linting Results
+        uses: ataylorme/eslint-annotate-action@3.0.0
+        with:
+          report-json: "eslint_report.json"
+
+
+  typecript:
+    name: TypeScript Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run TypeScript Check
+        run: npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend
+
+      - name: Annotate TypeScript Errors
+        if: failure()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: "TypeScript Errors"
+          message: |
+          \`\`\`
+          $(npx tsc --noEmit --project grassroots-frontend 2>&1 && npx tsc --noEmit --project grassroots-backend 2>&1)
+          \`\`\`
