@@ -17,6 +17,9 @@ jobs:
           fetch-depth: 2
           token: ${{ secrets.ACTION_PAT }}
 
+      - name: Setup Repo
+        uses: ./.github/workflows/setup-repo.yml
+
       - name: Check for workflow loop using commit messages
         run: |
           CURRENT_COMMIT_MESSAGE=$(git show -s --pretty=%B HEAD)
@@ -27,9 +30,6 @@ jobs:
             echo "It looks like the last two commits are from CI. This indicates a loop."
             exit 1
           fi
-
-      - name: Setup Repo
-        uses: ./.github/workflows/setup-repo.yml
 
       - name: Run syncpack
         run: |
