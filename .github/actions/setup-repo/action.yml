@@ -1,0 +1,31 @@
+name: "Setup Repo"
+description: "Greet someone"
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        cache: "npm"
+
+    - name: Cache Frontend Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: grassroots-frontend/node_modules
+        key: ${{ runner.os }}-grassroots-frontend-${{ hashFiles('grassroots-frontend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-grassroots-frontend-
+
+    - name: Cache Backend Node.js modules
+      uses: actions/cache@v3
+      with:
+        path: grassroots-backend/node_modules
+        key: ${{ runner.os }}-grassroots-backend-${{ hashFiles('grassroots-backend/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-grassroots-backend-
+
+    - name: Install dependencies
+      run: |
+        npm install
+        npm install --prefix grassroots-frontend
+        npm install --prefix grassroots-backend
