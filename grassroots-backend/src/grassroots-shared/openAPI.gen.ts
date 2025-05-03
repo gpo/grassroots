@@ -85,9 +85,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": string;
                 };
@@ -104,9 +102,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"][];
                 };
@@ -127,9 +123,7 @@ export interface operations {
         };
         responses: {
             201: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"];
                 };
@@ -148,9 +142,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": Record<string, never>;
                 };

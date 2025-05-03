@@ -32,7 +32,14 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install --prefix grassroots-frontend
+          npm install --prefix grassroots-backend
+
+      - name: Run ESLint
+        run: npx eslint . --output-file eslint_report.json --format json --fix
+        continue-on-error: true
 
       - name: Format code with Prettier
         run: npx prettier --write .
@@ -49,3 +56,6 @@ jobs:
         run: |
           echo "There were modified files after running CI."
           exit 1
+
+      - name: Annotate Code Linting Results
+        uses: ataylorme/eslint-annotate-action@3.0.0
