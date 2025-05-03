@@ -42,7 +42,11 @@ jobs:
         continue-on-error: true
 
       - name: Check `package.json`s are in sync
-        run: npx syncpack fix-mismatches
+        run: |
+          npx syncpack fix-mismatches
+          npm install
+          npm install --prefix grassroots-frontend
+          npm install --prefix grassroots-backend
 
       - name: Format code with Prettier
         run: npx prettier --write .
