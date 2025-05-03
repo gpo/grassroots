@@ -41,6 +41,9 @@ jobs:
         run: npx eslint . --output-file eslint_report.json --format json --fix
         continue-on-error: true
 
+      - name: Check `package.json`s are in sync
+        run: npx syncpack fix-mismatches
+
       - name: Format code with Prettier
         run: npx prettier --write .
 
