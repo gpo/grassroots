@@ -8,5 +8,8 @@ grassroots-frontend/vite.config.js
 .env.test
 .env
 
-# ci
+# CI
 eslint_report.json
+
+# IDE
+.idea
