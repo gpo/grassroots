@@ -37,12 +37,12 @@ jobs:
           npm install --prefix grassroots-frontend
           npm install --prefix grassroots-backend
 
-      - name: Format code with Prettier
-        run: npx prettier --write .
-
       - name: Run ESLint
         run: npx eslint . --output-file eslint_report.json --format json --fix
         continue-on-error: true
+
+      - name: Format code with Prettier
+        run: npx prettier --write .
 
       - name: Push Changes
         id: auto-commit-action
