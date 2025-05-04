@@ -11,7 +11,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/HelloOutDTO"
                 }
               }
             }
@@ -116,6 +116,17 @@
   "servers": [],
   "components": {
     "schemas": {
+      "HelloOutDTO": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
       "CreateContactInDto": {
         "type": "object",
         "properties": {

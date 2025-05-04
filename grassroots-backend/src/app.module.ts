@@ -1,10 +1,34 @@
-import { Module } from "@nestjs/common";
+import { Module, ValidationPipe } from "@nestjs/common";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { ContactsModule } from "./contacts/contacts.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ContactEntityOutDTO } from "./grassroots-shared/contact.entity.dto";
+import { NestExpressApplication } from "@nestjs/platform-express";
+
+export async function listenAndConfigureApp(
+  app: NestExpressApplication,
+  desiredPort: number,
+): Promise<{ port: number }> {
+  // TODO: disable CORS once we have a dev environment giving us a consistent origin.
+  app.enableCors();
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+  await app.listen(desiredPort);
+  // We don't always get the port we ask for (e.g., "0" means "next available").
+  // Figure out what port we actually got.
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const { port } = app.getHttpServer().address() as {
+    port: number | undefined;
+  };
+  if (port == undefined) {
+    throw new Error("Couldn't start http server.");
+  }
+  return {
+    port,
+  };
+}
 
 @Module({
   imports: [

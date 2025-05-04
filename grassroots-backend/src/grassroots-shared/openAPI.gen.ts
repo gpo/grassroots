@@ -51,6 +51,9 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        HelloOutDTO: {
+            message: string;
+        };
         CreateContactInDto: {
             /** Format: email */
             email: string;
@@ -85,9 +88,11 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: Record<string, unknown>;
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
-                    "application/json": string;
+                    "application/json": components["schemas"]["HelloOutDTO"];
                 };
             };
         };
@@ -102,7 +107,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: Record<string, unknown>;
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"][];
                 };
@@ -123,7 +130,9 @@ export interface operations {
         };
         responses: {
             201: {
-                headers: Record<string, unknown>;
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"];
                 };
@@ -142,7 +151,9 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: Record<string, unknown>;
+                headers: {
+                    [name: string]: unknown;
+                };
                 content: {
                     "application/json": Record<string, never>;
                 };
