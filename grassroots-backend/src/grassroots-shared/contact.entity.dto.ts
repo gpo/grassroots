@@ -14,7 +14,7 @@ export class CreateContactInDto {
   firstName!: string;
   @IsNotEmpty()
   lastName!: string;
-  @IsPhoneNumber()
+  @IsPhoneNumber("CA")
   phoneNumber!: string;
 }
 
@@ -38,6 +38,6 @@ export class ContactEntityOutDTO {
   lastName!: string;
 
   @Column()
-  @IsPhoneNumber()
+  @IsPhoneNumber("CA")
   phoneNumber!: string;
 }
