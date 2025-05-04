@@ -56,6 +56,6 @@ describe("AppController (e2e)", () => {
       },
     });
     expect(result.response.status).toEqual(400);
-    expect(result.error?.messages).toEqual(["email must be an email"]);
+    expect(result.error?.message).toEqual(["email must be an email"]);
   });
 });

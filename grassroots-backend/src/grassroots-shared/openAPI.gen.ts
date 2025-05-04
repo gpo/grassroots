@@ -88,9 +88,7 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["HelloOutDTO"];
                 };
@@ -107,11 +105,20 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
-                    "application/json": components["schemas"]["ContactEntityOutDTO"][];
+                    "application/json": components["schemas"]["ContactEntityOutDTO"];
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": {
+                        statusCode?: number;
+                        message?: string[];
+                        error?: string;
+                    };
                 };
             };
         };
@@ -129,12 +136,21 @@ export interface operations {
             };
         };
         responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
+            200: {
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"];
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": {
+                        statusCode?: number;
+                        message?: string[];
+                        error?: string;
+                    };
                 };
             };
         };
@@ -151,11 +167,20 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ContactEntityOutDTO"];
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": {
+                        statusCode?: number;
+                        message?: string[];
+                        error?: string;
+                    };
                 };
             };
         };
