@@ -164,16 +164,17 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                id: number;
             };
             cookie?: never;
         };
         requestBody?: never;
         responses: {
+            /** @description Returns a contact or null if not found */
             200: {
                 headers: Record<string, unknown>;
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["ContactEntityOutDTO"] | null;
                 };
             };
             /** @description Validation failed */

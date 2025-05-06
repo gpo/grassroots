@@ -114,17 +114,24 @@
             "required": true,
             "in": "path",
             "schema": {
-              "type": "string"
+              "type": "number"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "",
+            "description": "Returns a contact or null if not found",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/ContactEntityOutDTO"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               }
             }
