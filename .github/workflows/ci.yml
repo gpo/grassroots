@@ -36,7 +36,6 @@ jobs:
           npm install
           npm install --prefix grassroots-frontend
           npm install --prefix grassroots-backend
-          ln -sf "$(pwd)/grassroots-backend/src/grassroots-shared/" "$(pwd)/grassroots-frontend/src"
 
       - name: Run syncpack
         run: |
