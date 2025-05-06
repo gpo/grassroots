@@ -1,4 +1,4 @@
-import { OpenAPIObject } from "@nestjs/swagger";
+import { getSchemaPath, OpenAPIObject } from "@nestjs/swagger";
 import { ValidationErrorOutDTO } from "./contacts/entities/validationError.dto";
 
 export function addValidationErrorsToOpenAPI(
@@ -24,7 +24,7 @@ export function addValidationErrorsToOpenAPI(
         content: {
           "application/json": {
             schema: {
-              $ref: `#/components/schemas/${ValidationErrorOutDTO.name}`,
+              $ref: getSchemaPath(ValidationErrorOutDTO),
             },
           },
         },

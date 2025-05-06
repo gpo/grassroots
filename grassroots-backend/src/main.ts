@@ -10,8 +10,8 @@ import openapiTS, { astToString } from "openapi-typescript";
 import metadata from "./metadata";
 import path from "path";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { ValidationErrorOutDTO } from "./contacts/entities/validationError.dto";
 import { addValidationErrorsToOpenAPI } from "./postProcessOpenAPI";
+import { ValidationErrorOutDTO } from "./contacts/entities/validationError.dto";
 
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "./src/grassroots-shared/openAPI.gen.ts";
