@@ -69,6 +69,11 @@ export interface components {
             lastName: string;
             phoneNumber: string;
         };
+        ValidationErrorOutDTO: {
+            statusCode: number;
+            message: string[];
+            error: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -93,6 +98,13 @@ export interface operations {
                     "application/json": components["schemas"]["HelloOutDTO"];
                 };
             };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
+                };
+            };
         };
     };
     ContactsController_findAll: {
@@ -107,18 +119,14 @@ export interface operations {
             200: {
                 headers: Record<string, unknown>;
                 content: {
-                    "application/json": components["schemas"]["ContactEntityOutDTO"];
+                    "application/json": components["schemas"]["ContactEntityOutDTO"][];
                 };
             };
             /** @description Validation failed */
             401: {
                 headers: Record<string, unknown>;
                 content: {
-                    "application/json": {
-                        statusCode?: number;
-                        message?: string[];
-                        error?: string;
-                    };
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
             };
         };
@@ -136,7 +144,7 @@ export interface operations {
             };
         };
         responses: {
-            200: {
+            201: {
                 headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"];
@@ -146,11 +154,7 @@ export interface operations {
             401: {
                 headers: Record<string, unknown>;
                 content: {
-                    "application/json": {
-                        statusCode?: number;
-                        message?: string[];
-                        error?: string;
-                    };
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
             };
         };
@@ -169,18 +173,14 @@ export interface operations {
             200: {
                 headers: Record<string, unknown>;
                 content: {
-                    "application/json": components["schemas"]["ContactEntityOutDTO"];
+                    "application/json": Record<string, never>;
                 };
             };
             /** @description Validation failed */
             401: {
                 headers: Record<string, unknown>;
                 content: {
-                    "application/json": {
-                        statusCode?: number;
-                        message?: string[];
-                        error?: string;
-                    };
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
             };
         };
