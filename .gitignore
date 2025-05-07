@@ -6,10 +6,13 @@ grassroots-frontend/vite.config.js
 .env.development
 .env.test
 .env
+<<<<<<< HEAD
 
 # CI
 eslint_report.json
 
 # IDE
 .idea
+=======
+>>>>>>> 94176544e2535eb88441b5d2de07b759a412d900
 grassroots-backend/src/metadata.ts
