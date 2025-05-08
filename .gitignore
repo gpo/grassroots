@@ -1,7 +1,6 @@
 node_modules
 grassroots-backend/dist
 grassroots-frontend/dist
-grassroots-frontend/src/grassroots-shared
 grassroots-frontend/src/**/*.js
 grassroots-frontend/vite.config.js
 .env.development
@@ -13,3 +12,4 @@ eslint_report.json
 
 # IDE
 .idea
+grassroots-backend/src/metadata.ts
