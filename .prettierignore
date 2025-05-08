@@ -1,3 +1,2 @@
 **/*.gen.ts
-**/metadata.ts
 **/openAPI.json
