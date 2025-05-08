@@ -37,6 +37,9 @@ jobs:
           npm install --prefix grassroots-frontend
           npm install --prefix grassroots-backend
 
+      - name: Bootstrap metadata.ts
+        run: npm run prebuild
+
       - name: Run syncpack
         run: |
           npx syncpack fix-mismatches
