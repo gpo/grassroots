@@ -135,18 +135,14 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["HelloOutDTO"];
                 };
             };
             /** @description Validation failed */
             401: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
@@ -163,18 +159,14 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"][];
                 };
             };
             /** @description Validation failed */
             401: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
@@ -195,15 +187,14 @@ export interface operations {
         };
         responses: {
             201: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"];
                 };
             };
             /** @description Validation failed */
             401: {
+<<<<<<< HEAD
                 headers: {
                     [name: string]: unknown;
                 };
@@ -242,6 +233,9 @@ export interface operations {
                 };
 =======
 >>>>>>> 421f1ea (Fix generated files)
+=======
+                headers: Record<string, unknown>;
+>>>>>>> 012f532 (Modified files from CI)
                 content: {
                     "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
@@ -260,18 +254,14 @@ export interface operations {
         requestBody?: never;
         responses: {
             200: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["GetContactByIDResponse"];
                 };
             };
             /** @description Validation failed */
             401: {
-                headers: {
-                    [name: string]: unknown;
-                };
+                headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
