@@ -207,6 +207,7 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
+<<<<<<< HEAD
                 content: {
                     "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
@@ -239,6 +240,8 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
+=======
+>>>>>>> 421f1ea (Fix generated files)
                 content: {
                     "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
