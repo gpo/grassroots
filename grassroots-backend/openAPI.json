@@ -11,7 +11,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/HelloOutDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
                 }
               }
             }
@@ -46,6 +56,16 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -65,6 +85,16 @@
                   "items": {
                     "$ref": "#/components/schemas/ContactEntityOutDTO"
                   }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
                 }
               }
             }
@@ -98,6 +128,16 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
           }
         },
         "tags": [
@@ -116,6 +156,17 @@
   "servers": [],
   "components": {
     "schemas": {
+      "HelloOutDTO": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
       "CreateContactInDto": {
         "type": "object",
         "properties": {
@@ -167,6 +218,28 @@
           "firstName",
           "lastName",
           "phoneNumber"
+        ]
+      },
+      "ValidationErrorOutDTO": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number"
+          },
+          "message": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "statusCode",
+          "message",
+          "error"
         ]
       }
     }

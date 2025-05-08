@@ -51,6 +51,9 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        HelloOutDTO: {
+            message: string;
+        };
         CreateContactInDto: {
             /** Format: email */
             email: string;
@@ -65,6 +68,11 @@ export interface components {
             firstName: string;
             lastName: string;
             phoneNumber: string;
+        };
+        ValidationErrorOutDTO: {
+            statusCode: number;
+            message: string[];
+            error: string;
         };
     };
     responses: never;
@@ -87,7 +95,14 @@ export interface operations {
             200: {
                 headers: Record<string, unknown>;
                 content: {
-                    "application/json": string;
+                    "application/json": components["schemas"]["HelloOutDTO"];
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
             };
         };
@@ -105,6 +120,13 @@ export interface operations {
                 headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"][];
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
             };
         };
@@ -128,6 +150,13 @@ export interface operations {
                     "application/json": components["schemas"]["ContactEntityOutDTO"];
                 };
             };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
+                };
+            };
         };
     };
     ContactsController_findOne: {
@@ -145,6 +174,13 @@ export interface operations {
                 headers: Record<string, unknown>;
                 content: {
                     "application/json": Record<string, never>;
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
                 };
             };
         };
