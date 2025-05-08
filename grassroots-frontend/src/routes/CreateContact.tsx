@@ -6,9 +6,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { grassrootsAPI } from "../grassRootsAPI";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
-import { TextField } from "../components/textField";
+import { TextField } from "../components/TextField";
 
-export const Route = createFileRoute("/create-contact")({
+export const Route = createFileRoute("/CreateContact")({
   component: CreateContact,
 });
 

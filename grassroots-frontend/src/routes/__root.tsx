@@ -1,3 +1,4 @@
+// eslint-disable-next-line check-file/filename-naming-convention
 import "@mantine/core/styles.css";
 
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
