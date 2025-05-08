@@ -1,11 +1,13 @@
 import { getSchemaPath, OpenAPIObject } from "@nestjs/swagger";
 import { ValidationErrorOutDTO } from "./contacts/entities/validationError.dto";
+import { OperationObject } from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
 
-export function addValidationErrorsToOpenAPI(
+function mapOperations(
   openAPI: OpenAPIObject,
-): OpenAPIObject {
-  for (const pathItem of Object.values(openAPI.paths)) {
-    const operations: (typeof pathItem.get)[] = [
+  f: (operation: OperationObject, path?: string) => void,
+): void {
+  for (const [path, pathItem] of Object.entries(openAPI.paths)) {
+    const operations: (OperationObject | undefined)[] = [
       pathItem.get,
       pathItem.put,
       pathItem.post,
@@ -16,20 +18,53 @@ export function addValidationErrorsToOpenAPI(
       pathItem.trace,
     ];
     for (const operation of operations) {
-      if (!operation) {
-        continue;
+      if (operation) {
+        f(operation, path);
       }
-      operation.responses["401"] = {
-        description: "Validation failed",
-        content: {
-          "application/json": {
-            schema: {
-              $ref: getSchemaPath(ValidationErrorOutDTO),
-            },
-          },
-        },
-      };
     }
   }
+}
+
+export function addValidationErrorsToOpenAPI(
+  openAPI: OpenAPIObject,
+): OpenAPIObject {
+  mapOperations(openAPI, (operation) => {
+    operation.responses["401"] = {
+      description: "Validation failed",
+      content: {
+        "application/json": {
+          schema: {
+            $ref: getSchemaPath(ValidationErrorOutDTO),
+          },
+        },
+      },
+    };
+  });
   return openAPI;
+}
+
+export function throwOnInvalidType(openAPI: OpenAPIObject): void {
+  mapOperations(openAPI, (operation, path) => {
+    for (const [responseCode, response] of Object.entries(
+      operation.responses,
+    )) {
+      if (!response) {
+        continue;
+      }
+      if ("content" in response) {
+        const contentObject = response.content
+          ? response.content["application/json"]
+          : undefined;
+        const schema = contentObject?.schema;
+        if (!schema || !("type" in schema)) {
+          continue;
+        }
+
+        if (schema.type == "object")
+          throw new Error(
+            `No type provided for ${path ?? ""} ${responseCode} response ${JSON.stringify(response, null, 2)}`,
+          );
+      }
+    }
+  });
 }

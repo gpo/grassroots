@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsPhoneNumber,
   Min,
+  ValidateNested,
 } from "class-validator";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 
@@ -40,4 +41,9 @@ export class ContactEntityOutDTO {
   @Column()
   @IsPhoneNumber("CA")
   phoneNumber!: string;
+}
+
+export class GetContactByIDResponse {
+  @ValidateNested()
+  contact!: ContactEntityOutDTO | null;
 }

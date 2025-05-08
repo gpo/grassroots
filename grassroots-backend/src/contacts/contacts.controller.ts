@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ContactsService } from "./contacts.service";
 import {
   ContactEntityOutDTO,
+  GetContactByIDResponse,
   CreateContactInDto,
 } from "../grassroots-shared/contact.entity.dto";
 
@@ -22,7 +23,7 @@ export class ContactsController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: string): Promise<ContactEntityOutDTO | null> {
-    return this.contactsService.findOne(+id);
+  async findOne(@Param("id") id: number): Promise<GetContactByIDResponse> {
+    return { contact: await this.contactsService.findOne(id) };
   }
 }

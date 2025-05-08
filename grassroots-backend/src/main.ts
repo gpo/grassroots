@@ -10,7 +10,10 @@ import openapiTS, { astToString } from "openapi-typescript";
 import metadata from "./metadata";
 import path from "path";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { addValidationErrorsToOpenAPI } from "./postProcessOpenAPI";
+import {
+  addValidationErrorsToOpenAPI,
+  throwOnInvalidType,
+} from "./postProcessOpenAPI";
 import { ValidationErrorOutDTO } from "./contacts/entities/validationError.dto";
 
 const openAPISchemaPath = "./openAPI.json";
@@ -32,6 +35,7 @@ async function bootstrap(port: number): Promise<void> {
     extraModels: [ValidationErrorOutDTO],
   });
 
+  throwOnInvalidType(openAPI);
   addValidationErrorsToOpenAPI(openAPI);
 
   const openAPIStr = JSON.stringify(openAPI, null, 2);

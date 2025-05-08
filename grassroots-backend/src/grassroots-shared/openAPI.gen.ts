@@ -69,6 +69,9 @@ export interface components {
             lastName: string;
             phoneNumber: string;
         };
+        GetContactByIDResponse: {
+            contact: components["schemas"]["ContactEntityOutDTO"] | null;
+        };
         ValidationErrorOutDTO: {
             statusCode: number;
             message: string[];
@@ -164,7 +167,7 @@ export interface operations {
             query?: never;
             header?: never;
             path: {
-                id: string;
+                id: number;
             };
             cookie?: never;
         };
@@ -173,7 +176,7 @@ export interface operations {
             200: {
                 headers: Record<string, unknown>;
                 content: {
-                    "application/json": Record<string, never>;
+                    "application/json": components["schemas"]["GetContactByIDResponse"];
                 };
             };
             /** @description Validation failed */
