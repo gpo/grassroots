@@ -7,11 +7,8 @@ interface ContactRowProps {
 
 export function ContactRow(props: ContactRowProps): JSX.Element {
   return (
-    <>
-      <p>
-        {props.contact.firstName} {props.contact.lastName} (
-        {props.contact.email})
-      </p>
-    </>
+    <p>
+      {props.contact.firstName} {props.contact.lastName} ({props.contact.email})
+    </p>
   );
 }
