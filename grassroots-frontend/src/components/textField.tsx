@@ -35,7 +35,6 @@ export function TextField<T extends FieldValues>(
     <TextInput
       value={value}
       onChange={(v) => {
-        console.log("USING VALUE: ", mapValue(v.target.value));
         onChange(mapValue(v.target.value));
       }}
       label={props.label}

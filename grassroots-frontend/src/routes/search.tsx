@@ -32,13 +32,7 @@ function Search(): JSX.Element {
     },
   };
 
-  console.log(searchParams);
-
-  const { data: results, error, isLoading } = useContactSearch(searchParams);
-  void error;
-  void isLoading;
-
-  console.log(results);
+  const { data: results } = useContactSearch(searchParams);
 
   return (
     <>
