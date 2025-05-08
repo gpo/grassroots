@@ -120,18 +120,11 @@
         ],
         "responses": {
           "200": {
-            "description": "Returns a contact or null if not found",
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "oneOf": [
-                    {
-                      "$ref": "#/components/schemas/ContactEntityOutDTO"
-                    },
-                    {
-                      "type": "null"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/GetContactByIDResponse"
                 }
               }
             }
@@ -225,6 +218,22 @@
           "firstName",
           "lastName",
           "phoneNumber"
+        ]
+      },
+      "GetContactByIDResponse": {
+        "type": "object",
+        "properties": {
+          "contact": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ContactEntityOutDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "contact"
         ]
       },
       "ValidationErrorOutDTO": {
