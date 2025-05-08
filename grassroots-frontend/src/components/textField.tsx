@@ -10,11 +10,8 @@ import {
 
 // Inspired by https://github.com/aranlucas/react-hook-form-mantine/blob/master/src/TextInput/TextInput.tsx
 
-export interface TextFieldProps<
-  T extends FieldValues,
-  TName extends FieldPath<T> = FieldPath<T>,
-> {
-  defaultValue: FieldPathValue<T, TName>;
+export interface TextFieldProps<T extends FieldValues> {
+  defaultValue: FieldPathValue<T, FieldPath<T>>;
   label: string;
   name: Path<T>;
 }
@@ -30,11 +27,16 @@ export function TextField<T extends FieldValues>(
     defaultValue: props.defaultValue,
   });
 
+  function mapValue(v: string): string | undefined {
+    return v;
+  }
+
   return (
     <TextInput
       value={value}
       onChange={(v) => {
-        onChange(v.target.value);
+        console.log("USING VALUE: ", mapValue(v.target.value));
+        onChange(mapValue(v.target.value));
       }}
       label={props.label}
       error={fieldState.error?.message}
