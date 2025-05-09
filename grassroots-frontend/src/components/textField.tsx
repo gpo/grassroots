@@ -27,15 +27,11 @@ export function TextField<T extends FieldValues>(
     defaultValue: props.defaultValue,
   });
 
-  function mapValue(v: string): string | undefined {
-    return v;
-  }
-
   return (
     <TextInput
       value={value}
       onChange={(v) => {
-        onChange(mapValue(v.target.value));
+        onChange(v.target.value);
       }}
       label={props.label}
       error={fieldState.error?.message}

@@ -21,19 +21,21 @@ export function PaginatedContacts(props: PaginatedContactsProps): JSX.Element {
         {paginated.rowsTotal}
       </div>
       <button
-        disabled={paginated.rowsSkipped === 0}
+        disabled={paginated.rowsSkipped <= 0}
         onClick={() => {
-          setRowsToSkip((x) => x - props.rowsPerPage);
+          setRowsToSkip((x) => Math.max(x - props.rowsPerPage, 0));
         }}
       >
         Prev
       </button>
       <button
         disabled={
-          paginated.rowsSkipped + contacts.length == paginated.rowsTotal
+          paginated.rowsSkipped + contacts.length >= paginated.rowsTotal
         }
         onClick={() => {
-          setRowsToSkip((x) => x + props.rowsPerPage);
+          setRowsToSkip((x) =>
+            Math.min(x + props.rowsPerPage, paginated.rowsTotal - 1),
+          );
         }}
       >
         Next
