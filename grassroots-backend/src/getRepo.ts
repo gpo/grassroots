@@ -8,6 +8,10 @@ import {
 
 export let queryRunnerForTest: QueryRunner | undefined = undefined;
 
+export function setQueryRunnerForTest(queryRunner: QueryRunner): void {
+  queryRunnerForTest = queryRunner;
+}
+
 // In test contexts, we need to use an explicit queryRunner, to allow running tests within transactions.
 export function getRepo<Entity extends ObjectLiteral>(
   target: EntityTarget<Entity>,

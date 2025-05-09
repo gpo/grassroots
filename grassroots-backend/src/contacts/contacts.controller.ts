@@ -7,43 +7,34 @@ import {
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
 } from "../grassroots-shared/contact.entity.dto";
-import { QueryRunner } from "typeorm";
 
 @Controller("contacts")
 export class ContactsController {
-  queryRunnerForTest?: QueryRunner;
   constructor(private readonly contactsService: ContactsService) {}
-
-  setQueryRunnerForTest(queryRunnerForTest: QueryRunner): void {
-    this.queryRunnerForTest = queryRunnerForTest;
-  }
 
   @Post()
   create(
     @Body() createContactDto: CreateContactInDto,
   ): Promise<ContactEntityOutDTO> {
-    return this.contactsService.create(
-      createContactDto,
-      this.queryRunnerForTest,
-    );
+    return this.contactsService.create(createContactDto);
   }
 
   @Get()
   findAll(): Promise<ContactEntityOutDTO[]> {
-    return this.contactsService.findAll(this.queryRunnerForTest);
+    return this.contactsService.findAll();
   }
 
   @Post("search")
   search(
     @Body() contact: PaginatedContactSearchInDTO,
   ): Promise<PaginatedContactOutDTO> {
-    return this.contactsService.search(contact, this.queryRunnerForTest);
+    return this.contactsService.search(contact);
   }
 
   @Get(":id")
   async findOne(@Param("id") id: number): Promise<GetContactByIDResponse> {
     return {
-      contact: await this.contactsService.findOne(id, this.queryRunnerForTest),
+      contact: await this.contactsService.findOne(id),
     };
   }
 }

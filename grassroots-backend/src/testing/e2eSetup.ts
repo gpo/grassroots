@@ -4,7 +4,7 @@ import createClient, { Client } from "openapi-fetch";
 import { AppModule, listenAndConfigureApp } from "../app.module";
 import { paths } from "../grassroots-shared/openAPI.gen";
 import { DataSource, QueryRunner } from "typeorm";
-import { ContactsController } from "../contacts/contacts.controller";
+import { setQueryRunnerForTest } from "../getRepo";
 
 export async function e2eBeforeAll(): Promise<{
   app: NestExpressApplication;
@@ -23,6 +23,6 @@ export async function e2eBeforeAll(): Promise<{
   });
   const dataSource = app.get(DataSource);
   const queryRunner = dataSource.createQueryRunner();
-  app.get(ContactsController).setQueryRunnerForTest(queryRunner);
+  setQueryRunnerForTest(queryRunner);
   return { app, grassrootsAPI, queryRunner };
 }

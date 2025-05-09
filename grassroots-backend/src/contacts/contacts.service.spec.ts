@@ -9,23 +9,27 @@ import {
   rollbackTestTransaction,
   startTestTransaction,
 } from "../testing/dbTransactions";
-import { QueryRunner } from "typeorm";
+import { DataSource, QueryRunner } from "typeorm";
 import { plainToClass } from "class-transformer";
+import { setQueryRunnerForTest } from "../getRepo";
 
 describe("ContactsService", () => {
   let service: ContactsService;
   let app: INestApplication;
+  let queryRunner: QueryRunner;
 
   beforeAll(async () => {
     app = await getTestApp();
     service = app.get<ContactsService>(ContactsService);
+    const dataSource = app.get(DataSource);
+    queryRunner = dataSource.createQueryRunner();
+    setQueryRunnerForTest(queryRunner);
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  let queryRunner: QueryRunner;
   beforeEach(async () => {
     queryRunner = await startTestTransaction();
   });
@@ -45,9 +49,9 @@ describe("ContactsService", () => {
       lastName: "Test",
       phoneNumber: "999-999-9999",
     };
-    const created = await service.create(contact, queryRunner);
+    const created = await service.create(contact);
 
-    const allContacts = await service.findAll(queryRunner);
+    const allContacts = await service.findAll();
     expect(allContacts.length).toEqual(1);
     expect(allContacts[0]).toEqual(
       plainToClass(ContactEntityOutDTO, { ...contact, id: created.id }),

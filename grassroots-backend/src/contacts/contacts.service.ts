@@ -1,41 +1,35 @@
 import { Injectable } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
 import {
   ContactEntityOutDTO,
   CreateContactInDto,
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
 } from "../grassroots-shared/contact.entity.dto";
-import { DataSource, Equal, QueryRunner, Repository } from "typeorm";
+import { DataSource, Equal } from "typeorm";
 import { getRepo } from "../getRepo";
 import { LikeOrUndefined } from "../util/likeOrUndefined";
 
 @Injectable()
 export class ContactsService {
-  constructor(
-    @InjectRepository(ContactEntityOutDTO)
-    private readonly contactsRepository: Repository<ContactEntityOutDTO>,
-    private readonly dataSource: DataSource,
-  ) {}
+  constructor(private readonly dataSource: DataSource) {}
 
   async create(
     createContactDto: CreateContactInDto,
-    queryRunner?: QueryRunner,
   ): Promise<ContactEntityOutDTO> {
-    const repo = getRepo(ContactEntityOutDTO, queryRunner, this.dataSource);
+    const repo = getRepo(ContactEntityOutDTO, this.dataSource);
     return await repo.save(createContactDto);
   }
 
-  async findAll(queryRunner?: QueryRunner): Promise<ContactEntityOutDTO[]> {
-    const repo = getRepo(ContactEntityOutDTO, queryRunner, this.dataSource);
+  async findAll(): Promise<ContactEntityOutDTO[]> {
+    const repo = getRepo(ContactEntityOutDTO, this.dataSource);
     return await repo.find({});
   }
 
-  async search(
-    { contact, paginated }: PaginatedContactSearchInDTO,
-    queryRunner?: QueryRunner,
-  ): Promise<PaginatedContactOutDTO> {
-    const repo = getRepo(ContactEntityOutDTO, queryRunner, this.dataSource);
+  async search({
+    contact,
+    paginated,
+  }: PaginatedContactSearchInDTO): Promise<PaginatedContactOutDTO> {
+    const repo = getRepo(ContactEntityOutDTO, this.dataSource);
 
     const [result, rowsTotal] = await repo.findAndCount({
       take: paginated.rowsToTake,
@@ -57,11 +51,8 @@ export class ContactsService {
     };
   }
 
-  async findOne(
-    id: number,
-    queryRunner?: QueryRunner,
-  ): Promise<ContactEntityOutDTO | null> {
-    const repo = getRepo(ContactEntityOutDTO, queryRunner, this.dataSource);
+  async findOne(id: number): Promise<ContactEntityOutDTO | null> {
+    const repo = getRepo(ContactEntityOutDTO, this.dataSource);
     return await repo.findOneBy({ id });
   }
 }
