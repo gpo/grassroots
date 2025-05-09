@@ -31,11 +31,13 @@ export class ContactsService {
     return await repo.find({});
   }
 
-  async search({
-    contact,
-    paginated,
-  }: PaginatedContactSearchInDTO): Promise<PaginatedContactOutDTO> {
-    const [result, rowsTotal] = await this.contactsRepository.findAndCount({
+  async search(
+    { contact, paginated }: PaginatedContactSearchInDTO,
+    queryRunner?: QueryRunner,
+  ): Promise<PaginatedContactOutDTO> {
+    const repo = getRepo(ContactEntityOutDTO, queryRunner, this.dataSource);
+
+    const [result, rowsTotal] = await repo.findAndCount({
       take: paginated.rowsToTake,
       skip: paginated.rowsToSkip,
       where: {
