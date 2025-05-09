@@ -12,7 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as SearchImport } from './routes/search'
-import { Route as CreateContactImport } from './routes/create-contact'
+import { Route as CreateContactImport } from './routes/CreateContact'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -24,8 +24,8 @@ const SearchRoute = SearchImport.update({
 } as any)
 
 const CreateContactRoute = CreateContactImport.update({
-  id: '/create-contact',
-  path: '/create-contact',
+  id: '/CreateContact',
+  path: '/CreateContact',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,10 +46,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/create-contact': {
-      id: '/create-contact'
-      path: '/create-contact'
-      fullPath: '/create-contact'
+    '/CreateContact': {
+      id: '/CreateContact'
+      path: '/CreateContact'
+      fullPath: '/CreateContact'
       preLoaderRoute: typeof CreateContactImport
       parentRoute: typeof rootRoute
     }
@@ -67,29 +67,29 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/create-contact': typeof CreateContactRoute
+  '/CreateContact': typeof CreateContactRoute
   '/search': typeof SearchRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/create-contact': typeof CreateContactRoute
+  '/CreateContact': typeof CreateContactRoute
   '/search': typeof SearchRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/create-contact': typeof CreateContactRoute
+  '/CreateContact': typeof CreateContactRoute
   '/search': typeof SearchRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/create-contact' | '/search'
+  fullPaths: '/' | '/CreateContact' | '/search'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/create-contact' | '/search'
-  id: '__root__' | '/' | '/create-contact' | '/search'
+  to: '/' | '/CreateContact' | '/search'
+  id: '__root__' | '/' | '/CreateContact' | '/search'
   fileRoutesById: FileRoutesById
 }
 
@@ -116,15 +116,15 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/create-contact",
+        "/CreateContact",
         "/search"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/create-contact": {
-      "filePath": "create-contact.tsx"
+    "/CreateContact": {
+      "filePath": "CreateContact.tsx"
     },
     "/search": {
       "filePath": "search.tsx"

@@ -6,6 +6,7 @@ import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 import { fileURLToPath } from "node:url";
 import { includeIgnoreFile } from "@eslint/compat";
 import pluginRouter from "@tanstack/eslint-plugin-router";
+import checkFile from "eslint-plugin-check-file";
 
 export default tseslint.config(
   {
@@ -34,6 +35,9 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
       },
     },
+    plugins: {
+      "check-file": checkFile,
+    },
     settings: {
       react: {
         version: "detect",
@@ -52,6 +56,12 @@ export default tseslint.config(
       ],
       "@typescript-eslint/no-misused-spread": "off",
       "react/jsx-no-useless-fragment": "error",
+      "check-file/filename-naming-convention": [
+        "error",
+        {
+          "**/*.{jsx,tsx, js, ts}": "PASCAL_CASE",
+        },
+      ],
     },
   },
 );
