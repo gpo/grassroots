@@ -24,19 +24,11 @@ describe("ContactsController (e2e)", () => {
     ({ app, grassrootsAPI, queryRunner } = await e2eBeforeAll({
       controllers: [ContactsController],
       providers: [
-        {
-          provide: ContactsService,
-          useFactory: (
-            queryRunnerProvider: QueryRunnerProvider,
-          ): ContactsService => {
-            const repo =
-              queryRunnerProvider.queryRunner.manager.getRepository(
-                ContactEntityOutDTO,
-              );
-            return new ContactsService(repo);
-          },
-          inject: [QueryRunnerProvider],
-        },
+        QueryRunnerProvider.getProviderFor(
+          ContactsService,
+          ContactEntityOutDTO,
+          (repo) => new ContactsService(repo),
+        ),
       ],
     }));
   });

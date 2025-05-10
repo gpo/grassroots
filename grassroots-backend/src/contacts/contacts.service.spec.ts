@@ -17,19 +17,11 @@ describe("ContactsService", () => {
   beforeAll(async () => {
     ({ app, queryRunner } = await getTestApp({
       providers: [
-        {
-          provide: ContactsService,
-          useFactory: (
-            queryRunnerProvider: QueryRunnerProvider,
-          ): ContactsService => {
-            const repo =
-              queryRunnerProvider.queryRunner.manager.getRepository(
-                ContactEntityOutDTO,
-              );
-            return new ContactsService(repo);
-          },
-          inject: [QueryRunnerProvider],
-        },
+        QueryRunnerProvider.getProviderFor(
+          ContactsService,
+          ContactEntityOutDTO,
+          (repo) => new ContactsService(repo),
+        ),
       ],
     }));
     service = app.get<ContactsService>(ContactsService);
