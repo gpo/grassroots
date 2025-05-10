@@ -3,13 +3,17 @@ import type { paths } from "../src/grassroots-shared/openAPI.gen"; // generated 
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { e2eBeforeAll } from "../src/testing/e2eSetup";
 import { AppService } from "../src/app.service";
+import { AppController } from "../src/app.controller";
 
 describe("AppController (e2e)", () => {
   let app: NestExpressApplication;
   let grassrootsAPI: Client<paths>;
 
   beforeAll(async () => {
-    ({ app, grassrootsAPI } = await e2eBeforeAll({ providers: [AppService] }));
+    ({ app, grassrootsAPI } = await e2eBeforeAll({
+      providers: [AppService],
+      controllers: [AppController],
+    }));
   });
 
   afterAll(async () => {

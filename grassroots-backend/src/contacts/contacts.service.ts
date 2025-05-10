@@ -7,10 +7,12 @@ import {
 } from "../grassroots-shared/contact.entity.dto";
 import { Equal, Repository } from "typeorm";
 import { LikeOrUndefined } from "../util/likeOrUndefined";
+import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()
 export class ContactsService {
   constructor(
+    @InjectRepository(ContactEntityOutDTO)
     private readonly contactsRepository: Repository<ContactEntityOutDTO>,
   ) {}
 

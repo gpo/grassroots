@@ -7,6 +7,7 @@ import {
 } from "../grassroots-shared/contact.entity.dto";
 import { QueryRunner } from "typeorm";
 import { plainToClass } from "class-transformer";
+import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
 
 describe("ContactsService", () => {
   let service: ContactsService;
@@ -15,7 +16,21 @@ describe("ContactsService", () => {
 
   beforeAll(async () => {
     ({ app, queryRunner } = await getTestApp({
-      providers: [ContactsService],
+      providers: [
+        {
+          provide: ContactsService,
+          useFactory: (
+            queryRunnerProvider: QueryRunnerProvider,
+          ): ContactsService => {
+            const repo =
+              queryRunnerProvider.queryRunner.manager.getRepository(
+                ContactEntityOutDTO,
+              );
+            return new ContactsService(repo);
+          },
+          inject: [QueryRunnerProvider],
+        },
+      ],
     }));
     service = app.get<ContactsService>(ContactsService);
   });

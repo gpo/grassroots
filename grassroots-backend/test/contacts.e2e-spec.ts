@@ -2,10 +2,11 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { Client } from "openapi-fetch";
 import { paths } from "../src/grassroots-shared/openAPI.gen";
 import { e2eBeforeAll } from "../src/testing/e2eSetup";
-import { DataSource, QueryRunner } from "typeorm";
+import { QueryRunner } from "typeorm";
 import { ContactsController } from "../src/contacts/contacts.controller";
 import { ContactsService } from "../src/contacts/contacts.service";
 import { ContactEntityOutDTO } from "../src/grassroots-shared/contact.entity.dto";
+import { QueryRunnerProvider } from "../src/providers/QueryRunnerProvider";
 
 const TEST_CONTACT = {
   email: "test@test.com",
@@ -25,12 +26,16 @@ describe("ContactsController (e2e)", () => {
       providers: [
         {
           provide: ContactsService,
-          useFactory: (dataSource: DataSource): ContactsService => {
-            queryRunner = dataSource.createQueryRunner();
-            const repo = queryRunner.manager.getRepository(ContactEntityOutDTO);
+          useFactory: (
+            queryRunnerProvider: QueryRunnerProvider,
+          ): ContactsService => {
+            const repo =
+              queryRunnerProvider.queryRunner.manager.getRepository(
+                ContactEntityOutDTO,
+              );
             return new ContactsService(repo);
           },
-          inject: [DataSource],
+          inject: [QueryRunnerProvider],
         },
       ],
     }));

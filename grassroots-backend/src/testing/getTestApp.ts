@@ -2,9 +2,10 @@ import { Test } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ContactEntityOutDTO } from "../grassroots-shared/contact.entity.dto";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { QueryRunner } from "typeorm";
+import { DataSource, QueryRunner } from "typeorm";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Provider, Type, ValidationPipe } from "@nestjs/common";
+import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
 
 let app: NestExpressApplication | undefined = undefined;
 let queryRunner: QueryRunner | undefined = undefined;
@@ -53,7 +54,17 @@ export async function getTestApp(
       TypeOrmModule.forFeature([ContactEntityOutDTO]),
     ],
     controllers: dependencies.controllers ?? [],
-    providers: dependencies.providers ?? [],
+    providers: [
+      ...(dependencies.providers ?? []),
+      {
+        provide: QueryRunnerProvider,
+        useFactory: (dataSource: DataSource): QueryRunnerProvider => {
+          queryRunner = dataSource.createQueryRunner();
+          return new QueryRunnerProvider(queryRunner);
+        },
+        inject: [DataSource],
+      },
+    ],
   }).compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
