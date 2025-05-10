@@ -2,11 +2,13 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   Min,
   ValidateNested,
 } from "class-validator";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { PaginatedInDTO, PaginatedOutDTO } from "./paginated.dto";
 
 export class CreateContactInDto {
   @IsEmail()
@@ -46,4 +48,39 @@ export class ContactEntityOutDTO {
 export class GetContactByIDResponse {
   @ValidateNested()
   contact!: ContactEntityOutDTO | null;
+}
+
+export class ContactSearchInDTO {
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  id?: number;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+}
+
+export class PaginatedContactSearchInDTO {
+  @ValidateNested()
+  contact!: ContactSearchInDTO;
+  @ValidateNested()
+  paginated!: PaginatedInDTO;
+}
+
+export class PaginatedContactOutDTO {
+  @ValidateNested()
+  contacts!: ContactEntityOutDTO[];
+  @ValidateNested()
+  paginated!: PaginatedOutDTO;
+
+  static empty(): PaginatedContactOutDTO {
+    return {
+      contacts: [],
+      paginated: {
+        rowsSkipped: 0,
+        rowsTotal: 0,
+      },
+    };
+  }
 }

@@ -4,6 +4,8 @@ import {
   ContactEntityOutDTO,
   GetContactByIDResponse,
   CreateContactInDto,
+  PaginatedContactOutDTO,
+  PaginatedContactSearchInDTO,
 } from "../grassroots-shared/contact.entity.dto";
 
 @Controller("contacts")
@@ -22,8 +24,17 @@ export class ContactsController {
     return this.contactsService.findAll();
   }
 
+  @Post("search")
+  search(
+    @Body() contact: PaginatedContactSearchInDTO,
+  ): Promise<PaginatedContactOutDTO> {
+    return this.contactsService.search(contact);
+  }
+
   @Get(":id")
   async findOne(@Param("id") id: number): Promise<GetContactByIDResponse> {
-    return { contact: await this.contactsService.findOne(id) };
+    return {
+      contact: await this.contactsService.findOne(id),
+    };
   }
 }
