@@ -5,33 +5,30 @@ import {
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
 } from "../grassroots-shared/contact.entity.dto";
-import { DataSource, Equal } from "typeorm";
-import { getRepo } from "../getRepo";
+import { Equal, Repository } from "typeorm";
 import { LikeOrUndefined } from "../util/likeOrUndefined";
 
 @Injectable()
 export class ContactsService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly contactsRepository: Repository<ContactEntityOutDTO>,
+  ) {}
 
   async create(
     createContactDto: CreateContactInDto,
   ): Promise<ContactEntityOutDTO> {
-    const repo = getRepo(ContactEntityOutDTO, this.dataSource);
-    return await repo.save(createContactDto);
+    return await this.contactsRepository.save(createContactDto);
   }
 
   async findAll(): Promise<ContactEntityOutDTO[]> {
-    const repo = getRepo(ContactEntityOutDTO, this.dataSource);
-    return await repo.find({});
+    return await this.contactsRepository.find({});
   }
 
   async search({
     contact,
     paginated,
   }: PaginatedContactSearchInDTO): Promise<PaginatedContactOutDTO> {
-    const repo = getRepo(ContactEntityOutDTO, this.dataSource);
-
-    const [result, rowsTotal] = await repo.findAndCount({
+    const [result, rowsTotal] = await this.contactsRepository.findAndCount({
       take: paginated.rowsToTake,
       skip: paginated.rowsToSkip,
       where: {
@@ -52,7 +49,6 @@ export class ContactsService {
   }
 
   async findOne(id: number): Promise<ContactEntityOutDTO | null> {
-    const repo = getRepo(ContactEntityOutDTO, this.dataSource);
-    return await repo.findOneBy({ id });
+    return await this.contactsRepository.findOneBy({ id });
   }
 }

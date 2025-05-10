@@ -5,13 +5,8 @@ import {
   ContactEntityOutDTO,
   CreateContactInDto,
 } from "../grassroots-shared/contact.entity.dto";
-import {
-  rollbackTestTransaction,
-  startTestTransaction,
-} from "../testing/dbTransactions";
-import { DataSource, QueryRunner } from "typeorm";
+import { QueryRunner } from "typeorm";
 import { plainToClass } from "class-transformer";
-import { setQueryRunnerForTest } from "../getRepo";
 
 describe("ContactsService", () => {
   let service: ContactsService;
@@ -19,11 +14,10 @@ describe("ContactsService", () => {
   let queryRunner: QueryRunner;
 
   beforeAll(async () => {
-    app = await getTestApp();
+    ({ app, queryRunner } = await getTestApp({
+      providers: [ContactsService],
+    }));
     service = app.get<ContactsService>(ContactsService);
-    const dataSource = app.get(DataSource);
-    queryRunner = dataSource.createQueryRunner();
-    setQueryRunnerForTest(queryRunner);
   });
 
   afterAll(async () => {
@@ -31,11 +25,11 @@ describe("ContactsService", () => {
   });
 
   beforeEach(async () => {
-    queryRunner = await startTestTransaction();
+    await queryRunner.startTransaction();
   });
 
   afterEach(async () => {
-    await rollbackTestTransaction();
+    await queryRunner.rollbackTransaction();
   });
 
   it("should be defined", () => {
