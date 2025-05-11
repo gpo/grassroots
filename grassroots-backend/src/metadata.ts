@@ -4,6 +4,9 @@ export default async () => {
     ["./grassroots-shared/contact.entity.dto"]: await import(
       "./grassroots-shared/contact.entity.dto"
     ),
+    ["./grassroots-shared/paginated.dto"]: await import(
+      "./grassroots-shared/paginated.dto"
+    ),
     ["./app/entities/hello.dto"]: await import("./app/entities/hello.dto"),
   };
   return {
@@ -12,6 +15,19 @@ export default async () => {
         [
           import("./app/entities/hello.dto"),
           { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
+        [
+          import("./grassroots-shared/paginated.dto"),
+          {
+            PaginatedInDTO: {
+              rowsToSkip: { required: true, type: () => Number },
+              rowsToTake: { required: true, type: () => Number },
+            },
+            PaginatedOutDTO: {
+              rowsSkipped: { required: true, type: () => Number, minimum: 0 },
+              rowsTotal: { required: true, type: () => Number, minimum: 0 },
+            },
+          },
         ],
         [
           import("./grassroots-shared/contact.entity.dto"),
@@ -36,6 +52,40 @@ export default async () => {
                   t["./grassroots-shared/contact.entity.dto"]
                     .ContactEntityOutDTO,
                 nullable: true,
+              },
+            },
+            ContactSearchInDTO: {
+              id: { required: false, type: () => Number, minimum: 0 },
+              email: { required: false, type: () => String },
+              firstName: { required: false, type: () => String },
+              lastName: { required: false, type: () => String },
+              phoneNumber: { required: false, type: () => String },
+            },
+            PaginatedContactSearchInDTO: {
+              contact: {
+                required: true,
+                type: () =>
+                  t["./grassroots-shared/contact.entity.dto"]
+                    .ContactSearchInDTO,
+              },
+              paginated: {
+                required: true,
+                type: () =>
+                  t["./grassroots-shared/paginated.dto"].PaginatedInDTO,
+              },
+            },
+            PaginatedContactOutDTO: {
+              contacts: {
+                required: true,
+                type: () => [
+                  t["./grassroots-shared/contact.entity.dto"]
+                    .ContactEntityOutDTO,
+                ],
+              },
+              paginated: {
+                required: true,
+                type: () =>
+                  t["./grassroots-shared/paginated.dto"].PaginatedOutDTO,
               },
             },
           },
@@ -73,6 +123,10 @@ export default async () => {
                   t["./grassroots-shared/contact.entity.dto"]
                     .ContactEntityOutDTO,
                 ],
+              },
+              search: {
+                type: t["./grassroots-shared/contact.entity.dto"]
+                  .PaginatedContactOutDTO,
               },
               findOne: {
                 type: t["./grassroots-shared/contact.entity.dto"]

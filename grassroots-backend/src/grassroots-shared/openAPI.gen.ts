@@ -31,6 +31,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/contacts/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ContactsController_search"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/contacts/{id}": {
         parameters: {
             query?: never;
@@ -68,6 +84,29 @@ export interface components {
             firstName: string;
             lastName: string;
             phoneNumber: string;
+        };
+        ContactSearchInDTO: {
+            id?: number;
+            email?: string;
+            firstName?: string;
+            lastName?: string;
+            phoneNumber?: string;
+        };
+        PaginatedInDTO: {
+            rowsToSkip: number;
+            rowsToTake: number;
+        };
+        PaginatedContactSearchInDTO: {
+            contact: components["schemas"]["ContactSearchInDTO"];
+            paginated: components["schemas"]["PaginatedInDTO"];
+        };
+        PaginatedOutDTO: {
+            rowsSkipped: number;
+            rowsTotal: number;
+        };
+        PaginatedContactOutDTO: {
+            contacts: components["schemas"]["ContactEntityOutDTO"][];
+            paginated: components["schemas"]["PaginatedOutDTO"];
         };
         GetContactByIDResponse: {
             contact: components["schemas"]["ContactEntityOutDTO"] | null;
@@ -151,6 +190,34 @@ export interface operations {
                 headers: Record<string, unknown>;
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"];
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
+                };
+            };
+        };
+    };
+    ContactsController_search: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PaginatedContactSearchInDTO"];
+            };
+        };
+        responses: {
+            201: {
+                headers: Record<string, unknown>;
+                content: {
+                    "application/json": components["schemas"]["PaginatedContactOutDTO"];
                 };
             };
             /** @description Validation failed */

@@ -10,11 +10,8 @@ import {
 
 // Inspired by https://github.com/aranlucas/react-hook-form-mantine/blob/master/src/TextInput/TextInput.tsx
 
-export interface TextFieldProps<
-  T extends FieldValues,
-  TName extends FieldPath<T> = FieldPath<T>,
-> {
-  defaultValue: FieldPathValue<T, TName>;
+export interface TextFieldProps<T extends FieldValues> {
+  defaultValue: FieldPathValue<T, FieldPath<T>>;
   label: string;
   name: Path<T>;
 }

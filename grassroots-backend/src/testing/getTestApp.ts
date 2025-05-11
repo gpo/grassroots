@@ -1,15 +1,32 @@
 import { Test } from "@nestjs/testing";
-import { ContactsController } from "../contacts/contacts.controller";
-import { ContactsService } from "../contacts/contacts.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ContactEntityOutDTO } from "../grassroots-shared/contact.entity.dto";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { INestApplication } from "@nestjs/common";
+import { DataSource, QueryRunner } from "typeorm";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { Provider, Type, ValidationPipe } from "@nestjs/common";
+import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
 
-let app: INestApplication | undefined = undefined;
+let app: NestExpressApplication | undefined = undefined;
+let queryRunner: QueryRunner | undefined = undefined;
 
-export async function getTestApp(): Promise<INestApplication> {
-  if (app) return app;
+export interface TestSpecificDependencies {
+  providers?: Provider[];
+  controllers?: Type[];
+}
+
+export async function getTestApp(
+  dependencies: TestSpecificDependencies,
+): Promise<{
+  app: NestExpressApplication;
+  queryRunner: QueryRunner;
+}> {
+  if (app) {
+    if (!queryRunner) {
+      throw new Error("Query runner failed to initialize for tests.");
+    }
+    return { app, queryRunner };
+  }
   const moduleRef = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({
@@ -36,11 +53,24 @@ export async function getTestApp(): Promise<INestApplication> {
       }),
       TypeOrmModule.forFeature([ContactEntityOutDTO]),
     ],
-    controllers: [ContactsController],
-    providers: [ContactsService],
+    controllers: dependencies.controllers ?? [],
+    providers: [
+      ...(dependencies.providers ?? []),
+      {
+        provide: QueryRunnerProvider,
+        useFactory: (dataSource: DataSource): QueryRunnerProvider => {
+          queryRunner = dataSource.createQueryRunner();
+          return new QueryRunnerProvider(queryRunner);
+        },
+        inject: [DataSource],
+      },
+    ],
   }).compile();
 
-  app = moduleRef.createNestApplication();
-  await app.init();
-  return app;
+  app = moduleRef.createNestApplication<NestExpressApplication>();
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  if (!queryRunner) {
+    throw new Error("Query runner failed to initialize for tests.");
+  }
+  return { app, queryRunner };
 }

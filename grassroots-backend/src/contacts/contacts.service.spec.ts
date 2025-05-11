@@ -5,19 +5,25 @@ import {
   ContactEntityOutDTO,
   CreateContactInDto,
 } from "../grassroots-shared/contact.entity.dto";
-import {
-  rollbackTestTransaction,
-  startTestTransaction,
-} from "../testing/dbTransactions";
 import { QueryRunner } from "typeorm";
 import { plainToClass } from "class-transformer";
+import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
 
 describe("ContactsService", () => {
   let service: ContactsService;
   let app: INestApplication;
+  let queryRunner: QueryRunner;
 
   beforeAll(async () => {
-    app = await getTestApp();
+    ({ app, queryRunner } = await getTestApp({
+      providers: [
+        QueryRunnerProvider.getProviderFor(
+          ContactsService,
+          ContactEntityOutDTO,
+          (repo) => new ContactsService(repo),
+        ),
+      ],
+    }));
     service = app.get<ContactsService>(ContactsService);
   });
 
@@ -25,13 +31,12 @@ describe("ContactsService", () => {
     await app.close();
   });
 
-  let queryRunner: QueryRunner;
   beforeEach(async () => {
-    queryRunner = await startTestTransaction();
+    await queryRunner.startTransaction();
   });
 
   afterEach(async () => {
-    await rollbackTestTransaction();
+    await queryRunner.rollbackTransaction();
   });
 
   it("should be defined", () => {
@@ -45,9 +50,9 @@ describe("ContactsService", () => {
       lastName: "Test",
       phoneNumber: "999-999-9999",
     };
-    const created = await service.create(contact, queryRunner);
+    const created = await service.create(contact);
 
-    const allContacts = await service.findAll(queryRunner);
+    const allContacts = await service.findAll();
     expect(allContacts.length).toEqual(1);
     expect(allContacts[0]).toEqual(
       plainToClass(ContactEntityOutDTO, { ...contact, id: created.id }),
