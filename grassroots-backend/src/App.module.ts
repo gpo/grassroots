@@ -1,6 +1,6 @@
 import { Module, ValidationPipe } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
+import { AppController } from "./App.controller";
+import { AppService } from "./App.service";
 import { ContactsModule } from "./contacts/Contacts.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";

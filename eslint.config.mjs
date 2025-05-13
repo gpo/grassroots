@@ -9,9 +9,6 @@ import pluginRouter from "@tanstack/eslint-plugin-router";
 import checkFile from "eslint-plugin-check-file";
 
 export default tseslint.config(
-  {
-    ignores: ["**/*.mjs", "**/*.cjs", "**/*.js"],
-  },
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
   ...pluginRouter.configs["flat/recommended"],
   pluginReact.configs.flat.recommended,
@@ -20,6 +17,9 @@ export default tseslint.config(
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   eslintPluginPrettierRecommended,
+  {
+    ignores: ["**/*.mjs", "**/*.cjs", "**/*.js", "**/*.gen.ts"],
+  },
   {
     languageOptions: {
       ...pluginReact.configs.flat.recommended.languageOptions,
@@ -58,8 +58,10 @@ export default tseslint.config(
       "check-file/filename-naming-convention": [
         "error",
         {
-          "**/!(hooks)/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
-          "**/hooks/**/*.{jsx,tsx,js,ts}": "CAMEL_CASE",
+          "grassroots-backend/src/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
+          "grassroots-frontend/src/!(hooks)/**/*.{jsx,tsx,js,ts}":
+            "PASCAL_CASE",
+          "grassroots-frontend/src/hooks/**/*.{jsx,tsx,js,ts}": "CAMEL_CASE",
         },
         {
           ignoreMiddleExtensions: true,

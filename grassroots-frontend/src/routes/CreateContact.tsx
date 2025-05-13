@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useCallback } from "react";
 
-import { CreateContactInDto } from "../grassroots-shared/contact.entity.dto";
+import { CreateContactInDto } from "../grassroots-shared/Contact.entity.dto";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { grassrootsAPI } from "../GrassRootsAPI";

@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import { AppModule, listenAndConfigureApp } from "./app.module";
+import { AppModule, listenAndConfigureApp } from "./App.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { readFile, writeFile } from "fs/promises";
 import crypto from "crypto";

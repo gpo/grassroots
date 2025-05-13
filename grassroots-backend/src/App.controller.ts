@@ -1,6 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
-import { AppService } from "./app.service";
-import { HelloOutDTO } from "./app/entities/hello.dto";
+import { AppService } from "./App.service";
+import { HelloOutDTO } from "./app/entities/Hello.dto";
 
 @Controller()
 export class AppController {

@@ -10,13 +10,13 @@ export default async () => {
     ["./grassroots-shared/Paginated.dto"]: await import(
       "./grassroots-shared/Paginated.dto"
     ),
-    ["./app/entities/hello.dto"]: await import("./app/entities/hello.dto"),
+    ["./app/entities/hello.dto"]: await import("./app/entities/Hello.dto"),
   };
   return {
     "@nestjs/swagger": {
       models: [
         [
-          import("./app/entities/hello.dto"),
+          import("./app/entities/Hello.dto"),
           { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
         [
@@ -119,7 +119,7 @@ export default async () => {
       ],
       controllers: [
         [
-          import("./app.controller"),
+          import("./App.controller"),
           {
             AppController: {
               getHello: { type: t["./app/entities/hello.dto"].HelloOutDTO },

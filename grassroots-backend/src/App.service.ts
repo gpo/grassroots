@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { HelloOutDTO } from "./app/entities/hello.dto";
+import { HelloOutDTO } from "./app/entities/Hello.dto";
 
 @Injectable()
 export class AppService {
