@@ -1,5 +1,5 @@
 import * as tstyche from "tstyche";
-import { cast, castWithConversion } from "../../grassroots-shared/cast";
+import { cast, castWithConversion } from "../../grassroots-shared/Cast";
 import { IsNumber, Min } from "class-validator";
 
 class Test {

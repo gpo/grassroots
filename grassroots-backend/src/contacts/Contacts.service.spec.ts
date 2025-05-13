@@ -1,10 +1,10 @@
-import { ContactsService } from "./contacts.service";
-import { getTestApp } from "../testing/getTestApp";
+import { ContactsService } from "./Contacts.service";
+import { getTestApp } from "../testing/GetTestApp";
 import { INestApplication } from "@nestjs/common";
 import {
   ContactEntityOutDTO,
   CreateContactInDto,
-} from "../grassroots-shared/contact.entity.dto";
+} from "../grassroots-shared/Contact.entity.dto";
 import { QueryRunner } from "typeorm";
 import { instanceToPlain, plainToClass } from "class-transformer";
 import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";

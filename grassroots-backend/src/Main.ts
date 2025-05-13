@@ -13,11 +13,11 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import {
   addValidationErrorsToOpenAPI,
   throwOnInvalidType,
-} from "./postProcessOpenAPI";
-import { ValidationErrorOutDTO } from "./contacts/entities/validationError.dto";
+} from "./PostProcessOpenAPI";
+import { ValidationErrorOutDTO } from "./contacts/entities/ValidationError.dto";
 
 const openAPISchemaPath = "./openAPI.json";
-const openAPITSSchemaPath = "./src/grassroots-shared/openAPI.gen.ts";
+const openAPITSSchemaPath = "./src/grassroots-shared/OpenAPI.gen.ts";
 
 async function bootstrap(port: number): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);

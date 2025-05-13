@@ -1,8 +1,8 @@
-import { ContactsController } from "../src/contacts/contacts.controller";
-import { ContactsService } from "../src/contacts/contacts.service";
-import { ContactEntityOutDTO } from "../src/grassroots-shared/contact.entity.dto";
+import { ContactsController } from "../src/contacts/Contacts.controller";
+import { ContactsService } from "../src/contacts/Contacts.service";
+import { ContactEntityOutDTO } from "../src/grassroots-shared/Contact.entity.dto";
 import { QueryRunnerProvider } from "../src/providers/QueryRunnerProvider";
-import { useE2ETestFixture } from "../src/testing/e2eSetup";
+import { useE2ETestFixture } from "../src/testing/E2eSetup";
 
 const TEST_CONTACT = {
   email: "test@test.com",

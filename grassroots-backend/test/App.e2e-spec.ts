@@ -1,6 +1,6 @@
-import { useE2ETestFixture } from "../src/testing/e2eSetup";
 import { AppService } from "../src/app.service";
 import { AppController } from "../src/app.controller";
+import { useE2ETestFixture } from "../src/testing/E2eSetup";
 
 describe("AppController (e2e)", () => {
   const getFixture = useE2ETestFixture({

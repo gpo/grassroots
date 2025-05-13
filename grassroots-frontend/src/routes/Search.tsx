@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PaginatedContacts } from "../components/paginated_contacts";
+import { PaginatedContacts } from "../components/PaginatedContacts";
 import { JSX, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
@@ -7,10 +7,10 @@ import { useContactSearch } from "../hooks/useContactSearch";
 import {
   ContactSearchInDTO,
   PaginatedContactSearchInDTO,
-} from "../grassroots-shared/contact.entity.dto";
-import { TextField } from "../components/textField";
+} from "../grassroots-shared/Contact.entity.dto";
+import { TextField } from "../components/TextField";
 
-export const Route = createFileRoute("/search")({
+export const Route = createFileRoute("/Search")({
   component: Search,
 });
 

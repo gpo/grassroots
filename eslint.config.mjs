@@ -58,9 +58,14 @@ export default tseslint.config(
       "check-file/filename-naming-convention": [
         "error",
         {
-          "**/*.{jsx,tsx, js, ts}": "PASCAL_CASE",
+          "**/!(hooks)/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
+          "**/hooks/**/*.{jsx,tsx,js,ts}": "CAMEL_CASE",
+        },
+        {
+          ignoreMiddleExtensions: true,
         },
       ],
+      "check-file/no-index": "error",
     },
   },
 );

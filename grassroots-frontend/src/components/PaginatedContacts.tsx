@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { ContactRow } from "./contact_row";
+import { ContactRow } from "./ContactRow";
 import { PaginatedContactOutDTO } from "../grassroots-shared/contact.entity.dto";
 
 type PaginatedContactsProps = PaginatedContactOutDTO & {

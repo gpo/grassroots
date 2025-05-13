@@ -4,7 +4,7 @@ import { JSX, useCallback } from "react";
 import { CreateContactInDto } from "../grassroots-shared/contact.entity.dto";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { grassrootsAPI } from "../grassRootsAPI";
+import { grassrootsAPI } from "../GrassRootsAPI";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { TextField } from "../components/TextField";
 
