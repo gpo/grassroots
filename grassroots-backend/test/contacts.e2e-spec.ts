@@ -1,12 +1,8 @@
-import { NestExpressApplication } from "@nestjs/platform-express";
-import { Client } from "openapi-fetch";
-import { paths } from "../src/grassroots-shared/openAPI.gen";
-import { e2eBeforeAll } from "../src/testing/e2eSetup";
-import { QueryRunner } from "typeorm";
 import { ContactsController } from "../src/contacts/contacts.controller";
 import { ContactsService } from "../src/contacts/contacts.service";
 import { ContactEntityOutDTO } from "../src/grassroots-shared/contact.entity.dto";
 import { QueryRunnerProvider } from "../src/providers/QueryRunnerProvider";
+import { useE2ETestFixture } from "../src/testing/e2eSetup";
 
 const TEST_CONTACT = {
   email: "test@test.com",
@@ -16,37 +12,20 @@ const TEST_CONTACT = {
 };
 
 describe("ContactsController (e2e)", () => {
-  let app: NestExpressApplication;
-  let grassrootsAPI: Client<paths>;
-  let queryRunner: QueryRunner;
-
-  beforeAll(async () => {
-    ({ app, grassrootsAPI, queryRunner } = await e2eBeforeAll({
-      controllers: [ContactsController],
-      providers: [
-        QueryRunnerProvider.getProviderFor(
-          ContactsService,
-          ContactEntityOutDTO,
-          (repo) => new ContactsService(repo),
-        ),
-      ],
-    }));
-  });
-
-  afterAll(async () => {
-    await app.close();
-  });
-
-  beforeEach(async () => {
-    await queryRunner.startTransaction();
-  });
-
-  afterEach(async () => {
-    await queryRunner.rollbackTransaction();
+  const getFixture = useE2ETestFixture({
+    controllers: [ContactsController],
+    providers: [
+      QueryRunnerProvider.getProviderFor(
+        ContactsService,
+        ContactEntityOutDTO,
+        (repo) => new ContactsService(repo),
+      ),
+    ],
   });
 
   it("creates a contact", async () => {
-    const { data, response } = await grassrootsAPI.POST("/contacts", {
+    const f = getFixture();
+    const { data, response } = await f.grassrootsAPI.POST("/contacts", {
       body: TEST_CONTACT,
     });
 
@@ -55,7 +34,8 @@ describe("ContactsController (e2e)", () => {
   });
 
   it("validates its inputs", async () => {
-    const result = await grassrootsAPI.POST("/contacts", {
+    const f = getFixture();
+    const result = await f.grassrootsAPI.POST("/contacts", {
       body: {
         ...TEST_CONTACT,
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -67,13 +47,14 @@ describe("ContactsController (e2e)", () => {
   });
 
   it("returns search results", async () => {
-    let { response } = await grassrootsAPI.POST("/contacts", {
+    const f = getFixture();
+    let { response } = await f.grassrootsAPI.POST("/contacts", {
       body: TEST_CONTACT,
     });
 
     expect(response.status).toBe(201);
 
-    ({ response } = await grassrootsAPI.POST("/contacts", {
+    ({ response } = await f.grassrootsAPI.POST("/contacts", {
       body: {
         ...TEST_CONTACT,
         email: "foo@foo.com",
@@ -82,7 +63,7 @@ describe("ContactsController (e2e)", () => {
 
     expect(response.status).toBe(201);
 
-    const { data, response: searchResponse } = await grassrootsAPI.POST(
+    const { data, response: searchResponse } = await f.grassrootsAPI.POST(
       "/contacts/search",
       {
         body: {
