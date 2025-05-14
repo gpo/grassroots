@@ -87,13 +87,15 @@ describe("ContactsController (e2e)", () => {
   });
 
   it("returns no search results for an empty query", async () => {
-    const { response } = await grassrootsAPI.POST("/contacts", {
+    const f = getFixture();
+
+    const { response } = await f.grassrootsAPI.POST("/contacts", {
       body: TEST_CONTACT,
     });
 
     expect(response.status).toBe(201);
 
-    const { data, response: searchResponse } = await grassrootsAPI.POST(
+    const { data, response: searchResponse } = await f.grassrootsAPI.POST(
       "/contacts/search",
       {
         body: {
