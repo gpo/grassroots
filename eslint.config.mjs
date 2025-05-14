@@ -59,7 +59,7 @@ export default tseslint.config(
         "error",
         {
           "grassroots-backend/src/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
-          "grassroots-frontend/src/!(hooks)/**/*.{jsx,tsx,js,ts}":
+          "grassroots-frontend/src/!(hooks|routes)/**/*.{jsx,tsx,js,ts}":
             "PASCAL_CASE",
           "grassroots-frontend/src/hooks/**/*.{jsx,tsx,js,ts}": "CAMEL_CASE",
         },
@@ -67,7 +67,6 @@ export default tseslint.config(
           ignoreMiddleExtensions: true,
         },
       ],
-      "check-file/no-index": "error",
     },
   },
 );

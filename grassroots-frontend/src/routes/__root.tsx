@@ -1,4 +1,3 @@
-// eslint-disable-next-line check-file/filename-naming-convention
 import "@mantine/core/styles.css";
 
 import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
@@ -29,12 +28,12 @@ export const Route = createRootRoute({
             </Anchor>
           </AppShell.Section>
           <AppShell.Section>
-            <Anchor to="/create-contact" component={Link}>
+            <Anchor to="/CreateContact" component={Link}>
               Create Contact
             </Anchor>
           </AppShell.Section>
           <AppShell.Section>
-            <Anchor to="/search" component={Link}>
+            <Anchor to="/Search" component={Link}>
               Search
             </Anchor>
           </AppShell.Section>
