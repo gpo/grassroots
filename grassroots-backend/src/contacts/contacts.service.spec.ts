@@ -6,7 +6,7 @@ import {
   CreateContactInDto,
 } from "../grassroots-shared/contact.entity.dto";
 import { QueryRunner } from "typeorm";
-import { plainToClass } from "class-transformer";
+import { instanceToPlain, plainToClass } from "class-transformer";
 import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
 
 describe("ContactsService", () => {
@@ -55,7 +55,10 @@ describe("ContactsService", () => {
     const allContacts = await service.findAll();
     expect(allContacts.length).toEqual(1);
     expect(allContacts[0]).toEqual(
-      plainToClass(ContactEntityOutDTO, { ...contact, id: created.id }),
+      plainToClass(ContactEntityOutDTO, {
+        ...instanceToPlain(contact),
+        id: created.id,
+      }),
     );
   });
 });
