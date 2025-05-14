@@ -30,6 +30,14 @@ export class ContactsService {
     contact,
     paginated,
   }: PaginatedContactSearchInDTO): Promise<PaginatedContactOutDTO> {
+    // If all fields are blank, instead of returning all results, we'll return no results.
+    if (
+      Object.values(contact).every(
+        (el: unknown) => el === undefined || el === "",
+      )
+    ) {
+      return PaginatedContactOutDTO.empty();
+    }
     const [result, rowsTotal] = await this.contactsRepository.findAndCount({
       take: paginated.rowsToTake,
       skip: paginated.rowsToSkip,

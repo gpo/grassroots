@@ -85,4 +85,27 @@ describe("ContactsController (e2e)", () => {
       rowsTotal: 1,
     });
   });
+
+  it("returns no search results for an empty query", async () => {
+    const { response } = await grassrootsAPI.POST("/contacts", {
+      body: TEST_CONTACT,
+    });
+
+    expect(response.status).toBe(201);
+
+    const { data, response: searchResponse } = await grassrootsAPI.POST(
+      "/contacts/search",
+      {
+        body: {
+          contact: {},
+          paginated: {
+            rowsToSkip: 0,
+            rowsToTake: 10,
+          },
+        },
+      },
+    );
+    expect(searchResponse.status).toBe(201);
+    expect(data?.contacts.length).toBe(0);
+  });
 });
