@@ -50,7 +50,6 @@ export default tseslint.config(
         "error",
         { assertionStyle: "never" },
       ],
-      "@typescript-eslint/no-misused-spread": "off",
       "react/jsx-no-useless-fragment": "error",
     },
   },
