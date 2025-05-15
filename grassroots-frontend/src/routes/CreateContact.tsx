@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useCallback } from "react";
 
-import { CreateContactInDto } from "../grassroots-shared/contact.entity.dto";
+import { CreateContactInDto } from "../grassroots-shared/Contact.entity.dto";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { grassrootsAPI } from "../grassRootsAPI";
+import { grassrootsAPI } from "../GrassRootsAPI";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
-import { TextField } from "../components/textField";
+import { TextField } from "../components/TextField";
 
-export const Route = createFileRoute("/create-contact")({
+export const Route = createFileRoute("/CreateContact")({
   component: CreateContact,
 });
 

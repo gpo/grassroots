@@ -1,23 +1,23 @@
 /* eslint-disable */
 export default async () => {
   const t = {
-    ["./grassroots-shared/contact.entity.dto"]: await import(
-      "./grassroots-shared/contact.entity.dto"
+    ["./grassroots-shared/Contact.entity.dto"]: await import(
+      "./grassroots-shared/Contact.entity.dto"
     ),
-    ["./grassroots-shared/paginated.dto"]: await import(
-      "./grassroots-shared/paginated.dto"
+    ["./grassroots-shared/Paginated.dto"]: await import(
+      "./grassroots-shared/Paginated.dto"
     ),
-    ["./app/entities/hello.dto"]: await import("./app/entities/hello.dto"),
+    ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
   };
   return {
     "@nestjs/swagger": {
       models: [
         [
-          import("./app/entities/hello.dto"),
+          import("./app/entities/Hello.dto"),
           { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
         [
-          import("./grassroots-shared/paginated.dto"),
+          import("./grassroots-shared/Paginated.dto"),
           {
             PaginatedInDTO: {
               rowsToSkip: { required: true, type: () => Number },
@@ -30,7 +30,7 @@ export default async () => {
           },
         ],
         [
-          import("./grassroots-shared/contact.entity.dto"),
+          import("./grassroots-shared/Contact.entity.dto"),
           {
             CreateContactInDto: {
               email: { required: true, type: () => String, format: "email" },
@@ -49,7 +49,7 @@ export default async () => {
               contact: {
                 required: true,
                 type: () =>
-                  t["./grassroots-shared/contact.entity.dto"]
+                  t["./grassroots-shared/Contact.entity.dto"]
                     .ContactEntityOutDTO,
                 nullable: true,
               },
@@ -65,33 +65,33 @@ export default async () => {
               contact: {
                 required: true,
                 type: () =>
-                  t["./grassroots-shared/contact.entity.dto"]
+                  t["./grassroots-shared/Contact.entity.dto"]
                     .ContactSearchInDTO,
               },
               paginated: {
                 required: true,
                 type: () =>
-                  t["./grassroots-shared/paginated.dto"].PaginatedInDTO,
+                  t["./grassroots-shared/Paginated.dto"].PaginatedInDTO,
               },
             },
             PaginatedContactOutDTO: {
               contacts: {
                 required: true,
                 type: () => [
-                  t["./grassroots-shared/contact.entity.dto"]
+                  t["./grassroots-shared/Contact.entity.dto"]
                     .ContactEntityOutDTO,
                 ],
               },
               paginated: {
                 required: true,
                 type: () =>
-                  t["./grassroots-shared/paginated.dto"].PaginatedOutDTO,
+                  t["./grassroots-shared/Paginated.dto"].PaginatedOutDTO,
               },
             },
           },
         ],
         [
-          import("./contacts/entities/validationError.dto"),
+          import("./contacts/entities/ValidationError.dto"),
           {
             ValidationErrorOutDTO: {
               statusCode: { required: true, type: () => Number },
@@ -103,33 +103,33 @@ export default async () => {
       ],
       controllers: [
         [
-          import("./app.controller"),
+          import("./App.controller"),
           {
             AppController: {
-              getHello: { type: t["./app/entities/hello.dto"].HelloOutDTO },
+              getHello: { type: t["./app/entities/Hello.dto"].HelloOutDTO },
             },
           },
         ],
         [
-          import("./contacts/contacts.controller"),
+          import("./contacts/Contacts.controller"),
           {
             ContactsController: {
               create: {
-                type: t["./grassroots-shared/contact.entity.dto"]
+                type: t["./grassroots-shared/Contact.entity.dto"]
                   .ContactEntityOutDTO,
               },
               findAll: {
                 type: [
-                  t["./grassroots-shared/contact.entity.dto"]
+                  t["./grassroots-shared/Contact.entity.dto"]
                     .ContactEntityOutDTO,
                 ],
               },
               search: {
-                type: t["./grassroots-shared/contact.entity.dto"]
+                type: t["./grassroots-shared/Contact.entity.dto"]
                   .PaginatedContactOutDTO,
               },
               findOne: {
-                type: t["./grassroots-shared/contact.entity.dto"]
+                type: t["./grassroots-shared/Contact.entity.dto"]
                   .GetContactByIDResponse,
               },
             },

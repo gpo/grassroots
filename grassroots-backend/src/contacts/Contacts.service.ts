@@ -4,9 +4,9 @@ import {
   CreateContactInDto,
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
-} from "../grassroots-shared/contact.entity.dto";
+} from "../grassroots-shared/Contact.entity.dto";
 import { Equal, Repository } from "typeorm";
-import { LikeOrUndefined } from "../util/likeOrUndefined";
+import { LikeOrUndefined } from "../util/LikeOrUndefined";
 import { InjectRepository } from "@nestjs/typeorm";
 
 @Injectable()

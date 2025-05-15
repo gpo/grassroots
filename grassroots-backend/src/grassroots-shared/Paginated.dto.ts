@@ -1,5 +1,5 @@
 import { IsInt, Min } from "class-validator";
-import { PropsOf } from "./cast";
+import { PropsOf } from "./Cast";
 
 export class PaginatedInDTO {
   rowsToSkip: number;

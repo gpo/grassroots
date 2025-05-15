@@ -1,9 +1,9 @@
 import { NestExpressApplication } from "@nestjs/platform-express";
 import createClient, { Client } from "openapi-fetch";
-import { listenAndConfigureApp } from "../app.module";
-import { paths } from "../grassroots-shared/openAPI.gen";
+import { listenAndConfigureApp } from "../App.module";
+import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { QueryRunner } from "typeorm";
-import { getTestApp, TestSpecificDependencies } from "./getTestApp";
+import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 
 class E2ETestFixture {
   app: NestExpressApplication;

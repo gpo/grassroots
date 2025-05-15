@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { ContactEntityOutDTO } from "../grassroots-shared/contact.entity.dto";
+import { ContactEntityOutDTO } from "../grassroots-shared/Contact.entity.dto";
 
 interface ContactRowProps {
   contact: ContactEntityOutDTO;

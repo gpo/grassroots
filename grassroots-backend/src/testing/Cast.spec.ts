@@ -1,5 +1,5 @@
 import { IsNumber, Min } from "class-validator";
-import { cast, castWithConversion } from "../grassroots-shared/cast";
+import { cast, castWithConversion } from "../grassroots-shared/Cast";
 
 class Test {
   @IsNumber()

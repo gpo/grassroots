@@ -1,6 +1,6 @@
 import { Test } from "@nestjs/testing";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ContactEntityOutDTO } from "../grassroots-shared/contact.entity.dto";
+import { ContactEntityOutDTO } from "../grassroots-shared/Contact.entity.dto";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { DataSource, QueryRunner } from "typeorm";
 import { NestExpressApplication } from "@nestjs/platform-express";

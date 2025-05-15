@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { ContactsService } from "./contacts.service";
-import { ContactsController } from "./contacts.controller";
+import { ContactsService } from "./Contacts.service";
+import { ContactsController } from "./Contacts.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
-import { ContactEntityOutDTO } from "../grassroots-shared/contact.entity.dto";
+import { ContactEntityOutDTO } from "../grassroots-shared/Contact.entity.dto";
 
 @Module({
   imports: [TypeOrmModule.forFeature([ContactEntityOutDTO])],

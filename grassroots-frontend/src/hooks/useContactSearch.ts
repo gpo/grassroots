@@ -2,8 +2,8 @@ import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import {
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
-} from "../grassroots-shared/contact.entity.dto";
-import { grassrootsAPI } from "../grassRootsAPI";
+} from "../grassroots-shared/Contact.entity.dto";
+import { grassrootsAPI } from "../GrassRootsAPI";
 
 export function useContactSearch(
   searchParams: PaginatedContactSearchInDTO,

@@ -6,11 +6,9 @@ import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended"
 import { fileURLToPath } from "node:url";
 import { includeIgnoreFile } from "@eslint/compat";
 import pluginRouter from "@tanstack/eslint-plugin-router";
+import checkFile from "eslint-plugin-check-file";
 
 export default tseslint.config(
-  {
-    ignores: ["**/*.mjs", "**/*.cjs", "**/*.js"],
-  },
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
   ...pluginRouter.configs["flat/recommended"],
   pluginReact.configs.flat.recommended,
@@ -19,6 +17,9 @@ export default tseslint.config(
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   eslintPluginPrettierRecommended,
+  {
+    ignores: ["**/*.mjs", "**/*.cjs", "**/*.js", "**/*.gen.ts"],
+  },
   {
     languageOptions: {
       ...pluginReact.configs.flat.recommended.languageOptions,
@@ -33,6 +34,9 @@ export default tseslint.config(
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
+    },
+    plugins: {
+      "check-file": checkFile,
     },
     settings: {
       react: {
@@ -51,6 +55,19 @@ export default tseslint.config(
         { assertionStyle: "never" },
       ],
       "react/jsx-no-useless-fragment": "error",
+      "check-file/no-index": "error",
+      "check-file/filename-naming-convention": [
+        "error",
+        {
+          "grassroots-backend/src/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
+          "grassroots-frontend/src/!(hooks|routes)/**/*.{jsx,tsx,js,ts}":
+            "PASCAL_CASE",
+          "grassroots-frontend/src/hooks/**/*.{jsx,tsx,js,ts}": "CAMEL_CASE",
+        },
+        {
+          ignoreMiddleExtensions: true,
+        },
+      ],
     },
   },
 );

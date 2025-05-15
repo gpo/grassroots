@@ -1,10 +1,10 @@
 import { Module, ValidationPipe } from "@nestjs/common";
-import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
-import { ContactsModule } from "./contacts/contacts.module";
+import { AppController } from "./App.controller";
+import { AppService } from "./App.service";
+import { ContactsModule } from "./contacts/Contacts.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { ContactEntityOutDTO } from "./grassroots-shared/contact.entity.dto";
+import { ContactEntityOutDTO } from "./grassroots-shared/Contact.entity.dto";
 import { NestExpressApplication } from "@nestjs/platform-express";
 
 export async function listenAndConfigureApp(

@@ -1,6 +1,6 @@
-import { ContactsController } from "./contacts.controller";
-import { getTestApp } from "../testing/getTestApp";
-import { ContactsService } from "./contacts.service";
+import { ContactsController } from "./Contacts.controller";
+import { getTestApp } from "../testing/GetTestApp";
+import { ContactsService } from "./Contacts.service";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { QueryRunner } from "typeorm";
 

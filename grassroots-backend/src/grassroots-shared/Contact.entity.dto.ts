@@ -8,7 +8,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { PaginatedInDTO, PaginatedOutDTO } from "./paginated.dto";
+import { PaginatedInDTO, PaginatedOutDTO } from "./Paginated.dto";
 
 export class CreateContactInDto {
   @IsEmail()
