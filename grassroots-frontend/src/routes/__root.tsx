@@ -20,20 +20,19 @@ export const Route = createRootRoute({
         <AppShell.Header>
           <h1>Grassroots</h1>
         </AppShell.Header>
-
         <AppShell.Navbar>
           <AppShell.Section>
-            <Anchor to="/" component={Link}>
-              Home
-            </Anchor>
+            <Anchor renderRoot={() => <Link to="/" />}>Home</Anchor>
           </AppShell.Section>
           <AppShell.Section>
-            <Anchor to="/CreateContact" component={Link}>
+            <Anchor
+              renderRoot={(props) => <Link to="/create-contact" {...props} />}
+            >
               Create Contact
             </Anchor>
           </AppShell.Section>
           <AppShell.Section>
-            <Anchor to="/Search" component={Link}>
+            <Anchor renderRoot={(props) => <Link to="/s" {...props} />}>
               Search
             </Anchor>
           </AppShell.Section>
