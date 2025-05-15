@@ -33,6 +33,26 @@ describe("ContactsController (e2e)", () => {
     expect(data?.email).toBe("test@test.com");
   });
 
+  it("bulk creates contacts", async () => {
+    const f = getFixture();
+    const { data, response } = await f.grassrootsAPI.POST(
+      "/contacts/bulk-create",
+      {
+        body: {
+          contacts: [
+            TEST_CONTACT,
+            { ...TEST_CONTACT, email: "foo@bar.com" },
+            { ...TEST_CONTACT, email: "foo2@bar.com" },
+          ],
+        },
+      },
+    );
+
+    expect(response.status).toBe(201);
+    const ids = data?.ids;
+    expect(ids?.length).toBe(3);
+  });
+
   it("validates its inputs", async () => {
     const f = getFixture();
     const result = await f.grassrootsAPI.POST("/contacts", {

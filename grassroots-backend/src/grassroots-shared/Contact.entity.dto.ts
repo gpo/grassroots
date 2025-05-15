@@ -21,6 +21,10 @@ export class CreateContactInDto {
   phoneNumber!: string;
 }
 
+export class CreateContactInDtoArray {
+  contacts!: CreateContactInDto[];
+}
+
 @Entity()
 export class ContactEntityOutDTO {
   @PrimaryGeneratedColumn()
