@@ -1,3 +1,4 @@
+/* eslint-disable check-file/no-index */
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX } from "react";
 
