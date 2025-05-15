@@ -22,7 +22,7 @@ export const Route = createRootRoute({
         </AppShell.Header>
         <AppShell.Navbar>
           <AppShell.Section>
-            <RoutedLink to="/">Should Fail</RoutedLink>
+            <RoutedLink to="/">Home</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
             <RoutedLink to="/CreateContact">Create Contact</RoutedLink>
