@@ -9,7 +9,7 @@ export function RoutedLink({
   ...rest
 }: {
   to: LinkProps["to"];
-  search: LinkProps["search"];
+  search?: LinkProps["search"];
   children: React.ReactNode;
 }): JSX.Element {
   return (
