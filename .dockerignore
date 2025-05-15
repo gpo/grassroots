@@ -1,0 +1,5 @@
+node_modules
+grassroots-backend/node_modules
+grassroots-backend/dist
+grassroots-frontend/node_modules
+grassroots-frontend/dist

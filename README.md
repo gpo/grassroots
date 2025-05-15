@@ -23,18 +23,13 @@ if you're developing on the machine you're browsing from.
 
 # Running in Dev Mode
 
-## Backend
+We're running things in docker.
 
 ```sh
-cd grassroots-backend
-npm run start:dev
-```
-
-## Frontend
-
-```sh
-cd grassroots-frontend
-npm run dev
+cd docker
+docker compose up
+docker compose exec grassroots_dev /bin/bash -c "cd grassroots-frontend && npm run dev" # Frontend
+docker compose exec grassroots_dev /bin/bash -c "cd grassroots-backend && npm run start:dev" # Backend
 ```
 
 ## Frequently Seen Problems

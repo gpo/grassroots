@@ -1,0 +1,14 @@
+{
+  "customizations": {
+    "vscode": {
+      "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+    }
+  },
+  "dockerComposeFile": ["docker/compose.yaml"],
+
+  "service": "grassroots_dev",
+  "workspaceFolder": "/app",
+  "postStartCommand": "/usr/local/bin/docker-entrypoint.sh",
+  "shutdownAction": "stopCompose",
+  "containerUser": "grassroots_dev"
+}
