@@ -8,6 +8,7 @@ import {
 import { Equal, Repository } from "typeorm";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
 import { InjectRepository } from "@nestjs/typeorm";
+import { BulkCreateOut } from "./entities/BulkCreateOut.dto";
 
 @Injectable()
 export class ContactsService {
@@ -20,6 +21,13 @@ export class ContactsService {
     createContactDto: CreateContactInDto,
   ): Promise<ContactEntityOutDTO> {
     return await this.contactsRepository.save(createContactDto);
+  }
+
+  async bulkCreate(
+    createContactsDto: CreateContactInDto[],
+  ): Promise<BulkCreateOut> {
+    const contacts = await this.contactsRepository.save(createContactsDto);
+    return { ids: contacts.map((x) => x.id) };
   }
 
   async findAll(): Promise<ContactEntityOutDTO[]> {
