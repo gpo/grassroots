@@ -1,10 +1,10 @@
 import "@mantine/core/styles.css";
 
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { AppShell, Button, MantineProvider, ScrollArea } from "@mantine/core";
-import { Anchor } from "@mantine/core";
+import { RoutedLink } from "../components/RoutedLink";
 
 export const Route = createRootRoute({
   component: () => (
@@ -20,22 +20,15 @@ export const Route = createRootRoute({
         <AppShell.Header>
           <h1>Grassroots</h1>
         </AppShell.Header>
-
         <AppShell.Navbar>
           <AppShell.Section>
-            <Anchor to="/" component={Link}>
-              Home
-            </Anchor>
+            <RoutedLink to="/">Should Fail</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
-            <Anchor to="/CreateContact" component={Link}>
-              Create Contact
-            </Anchor>
+            <RoutedLink to="/CreateContact">Create Contact</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
-            <Anchor to="/Search" component={Link}>
-              Search
-            </Anchor>
+            <RoutedLink to="/Search">Search</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
             <Button>Add 100 Random Contacts</Button>
