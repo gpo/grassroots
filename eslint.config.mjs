@@ -55,7 +55,6 @@ export default tseslint.config(
         { assertionStyle: "never" },
       ],
       "react/jsx-no-useless-fragment": "error",
-      "check-file/no-index": "error",
       "check-file/filename-naming-convention": [
         "error",
         {
