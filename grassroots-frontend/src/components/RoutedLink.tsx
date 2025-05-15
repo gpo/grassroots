@@ -7,7 +7,7 @@ export function RoutedLink({
   children,
   ...rest
 }: {
-  to: LinkProps["to"]; // You can further constrain this to `RoutePaths` if desired
+  to: LinkProps["to"];
   children: React.ReactNode;
 }): JSX.Element {
   return (
