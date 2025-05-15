@@ -1,10 +1,31 @@
 import "@mantine/core/styles.css";
 
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import {
+  createRootRoute,
+  Link,
+  LinkProps,
+  Outlet,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { AppShell, Button, MantineProvider, ScrollArea } from "@mantine/core";
 import { Anchor } from "@mantine/core";
+import { JSX } from "react";
+
+function AnchorLink({
+  to,
+  children,
+  ...rest
+}: {
+  to: LinkProps["to"]; // You can further constrain this to `RoutePaths` if desired
+  children: React.ReactNode;
+}): JSX.Element {
+  return (
+    <Anchor renderRoot={(props) => <Link to={to} {...props} />} {...rest}>
+      {children}
+    </Anchor>
+  );
+}
 
 export const Route = createRootRoute({
   component: () => (
@@ -22,19 +43,13 @@ export const Route = createRootRoute({
         </AppShell.Header>
         <AppShell.Navbar>
           <AppShell.Section>
-            <Anchor renderRoot={() => <Link to="/" />}>Home</Anchor>
+            <AnchorLink to="/">Should Fail</AnchorLink>
           </AppShell.Section>
           <AppShell.Section>
-            <Anchor
-              renderRoot={(props) => <Link to="/create-contact" {...props} />}
-            >
-              Create Contact
-            </Anchor>
+            <AnchorLink to="/CreateContact">Create Contact</AnchorLink>
           </AppShell.Section>
           <AppShell.Section>
-            <Anchor renderRoot={(props) => <Link to="/s" {...props} />}>
-              Search
-            </Anchor>
+            <AnchorLink to="/Search">Search</AnchorLink>
           </AppShell.Section>
           <AppShell.Section>
             <Button>Add 100 Random Contacts</Button>
