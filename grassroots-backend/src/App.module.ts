@@ -6,6 +6,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ContactEntityOutDTO } from "./grassroots-shared/Contact.entity.dto";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import { AuthModule } from "./auth/Auth.module";
+import { UsersModule } from "./users/Users.module";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,
@@ -52,6 +54,8 @@ export async function listenAndConfigureApp(
       isGlobal: true,
     }),
     ContactsModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
