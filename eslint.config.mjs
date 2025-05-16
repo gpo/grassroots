@@ -2,7 +2,6 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 import pluginReact from "eslint-plugin-react";
 import eslint from "@eslint/js";
-import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import { fileURLToPath } from "node:url";
 import { includeIgnoreFile } from "@eslint/compat";
 import pluginRouter from "@tanstack/eslint-plugin-router";
@@ -16,7 +15,6 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
-  eslintPluginPrettierRecommended,
   {
     ignores: ["**/*.mjs", "**/*.cjs", "**/*.js", "**/*.gen.ts"],
   },
