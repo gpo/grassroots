@@ -9,6 +9,7 @@ import {
   PaginatedContactSearchInDTO,
 } from "../grassroots-shared/Contact.entity.dto";
 import { TextField } from "../components/TextField";
+import { RoutedLink } from "../components/RoutedLink";
 
 export const Route = createFileRoute("/Search")({
   component: Search,
@@ -52,6 +53,10 @@ function Search(): JSX.Element {
           <TextField name="id" label="id" defaultValue=""></TextField>
         </form>
       </FormProvider>
+
+      <RoutedLink to="/SharedSearch" search={searchParams.contact}>
+        Share Link to Search
+      </RoutedLink>
 
       {results ? (
         <PaginatedContacts
