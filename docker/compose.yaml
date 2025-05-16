@@ -6,9 +6,6 @@ services:
     container_name: db
     # set shared memory limit
     shm_size: 128mb
-    ports:
-      # Must match .env.development.
-      - 5432:5432
     env_file:
       - ../.env.development
 
@@ -16,8 +13,16 @@ services:
     image: postgres
     container_name: test_db
     shm_size: 128mb
-    ports:
-      # Must match .env.test.
-      - 5433:5432
     env_file:
       - ../.env.test
+
+  grassroots_dev:
+    container_name: grassroots_dev
+    build: ".."
+    volumes:
+      - type: bind
+        source: ../
+        target: /app/
+    ports:
+      - "5173:5173"
+      - "3000:3000"
