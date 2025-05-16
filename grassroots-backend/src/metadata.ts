@@ -8,6 +8,9 @@ export default async () => {
       "./grassroots-shared/Paginated.dto"
     ),
     ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
+    ["./contacts/entities/BulkCreateOut.dto"]: await import(
+      "./contacts/entities/BulkCreateOut.dto"
+    ),
   };
   return {
     "@nestjs/swagger": {
@@ -88,6 +91,15 @@ export default async () => {
                   t["./grassroots-shared/Paginated.dto"].PaginatedOutDTO,
               },
             },
+            CreateContactInDtoArray: {
+              contacts: {
+                required: true,
+                type: () => [
+                  t["./grassroots-shared/Contact.entity.dto"]
+                    .CreateContactInDto,
+                ],
+              },
+            },
           },
         ],
         [
@@ -99,6 +111,10 @@ export default async () => {
               error: { required: true, type: () => String },
             },
           },
+        ],
+        [
+          import("./contacts/entities/BulkCreateOut.dto"),
+          { BulkCreateOut: { ids: { required: true, type: () => [Number] } } },
         ],
       ],
       controllers: [
@@ -117,6 +133,9 @@ export default async () => {
               create: {
                 type: t["./grassroots-shared/Contact.entity.dto"]
                   .ContactEntityOutDTO,
+              },
+              bulkCreate: {
+                type: t["./contacts/entities/BulkCreateOut.dto"].BulkCreateOut,
               },
               findAll: {
                 type: [
