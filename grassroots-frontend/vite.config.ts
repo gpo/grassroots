@@ -13,6 +13,10 @@ export default defineConfig({
       autoCodeSplitting: true,
     }),
   ],
+  server: {
+    strictPort: true,
+    allowedHosts: ["grassroots.local"],
+  },
   resolve: {
     alias: {
       typeorm: path.resolve(

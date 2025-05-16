@@ -11,8 +11,6 @@ export async function listenAndConfigureApp(
   app: NestExpressApplication,
   desiredPort: number,
 ): Promise<{ port: number }> {
-  // TODO: disable CORS once we have a dev environment giving us a consistent origin.
-  app.enableCors();
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   await app.listen(desiredPort);

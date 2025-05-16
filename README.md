@@ -5,6 +5,21 @@ Political Campaign Software focused on voter outreach and volunteer management.
 # Setup
 
 Run setup.sh.
+Add
+
+```
+$LOCAL_IP grassroots.local
+```
+
+to your /etc/hosts.
+
+That's:
+
+```
+127.0.0.1 grassroots.local
+```
+
+if you're developing on the machine you're browsing from.
 
 # Running in Dev Mode
 
