@@ -21,3 +21,13 @@ services:
       - 5433:5432
     env_file:
       - ../.env.test
+
+  caddy:
+    container_name: caddy
+    volumes:
+      - ./data/caddy:/data
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    image: caddy
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
