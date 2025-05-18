@@ -66,3 +66,8 @@ jobs:
 
       - name: Annotate Code Linting Results
         uses: ataylorme/eslint-annotate-action@3.0.0
+
+      - name: Run TypeScript Checks
+        run: |
+          npx tsc --noEmit --project grassroots-frontend
+          npx tsc --noEmit --project grassroots-backend

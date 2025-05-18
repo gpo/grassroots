@@ -2,7 +2,5 @@
 npx concurrently \
   "cd grassroots-backend && npm test" \
   "cd grassroots-frontend && npm test" \
-  "npx tsc --noEmit --project grassroots-backend" \
-  "npx tsc --noEmit --project grassroots-frontend" \
 
 npx lint-staged
