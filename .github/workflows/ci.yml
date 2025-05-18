@@ -67,3 +67,23 @@ jobs:
         run: |
           npx tsc --noEmit --project grassroots-frontend
           npx tsc --noEmit --project grassroots-backend
+
+      - name: Backend Tests
+        services:
+          postgres:
+            image: postgres:latest
+            ports:
+              - 5432:5432
+            env:
+              POSTGRES_USER: postgres
+              POSTGRES_PASSWORD: password
+              POSTGRES_DB: grassroots
+            options: >-
+              --health-cmd "pg_isready -U postgres"
+              --health-interval 10s
+              --health-timeout 5s
+              --health-retries 5
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/grassroots
+          NODE_ENV: test
+        run: npm run test:e2e --prefix grassroots-backend
