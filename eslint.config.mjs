@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { includeIgnoreFile } from "@eslint/compat";
 import pluginRouter from "@tanstack/eslint-plugin-router";
 import checkFile from "eslint-plugin-check-file";
+import eslintConfigPrettier from "eslint-config-prettier/flat";
 
 export default tseslint.config(
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
@@ -15,6 +16,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
+  eslintConfigPrettier,
   {
     ignores: ["**/*.mjs", "**/*.cjs", "**/*.js", "**/*.gen.ts"],
   },
