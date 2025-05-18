@@ -34,15 +34,11 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-          npm install --prefix grassroots-frontend
-          npm install --prefix grassroots-backend
 
       - name: Run syncpack
         run: |
           npx syncpack fix-mismatches
           npm install
-          npm install --prefix grassroots-frontend
-          npm install --prefix grassroots-backend
 
       - name: Run ESLint
         run: npx eslint . --output-file eslint_report.json --format json --fix

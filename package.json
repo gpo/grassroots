@@ -16,7 +16,8 @@
     "test": "cd grassroots-frontend && npm run test && cd ../grassroots-backend && npm run test && npm run test:e2e",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
-    "check": "npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend && npx eslint . "
+    "check": "npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend && npx eslint .",
+    "postinstall": "echo '\n### Install Backend ###\n' && npm install --prefix grassroots-backend && echo '\n### Install Frontend ###\n' && npm install --prefix grassroots-frontend"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.8",
