@@ -85,8 +85,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Tests
-        run: npm run test --prefix grassroots-backend
+      - name: tstyche
+        run: npx tstyche --config ./grassroots-backend/tstyche.config.js --project grassroots-frontend
 
       - name: copy service environment files
         run: |
@@ -97,6 +97,9 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
           compose-file: "./docker/compose.yaml"
+
+      - name: Tests
+        run: npx jest -i --project grassroots-backend
 
       - name: E2E Tests
         env:
