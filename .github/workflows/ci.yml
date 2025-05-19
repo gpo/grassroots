@@ -93,6 +93,9 @@ jobs:
           fetch-depth: 2
           token: ${{ secrets.ACTION_PAT }}
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
       - name: copy files
         run: |
           cp .env.development.sample .env.development
@@ -105,6 +108,6 @@ jobs:
 
       - name: Backend Tests
         env:
-          DATABASE_URL: postgres://postgres:password@localhost:5432/grassroots
+          DATABASE_URL: postgres://postgres:password@localhost:5433/grassroots
           NODE_ENV: test
         run: npm run test:e2e --prefix grassroots-backend
