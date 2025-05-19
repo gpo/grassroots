@@ -67,3 +67,35 @@ jobs:
         run: |
           npx tsc --noEmit --project grassroots-frontend
           npx tsc --noEmit --project grassroots-backend
+
+  backend-tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tstyche
+        run: npm run test:tstyche --prefix grassroots-backend
+
+      - name: "Services: Copy Environment Files"
+        run: |
+          cp .env.development.sample .env.development
+          cp .env.test.sample .env.test
+
+      - name: "Services: Start Test Services"
+        uses: hoverkraft-tech/compose-action@v2.2.0
+        with:
+          compose-file: "./docker/compose.yaml"
+
+      - name: Tests
+        run: npm run test:jest --prefix grassroots-backend
+
+      - name: E2E Tests
+        run: npm run test:e2e --prefix grassroots-backend
