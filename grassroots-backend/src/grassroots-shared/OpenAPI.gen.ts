@@ -101,10 +101,10 @@ export interface components {
             lastName: string;
             phoneNumber: string;
         };
-        CreateContactInDtoArray: {
+        CreateBulkContactRequestDto: {
             contacts: components["schemas"]["CreateContactInDto"][];
         };
-        BulkCreateOut: {
+        CreateBulkContactResponseDTO: {
             ids: number[];
         };
         ContactSearchInDTO: {
@@ -244,7 +244,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateContactInDtoArray"];
+                "application/json": components["schemas"]["CreateBulkContactRequestDto"];
             };
         };
         responses: {
@@ -253,7 +253,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BulkCreateOut"];
+                    "application/json": components["schemas"]["CreateBulkContactResponseDTO"];
                 };
             };
             /** @description Validation failed */

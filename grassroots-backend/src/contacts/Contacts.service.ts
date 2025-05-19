@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import {
   ContactEntityOutDTO,
+  CreateBulkContactResponseDTO,
   CreateContactInDto,
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
@@ -8,7 +9,6 @@ import {
 import { Equal, Repository } from "typeorm";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
 import { InjectRepository } from "@nestjs/typeorm";
-import { BulkCreateOut } from "./entities/BulkCreateOut.dto";
 
 @Injectable()
 export class ContactsService {
@@ -25,7 +25,7 @@ export class ContactsService {
 
   async bulkCreate(
     createContactsDto: CreateContactInDto[],
-  ): Promise<BulkCreateOut> {
+  ): Promise<CreateBulkContactResponseDTO> {
     const contacts = await this.contactsRepository.save(createContactsDto);
     return { ids: contacts.map((x) => x.id) };
   }

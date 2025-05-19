@@ -21,8 +21,12 @@ export class CreateContactInDto {
   phoneNumber!: string;
 }
 
-export class CreateContactInDtoArray {
+export class CreateBulkContactRequestDto {
   contacts!: CreateContactInDto[];
+}
+
+export class CreateBulkContactResponseDTO {
+  ids!: number[];
 }
 
 @Entity()
