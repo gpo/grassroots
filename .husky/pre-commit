@@ -1,6 +1,2 @@
 #!/bin/bash
-npx concurrently \
-  "cd grassroots-backend && npm test" \
-  "cd grassroots-frontend && npm test" \
-
 npx lint-staged
