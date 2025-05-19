@@ -74,10 +74,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.head_ref }}
-          fetch-depth: 2
-          token: ${{ secrets.ACTION_PAT }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -86,23 +82,20 @@ jobs:
         run: npm install
 
       - name: tstyche
-        run: npm --prefix grassroots-backend run test:tstyche
+        run: npm run test:tstyche --prefix grassroots-backend
 
       - name: copy service environment files
         run: |
           cp .env.development.sample .env.development
           cp .env.test.sample .env.test
 
-      - name: start services
+      - name: Start Test Services
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
           compose-file: "./docker/compose.yaml"
 
       - name: Tests
-        run: npm --prefix grassroots-backend run test:jest
+        run: npm run test:jest --prefix grassroots-backend
 
       - name: E2E Tests
-        env:
-          DATABASE_URL: postgres://postgres:password@localhost:5433/grassroots
-          NODE_ENV: test
         run: npm run test:e2e --prefix grassroots-backend
