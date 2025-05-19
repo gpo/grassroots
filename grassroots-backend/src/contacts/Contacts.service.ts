@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import {
   ContactEntityOutDTO,
+  CreateBulkContactResponseDTO,
   CreateContactInDto,
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
@@ -20,6 +21,13 @@ export class ContactsService {
     createContactDto: CreateContactInDto,
   ): Promise<ContactEntityOutDTO> {
     return await this.contactsRepository.save(createContactDto);
+  }
+
+  async bulkCreate(
+    createContactsDto: CreateContactInDto[],
+  ): Promise<CreateBulkContactResponseDTO> {
+    const contacts = await this.contactsRepository.save(createContactsDto);
+    return { ids: contacts.map((x) => x.id) };
   }
 
   async findAll(): Promise<ContactEntityOutDTO[]> {

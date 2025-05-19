@@ -38,6 +38,18 @@ export default async () => {
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
+            CreateBulkContactRequestDto: {
+              contacts: {
+                required: true,
+                type: () => [
+                  t["./grassroots-shared/Contact.entity.dto"]
+                    .CreateContactInDto,
+                ],
+              },
+            },
+            CreateBulkContactResponseDTO: {
+              ids: { required: true, type: () => [Number] },
+            },
             ContactEntityOutDTO: {
               id: { required: true, type: () => Number, minimum: 0 },
               email: { required: true, type: () => String, format: "email" },
@@ -117,6 +129,10 @@ export default async () => {
               create: {
                 type: t["./grassroots-shared/Contact.entity.dto"]
                   .ContactEntityOutDTO,
+              },
+              bulkCreate: {
+                type: t["./grassroots-shared/Contact.entity.dto"]
+                  .CreateBulkContactResponseDTO,
               },
               findAll: {
                 type: [

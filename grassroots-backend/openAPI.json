@@ -105,6 +105,47 @@
         ]
       }
     },
+    "/contacts/bulk-create": {
+      "post": {
+        "operationId": "ContactsController_bulkCreate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBulkContactRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBulkContactResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Contacts"
+        ]
+      }
+    },
     "/contacts/search": {
       "post": {
         "operationId": "ContactsController_search",
@@ -259,6 +300,34 @@
           "firstName",
           "lastName",
           "phoneNumber"
+        ]
+      },
+      "CreateBulkContactRequestDto": {
+        "type": "object",
+        "properties": {
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateContactInDto"
+            }
+          }
+        },
+        "required": [
+          "contacts"
+        ]
+      },
+      "CreateBulkContactResponseDTO": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "ids"
         ]
       },
       "ContactSearchInDTO": {

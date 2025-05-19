@@ -6,6 +6,8 @@ import {
   CreateContactInDto,
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
+  CreateBulkContactRequestDto,
+  CreateBulkContactResponseDTO,
 } from "../grassroots-shared/Contact.entity.dto";
 
 @Controller("contacts")
@@ -17,6 +19,13 @@ export class ContactsController {
     @Body() createContactDto: CreateContactInDto,
   ): Promise<ContactEntityOutDTO> {
     return this.contactsService.create(createContactDto);
+  }
+
+  @Post("bulk-create")
+  bulkCreate(
+    @Body() createContactDtos: CreateBulkContactRequestDto,
+  ): Promise<CreateBulkContactResponseDTO> {
+    return this.contactsService.bulkCreate(createContactDtos.contacts);
   }
 
   @Get()

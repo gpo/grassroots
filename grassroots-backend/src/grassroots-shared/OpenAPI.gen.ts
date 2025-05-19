@@ -31,6 +31,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/contacts/bulk-create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["ContactsController_bulkCreate"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/contacts/search": {
         parameters: {
             query?: never;
@@ -84,6 +100,12 @@ export interface components {
             firstName: string;
             lastName: string;
             phoneNumber: string;
+        };
+        CreateBulkContactRequestDto: {
+            contacts: components["schemas"]["CreateContactInDto"][];
+        };
+        CreateBulkContactResponseDTO: {
+            ids: number[];
         };
         ContactSearchInDTO: {
             id?: number;
@@ -200,6 +222,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ContactEntityOutDTO"];
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
+                };
+            };
+        };
+    };
+    ContactsController_bulkCreate: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateBulkContactRequestDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateBulkContactResponseDTO"];
                 };
             };
             /** @description Validation failed */
