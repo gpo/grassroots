@@ -12,3 +12,6 @@ eslint_report.json
 
 # IDE
 .idea
+
+# Transient docker files
+docker/data
