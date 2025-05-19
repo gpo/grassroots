@@ -35,6 +35,7 @@ export function castWithConversion<T extends object>(
   const instance = plainToInstance(cls, plain, {
     enableImplicitConversion: true,
   });
+
   const validationErrors = validateSync(instance);
   if (validationErrors.length > 0) {
     throw new Error(validationErrors.join("\n"));
