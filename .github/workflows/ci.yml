@@ -28,12 +28,16 @@ jobs:
             exit 1
           fi
 
+      - name: Run TypeScript Checks
+        run: |
+          npx tsc --noEmit --project grassroots-frontend
+          npx tsc --noEmit --project grassroots-backend
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
       - name: Install dependencies
-        run: |
-          npm install
+        run: npm install
 
       - name: Run syncpack
         run: |
@@ -41,12 +45,10 @@ jobs:
           npm install
 
       - name: Build frontend
-        run: |
-          npm run build --prefix grassroots-frontend
+        run: npm run build:ci --prefix grassroots-frontend
 
       - name: Build backend
-        run: |
-          npm run build --prefix grassroots-backend
+        run: npm run build --prefix grassroots-backend
 
       - name: Run ESLint
         run: npx eslint . --output-file eslint_report.json --format json --fix
@@ -70,11 +72,6 @@ jobs:
 
       - name: Annotate Code Linting Results
         uses: ataylorme/eslint-annotate-action@3.0.0
-
-      - name: Run TypeScript Checks
-        run: |
-          npx tsc --noEmit --project grassroots-frontend
-          npx tsc --noEmit --project grassroots-backend
 
   backend-tests:
     name: Backend Tests
