@@ -86,6 +86,13 @@ jobs:
     #          --health-timeout 5s
     #          --health-retries 5
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 2
+          token: ${{ secrets.ACTION_PAT }}
+
       - name: start services
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
