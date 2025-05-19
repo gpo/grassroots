@@ -5,7 +5,7 @@ on:
 
 jobs:
   nodejs-checks:
-    name: Node.js check
+    name: Lint, Build, Format with Auto-Commit
     runs-on: ubuntu-latest
     env:
       COMMIT_MESSAGE: "Modified files from CI"
@@ -28,11 +28,6 @@ jobs:
             exit 1
           fi
 
-      - name: Run TypeScript Checks
-        run: |
-          npx tsc --noEmit --project grassroots-frontend
-          npx tsc --noEmit --project grassroots-backend
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
@@ -43,6 +38,11 @@ jobs:
         run: |
           npx syncpack fix-mismatches
           npm install
+
+      - name: Run TypeScript Checks
+        run: |
+          npx tsc --noEmit --project grassroots-frontend
+          npx tsc --noEmit --project grassroots-backend
 
       - name: Build frontend
         run: npm run build:ci --prefix grassroots-frontend
