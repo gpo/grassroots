@@ -86,7 +86,7 @@ jobs:
         run: npm install
 
       - name: tstyche
-        run: npx tstyche --config ./grassroots-backend/tstyche.config.js --project grassroots-frontend
+        run: npm --prefix grassroots-backend run test:tstyche
 
       - name: copy service environment files
         run: |
@@ -99,7 +99,7 @@ jobs:
           compose-file: "./docker/compose.yaml"
 
       - name: Tests
-        run: npx jest -i --project grassroots-backend
+        run: npm --prefix grassroots-backend run test:jest
 
       - name: E2E Tests
         env:

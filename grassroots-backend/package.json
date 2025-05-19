@@ -13,6 +13,8 @@
     "start:prod": "node dist/Main",
     "test": "jest -i && npx tstyche",
     "test:watch": "jest -i --watch",
+    "test:jest": "jest -i",
+    "test:tstyche": "npx tstyche",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest -i --config ./test/jest-e2e.json"
