@@ -93,6 +93,11 @@ jobs:
           fetch-depth: 2
           token: ${{ secrets.ACTION_PAT }}
 
+      - name: copy files
+        run: |
+          cp .env.development.sample .env.development
+          cp .env.test.sample .env.test
+
       - name: start services
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
