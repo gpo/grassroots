@@ -71,20 +71,6 @@ jobs:
   Backend-Tests:
     name: Backend Tests
     runs-on: ubuntu-latest
-    #    services:
-    #      postgres:
-    #        image: postgres:latest
-    #        ports:
-    #          - 5432:5432
-    #        env:
-    #          POSTGRES_USER: postgres
-    #          POSTGRES_PASSWORD: password
-    #          POSTGRES_DB: grassroots
-    #        options: >-
-    #          --health-cmd "pg_isready -U postgres"
-    #          --health-interval 10s
-    #          --health-timeout 5s
-    #          --health-retries 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -99,7 +85,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: copy files
+      - name: Tests
+        run: npm run test --prefix grassroots-backend
+
+      - name: copy service environment files
         run: |
           cp .env.development.sample .env.development
           cp .env.test.sample .env.test
@@ -109,7 +98,7 @@ jobs:
         with:
           compose-file: "./docker/compose.yaml"
 
-      - name: Backend Tests
+      - name: E2E Tests
         env:
           DATABASE_URL: postgres://postgres:password@localhost:5433/grassroots
           NODE_ENV: test
