@@ -9,6 +9,7 @@ import {
 } from "class-validator";
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { PaginatedInDTO, PaginatedOutDTO } from "./Paginated.dto";
+import { Transform } from "class-transformer";
 
 export class CreateContactInDto {
   @IsEmail()
@@ -60,6 +61,9 @@ export class GetContactByIDResponse {
 
 export class ContactSearchInDTO {
   @IsOptional()
+  @Transform(({ value }: { value: string }) =>
+    value === "" ? undefined : Number(value),
+  )
   @IsInt()
   @Min(0)
   id?: number;

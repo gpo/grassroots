@@ -2,14 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useState } from "react";
 import { useContactSearch } from "../hooks/useContactSearch";
 import { PaginatedContacts } from "../components/PaginatedContacts";
-import { castWithConversion } from "../grassroots-shared/Cast";
+import { cast } from "../grassroots-shared/Cast";
 import { ContactSearchInDTO } from "../grassroots-shared/Contact.entity.dto";
 
 export const Route = createFileRoute("/SharedSearch")({
   component: SharedSearch,
   validateSearch: (search: Record<string, unknown>): ContactSearchInDTO => {
-    search.id = search.id == "" ? undefined : search.id;
-    return castWithConversion(ContactSearchInDTO, search);
+    return cast(ContactSearchInDTO, search);
   },
 });
 
