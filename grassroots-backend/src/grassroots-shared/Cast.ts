@@ -1,9 +1,6 @@
 import { ClassConstructor, plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
 
-// Needs to be imported somewhere for `enableImplicitConversion` to work.
-import "reflect-metadata";
-
 // Roughly, given a class, gives you an interface with its attributes.
 export type PropsOf<T> = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
