@@ -23,6 +23,7 @@ export class CreateContactInDto {
 }
 
 export class CreateBulkContactRequestDto {
+  @ValidateNested()
   contacts!: CreateContactInDto[];
 }
 
