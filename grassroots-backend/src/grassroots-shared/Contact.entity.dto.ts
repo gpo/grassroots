@@ -34,7 +34,7 @@ export class CreateBulkContactResponseDTO {
 export class ContactEntityOutDTO {
   @PrimaryGeneratedColumn()
   @IsInt()
-  @Min(0)
+  @Min(1)
   id!: number;
 
   @Column()
@@ -65,7 +65,7 @@ export class ContactSearchInDTO {
     value === "" ? undefined : Number(value),
   )
   @IsInt()
-  @Min(0)
+  @Min(1)
   id?: number;
   email?: string;
   firstName?: string;
