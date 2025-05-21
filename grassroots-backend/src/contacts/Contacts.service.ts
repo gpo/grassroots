@@ -54,7 +54,7 @@ export class ContactsService {
         lastName: LikeOrUndefined(contact.lastName),
         email: LikeOrUndefined(contact.email),
         phoneNumber: LikeOrUndefined(contact.phoneNumber),
-        id: contact.id ? Equal(contact.id) : undefined,
+        id: contact.id !== undefined ? Equal(contact.id) : undefined,
       },
     });
     return {

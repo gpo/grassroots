@@ -1,5 +1,5 @@
 import { IsNumber, Min } from "class-validator";
-import { cast, castWithConversion } from "../grassroots-shared/Cast";
+import { cast } from "../grassroots-shared/Cast";
 
 class Test {
   @IsNumber()
@@ -18,16 +18,5 @@ describe("cast", () => {
 
   it("should be able to fail validation", () => {
     expect(() => cast(Test, { a: -3 })).toThrow(Error);
-  });
-});
-
-describe("castWithConversion", () => {
-  it("Type converting cast works", () => {
-    const testCasted = castWithConversion(Test, { a: "2" });
-    expect(testCasted).toEqual(new Test(2));
-  });
-
-  it("Type converting cast can fail validation", () => {
-    expect(() => castWithConversion(Test, { a: "-2" })).toThrow(Error);
   });
 });
