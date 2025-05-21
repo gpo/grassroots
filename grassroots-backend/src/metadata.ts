@@ -51,7 +51,7 @@ export default async () => {
               ids: { required: true, type: () => [Number] },
             },
             ContactEntityOutDTO: {
-              id: { required: true, type: () => Number, minimum: 0 },
+              id: { required: true, type: () => Number, minimum: 1 },
               email: { required: true, type: () => String, format: "email" },
               firstName: { required: true, type: () => String },
               lastName: { required: true, type: () => String },
@@ -67,7 +67,7 @@ export default async () => {
               },
             },
             ContactSearchInDTO: {
-              id: { required: false, type: () => Number, minimum: 0 },
+              id: { required: false, type: () => Number, minimum: 1 },
               email: { required: false, type: () => String },
               firstName: { required: false, type: () => String },
               lastName: { required: false, type: () => String },
