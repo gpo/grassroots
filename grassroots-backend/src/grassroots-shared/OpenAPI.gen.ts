@@ -15,6 +15,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["AppController_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/contacts": {
         parameters: {
             query?: never;
@@ -85,6 +101,11 @@ export interface components {
     schemas: {
         HelloOutDTO: {
             message: string;
+        };
+        UserEntity: {
+            /** Format: email */
+            email: string;
+            password: string;
         };
         CreateContactInDto: {
             /** Format: email */
@@ -162,6 +183,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HelloOutDTO"];
+                };
+            };
+            /** @description Validation failed */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ValidationErrorOutDTO"];
+                };
+            };
+        };
+    };
+    AppController_login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UserEntity"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserEntity"];
                 };
             };
             /** @description Validation failed */

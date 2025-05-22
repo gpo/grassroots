@@ -1,22 +1,17 @@
 import { Injectable } from "@nestjs/common";
-import { User } from "../grassroots-shared/User.entity.dto";
+import { UserEntity } from "../grassroots-shared/User.entity";
+import { plainToClass } from "class-transformer";
 
 @Injectable()
 export class UsersService {
-  private readonly users: User[] = [
-    {
-      email: "a@a.com",
-      password: "foo",
-    },
-    {
-      email: "b@b.com",
-      password: "bar",
-    },
-  ];
-
-  findOne(email: string): Promise<User | null> {
+  findOne(email: string): Promise<UserEntity | undefined> {
+    // TODO: This is just a stub for now, until we implement OAuth.
     return new Promise((resolve) => {
-      resolve(this.users.find((user) => user.email === email) ?? null);
+      resolve(
+        plainToClass(UserEntity, {
+          email,
+        }),
+      );
     });
   }
 }

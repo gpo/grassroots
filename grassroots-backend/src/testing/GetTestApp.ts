@@ -6,6 +6,11 @@ import { DataSource, QueryRunner } from "typeorm";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Provider, Type, ValidationPipe } from "@nestjs/common";
 import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
+import { AuthModule } from "../auth/Auth.module";
+import { PassportModuleImport } from "../auth/PassportModuleImport";
+import { UsersModule } from "../users/Users.module";
+import { AppModule } from "../App.module";
+import { AuthService } from "../auth/Auth.service";
 
 let app: NestExpressApplication | undefined = undefined;
 let queryRunner: QueryRunner | undefined = undefined;
@@ -52,6 +57,10 @@ export async function getTestApp(
         inject: [ConfigService],
       }),
       TypeOrmModule.forFeature([ContactEntityOutDTO]),
+      AuthModule,
+      UsersModule,
+      PassportModuleImport(),
+      AppModule,
     ],
     controllers: dependencies.controllers ?? [],
     providers: [
@@ -64,10 +73,16 @@ export async function getTestApp(
         },
         inject: [DataSource],
       },
+      AuthService,
     ],
   }).compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
+  // To make sure cookies are sent preserved in tests.
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   if (!queryRunner) {
     throw new Error("Query runner failed to initialize for tests.");
