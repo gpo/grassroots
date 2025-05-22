@@ -32,6 +32,47 @@
         ]
       }
     },
+    "/auth/login": {
+      "post": {
+        "operationId": "AppController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserEntity"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEntity"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
     "/contacts": {
       "post": {
         "operationId": "ContactsController_create",
@@ -249,6 +290,22 @@
           "message"
         ]
       },
+      "UserEntity": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
       "CreateContactInDto": {
         "type": "object",
         "properties": {
@@ -278,7 +335,7 @@
         "properties": {
           "id": {
             "type": "number",
-            "minimum": 0
+            "minimum": 1
           },
           "email": {
             "type": "string",
@@ -335,7 +392,7 @@
         "properties": {
           "id": {
             "type": "number",
-            "minimum": 0
+            "minimum": 1
           },
           "email": {
             "type": "string"
