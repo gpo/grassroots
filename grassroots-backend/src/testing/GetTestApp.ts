@@ -9,7 +9,6 @@ import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
 import { AuthModule } from "../auth/Auth.module";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { UsersModule } from "../users/Users.module";
-import { AppModule } from "../App.module";
 import { AuthService } from "../auth/Auth.service";
 
 let app: NestExpressApplication | undefined = undefined;
@@ -60,7 +59,6 @@ export async function getTestApp(
       AuthModule,
       UsersModule,
       PassportModuleImport(),
-      AppModule,
     ],
     controllers: dependencies.controllers ?? [],
     providers: [
