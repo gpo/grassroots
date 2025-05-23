@@ -36,7 +36,7 @@ export async function listenAndConfigureApp(
       useFactory: (config: ConfigService) => {
         return {
           type: "postgres",
-          host: "localhost",
+          host: config.get<string>("POSTGRES_HOST"),
           port: config.get<number>("POSTGRES_PORT"),
           username: config.get<string>("POSTGRES_USER"),
           password: config.get<string>("POSTGRES_PASSWORD"),
