@@ -78,11 +78,6 @@ export async function getTestApp(
   }).compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
-  // To make sure cookies are sent preserved in tests.
-  app.enableCors({
-    origin: true,
-    credentials: true,
-  });
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
   if (!queryRunner) {
     throw new Error("Query runner failed to initialize for tests.");

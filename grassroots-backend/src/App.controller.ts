@@ -25,12 +25,11 @@ export class AppController {
   async login(
     @Request() req: GrassrootsRequest,
   ): Promise<UserEntity | undefined> {
-    if (!req.user) {
-      throw new Error("No user found for login.");
-    }
-    const user = req.user;
     return new Promise((resolve) => {
-      req.login(user, (err) => {
+      if (!req.user) {
+        throw new Error("No user found for login.");
+      }
+      req.login(req.user, (err) => {
         if (err) {
           throw err;
         }

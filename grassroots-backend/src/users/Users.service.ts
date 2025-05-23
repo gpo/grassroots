@@ -4,7 +4,7 @@ import { plainToClass } from "class-transformer";
 
 @Injectable()
 export class UsersService {
-  findOne(email: string): Promise<UserEntity | undefined> {
+  findByEmail(email: string): Promise<UserEntity | undefined> {
     // TODO: This is just a stub for now, until we implement OAuth.
     return new Promise((resolve) => {
       resolve(
