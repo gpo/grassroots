@@ -11,6 +11,6 @@ export class AuthService {
     pass: string,
   ): Promise<UserEntity | undefined> {
     void pass;
-    return await this.usersService.findOne(email);
+    return await this.usersService.findByEmail(email);
   }
 }

@@ -33,7 +33,6 @@ export function useE2ETestFixture(
     const grassrootsAPI = createClient<paths>({
       baseUrl: `http://localhost:${String(port)}`,
       credentials: "include",
-      fetch: fetch,
     });
     fixture = new E2ETestFixture({ app, grassrootsAPI, queryRunner });
   });
