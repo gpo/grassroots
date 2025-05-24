@@ -2,7 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PaginatedContacts } from "../components/PaginatedContacts";
 import { JSX, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { useContactSearch } from "../hooks/useContactSearch";
 import {
   ContactSearchInDTO,
@@ -10,6 +9,7 @@ import {
 } from "../grassroots-shared/Contact.entity.dto";
 import { TextField } from "../components/TextField";
 import { RoutedLink } from "../components/RoutedLink";
+import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
 
 export const Route = createFileRoute("/Search")({
   component: Search,
@@ -19,13 +19,18 @@ const ROWS_PER_PAGE = 10;
 
 function Search(): JSX.Element {
   const form = useForm<ContactSearchInDTO>({
-    resolver: classValidatorResolver(ContactSearchInDTO),
+    resolver: transformingClassValidatorResolver(
+      ContactSearchInDTO,
+      {},
+      { mode: "sync" },
+    ),
     mode: "onChange",
   });
 
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
   const searchParams: PaginatedContactSearchInDTO = {
+    //contact: cast(ContactSearchInDTO, form.watch()),
     contact: form.watch(),
     paginated: {
       rowsToSkip,
@@ -50,7 +55,7 @@ function Search(): JSX.Element {
             defaultValue=""
           ></TextField>
           <TextField name="email" label="Email" defaultValue=""></TextField>
-          <TextField name="id" label="id" defaultValue=""></TextField>
+          <TextField name="id" label="id" defaultValue={undefined}></TextField>
         </form>
       </FormProvider>
 
