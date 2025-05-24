@@ -76,6 +76,12 @@ jobs:
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
+    env:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: grassroots_test
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -97,7 +103,7 @@ jobs:
       - name: "Services: Start Test Services"
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
-          compose-file: "./docker/compose.yaml"
+          compose-file: "./docker/compose-ci.yaml"
 
       - name: Tests
         run: npm run test:jest --prefix grassroots-backend
