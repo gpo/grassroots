@@ -2,7 +2,6 @@ import { Module, ValidationPipe } from "@nestjs/common";
 import { AppController } from "./App.controller";
 import { AppService } from "./App.service";
 import { ContactsModule } from "./contacts/Contacts.module";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ContactEntityOutDTO } from "./grassroots-shared/Contact.entity.dto";
 import { NestExpressApplication } from "@nestjs/platform-express";
@@ -11,6 +10,8 @@ import { UsersModule } from "./users/Users.module";
 import { PassportModuleImport } from "./auth/PassportModuleImport";
 import { UsersService } from "./users/Users.service";
 import { UserEntity } from "./grassroots-shared/User.entity";
+import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
+import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 
 // To get these imports working both inside and outside jest, we need to play some ugly tricks.
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-require-imports
@@ -68,19 +69,18 @@ export async function listenAndConfigureApp(
 
 @Module({
   imports: [
-    // https://stackoverflow.com/questions/52570212/nestjs-using-configservice-with-typeormmodule
-    TypeOrmModule.forRootAsync({
+    MikroOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (config: ConfigService) => {
+      driver: PostgreSqlDriver,
+      useFactory: (config: ConfigService): MikroOrmModuleOptions => {
         return {
-          type: "postgres",
+          driver: PostgreSqlDriver,
           host: "localhost",
           port: config.get<number>("POSTGRES_PORT"),
-          username: config.get<string>("POSTGRES_USER"),
+          user: config.get<string>("POSTGRES_USER"),
           password: config.get<string>("POSTGRES_PASSWORD"),
-          database: config.get<string>("POSTGRES_DATABASE"),
-          entities: [ContactEntityOutDTO],
-          synchronize: true,
+          dbName: config.get<string>("POSTGRES_DATABASE"),
+          entities: [ContactEntityOutDTO, UserEntity],
         };
       },
       inject: [ConfigService],

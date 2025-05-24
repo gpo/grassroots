@@ -1,4 +1,4 @@
-import { Injectable, InjectionToken, Provider } from "@nestjs/common";
+/*import { Injectable, InjectionToken, Provider } from "@nestjs/common";
 import { EntityTarget, ObjectLiteral, QueryRunner, Repository } from "typeorm";
 
 @Injectable()
@@ -27,3 +27,4 @@ export class QueryRunnerProvider {
     };
   }
 }
+*/

@@ -5,25 +5,18 @@ import {
   ContactEntityOutDTO,
   CreateContactInDto,
 } from "../grassroots-shared/Contact.entity.dto";
-import { QueryRunner } from "typeorm";
 import { instanceToPlain, plainToClass } from "class-transformer";
-import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
+import { EntityManager } from "@mikro-orm/postgresql";
+//import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
 
 describe("ContactsService", () => {
   let service: ContactsService;
   let app: INestApplication;
-  let queryRunner: QueryRunner;
+  let entityManager: EntityManager;
 
   beforeAll(async () => {
-    ({ app, queryRunner } = await getTestApp({
-      providers: [
-        QueryRunnerProvider.getProviderFor(
-          ContactsService,
-          ContactEntityOutDTO,
-          (repo) => new ContactsService(repo),
-        ),
-      ],
-    }));
+    ({ app } = await getTestApp({}));
+    entityManager = app.get<EntityManager>(EntityManager);
     service = app.get<ContactsService>(ContactsService);
   });
 
@@ -32,11 +25,11 @@ describe("ContactsService", () => {
   });
 
   beforeEach(async () => {
-    await queryRunner.startTransaction();
+    await entityManager.begin();
   });
 
   afterEach(async () => {
-    await queryRunner.rollbackTransaction();
+    await entityManager.rollback();
   });
 
   it("should be defined", () => {

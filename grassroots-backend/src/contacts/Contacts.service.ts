@@ -6,27 +6,27 @@ import {
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
 } from "../grassroots-shared/Contact.entity.dto";
-import { Equal, Repository } from "typeorm";
-import { LikeOrUndefined } from "../util/LikeOrUndefined";
-import { InjectRepository } from "@nestjs/typeorm";
+import { InjectRepository } from "@mikro-orm/nestjs";
+import { EntityRepository } from "@mikro-orm/core";
 
 @Injectable()
 export class ContactsService {
   constructor(
     @InjectRepository(ContactEntityOutDTO)
-    private readonly contactsRepository: Repository<ContactEntityOutDTO>,
+    private readonly contactsRepository: EntityRepository<ContactEntityOutDTO>,
   ) {}
 
   async create(
     createContactDto: CreateContactInDto,
   ): Promise<ContactEntityOutDTO> {
-    return await this.contactsRepository.save(createContactDto);
+    return await this.contactsRepository.upsert(createContactDto);
   }
 
   async bulkCreate(
     createContactsDto: CreateContactInDto[],
   ): Promise<CreateBulkContactResponseDTO> {
-    const contacts = await this.contactsRepository.save(createContactsDto);
+    const contacts =
+      await this.contactsRepository.upsertMany(createContactsDto);
     return { ids: contacts.map((x) => x.id) };
   }
 
@@ -46,17 +46,19 @@ export class ContactsService {
     ) {
       return PaginatedContactOutDTO.empty();
     }
-    const [result, rowsTotal] = await this.contactsRepository.findAndCount({
-      take: paginated.rowsToTake,
-      skip: paginated.rowsToSkip,
-      where: {
-        firstName: LikeOrUndefined(contact.firstName),
-        lastName: LikeOrUndefined(contact.lastName),
-        email: LikeOrUndefined(contact.email),
-        phoneNumber: LikeOrUndefined(contact.phoneNumber),
-        id: contact.id !== undefined ? Equal(contact.id) : undefined,
+    const [result, rowsTotal] = await this.contactsRepository.findAndCount(
+      {
+        firstName: contact.firstName,
+        lastName: contact.lastName,
+        email: contact.email,
+        phoneNumber: contact.phoneNumber,
+        id: contact.id,
       },
-    });
+      {
+        limit: paginated.rowsToTake,
+        offset: paginated.rowsToSkip,
+      },
+    );
     return {
       contacts: result,
       paginated: {
@@ -67,6 +69,6 @@ export class ContactsService {
   }
 
   async findOne(id: number): Promise<ContactEntityOutDTO | null> {
-    return await this.contactsRepository.findOneBy({ id });
+    return await this.contactsRepository.findOne({ id });
   }
 }

@@ -2,22 +2,19 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import createClient, { Client } from "openapi-fetch";
 import { listenAndConfigureApp } from "../App.module";
 import { paths } from "../grassroots-shared/OpenAPI.gen";
-import { QueryRunner } from "typeorm";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
+import { EntityManager } from "@mikro-orm/core";
 
 class E2ETestFixture {
   app: NestExpressApplication;
   grassrootsAPI: Client<paths>;
-  queryRunner: QueryRunner;
 
   constructor(props: {
     app: NestExpressApplication;
     grassrootsAPI: Client<paths>;
-    queryRunner: QueryRunner;
   }) {
     this.app = props.app;
     this.grassrootsAPI = props.grassrootsAPI;
-    this.queryRunner = props.queryRunner;
   }
 }
 
@@ -28,13 +25,13 @@ export function useE2ETestFixture(
   let fixture: E2ETestFixture | undefined;
 
   beforeAll(async () => {
-    const { app, queryRunner } = await getTestApp(dependencies);
+    const { app } = await getTestApp(dependencies);
     const { port } = await listenAndConfigureApp(app, 0);
     const grassrootsAPI = createClient<paths>({
       baseUrl: `http://localhost:${String(port)}`,
       credentials: "include",
     });
-    fixture = new E2ETestFixture({ app, grassrootsAPI, queryRunner });
+    fixture = new E2ETestFixture({ app, grassrootsAPI });
   });
 
   afterAll(async () => {
@@ -42,11 +39,11 @@ export function useE2ETestFixture(
   });
 
   beforeEach(async () => {
-    await fixture?.queryRunner.startTransaction();
+    await fixture?.app.get<EntityManager>(EntityManager).begin();
   });
 
   afterEach(async () => {
-    await fixture?.queryRunner.rollbackTransaction();
+    await fixture?.app.get<EntityManager>(EntityManager).rollback();
   });
 
   return () => {

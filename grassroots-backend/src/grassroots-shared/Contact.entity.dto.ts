@@ -7,9 +7,9 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { PaginatedInDTO, PaginatedOutDTO } from "./Paginated.dto";
 import { Transform } from "class-transformer";
+import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 
 export class CreateContactInDto {
   @IsEmail()
@@ -33,24 +33,24 @@ export class CreateBulkContactResponseDTO {
 
 @Entity()
 export class ContactEntityOutDTO {
-  @PrimaryGeneratedColumn()
+  @PrimaryKey()
   @IsInt()
   @Min(1)
   id!: number;
 
-  @Column()
+  @Property()
   @IsEmail()
   email!: string;
 
-  @Column()
+  @Property()
   @IsNotEmpty()
   firstName!: string;
 
-  @Column()
+  @Property()
   @IsNotEmpty()
   lastName!: string;
 
-  @Column()
+  @Property()
   @IsPhoneNumber("CA")
   phoneNumber!: string;
 }
@@ -62,9 +62,10 @@ export class GetContactByIDResponse {
 
 export class ContactSearchInDTO {
   @IsOptional()
-  @Transform(({ value }: { value: string }) =>
-    value === "" ? undefined : Number(value),
-  )
+  @Transform(({ value }: { value: string }) => {
+    console.log("PPPP");
+    return value === "" ? undefined : Number(value);
+  })
   @IsInt()
   @Min(1)
   id?: number;
