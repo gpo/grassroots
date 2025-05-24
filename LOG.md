@@ -1,3 +1,7 @@
+# Auth
+
+Using passport and Express sessions, as per the [docs](https://docs.nestjs.com/recipes/passport).
+
 # Tanstack Query
 
 Brought Tanstack Query into the frontend, based on the quickstart [here](https://tanstack.com/query/latest/docs/framework/react/quick-start).

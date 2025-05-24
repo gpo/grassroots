@@ -61,4 +61,9 @@ describe("ContactsService", () => {
       }),
     );
   });
+
+  it("should have no entries in the test database", async () => {
+    const allContacts = await service.findAll();
+    expect(allContacts.length).toEqual(0);
+  });
 });
