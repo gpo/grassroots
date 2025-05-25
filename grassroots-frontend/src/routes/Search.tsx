@@ -9,8 +9,9 @@ import {
 } from "../grassroots-shared/Contact.entity.dto";
 import { TextField } from "../components/TextField";
 import { RoutedLink } from "../components/RoutedLink";
-import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
+// import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
 import { cast } from "../grassroots-shared/Cast";
+import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 
 export const Route = createFileRoute("/Search")({
   component: Search,
@@ -20,11 +21,7 @@ const ROWS_PER_PAGE = 10;
 
 function Search(): JSX.Element {
   const form = useForm<ContactSearchInDTO>({
-    resolver: transformingClassValidatorResolver(
-      ContactSearchInDTO,
-      {},
-      { mode: "sync" },
-    ),
+    resolver: classValidatorResolver(ContactSearchInDTO, {}, { mode: "sync" }),
     mode: "onChange",
   });
 
