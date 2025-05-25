@@ -10,6 +10,7 @@ import {
 import { TextField } from "../components/TextField";
 import { RoutedLink } from "../components/RoutedLink";
 import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
+import { cast } from "../grassroots-shared/Cast";
 
 export const Route = createFileRoute("/Search")({
   component: Search,
@@ -30,8 +31,7 @@ function Search(): JSX.Element {
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
   const searchParams: PaginatedContactSearchInDTO = {
-    //contact: cast(ContactSearchInDTO, form.watch()),
-    contact: form.watch(),
+    contact: cast(ContactSearchInDTO, form.watch()),
     paginated: {
       rowsToSkip,
       rowsToTake: ROWS_PER_PAGE,

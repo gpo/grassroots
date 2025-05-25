@@ -7,9 +7,13 @@ import { AuthModule } from "../auth/Auth.module";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { UsersModule } from "../users/Users.module";
 import { AuthService } from "../auth/Auth.service";
-import { PostgreSqlDriver } from "@mikro-orm/postgresql";
+import { EntityRepository, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
-import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
+import {
+  getRepositoryToken,
+  MikroOrmModule,
+  MikroOrmModuleOptions,
+} from "@mikro-orm/nestjs";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -48,13 +52,17 @@ export async function getTestApp(
         },
         inject: [ConfigService],
       }),
-      //      MikroOrmModule.forRoot([ContactEntityOutDTO]),
       AuthModule,
       UsersModule,
       PassportModuleImport(),
+      MikroOrmModule.forFeature({ entities: [ContactEntityOutDTO] }),
     ],
     controllers: dependencies.controllers ?? [],
-    providers: [...(dependencies.providers ?? []), AuthService],
+    providers: [
+      ...(dependencies.providers ?? []),
+      AuthService,
+      EntityRepository<ContactEntityOutDTO>,
+    ],
   }).compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
