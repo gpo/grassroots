@@ -64,7 +64,6 @@ export class GetContactByIDResponse {
 export class ContactSearchInDTO {
   @IsOptional()
   @Transform(({ value }: { value: string }) => {
-    console.log(value);
     const result = value === "" ? undefined : Number(value);
     console.log(
       value + " => " + String(result) + " which is a " + typeof result,

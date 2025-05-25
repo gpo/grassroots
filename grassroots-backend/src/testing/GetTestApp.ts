@@ -44,6 +44,8 @@ export async function getTestApp(
             password: config.get<string>("POSTGRES_PASSWORD"),
             dbName: config.get<string>("POSTGRES_DATABASE"),
             entities: [ContactEntityOutDTO, UserEntity],
+            // Allows global transaction management, used for our rollback based testing strategy.
+            allowGlobalContext: true,
           };
         },
         inject: [ConfigService],

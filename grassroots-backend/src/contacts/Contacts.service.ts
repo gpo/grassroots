@@ -48,7 +48,6 @@ export class ContactsService {
     contact,
     paginated,
   }: PaginatedContactSearchInDTO): Promise<PaginatedContactOutDTO> {
-    console.log("ID IS " + String(contact.id) + " " + typeof contact.id);
     // If all fields are blank, instead of returning all results, we'll return no results.
     if (
       Object.values(contact).every(
@@ -67,7 +66,6 @@ export class ContactsService {
       ),
       ...(contact.id == undefined ? {} : { id: contact.id }),
     };
-    console.log(query);
     const [result, rowsTotal] = await this.contactsRepository.findAndCount(
       query,
       {

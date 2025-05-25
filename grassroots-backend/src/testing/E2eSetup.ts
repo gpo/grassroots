@@ -32,7 +32,6 @@ export function useE2ETestFixture(
       baseUrl: `http://localhost:${String(port)}`,
       credentials: "include",
     });
-    console.log("DROPPING");
     const orm = app.get<MikroORM>(MikroORM);
     const generator = orm.getSchemaGenerator();
     await generator.dropSchema();

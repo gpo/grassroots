@@ -15,3 +15,7 @@ export function PrimaryKey(): DecoratorResult {
 export function Property(): DecoratorResult {
   return noop;
 }
+
+export function Unique(): DecoratorResult {
+  return noop;
+}

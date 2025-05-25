@@ -8,8 +8,6 @@ dotenv.config({
   path: "../.env.development",
 });
 
-console.log("dbname", process.env.POSTGRES_DATABASE);
-
 export default defineConfig({
   entities: [ContactEntityOutDTO, UserEntity],
   host: "localhost",
