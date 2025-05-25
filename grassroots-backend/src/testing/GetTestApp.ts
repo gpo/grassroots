@@ -9,11 +9,7 @@ import { UsersModule } from "../users/Users.module";
 import { AuthService } from "../auth/Auth.service";
 import { EntityRepository, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
-import {
-  getRepositoryToken,
-  MikroOrmModule,
-  MikroOrmModuleOptions,
-} from "@mikro-orm/nestjs";
+import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 
 let app: NestExpressApplication | undefined = undefined;
 

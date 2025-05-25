@@ -9,7 +9,7 @@ import {
 } from "class-validator";
 import { PaginatedInDTO, PaginatedOutDTO } from "./Paginated.dto";
 import { Transform } from "class-transformer";
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
 
 export class CreateContactInDto {
   @IsEmail()
@@ -39,6 +39,7 @@ export class ContactEntityOutDTO {
   id!: number;
 
   @Property()
+  @Unique()
   @IsEmail()
   email!: string;
 

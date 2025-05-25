@@ -4,6 +4,7 @@ import { listenAndConfigureApp } from "../App.module";
 import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { EntityManager } from "@mikro-orm/core";
+import { MikroORM } from "@mikro-orm/postgresql";
 
 class E2ETestFixture {
   app: NestExpressApplication;
@@ -31,6 +32,11 @@ export function useE2ETestFixture(
       baseUrl: `http://localhost:${String(port)}`,
       credentials: "include",
     });
+    console.log("DROPPING");
+    const orm = app.get<MikroORM>(MikroORM);
+    const generator = orm.getSchemaGenerator();
+    await generator.dropSchema();
+    await generator.createSchema();
     fixture = new E2ETestFixture({ app, grassrootsAPI });
   });
 
