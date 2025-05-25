@@ -8,6 +8,7 @@ import {
 } from "../grassroots-shared/Contact.entity.dto";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { EntityRepository, FilterQuery } from "@mikro-orm/core";
+import { LikeOrUndefined } from "../util/LikeOrUndefined";
 
 @Injectable()
 export class ContactsService {
@@ -57,11 +58,14 @@ export class ContactsService {
       return PaginatedContactOutDTO.empty();
     }
     const query: FilterQuery<ContactEntityOutDTO> = {
-      firstName: { $like: contact.firstName ?? "" },
-      lastName: { $like: contact.lastName ?? "" },
-      email: { $like: contact.email ?? "" },
-      phoneNumber: { $like: contact.phoneNumber ?? "" },
-      ...(contact.id == undefined ? {} : { id: { $ne: contact.id } }),
+      ...LikeOrUndefined<ContactEntityOutDTO>("firstName", contact.firstName),
+      ...LikeOrUndefined<ContactEntityOutDTO>("lastName", contact.lastName),
+      ...LikeOrUndefined<ContactEntityOutDTO>("email", contact.email),
+      ...LikeOrUndefined<ContactEntityOutDTO>(
+        "phoneNumber",
+        contact.phoneNumber,
+      ),
+      ...(contact.id == undefined ? {} : { id: contact.id }),
     };
     console.log(query);
     const [result, rowsTotal] = await this.contactsRepository.findAndCount(
