@@ -65,5 +65,5 @@ async function bootstrap(port: number): Promise<void> {
   }
 }
 
-const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+const port = process.env.PORT !== undefined ? parseInt(process.env.PORT) : 3000;
 void bootstrap(port);
