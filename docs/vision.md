@@ -1,4 +1,6 @@
-# Vision for a Canvassing Tool for the Green Party of Ontario
+# Vision
+
+Why we're building a Canvassing Tool for the Green Party of Ontario.
 
 ## Customized tools for Green Party in the Canadian political context
 
