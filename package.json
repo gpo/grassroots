@@ -20,6 +20,7 @@
     "postinstall": "echo '\n### Install Backend ###\n' && npm install --prefix grassroots-backend && echo '\n### Install Frontend ###\n' && npm install --prefix grassroots-frontend"
   },
   "devDependencies": {
+    "@darraghor/eslint-plugin-nestjs-typed": "^6.4.14",
     "@eslint/compat": "^1.2.8",
     "@eslint/js": "^9.25.1",
     "@tanstack/eslint-plugin-router": "^1.115.0",
