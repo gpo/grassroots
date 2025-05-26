@@ -10,6 +10,7 @@ import {
 import { PaginatedInDTO, PaginatedOutDTO } from "./Paginated.dto";
 import { Transform } from "class-transformer";
 import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
+import "reflect-metadata";
 
 export class CreateContactInDto {
   @IsEmail()
@@ -63,10 +64,13 @@ export class GetContactByIDResponse {
 
 export class ContactSearchInDTO {
   @IsOptional()
-  @Transform(({ value }: { value: string }) => {
-    const result = value === "" ? undefined : Number(value);
+  @Transform(({ value }: { value: string | undefined }) => {
+    if (value === "" || value === undefined) {
+      return undefined;
+    }
+    const result = Number(value);
     console.log(
-      value + " => " + String(result) + " which is a " + typeof result,
+      String(value) + " => " + String(result) + " which is a " + typeof result,
     );
     return result;
   })

@@ -12,6 +12,7 @@ export function cast<T extends object>(
   plain: PropsOf<T>,
 ): T {
   const instance = plainToInstance(cls, plain);
+  console.log("instance: ", instance);
   const validationErrors = validateSync(instance);
   if (validationErrors.length > 0) {
     throw new Error(validationErrors.join("\n"));

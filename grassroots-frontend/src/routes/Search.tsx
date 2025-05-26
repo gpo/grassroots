@@ -9,9 +9,9 @@ import {
 } from "../grassroots-shared/Contact.entity.dto";
 import { TextField } from "../components/TextField";
 import { RoutedLink } from "../components/RoutedLink";
-// import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
-import { cast } from "../grassroots-shared/Cast";
+import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
+import { plainToInstance } from "class-transformer";
 
 export const Route = createFileRoute("/Search")({
   component: Search,
@@ -21,14 +21,18 @@ const ROWS_PER_PAGE = 10;
 
 function Search(): JSX.Element {
   const form = useForm<ContactSearchInDTO>({
-    resolver: classValidatorResolver(ContactSearchInDTO, {}, { mode: "sync" }),
+    resolver: transformingClassValidatorResolver(
+      ContactSearchInDTO,
+      {},
+      { mode: "sync" },
+    ),
     mode: "onChange",
   });
 
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
   const searchParams: PaginatedContactSearchInDTO = {
-    contact: cast(ContactSearchInDTO, form.watch()),
+    contact: plainToInstance(ContactSearchInDTO, form.watch()),
     paginated: {
       rowsToSkip,
       rowsToTake: ROWS_PER_PAGE,
@@ -52,7 +56,12 @@ function Search(): JSX.Element {
             defaultValue=""
           ></TextField>
           <TextField name="email" label="Email" defaultValue=""></TextField>
-          <TextField name="id" label="id" defaultValue={undefined}></TextField>
+          <TextField
+            name="id"
+            label="id"
+            type="number"
+            defaultValue=""
+          ></TextField>
         </form>
       </FormProvider>
 
