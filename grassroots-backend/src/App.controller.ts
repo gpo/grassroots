@@ -30,7 +30,7 @@ export class AppController {
         throw new Error("No user found for login.");
       }
       req.login(req.user, (err) => {
-        if (err) {
+        if (err !== null && err !== undefined) {
           throw err;
         }
         resolve(req.user);

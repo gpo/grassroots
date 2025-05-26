@@ -7,6 +7,7 @@ import { includeIgnoreFile } from "@eslint/compat";
 import pluginRouter from "@tanstack/eslint-plugin-router";
 import checkFile from "eslint-plugin-check-file";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
+import eslintNestJs from "@darraghor/eslint-plugin-nestjs-typed";
 
 export default tseslint.config(
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
@@ -17,6 +18,7 @@ export default tseslint.config(
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,
   eslintConfigPrettier,
+  eslintNestJs.configs.flatRecommended,
   {
     ignores: [
       "**/*.mjs",
@@ -56,6 +58,7 @@ export default tseslint.config(
       "@typescript-eslint/no-unsafe-argument": "error",
       "@typescript-eslint/require-await": "error",
       "@typescript-eslint/explicit-function-return-type": "error",
+      "@typescript-eslint/strict-boolean-expressions": "error",
       "@typescript-eslint/consistent-type-assertions": [
         "error",
         { assertionStyle: "never" },
@@ -74,6 +77,12 @@ export default tseslint.config(
           ignoreMiddleExtensions: true,
         },
       ],
+      // We use autoTagControllers currently.
+      "@darraghor/nestjs-typed/controllers-should-supply-api-tags": "off",
+      // The nest Swagger CLI adds these automatically in most cases.
+      "@darraghor/nestjs-typed/api-method-should-specify-api-response": "off",
+      // This is currently reporting a bunch of false positives.
+      "@darraghor/nestjs-typed/injectable-should-be-provided": "off",
     },
   },
 );
