@@ -8,15 +8,19 @@ There are a few generic tools for canvasing and calling but we would need to ada
 
 ### In the Green Party
 
-The Green Party of Canada, BC, NB, and PEI are all looking to replace GVote. If we build a tool that addresses the concerns of GVote it could become the de facto tool across the Green Party in Canada. The UK, Australia, and many other regions are also in a similar position.
+The Green Party of Canada, BC, NB, and PEI are all looking to replace GVote.
+If we build a tool that addresses the concerns of GVote it could become the de facto tool across the Green Party in Canada.
+The UK, Australia, and many other regions are also in a similar position.
 
 ### Outside the Green Party
 
-Municipal candidates don't have access to tools like this. Providing an open source tool would allow municipal candidates to use tools similar to the GPO's tooling, allowing our volunteers to jump seamlessly into municipal campaigns.
+Municipal candidates don't have access to tools like this.
+Providing an open source tool would allow municipal candidates to use tools similar to the GPO's tooling, allowing our volunteers to jump seamlessly into municipal campaigns.
 
 ## Engagement of a volunteer base
 
-Opening up new ways to volunteer grows our volunteer base. Volunteers who have skills in software, design and product management can have a massive impact by volunteering those skills.
+Opening up new ways to volunteer grows our volunteer base.
+Volunteers who have skills in software, design and product management can have a massive impact by volunteering those skills.
 
 ## Existing Tools are cost prohibitive
 
