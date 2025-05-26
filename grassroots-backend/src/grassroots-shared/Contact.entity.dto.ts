@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEmail,
   IsInt,
   IsNotEmpty,
@@ -8,7 +9,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { PaginatedInDTO, PaginatedOutDTO } from "./Paginated.dto";
-import { Transform } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
 import "reflect-metadata";
 
@@ -24,7 +25,8 @@ export class CreateContactInDto {
 }
 
 export class CreateBulkContactRequestDto {
-  @ValidateNested()
+  @ValidateNested({ each: true })
+  @Type(() => CreateContactInDto)
   contacts!: CreateContactInDto[];
 }
 
@@ -59,6 +61,7 @@ export class ContactEntityOutDTO {
 
 export class GetContactByIDResponse {
   @ValidateNested()
+  @IsOptional()
   contact!: ContactEntityOutDTO | null;
 }
 
@@ -75,23 +78,34 @@ export class ContactSearchInDTO {
   @IsInt()
   @Min(1)
   id?: number;
+  @IsOptional()
   email?: string;
+  @IsOptional()
   firstName?: string;
+  @IsOptional()
   lastName?: string;
+  @IsOptional()
   phoneNumber?: string;
 }
 
 export class PaginatedContactSearchInDTO {
   @ValidateNested()
+  @Type(() => ContactSearchInDTO)
   contact!: ContactSearchInDTO;
+
   @ValidateNested()
+  @Type(() => PaginatedInDTO)
   paginated!: PaginatedInDTO;
 }
 
 export class PaginatedContactOutDTO {
-  @ValidateNested()
+  @ValidateNested({ each: true })
+  @Type(() => ContactEntityOutDTO)
+  @IsArray()
   contacts!: ContactEntityOutDTO[];
+
   @ValidateNested()
+  @Type(() => PaginatedOutDTO)
   paginated!: PaginatedOutDTO;
 
   static empty(): PaginatedContactOutDTO {

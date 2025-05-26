@@ -25,7 +25,9 @@ export async function listenAndConfigureApp(
   app: NestExpressApplication,
   desiredPort: number,
 ): Promise<{ port: number }> {
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({ transform: true, forbidUnknownValues: true }),
+  );
   // TODO: migrate to a real session store (https://github.com/expressjs/session?tab=readme-ov-file#compatible-session-stores)
   app.use(
     expressSession({

@@ -64,6 +64,8 @@ export async function getTestApp(
   }).compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({ transform: true, forbidUnknownValues: true }),
+  );
   return { app };
 }
