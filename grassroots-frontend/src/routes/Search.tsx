@@ -10,7 +10,6 @@ import {
 import { TextField } from "../components/TextField";
 import { RoutedLink } from "../components/RoutedLink";
 import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
-import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { plainToInstance } from "class-transformer";
 
 export const Route = createFileRoute("/Search")({

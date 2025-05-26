@@ -68,11 +68,9 @@ export class ContactSearchInDTO {
     if (value === "" || value === undefined) {
       return undefined;
     }
-    const result = Number(value);
-    console.log(
-      String(value) + " => " + String(result) + " which is a " + typeof result,
-    );
-    return result;
+    // This happens pre-validation. If "value" can't be turned into a number,
+    // NaN is returned, which will violate the "Min(1)" constraint.
+    return Number(value);
   })
   @IsInt()
   @Min(1)
