@@ -24,6 +24,7 @@
     "@eslint/js": "^9.25.1",
     "@tanstack/eslint-plugin-router": "^1.115.0",
     "concurrently": "^9.1.2",
+    "eclint": "^2.8.1",
     "eslint-config-prettier": "^10.1.2",
     "eslint-plugin-check-file": "^3.2.0",
     "eslint-plugin-react": "^7.37.5",

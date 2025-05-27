@@ -23,7 +23,7 @@ jobs:
           LAST_COMMIT_MESSAGE=$(git show -s --pretty=%B HEAD~1)
 
           if [ "$CURRENT_COMMIT_MESSAGE" == "$COMMIT_MESSAGE" ] && \
-             [ "$LAST_COMMIT_MESSAGE" == "$COMMIT_MESSAGE" ]; then
+            [ "$LAST_COMMIT_MESSAGE" == "$COMMIT_MESSAGE" ]; then
             echo "It looks like the last two commits are from CI. This indicates a loop."
             exit 1
           fi
@@ -53,6 +53,9 @@ jobs:
       - name: Run ESLint
         run: npx eslint . --output-file eslint_report.json --format json --fix
         continue-on-error: true
+
+      - name: fix using editorconfig
+        run: npx eclint fix $(git ls-files | grep -v "\.\(tsx\?\|json\)$")
 
       - name: Format code with Prettier
         run: npx prettier --write .
