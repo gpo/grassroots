@@ -11,6 +11,7 @@ import { UsersModule } from "./users/Users.module";
 import { PassportModuleImport } from "./auth/PassportModuleImport";
 import { UsersService } from "./users/Users.service";
 import { UserEntity } from "./grassroots-shared/User.entity";
+import { AuthController } from "./auth/Auth.controller";
 
 // To get these imports working both inside and outside jest, we need to play some ugly tricks.
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-require-imports
@@ -100,7 +101,7 @@ export async function listenAndConfigureApp(
     UsersModule,
     PassportModuleImport(),
   ],
-  controllers: [AppController],
+  controllers: [AppController, AuthController],
   providers: [AppService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
