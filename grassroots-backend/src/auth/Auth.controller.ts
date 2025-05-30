@@ -1,24 +1,17 @@
-import { Controller, Get, Post, UseGuards, Request } from "@nestjs/common";
-import { AppService } from "./App.service";
-import { HelloOutDTO } from "./app/entities/Hello.dto";
-import { UserEntity } from "./grassroots-shared/User.entity";
-import { DefaultAuthGuard } from "./auth/DefaultAuth.guard";
-import type { GrassrootsRequest } from "./types/GrassrootsRequest";
+import { Controller, Post, UseGuards, Request } from "@nestjs/common";
 import { ApiBody } from "@nestjs/swagger";
-import { AuthService } from "./auth/Auth.service";
+import { AppService } from "../App.service";
+import { UserEntity } from "../grassroots-shared/User.entity";
+import { GrassrootsRequest } from "../types/GrassrootsRequest";
+import { AuthService } from "./Auth.service";
+import { DefaultAuthGuard } from "./DefaultAuth.guard";
 
 @Controller()
-export class AppController {
+export class AuthController {
   constructor(
     private readonly appService: AppService,
     private authService: AuthService,
   ) {}
-
-  @Get()
-  getHello(): HelloOutDTO {
-    return this.appService.getHello();
-  }
-
   @UseGuards(DefaultAuthGuard)
   @ApiBody({ type: UserEntity })
   @Post("auth/login")

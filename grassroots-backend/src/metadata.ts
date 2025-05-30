@@ -8,6 +8,9 @@ export default async () => {
       "./grassroots-shared/Paginated.dto"
     ),
     ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
+    ["./grassroots-shared/User.entity"]: await import(
+      "./grassroots-shared/User.entity"
+    ),
   };
   return {
     "@nestjs/swagger": {
@@ -15,6 +18,15 @@ export default async () => {
         [
           import("./app/entities/Hello.dto"),
           { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
+        [
+          import("./grassroots-shared/User.entity"),
+          {
+            UserEntity: {
+              email: { required: true, type: () => String, format: "email" },
+              password: { required: true, type: () => String },
+            },
+          },
         ],
         [
           import("./grassroots-shared/Paginated.dto"),
@@ -119,6 +131,7 @@ export default async () => {
           {
             AppController: {
               getHello: { type: t["./app/entities/Hello.dto"].HelloOutDTO },
+              login: { type: t["./grassroots-shared/User.entity"].UserEntity },
             },
           },
         ],
@@ -148,6 +161,14 @@ export default async () => {
                 type: t["./grassroots-shared/Contact.entity.dto"]
                   .GetContactByIDResponse,
               },
+            },
+          },
+        ],
+        [
+          import("./auth/Auth.controller"),
+          {
+            AuthController: {
+              login: { type: t["./grassroots-shared/User.entity"].UserEntity },
             },
           },
         ],
