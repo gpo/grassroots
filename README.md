@@ -74,28 +74,84 @@ install docker https://www.docker.com/products/docker-desktop/ (if not already i
 
 docker-compose -f docker/compose.yaml up -d db
 
-# Running in Dev Mode
+# Dev Setup Guide - Running in Dev Mode
 
-## Backend
+# Option 1: Traditional Setup (Database in Docker, Apps locally)
 
-```sh
+docker-compose -f docker/compose.yaml up -d db
 cd grassroots-backend
+npm install # first time only
 npm run start:dev
-```
 
-## Frontend
+# In new terminal
 
-```sh
-cd grassroots-frontend
+cd grassroots-frontend  
+npm install # first time only
 npm run dev
 
+# Option 2: Full Docker Setup (Everything in containers - PR #53)
 
+# Note: Requires checking out PR #53 until merged
 
+git fetch origin pull/53/head:pr-53
+git checkout pr-53
 
+# Prerequisites for Windows:
 
+git config core.autocrlf false
+echo "\*.sh text eol=lf" >> .gitattributes
 
+# Start containers
 
+docker-compose -f docker/compose.yaml up -d --build
 
+# Terminal 1 - Backend
 
+docker exec -it grassroots_dev bash
+cd /app/grassroots-backend
+rm -rf node_modules package-lock.json # first time only
+npm install
+npm run start:dev
 
-```
+# Terminal 2 - Frontend
+
+docker exec -it grassroots_dev bash
+cd /app/grassroots-frontend
+rm -rf node_modules package-lock.json # first time only
+npm install
+npm run dev
+
+# Troubleshooting Docker Setup
+
+# Check .env.development contains:
+
+# POSTGRES_HOST=db
+
+# POSTGRES_DATABASE=grassroots
+
+# POSTGRES_USER=grassroots
+
+# POSTGRES_PASSWORD=localDevPassword
+
+# POSTGRES_PORT=5432
+
+# Fix line ending issues
+
+git checkout HEAD -- docker/docker-entrypoint.sh
+docker-compose -f docker/compose.yaml up -d --build grassroots_dev
+
+# Check logs if container fails
+
+docker logs grassroots_dev
+
+# Port conflicts - ensure these are free:
+
+# 3000 (Backend), 5173 (Frontend), 5432 (Database)
+
+# Accessing the Application
+
+# Frontend: http://localhost:5173 or http://grassroots.local
+
+# Backend API: http://localhost:3000
+
+# Test API: http://localhost:3000/contacts
