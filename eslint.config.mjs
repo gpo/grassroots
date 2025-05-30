@@ -18,7 +18,13 @@ export default tseslint.config(
   ...tseslint.configs.stylisticTypeChecked,
   eslintConfigPrettier,
   {
-    ignores: ["**/*.mjs", "**/*.cjs", "**/*.js", "**/*.gen.ts"],
+    ignores: [
+      "**/*.mjs",
+      "**/*.cjs",
+      "**/*.js",
+      "**/*.gen.ts",
+      "grassroots-backend/src/migrations/",
+    ],
   },
   {
     languageOptions: {

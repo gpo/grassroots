@@ -1,8 +1,9 @@
+import { Entity, PrimaryKey } from "@mikro-orm/core";
 import { IsEmail, IsString } from "class-validator";
-import { Entity } from "typeorm";
 
 @Entity()
 export class UserEntity {
+  @PrimaryKey()
   @IsEmail()
   email!: string;
   @IsString()

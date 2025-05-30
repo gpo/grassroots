@@ -37,6 +37,20 @@ cd grassroots-frontend
 npm run dev
 ```
 
+## Migrations
+
+To migrate:
+
+```sh
+npx mikro-orm migration:up
+```
+
+To create a migration to the current Entity schemas.
+
+```sh
+npx mikro-orm migration:create
+```
+
 ## Frequently Seen Problems
 
 `duplicate key value violates unique constraint "pg_class_relname_nsp_index"`

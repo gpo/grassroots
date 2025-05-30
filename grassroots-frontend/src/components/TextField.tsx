@@ -1,5 +1,5 @@
 import { TextInput } from "@mantine/core";
-import { JSX } from "react";
+import { HTMLInputTypeAttribute, JSX } from "react";
 import {
   FieldPath,
   FieldPathValue,
@@ -14,6 +14,7 @@ export interface TextFieldProps<T extends FieldValues> {
   defaultValue: FieldPathValue<T, FieldPath<T>>;
   label: string;
   name: Path<T>;
+  type?: HTMLInputTypeAttribute;
 }
 
 export function TextField<T extends FieldValues>(
@@ -30,6 +31,7 @@ export function TextField<T extends FieldValues>(
   return (
     <TextInput
       value={value}
+      type={props.type}
       onChange={(v) => {
         onChange(v.target.value);
       }}

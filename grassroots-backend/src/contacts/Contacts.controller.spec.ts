@@ -2,18 +2,19 @@ import { ContactsController } from "./Contacts.controller";
 import { getTestApp } from "../testing/GetTestApp";
 import { ContactsService } from "./Contacts.service";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { QueryRunner } from "typeorm";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 describe("ContactsController", () => {
   let controller: ContactsController;
   let app: NestExpressApplication;
-  let queryRunner: QueryRunner;
+  let entityManager: EntityManager;
 
   beforeAll(async () => {
-    ({ app, queryRunner } = await getTestApp({
+    ({ app } = await getTestApp({
       controllers: [ContactsController],
       providers: [ContactsService],
     }));
+    entityManager = app.get<EntityManager>(EntityManager);
     controller = app.get<ContactsController>(ContactsController);
   });
 
@@ -22,11 +23,11 @@ describe("ContactsController", () => {
   });
 
   beforeEach(async () => {
-    await queryRunner.startTransaction();
+    await entityManager.begin();
   });
 
   afterEach(async () => {
-    await queryRunner.rollbackTransaction();
+    await entityManager.rollback();
   });
 
   it("should be defined", () => {
