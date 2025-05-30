@@ -24,10 +24,16 @@ export async function listenAndConfigureApp(
   desiredPort: number,
 ): Promise<{ port: number }> {
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+
+  const config = app.get<ConfigService>(ConfigService);
+  const SESSION_SECRET = config.get<string>("SESSION_SECRET");
+  if (SESSION_SECRET === undefined) {
+    throw new Error("Missing SESSION_SECRET environment variable.");
+  }
   // TODO: migrate to a real session store (https://github.com/expressjs/session?tab=readme-ov-file#compatible-session-stores)
   app.use(
     expressSession({
-      secret: "your-secret",
+      secret: SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
       cookie: { secure: false }, // TODO: change to true once we're using https.

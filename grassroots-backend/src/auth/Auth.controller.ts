@@ -7,7 +7,7 @@ import { AuthService } from "./Auth.service";
 import { DefaultAuthGuard } from "./DefaultAuth.guard";
 
 @Controller()
-export class AppController {
+export class AuthController {
   constructor(
     private readonly appService: AppService,
     private authService: AuthService,
