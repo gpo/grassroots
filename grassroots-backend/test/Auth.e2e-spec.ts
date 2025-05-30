@@ -2,7 +2,7 @@ import { AppService } from "../src/App.service";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
 import { AuthController } from "../src/auth/Auth.controller";
 
-describe("AppController (e2e)", () => {
+describe("AuthController (e2e)", () => {
   const getFixture = useE2ETestFixture({
     providers: [AppService],
     controllers: [AuthController],
