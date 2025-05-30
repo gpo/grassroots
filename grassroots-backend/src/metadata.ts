@@ -164,6 +164,14 @@ export default async () => {
             },
           },
         ],
+        [
+          import("./auth/Auth.controller"),
+          {
+            AuthController: {
+              login: { type: t["./grassroots-shared/User.entity"].UserEntity },
+            },
+          },
+        ],
       ],
     },
   };
