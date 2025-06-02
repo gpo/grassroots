@@ -3,7 +3,7 @@ import createClient, { Client } from "openapi-fetch";
 import { listenAndConfigureApp } from "../App.module";
 import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
-import { EntityManager } from "@mikro-orm/core";
+import { EntityManager, MikroORM } from "@mikro-orm/core";
 
 class E2ETestFixture {
   app: NestExpressApplication;
@@ -26,6 +26,10 @@ export function useE2ETestFixture(
 
   beforeAll(async () => {
     const { app } = await getTestApp(dependencies);
+    const orm = app.get<MikroORM>(MikroORM);
+    const generator = orm.getSchemaGenerator();
+    await generator.dropSchema();
+    await generator.createSchema();
     const { port } = await listenAndConfigureApp(app, 0);
     const grassrootsAPI = createClient<paths>({
       baseUrl: `http://localhost:${String(port)}`,
