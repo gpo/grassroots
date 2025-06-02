@@ -7,9 +7,10 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { PaginatedInDTO, PaginatedOutDTO } from "./Paginated.dto";
 import { Transform } from "class-transformer";
+import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
+import "reflect-metadata";
 
 export class CreateContactInDto {
   @IsEmail()
@@ -33,24 +34,25 @@ export class CreateBulkContactResponseDTO {
 
 @Entity()
 export class ContactEntityOutDTO {
-  @PrimaryGeneratedColumn()
+  @PrimaryKey()
   @IsInt()
   @Min(1)
   id!: number;
 
-  @Column()
+  @Property()
+  @Unique()
   @IsEmail()
   email!: string;
 
-  @Column()
+  @Property()
   @IsNotEmpty()
   firstName!: string;
 
-  @Column()
+  @Property()
   @IsNotEmpty()
   lastName!: string;
 
-  @Column()
+  @Property()
   @IsPhoneNumber("CA")
   phoneNumber!: string;
 }
@@ -62,9 +64,14 @@ export class GetContactByIDResponse {
 
 export class ContactSearchInDTO {
   @IsOptional()
-  @Transform(({ value }: { value: string }) =>
-    value === "" ? undefined : Number(value),
-  )
+  @Transform(({ value }: { value: string | undefined }) => {
+    if (value === "" || value === undefined) {
+      return undefined;
+    }
+    // This happens pre-validation. If "value" can't be turned into a number,
+    // NaN is returned, which will violate the "Min(1)" constraint.
+    return Number(value);
+  })
   @IsInt()
   @Min(1)
   id?: number;

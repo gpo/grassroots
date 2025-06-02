@@ -1,18 +1,17 @@
 import { Test } from "@nestjs/testing";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { ContactEntityOutDTO } from "../grassroots-shared/Contact.entity.dto";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { DataSource, QueryRunner } from "typeorm";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Provider, Type, ValidationPipe } from "@nestjs/common";
-import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
 import { AuthModule } from "../auth/Auth.module";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { UsersModule } from "../users/Users.module";
 import { AuthService } from "../auth/Auth.service";
+import { EntityRepository, PostgreSqlDriver } from "@mikro-orm/postgresql";
+import { UserEntity } from "../grassroots-shared/User.entity";
+import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 
 let app: NestExpressApplication | undefined = undefined;
-let queryRunner: QueryRunner | undefined = undefined;
 
 export interface TestSpecificDependencies {
   providers?: Provider[];
@@ -23,13 +22,9 @@ export async function getTestApp(
   dependencies: TestSpecificDependencies,
 ): Promise<{
   app: NestExpressApplication;
-  queryRunner: QueryRunner;
 }> {
   if (app) {
-    if (!queryRunner) {
-      throw new Error("Query runner failed to initialize for tests.");
-    }
-    return { app, queryRunner };
+    return { app };
   }
   const moduleRef = await Test.createTestingModule({
     imports: [
@@ -37,48 +32,38 @@ export async function getTestApp(
         envFilePath: "../.env.test",
         isGlobal: true,
       }),
-      // https://stackoverflow.com/questions/52570212/nestjs-using-configservice-with-typeormmodule
-      TypeOrmModule.forRootAsync({
+      MikroOrmModule.forRootAsync({
         imports: [ConfigModule],
-        useFactory: (config: ConfigService) => {
+        driver: PostgreSqlDriver,
+        useFactory: (config: ConfigService): MikroOrmModuleOptions => {
           return {
-            type: "postgres",
+            driver: PostgreSqlDriver,
             host: config.get<string>("POSTGRES_HOST"),
             port: config.get<number>("POSTGRES_PORT"),
-            username: config.get<string>("POSTGRES_USER"),
+            user: config.get<string>("POSTGRES_USER"),
             password: config.get<string>("POSTGRES_PASSWORD"),
-            database: config.get<string>("POSTGRES_DB"),
-            entities: [ContactEntityOutDTO],
-            synchronize: true,
-            connectionTimeout: 30000, // Increased timeout to 30 seconds
+            dbName: config.get<string>("POSTGRES_DATABASE"),
+            entities: [ContactEntityOutDTO, UserEntity],
+            // Allows global transaction management, used for our rollback based testing strategy.
+            allowGlobalContext: true,
           };
         },
         inject: [ConfigService],
       }),
-      TypeOrmModule.forFeature([ContactEntityOutDTO]),
       AuthModule,
       UsersModule,
       PassportModuleImport(),
+      MikroOrmModule.forFeature({ entities: [ContactEntityOutDTO] }),
     ],
     controllers: dependencies.controllers ?? [],
     providers: [
       ...(dependencies.providers ?? []),
-      {
-        provide: QueryRunnerProvider,
-        useFactory: (dataSource: DataSource): QueryRunnerProvider => {
-          queryRunner = dataSource.createQueryRunner();
-          return new QueryRunnerProvider(queryRunner);
-        },
-        inject: [DataSource],
-      },
       AuthService,
+      EntityRepository<ContactEntityOutDTO>,
     ],
   }).compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
-  if (!queryRunner) {
-    throw new Error("Query runner failed to initialize for tests.");
-  }
-  return { app, queryRunner };
+  return { app };
 }

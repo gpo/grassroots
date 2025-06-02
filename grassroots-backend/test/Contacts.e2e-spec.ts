@@ -1,7 +1,5 @@
 import { ContactsController } from "../src/contacts/Contacts.controller";
 import { ContactsService } from "../src/contacts/Contacts.service";
-import { ContactEntityOutDTO } from "../src/grassroots-shared/Contact.entity.dto";
-import { QueryRunnerProvider } from "../src/providers/QueryRunnerProvider";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
 
 const TEST_CONTACT = {
@@ -14,13 +12,7 @@ const TEST_CONTACT = {
 describe("ContactsController (e2e)", () => {
   const getFixture = useE2ETestFixture({
     controllers: [ContactsController],
-    providers: [
-      QueryRunnerProvider.getProviderFor(
-        ContactsService,
-        ContactEntityOutDTO,
-        (repo) => new ContactsService(repo),
-      ),
-    ],
+    providers: [ContactsService],
   });
 
   it("creates a contact", async () => {
