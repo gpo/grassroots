@@ -1,2 +1,3 @@
 **/*.gen.ts
 **/openAPI.json
+grassroots-backend/src/migrations/

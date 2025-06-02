@@ -32,6 +32,20 @@ docker compose exec grassroots_dev /bin/bash -c "cd grassroots-frontend && npm r
 docker compose exec grassroots_dev /bin/bash -c "cd grassroots-backend && npm run start:dev" # Backend
 ```
 
+## Migrations
+
+To migrate:
+
+```sh
+npx mikro-orm migration:up
+```
+
+To create a migration to the current Entity schemas.
+
+```sh
+npx mikro-orm migration:create
+```
+
 ## Frequently Seen Problems
 
 `duplicate key value violates unique constraint "pg_class_relname_nsp_index"`

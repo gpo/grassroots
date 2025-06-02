@@ -1,10 +1,11 @@
-import { FindOperator, Like } from "typeorm";
-
-export function LikeOrUndefined(
-  s: string | undefined,
-): FindOperator<string> | undefined {
-  if (s === undefined) {
-    return undefined;
+export function LikeOrUndefined<T>(
+  k: keyof T,
+  v: string | undefined,
+): Partial<Record<keyof T, { $like: string }>> {
+  if (v === undefined) {
+    return {};
   }
-  return Like(`%${s}%`);
+  const result: Partial<Record<keyof T, { $like: string }>> = {};
+  result[k] = { $like: `%${v}%` };
+  return result;
 }

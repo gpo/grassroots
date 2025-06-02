@@ -17,12 +17,11 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: ["grassroots.local"],
   },
+  // Must be in tsconfig.json as well as here: https://github.com/vitejs/vite/issues/6828.
+  // tsconfig.json is more standard, and required for editor support.
   resolve: {
     alias: {
-      typeorm: path.resolve(
-        __dirname,
-        "./node_modules/typeorm/typeorm-model-shim",
-      ),
+      "@mikro-orm/core": path.resolve(__dirname, "./src/MikroORMshim"),
     },
   },
 });

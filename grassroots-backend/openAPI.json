@@ -34,7 +34,7 @@
     },
     "/auth/login": {
       "post": {
-        "operationId": "AppController_login",
+        "operationId": "AuthController_login",
         "parameters": [],
         "requestBody": {
           "required": true,
@@ -69,7 +69,7 @@
           }
         },
         "tags": [
-          "App"
+          "Auth"
         ]
       }
     },

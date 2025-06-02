@@ -1,49 +1,26 @@
 import { ContactsService } from "./Contacts.service";
-import { getTestApp } from "../testing/GetTestApp";
-import { INestApplication } from "@nestjs/common";
 import {
   ContactEntityOutDTO,
   CreateContactInDto,
 } from "../grassroots-shared/Contact.entity.dto";
-import { QueryRunner } from "typeorm";
 import { instanceToPlain, plainToClass } from "class-transformer";
-import { QueryRunnerProvider } from "../providers/QueryRunnerProvider";
+import { useTestFixture } from "../testing/Setup";
 
 describe("ContactsService", () => {
-  let service: ContactsService;
-  let app: INestApplication;
-  let queryRunner: QueryRunner;
-
-  beforeAll(async () => {
-    ({ app, queryRunner } = await getTestApp({
-      providers: [
-        QueryRunnerProvider.getProviderFor(
-          ContactsService,
-          ContactEntityOutDTO,
-          (repo) => new ContactsService(repo),
-        ),
-      ],
-    }));
-    service = app.get<ContactsService>(ContactsService);
+  const getFixture = useTestFixture({
+    providers: [ContactsService],
   });
 
-  afterAll(async () => {
-    await app.close();
-  });
-
-  beforeEach(async () => {
-    await queryRunner.startTransaction();
-  });
-
-  afterEach(async () => {
-    await queryRunner.rollbackTransaction();
-  });
+  function getService(): ContactsService {
+    return getFixture().app.get<ContactsService>(ContactsService);
+  }
 
   it("should be defined", () => {
-    expect(service).toBeDefined();
+    expect(getService()).toBeDefined();
   });
 
   it("should create and return a contact", async () => {
+    const service = getService();
     const contact: CreateContactInDto = {
       email: "test@test.com",
       firstName: "Test",
@@ -63,7 +40,7 @@ describe("ContactsService", () => {
   });
 
   it("should have no entries in the test database", async () => {
-    const allContacts = await service.findAll();
+    const allContacts = await getService().findAll();
     expect(allContacts.length).toEqual(0);
   });
 });

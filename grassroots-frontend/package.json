@@ -21,8 +21,7 @@
     "openapi-fetch": "^0.13.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-hook-form": "^7.56.1",
-    "typeorm": "^0.3.22"
+    "react-hook-form": "^7.56.1"
   },
   "devDependencies": {
     "@hookform/resolvers": "^5.0.1",

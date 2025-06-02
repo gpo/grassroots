@@ -24,7 +24,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["AppController_login"];
+        post: operations["AuthController_login"];
         delete?: never;
         options?: never;
         head?: never;
@@ -196,7 +196,7 @@ export interface operations {
             };
         };
     };
-    AppController_login: {
+    AuthController_login: {
         parameters: {
             query?: never;
             header?: never;

@@ -2,7 +2,7 @@ import { Controller, Post, UseGuards, Request } from "@nestjs/common";
 import { ApiBody } from "@nestjs/swagger";
 import { AppService } from "../App.service";
 import { UserEntity } from "../grassroots-shared/User.entity";
-import { GrassrootsRequest } from "../types/GrassrootsRequest";
+import type { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { AuthService } from "./Auth.service";
 import { DefaultAuthGuard } from "./DefaultAuth.guard";
 
