@@ -18,7 +18,7 @@
     "test:tstyche": "npx tstyche",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest -i --config ./test/jest-e2e-config.js"
+    "test:e2e": "jest -i --config ./test/jest-e2e.json"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.4.15",
@@ -67,5 +67,26 @@
     "ts-loader": "^9.5.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "preset": "ts-jest",
+    "rootDir": "./",
+    "modulePaths": [
+      "<rootDir>"
+    ],
+    "testRegex": ".*\\.spec\\.ts$",
+    "transform": {
+      "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "collectCoverageFrom": [
+      "**/*.(t|j)s"
+    ],
+    "coverageDirectory": "../coverage",
+    "testEnvironment": "node"
   }
 }
