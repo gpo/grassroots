@@ -32,8 +32,8 @@ export default async () => {
           import("./grassroots-shared/Paginated.dto"),
           {
             PaginatedInDTO: {
-              rowsToSkip: { required: true, type: () => Number },
-              rowsToTake: { required: true, type: () => Number },
+              rowsToSkip: { required: true, type: () => Number, minimum: 0 },
+              rowsToTake: { required: true, type: () => Number, minimum: 1 },
             },
             PaginatedOutDTO: {
               rowsSkipped: { required: true, type: () => Number, minimum: 0 },

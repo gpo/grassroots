@@ -1,26 +1,20 @@
 import { IsInt, Min } from "class-validator";
-import { PropsOf } from "./Cast";
 
 export class PaginatedInDTO {
-  rowsToSkip: number;
-  rowsToTake: number;
-  constructor(data: PropsOf<PaginatedInDTO>) {
-    this.rowsToSkip = data.rowsToSkip;
-    this.rowsToTake = data.rowsToTake;
-  }
+  @IsInt()
+  @Min(0)
+  rowsToSkip!: number;
+  @IsInt()
+  @Min(1)
+  rowsToTake!: number;
 }
 
 export class PaginatedOutDTO {
   @IsInt()
   @Min(0)
-  rowsSkipped: number;
+  rowsSkipped!: number;
 
   @IsInt()
   @Min(0)
-  rowsTotal: number;
-
-  constructor(data: PropsOf<PaginatedOutDTO>) {
-    this.rowsSkipped = data.rowsSkipped;
-    this.rowsTotal = data.rowsTotal;
-  }
+  rowsTotal!: number;
 }
