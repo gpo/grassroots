@@ -23,7 +23,7 @@ export class AuthController {
         throw new Error("No user found for login.");
       }
       req.login(req.user, (err) => {
-        if (err) {
+        if (err !== undefined) {
           throw err;
         }
         resolve(req.user);
