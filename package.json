@@ -13,7 +13,7 @@
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
     "prepare": "husky",
-    "test": "npm run test --prefix grassroots-frontend && npm run test --prefix grassroots-backend && npm run test:e2e --prefix grassroots-backend",
+    "test": "npm run test --prefix grassroots-frontend && npm run test --prefix grassroots-backend",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "check": "npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend && npx eslint .",

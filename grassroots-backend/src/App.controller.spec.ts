@@ -1,8 +1,9 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { AppController } from "./App.controller";
 import { AppService } from "./App.service";
 import { AuthService } from "./auth/Auth.service";
 import { UsersService } from "./users/Users.service";
+import { AppController } from "./App.controller";
+import { beforeEach, describe, expect, it } from "vitest";
 
 describe("AppController", () => {
   let appController: AppController;

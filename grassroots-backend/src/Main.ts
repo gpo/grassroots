@@ -66,4 +66,10 @@ async function bootstrap(port: number): Promise<void> {
 }
 
 const port = process.env.PORT !== undefined ? parseInt(process.env.PORT) : 3000;
-void bootstrap(port);
+
+if (process.env.PROD !== undefined) {
+  void bootstrap(port);
+}
+
+export const viteNodeApp =
+  NestFactory.create<NestExpressApplication>(AppModule);

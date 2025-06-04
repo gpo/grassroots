@@ -3,11 +3,14 @@ import createClient, { Client } from "openapi-fetch";
 import { listenAndConfigureApp } from "../App.module";
 import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
-import { EntityManager, MikroORM } from "@mikro-orm/core";
+import { EntityManager } from "@mikro-orm/core";
+import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
+import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
 
 class E2ETestFixture {
   app: NestExpressApplication;
   grassrootsAPI: Client<paths>;
+  entityManager: EntityManager;
 
   constructor(props: {
     app: NestExpressApplication;
@@ -15,6 +18,9 @@ class E2ETestFixture {
   }) {
     this.app = props.app;
     this.grassrootsAPI = props.grassrootsAPI;
+    this.entityManager = this.app.get<EntityManagerProviderForTest>(
+      EntityManagerProviderForTest,
+    ).entityManager;
   }
 }
 
@@ -26,10 +32,6 @@ export function useE2ETestFixture(
 
   beforeAll(async () => {
     const { app } = await getTestApp(dependencies);
-    const orm = app.get<MikroORM>(MikroORM);
-    const generator = orm.getSchemaGenerator();
-    await generator.dropSchema();
-    await generator.createSchema();
     const { port } = await listenAndConfigureApp(app, 0);
     const grassrootsAPI = createClient<paths>({
       baseUrl: `http://localhost:${String(port)}`,
@@ -43,11 +45,11 @@ export function useE2ETestFixture(
   });
 
   beforeEach(async () => {
-    await fixture?.app.get<EntityManager>(EntityManager).begin();
+    await fixture?.entityManager.begin();
   });
 
   afterEach(async () => {
-    await fixture?.app.get<EntityManager>(EntityManager).rollback();
+    await fixture?.entityManager.rollback();
   });
 
   return () => {
