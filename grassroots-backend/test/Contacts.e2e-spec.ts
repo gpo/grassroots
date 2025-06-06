@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { ContactsController } from "../src/contacts/Contacts.controller";
 import { ContactsService } from "../src/contacts/Contacts.service";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
-import { EntityManagerProviderForTest } from "../src/providers/EntityManager.provider";
+import {
+  EntityManagerForTestModule,
+  EntityManagerProviderForTest,
+} from "../src/providers/EntityManager.provider";
 import { writeFile } from "fs/promises";
 import { graphDependencies } from "../src/util/GraphDependencies";
 
@@ -24,7 +27,7 @@ describe("ContactsController (e2e)", () => {
         ): ContactsService => {
           return new ContactsService(entityManagerProvider.entityManager);
         },
-        inject: [EntityManagerProviderForTest],
+        inject: [EntityManagerForTestModule],
       },
     ],
   });
