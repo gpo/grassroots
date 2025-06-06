@@ -13,13 +13,8 @@ import { UserEntity } from "./grassroots-shared/User.entity";
 import { AuthController } from "./auth/Auth.controller";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
-
-// To get these imports working both inside and outside jest, we need to play some ugly tricks.
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-require-imports
-const expressSession: typeof import("express-session") = require("express-session");
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-require-imports
-const passport: typeof import("passport") = require("passport");
+import expressSession from "express-session";
+import passport from "passport";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,

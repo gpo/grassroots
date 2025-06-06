@@ -1,6 +1,8 @@
+import { describe, expect, it } from "vitest";
 import { ContactsController } from "../src/contacts/Contacts.controller";
 import { ContactsService } from "../src/contacts/Contacts.service";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
+import { EntityManagerProviderForTest } from "../src/providers/EntityManager.provider";
 
 const TEST_CONTACT = {
   email: "test@test.com",
@@ -12,7 +14,17 @@ const TEST_CONTACT = {
 describe("ContactsController (e2e)", () => {
   const getFixture = useE2ETestFixture({
     controllers: [ContactsController],
-    providers: [ContactsService],
+    providers: [
+      {
+        provide: ContactsService,
+        useFactory: (
+          entityManagerProvider: EntityManagerProviderForTest,
+        ): ContactsService => {
+          return new ContactsService(entityManagerProvider.entityManager);
+        },
+        inject: [EntityManagerProviderForTest],
+      },
+    ],
   });
 
   it("creates a contact", async () => {

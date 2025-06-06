@@ -33,7 +33,6 @@ export default tseslint.config(
       ...pluginReact.configs.flat.recommended.languageOptions,
       globals: {
         ...globals.node,
-        ...globals.jest,
         ...globals.browser,
       },
       ecmaVersion: 5,

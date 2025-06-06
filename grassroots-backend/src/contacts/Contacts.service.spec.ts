@@ -5,22 +5,38 @@ import {
 } from "../grassroots-shared/Contact.entity.dto";
 import { instanceToPlain, plainToClass } from "class-transformer";
 import { useTestFixture } from "../testing/Setup";
+import { describe, expect, it } from "vitest";
+import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
 
 describe("ContactsService", () => {
   const getFixture = useTestFixture({
-    providers: [ContactsService],
+    providers: [
+      {
+        provide: ContactsService,
+        useFactory: (
+          entityManagerProvider: EntityManagerProviderForTest,
+        ): ContactsService => {
+          return new ContactsService(entityManagerProvider.entityManager);
+        },
+        inject: [EntityManagerProviderForTest],
+      },
+    ],
   });
 
-  function getService(): ContactsService {
-    return getFixture().app.get<ContactsService>(ContactsService);
+  function useService(): { service: ContactsService } {
+    const fixture = getFixture();
+    return {
+      service: fixture.app.get<ContactsService>(ContactsService),
+    };
   }
 
   it("should be defined", () => {
-    expect(getService()).toBeDefined();
+    const { service } = useService();
+    expect(service).toBeDefined();
   });
 
   it("should create and return a contact", async () => {
-    const service = getService();
+    const { service } = useService();
     const contact: CreateContactInDto = {
       email: "test@test.com",
       firstName: "Test",
@@ -40,7 +56,8 @@ describe("ContactsService", () => {
   });
 
   it("should have no entries in the test database", async () => {
-    const allContacts = await getService().findAll();
+    const { service } = useService();
+    const allContacts = await service.findAll();
     expect(allContacts.length).toEqual(0);
   });
 });
