@@ -6,8 +6,11 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "build": "vite build",
-    "start:dev": "vite --host",
+    "build": "nest build",
+    "start": "nest start",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/Main",
     "test": "vitest run && npx tstyche",
     "test:watch": "vitest watch",
     "test:tstyche": "npx tstyche"
@@ -41,7 +44,6 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
-    "@originjs/vite-plugin-commonjs": "^1.0.3",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.11.29",
     "@types/express": "^5.0.0",
@@ -58,8 +60,7 @@
     "ts-loader": "^9.5.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "vite": "^6.3.5",
-    "vite-plugin-node": "^5.0.1",
+    "unplugin-swc": "^1.5.4",
     "vitest": "^3.2.0"
   }
 }

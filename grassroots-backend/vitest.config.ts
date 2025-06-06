@@ -1,20 +1,12 @@
-//import { defineConfig } from "vite";
 import { defineConfig } from "vitest/config";
-
-import { VitePluginNode } from "vite-plugin-node";
-import { viteCommonjs } from "@originjs/vite-plugin-commonjs";
+import swc from "unplugin-swc";
 
 export default defineConfig({
-  server: {
-    port: 3000,
-  },
   plugins: [
-    ...VitePluginNode({
-      adapter: "nest",
-      appPath: "./src/Main.ts",
-      tsCompiler: "swc",
+    swc.vite({
+      // Explicitly set the module type to avoid inheriting this value from a `.swcrc` config file
+      module: { type: "es6" },
     }),
-    viteCommonjs(),
   ],
   test: {
     globals: false,
