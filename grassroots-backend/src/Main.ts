@@ -15,6 +15,7 @@ import {
   throwOnInvalidType,
 } from "./PostProcessOpenAPI";
 import { ValidationErrorOutDTO } from "./contacts/entities/ValidationError.dto";
+import { graphDependencies } from "./util/GraphDependencies";
 
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "./src/grassroots-shared/OpenAPI.gen.ts";
@@ -64,6 +65,7 @@ async function bootstrap(port: number): Promise<void> {
     console.log("Skip updating OpenAPI");
   }
 
+  await writeFile("../docs/DependencyGraph.md", graphDependencies(app));
   if (process.argv.includes("--gen-files-only")) {
     await app.close();
   }
