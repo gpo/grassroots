@@ -51,7 +51,7 @@ async function bootstrap(port: number): Promise<void> {
     })
     .catch(() => null);
 
-  // The OpenAPI Spec has changed, due some post processing.
+  // The OpenAPI Spec has changed, do some post processing.
   if (openAPIHash != lastHash) {
     await writeFile(openAPIHashPath, openAPIHash);
     await writeFile(openAPISchemaPath, openAPIStr);
@@ -62,6 +62,10 @@ async function bootstrap(port: number): Promise<void> {
     console.log("Done updating OpenAPI Schema TS bindings");
   } else {
     console.log("Skip updating OpenAPI");
+  }
+
+  if (process.argv.includes("--gen-files-only")) {
+    await app.close();
   }
 }
 

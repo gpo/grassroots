@@ -11,6 +11,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/Main",
+    "gen-files-only": "nest start -- --gen-files-only",
     "test": "vitest run && npx tstyche",
     "test:watch": "vitest watch",
     "test:tstyche": "npx tstyche"
