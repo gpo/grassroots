@@ -3,6 +3,8 @@ import { ContactsController } from "../src/contacts/Contacts.controller";
 import { ContactsService } from "../src/contacts/Contacts.service";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
 import { EntityManagerProviderForTest } from "../src/providers/EntityManager.provider";
+import { writeFile } from "fs/promises";
+import { graphDependencies } from "../src/util/GraphDependencies";
 
 const TEST_CONTACT = {
   email: "test@test.com",
@@ -25,6 +27,14 @@ describe("ContactsController (e2e)", () => {
         inject: [EntityManagerProviderForTest],
       },
     ],
+  });
+
+  it("generates dependency graph", async () => {
+    const f = getFixture();
+    await writeFile(
+      "../docs/DependencyGraphForTest.md",
+      graphDependencies(f.app),
+    );
   });
 
   it("creates a contact", async () => {
