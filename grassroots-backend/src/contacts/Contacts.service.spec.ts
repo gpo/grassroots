@@ -6,7 +6,10 @@ import {
 import { instanceToPlain, plainToClass } from "class-transformer";
 import { useTestFixture } from "../testing/Setup";
 import { describe, expect, it } from "vitest";
-import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
+import {
+  EntityManagerForTestModule,
+  EntityManagerProviderForTest,
+} from "../providers/EntityManager.provider";
 
 describe("ContactsService", () => {
   const getFixture = useTestFixture({
@@ -18,7 +21,7 @@ describe("ContactsService", () => {
         ): ContactsService => {
           return new ContactsService(entityManagerProvider.entityManager);
         },
-        inject: [EntityManagerProviderForTest],
+        inject: [EntityManagerForTestModule],
       },
     ],
   });

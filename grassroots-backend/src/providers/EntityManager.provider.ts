@@ -1,5 +1,5 @@
 import { EntityManager } from "@mikro-orm/postgresql";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Module } from "@nestjs/common";
 
 @Injectable()
 // For tests, we need to fork the global entity manager, and use it across all services.
@@ -11,3 +11,10 @@ export class EntityManagerProviderForTest {
     this.entityManager = entityManager;
   }
 }
+
+@Module({
+  providers: [EntityManagerProviderForTest],
+  exports: [EntityManagerProviderForTest],
+})
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export class EntityManagerForTestModule {}

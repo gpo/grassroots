@@ -10,7 +10,10 @@ import { AuthService } from "../auth/Auth.service";
 import { EntityManager, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
-import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
+import {
+  EntityManagerForTestModule,
+  EntityManagerProviderForTest,
+} from "../providers/EntityManager.provider";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -55,6 +58,7 @@ export async function getTestApp(
       UsersModule,
       PassportModuleImport(),
       MikroOrmModule.forFeature({ entities: [ContactEntityOutDTO] }),
+      EntityManagerForTestModule,
     ],
     controllers: dependencies.controllers ?? [],
     providers: [
