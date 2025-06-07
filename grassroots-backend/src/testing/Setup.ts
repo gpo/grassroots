@@ -2,7 +2,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { EntityManager } from "@mikro-orm/core";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
+import { EntityManagerProvider } from "../orm/EntityManager.provider";
 
 export class TestFixture {
   app: NestExpressApplication;
@@ -10,8 +10,8 @@ export class TestFixture {
 
   constructor(props: { app: NestExpressApplication }) {
     this.app = props.app;
-    this.entityManager = this.app.get<EntityManagerProviderForTest>(
-      EntityManagerProviderForTest,
+    this.entityManager = this.app.get<EntityManagerProvider>(
+      EntityManagerProvider,
     ).entityManager;
   }
 }
