@@ -1,26 +1,20 @@
-import { NestExpressApplication } from "@nestjs/platform-express";
 import createClient, { Client } from "openapi-fetch";
 import { listenAndConfigureApp } from "../App.module";
 import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
-import { EntityManager } from "@mikro-orm/core";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
+import { TestFixture, TestFixtureProps } from "./Setup";
 
-class E2ETestFixture {
-  app: NestExpressApplication;
+type E2ETestFixtureProps = TestFixtureProps & {
   grassrootsAPI: Client<paths>;
-  entityManager: EntityManager;
+};
 
-  constructor(props: {
-    app: NestExpressApplication;
-    grassrootsAPI: Client<paths>;
-  }) {
-    this.app = props.app;
+class E2ETestFixture extends TestFixture {
+  grassrootsAPI: Client<paths>;
+
+  constructor(props: E2ETestFixtureProps) {
+    super(props);
     this.grassrootsAPI = props.grassrootsAPI;
-    this.entityManager = this.app.get<EntityManagerProviderForTest>(
-      EntityManagerProviderForTest,
-    ).entityManager;
   }
 }
 
@@ -41,6 +35,7 @@ export function useE2ETestFixture(
   });
 
   afterAll(async () => {
+    await fixture?.orm.close();
     await fixture?.app.close();
   });
 
