@@ -2,10 +2,6 @@ import { describe, expect, it } from "vitest";
 import { ContactsController } from "../src/contacts/Contacts.controller";
 import { ContactsService } from "../src/contacts/Contacts.service";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
-import {
-  EntityManagerForTestModule,
-  EntityManagerProviderForTest,
-} from "../src/providers/EntityManager.provider";
 import { writeFile } from "fs/promises";
 import { graphDependencies } from "../src/util/GraphDependencies";
 
@@ -19,17 +15,7 @@ const TEST_CONTACT = {
 describe("ContactsController (e2e)", () => {
   const getFixture = useE2ETestFixture({
     controllers: [ContactsController],
-    providers: [
-      {
-        provide: ContactsService,
-        useFactory: (
-          entityManagerProvider: EntityManagerProviderForTest,
-        ): ContactsService => {
-          return new ContactsService(entityManagerProvider.entityManager);
-        },
-        inject: [EntityManagerForTestModule],
-      },
-    ],
+    providers: [ContactsService],
   });
 
   it("generates dependency graph", async () => {
