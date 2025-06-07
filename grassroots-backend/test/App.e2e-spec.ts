@@ -1,12 +1,10 @@
-import { AppService } from "../src/App.service";
-import { AppController } from "../src/App.controller";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
 import { describe, expect, it } from "vitest";
+import { AppModule } from "../src/App.module";
 
 describe("AppController (e2e)", () => {
   const getFixture = useE2ETestFixture({
-    providers: [AppService],
-    controllers: [AppController],
+    imports: [AppModule],
   });
 
   it("/ (GET)", async () => {

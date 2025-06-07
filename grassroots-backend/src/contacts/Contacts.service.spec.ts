@@ -6,10 +6,11 @@ import {
 import { instanceToPlain, plainToClass } from "class-transformer";
 import { useTestFixture } from "../testing/Setup";
 import { describe, expect, it } from "vitest";
+import { ContactsModule } from "./Contacts.module";
 
 describe("ContactsService", () => {
   const getFixture = useTestFixture({
-    providers: [ContactsService],
+    imports: [ContactsModule],
   });
 
   function useService(): { service: ContactsService } {
