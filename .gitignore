@@ -3,9 +3,10 @@ grassroots-backend/dist
 grassroots-frontend/dist
 grassroots-frontend/src/**/*.js
 grassroots-frontend/vite.config.js
-.env.development
-.env.test
-.env
+.env.development.local
+.env.test.local
+.env.local
+
 
 # CI
 eslint_report.json

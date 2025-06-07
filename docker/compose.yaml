@@ -7,7 +7,9 @@ services:
     # set shared memory limit
     shm_size: 128mb
     env_file:
+      # Last file wins.
       - ../.env.development
+      - ../.env.development.local
 
   test_db:
     image: postgres
