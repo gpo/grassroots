@@ -1,9 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { ContactsController } from "../src/contacts/Contacts.controller";
-import { ContactsService } from "../src/contacts/Contacts.service";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
 import { writeFile } from "fs/promises";
 import { graphDependencies } from "../src/util/GraphDependencies";
+import { ContactsModule } from "../src/contacts/Contacts.module";
 
 const TEST_CONTACT = {
   email: "test@test.com",
@@ -14,8 +13,7 @@ const TEST_CONTACT = {
 
 describe("ContactsController (e2e)", () => {
   const getFixture = useE2ETestFixture({
-    controllers: [ContactsController],
-    providers: [ContactsService],
+    imports: [ContactsModule],
   });
 
   it("generates dependency graph", async () => {
