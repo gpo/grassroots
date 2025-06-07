@@ -6,4 +6,6 @@ export default async function setup(): Promise<void> {
   const generator = orm.getSchemaGenerator();
   await generator.dropSchema();
   await generator.createSchema();
+  // Tests create their own orm handle.
+  await orm.close();
 }

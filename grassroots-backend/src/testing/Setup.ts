@@ -1,18 +1,24 @@
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
-import { EntityManager } from "@mikro-orm/core";
+import { EntityManager, MikroORM } from "@mikro-orm/core";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 import { EntityManagerProvider } from "../orm/EntityManager.provider";
+
+export interface TestFixtureProps {
+  app: NestExpressApplication;
+}
 
 export class TestFixture {
   app: NestExpressApplication;
   entityManager: EntityManager;
+  orm: MikroORM;
 
-  constructor(props: { app: NestExpressApplication }) {
+  constructor(props: TestFixtureProps) {
     this.app = props.app;
     this.entityManager = this.app.get<EntityManagerProvider>(
       EntityManagerProvider,
     ).entityManager;
+    this.orm = this.app.get<MikroORM>(MikroORM);
   }
 }
 
@@ -30,6 +36,7 @@ export function useTestFixture(
   });
 
   afterAll(async () => {
+    await fixture?.orm.close();
     await fixture?.app.close();
   });
 
