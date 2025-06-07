@@ -10,10 +10,8 @@ import { AuthService } from "../auth/Auth.service";
 import { EntityManager, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
-import {
-  EntityManagerForTestModule,
-  EntityManagerProviderForTest,
-} from "../providers/EntityManager.provider";
+import { EntityManagerProvider } from "../orm/EntityManager.provider";
+import { EntityManagerModule } from "../orm/EntityManager.module";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -34,7 +32,7 @@ export async function getTestApp(
     imports: [
       ConfigModule.forRoot({
         envFilePath: ["../.env.test.local", "../.env.test"],
-        isGlobal: true,
+        isGlobal: false,
       }),
       MikroOrmModule.forRootAsync({
         imports: [ConfigModule],
@@ -57,25 +55,20 @@ export async function getTestApp(
       AuthModule,
       UsersModule,
       PassportModuleImport(),
-      MikroOrmModule.forFeature({ entities: [ContactEntityOutDTO] }),
-      EntityManagerForTestModule,
+      EntityManagerModule,
     ],
     controllers: dependencies.controllers ?? [],
-    providers: [
-      ...(dependencies.providers ?? []),
-      AuthService,
-      {
-        provide: EntityManagerProviderForTest,
-        useFactory: (
-          entityManager: EntityManager,
-        ): EntityManagerProviderForTest => {
-          return new EntityManagerProviderForTest(entityManager.fork());
-        },
-        inject: [EntityManager],
+    providers: [...(dependencies.providers ?? []), AuthService, AuthService],
+  })
+    .overrideProvider(EntityManagerProvider)
+    .useFactory({
+      factory: (entityManager: EntityManager): EntityManagerProvider => {
+        const fork = entityManager.fork();
+        return new EntityManagerProvider(fork);
       },
-      AuthService,
-    ],
-  }).compile();
+      inject: [EntityManager],
+    })
+    .compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
   app.useGlobalPipes(

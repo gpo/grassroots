@@ -5,7 +5,7 @@ import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { EntityManager } from "@mikro-orm/core";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
+import { EntityManagerProvider } from "../orm/EntityManager.provider";
 
 class E2ETestFixture {
   app: NestExpressApplication;
@@ -18,8 +18,8 @@ class E2ETestFixture {
   }) {
     this.app = props.app;
     this.grassrootsAPI = props.grassrootsAPI;
-    this.entityManager = this.app.get<EntityManagerProviderForTest>(
-      EntityManagerProviderForTest,
+    this.entityManager = this.app.get<EntityManagerProvider>(
+      EntityManagerProvider,
     ).entityManager;
   }
 }
