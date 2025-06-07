@@ -29,7 +29,7 @@ export async function getTestApp(
   const moduleRef = await Test.createTestingModule({
     imports: [
       ConfigModule.forRoot({
-        envFilePath: "../.env.test",
+        envFilePath: ["../.env.test.local", "../.env.test"],
         isGlobal: true,
       }),
       MikroOrmModule.forRootAsync({

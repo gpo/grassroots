@@ -104,7 +104,8 @@ export async function listenAndConfigureApp(
       inject: [ConfigService],
     }),
     ConfigModule.forRoot({
-      envFilePath: "../.env.development",
+      // First file takes preference.
+      envFilePath: ["../.env.development.local", "../.env.development"],
       isGlobal: true,
     }),
     ContactsModule,
