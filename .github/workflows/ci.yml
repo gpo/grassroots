@@ -98,11 +98,6 @@ jobs:
       - name: Run tstyche
         run: npm run test:tstyche --prefix grassroots-backend
 
-      - name: "Services: Copy Environment Files"
-        run: |
-          cp .env.development.sample .env.development
-          cp .env.test.sample .env.test
-
       - name: "Services: Start Test Services"
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
