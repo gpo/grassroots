@@ -1,7 +1,7 @@
 #!/bin/bash
 npm install
 
-cp .env.development.sample .env.development
+cp .env.development.local.sample .env.development.local
 cp .env.test.sample .env.test
 
 echo "Update .env.development and .env.test appropriately."
