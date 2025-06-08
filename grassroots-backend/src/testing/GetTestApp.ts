@@ -7,9 +7,10 @@ import { AuthModule } from "../auth/Auth.module";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { UsersModule } from "../users/Users.module";
 import { AuthService } from "../auth/Auth.service";
-import { EntityRepository, PostgreSqlDriver } from "@mikro-orm/postgresql";
+import { EntityManager, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
+import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -59,7 +60,16 @@ export async function getTestApp(
     providers: [
       ...(dependencies.providers ?? []),
       AuthService,
-      EntityRepository<ContactEntityOutDTO>,
+      {
+        provide: EntityManagerProviderForTest,
+        useFactory: (
+          entityManager: EntityManager,
+        ): EntityManagerProviderForTest => {
+          return new EntityManagerProviderForTest(entityManager.fork());
+        },
+        inject: [EntityManager],
+      },
+      AuthService,
     ],
   }).compile();
 

@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    // We don't provide a basePath, as that allows absolute imports, which jest doesn't understand.
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,

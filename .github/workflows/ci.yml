@@ -104,7 +104,4 @@ jobs:
           compose-file: "./docker/compose-ci.yaml"
 
       - name: Tests
-        run: npm run test:jest --prefix grassroots-backend
-
-      - name: E2E Tests
-        run: npm run test:e2e --prefix grassroots-backend
+        run: npm run test --prefix grassroots-backend
