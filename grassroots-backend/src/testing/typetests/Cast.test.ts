@@ -1,6 +1,7 @@
 import * as tstyche from "tstyche";
 import { cast } from "../../grassroots-shared/Cast";
 import { IsNumber, Min } from "class-validator";
+import { describe, it } from "vitest";
 
 class Test {
   @IsNumber()

@@ -5,43 +5,36 @@ import {
   CreateContactInDto,
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
-} from "../grassroots-shared/Contact.entity.dto";
-import { InjectRepository } from "@mikro-orm/nestjs";
-import { EntityRepository, FilterQuery } from "@mikro-orm/core";
+} from "../grassroots-shared/Contact.entity.dto.js";
+import { EntityManager, FilterQuery } from "@mikro-orm/core";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
 
 @Injectable()
 export class ContactsService {
-  constructor(
-    @InjectRepository(ContactEntityOutDTO)
-    private readonly contactsRepository: EntityRepository<ContactEntityOutDTO>,
-    // Will be needed for explicit flushing.
-    // private readonly em: EntityManager,
-  ) {}
+  constructor(private readonly entityManager: EntityManager) {}
 
   async create(
     createContactDto: CreateContactInDto,
   ): Promise<ContactEntityOutDTO> {
-    const result = this.contactsRepository.upsert(createContactDto, {
-      onConflictFields: ["email"],
-    });
+    const result = this.entityManager.upsert(
+      ContactEntityOutDTO,
+      createContactDto,
+    );
     return result;
   }
 
   async bulkCreate(
     createContactsDto: CreateContactInDto[],
   ): Promise<CreateBulkContactResponseDTO> {
-    const contacts = await this.contactsRepository.upsertMany(
+    const contacts = await this.entityManager.upsertMany(
+      ContactEntityOutDTO,
       createContactsDto,
-      {
-        onConflictFields: ["email"],
-      },
     );
     return { ids: contacts.map((x) => x.id) };
   }
 
   async findAll(): Promise<ContactEntityOutDTO[]> {
-    return await this.contactsRepository.find({});
+    return await this.entityManager.find(ContactEntityOutDTO, {});
   }
 
   async search({
@@ -66,7 +59,8 @@ export class ContactsService {
       ),
       ...(contact.id == undefined ? {} : { id: contact.id }),
     };
-    const [result, rowsTotal] = await this.contactsRepository.findAndCount(
+    const [result, rowsTotal] = await this.entityManager.findAndCount(
+      ContactEntityOutDTO,
       query,
       {
         limit: paginated.rowsToTake,
@@ -83,6 +77,6 @@ export class ContactsService {
   }
 
   async findOne(id: number): Promise<ContactEntityOutDTO | null> {
-    return await this.contactsRepository.findOne({ id });
+    return await this.entityManager.findOne(ContactEntityOutDTO, { id });
   }
 }

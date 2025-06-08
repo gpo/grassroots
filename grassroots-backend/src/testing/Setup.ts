@@ -1,12 +1,18 @@
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
-import { EntityManager, MikroORM } from "@mikro-orm/core";
+import { EntityManager } from "@mikro-orm/core";
+import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
+import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
 
 export class TestFixture {
   app: NestExpressApplication;
+  entityManager: EntityManager;
 
   constructor(props: { app: NestExpressApplication }) {
     this.app = props.app;
+    this.entityManager = this.app.get<EntityManagerProviderForTest>(
+      EntityManagerProviderForTest,
+    ).entityManager;
   }
 }
 
@@ -18,11 +24,9 @@ export function useTestFixture(
 
   beforeAll(async () => {
     const { app } = await getTestApp(dependencies);
-    const orm = app.get<MikroORM>(MikroORM);
-    const generator = orm.getSchemaGenerator();
-    await generator.dropSchema();
-    await generator.createSchema();
-    fixture = new TestFixture({ app });
+    fixture = new TestFixture({
+      app,
+    });
   });
 
   afterAll(async () => {
@@ -30,11 +34,12 @@ export function useTestFixture(
   });
 
   beforeEach(async () => {
-    await fixture?.app.get<EntityManager>(EntityManager).begin();
+    await fixture?.entityManager.begin();
   });
 
   afterEach(async () => {
-    await fixture?.app.get<EntityManager>(EntityManager).rollback();
+    await fixture?.entityManager.rollback();
+    fixture?.entityManager.clear();
   });
 
   return () => {

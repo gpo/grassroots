@@ -3,6 +3,15 @@ import { getTestApp } from "../testing/GetTestApp";
 import { ContactsService } from "./Contacts.service";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { EntityManager } from "@mikro-orm/postgresql";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+} from "vitest";
 
 describe("ContactsController", () => {
   let controller: ContactsController;
