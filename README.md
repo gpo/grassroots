@@ -4,8 +4,9 @@ Political Campaign Software focused on voter outreach and volunteer management.
 
 # Setup
 
-Run setup.sh.
-Add
+1. Run setup.sh
+
+2. Add
 
 ```
 $LOCAL_IP grassroots.local
@@ -25,11 +26,32 @@ if you're developing on the machine you're browsing from.
 
 We're running things in docker.
 
+### On Mac:
+
 ```sh
 cd docker
 docker compose up
 docker compose exec grassroots_dev /bin/bash -c "cd grassroots-frontend && npm run dev" # Frontend
 docker compose exec grassroots_dev /bin/bash -c "cd grassroots-backend && npm run start:dev" # Backend
+```
+
+### On Windows:
+
+1. Start up Docker
+
+2. Terminal 1: (git bash)
+
+```
+cd docker
+docker compose build grassroots_dev
+docker compose up
+```
+
+3. Terminals 2 & 3: (git bash)
+
+```
+cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-frontend && npm run dev" #Frontend
+cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm run start:dev" #Backend
 ```
 
 ## Migrations
