@@ -1,12 +1,11 @@
-import { AppService } from "../src/App.service";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
-import { AuthController } from "../src/auth/Auth.controller";
 import { describe, expect, it } from "vitest";
+import { AppModule } from "../src/App.module";
+import { AuthModule } from "../src/auth/Auth.module";
 
 describe("AuthController (e2e)", () => {
   const getFixture = useE2ETestFixture({
-    providers: [AppService],
-    controllers: [AuthController],
+    imports: [AppModule, AuthModule],
   });
 
   // TODO: update once we actually verify credentials.

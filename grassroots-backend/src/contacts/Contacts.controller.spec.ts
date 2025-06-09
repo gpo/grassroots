@@ -1,6 +1,5 @@
 import { ContactsController } from "./Contacts.controller";
 import { getTestApp } from "../testing/GetTestApp";
-import { ContactsService } from "./Contacts.service";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { EntityManager } from "@mikro-orm/postgresql";
 import {
@@ -12,6 +11,7 @@ import {
   expect,
   it,
 } from "vitest";
+import { ContactsModule } from "./Contacts.module";
 
 describe("ContactsController", () => {
   let controller: ContactsController;
@@ -20,8 +20,7 @@ describe("ContactsController", () => {
 
   beforeAll(async () => {
     ({ app } = await getTestApp({
-      controllers: [ContactsController],
-      providers: [ContactsService],
+      imports: [ContactsModule],
     }));
     entityManager = app.get<EntityManager>(EntityManager);
     controller = app.get<ContactsController>(ContactsController);

@@ -2,21 +2,17 @@ import { Test } from "@nestjs/testing";
 import { ContactEntityOutDTO } from "../grassroots-shared/Contact.entity.dto";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { Provider, Type, ValidationPipe } from "@nestjs/common";
-import { AuthModule } from "../auth/Auth.module";
+import { Type, ValidationPipe } from "@nestjs/common";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
-import { UsersModule } from "../users/Users.module";
-import { AuthService } from "../auth/Auth.service";
 import { EntityManager, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
-import { EntityManagerProviderForTest } from "../providers/EntityManager.provider";
+import { EntityManagerProvider } from "../orm/EntityManager.provider";
 
 let app: NestExpressApplication | undefined = undefined;
 
 export interface TestSpecificDependencies {
-  providers?: Provider[];
-  controllers?: Type[];
+  imports?: Type[];
 }
 
 export async function getTestApp(
@@ -31,7 +27,7 @@ export async function getTestApp(
     imports: [
       ConfigModule.forRoot({
         envFilePath: ["../.env.test.local", "../.env.test"],
-        isGlobal: true,
+        isGlobal: false,
       }),
       MikroOrmModule.forRootAsync({
         imports: [ConfigModule],
@@ -51,27 +47,19 @@ export async function getTestApp(
         },
         inject: [ConfigService],
       }),
-      AuthModule,
-      UsersModule,
       PassportModuleImport(),
-      MikroOrmModule.forFeature({ entities: [ContactEntityOutDTO] }),
+      ...(dependencies.imports ?? []),
     ],
-    controllers: dependencies.controllers ?? [],
-    providers: [
-      ...(dependencies.providers ?? []),
-      AuthService,
-      {
-        provide: EntityManagerProviderForTest,
-        useFactory: (
-          entityManager: EntityManager,
-        ): EntityManagerProviderForTest => {
-          return new EntityManagerProviderForTest(entityManager.fork());
-        },
-        inject: [EntityManager],
+  })
+    .overrideProvider(EntityManagerProvider)
+    .useFactory({
+      factory: (entityManager: EntityManager): EntityManagerProvider => {
+        const fork = entityManager.fork();
+        return new EntityManagerProvider(fork);
       },
-      AuthService,
-    ],
-  }).compile();
+      inject: [EntityManager],
+    })
+    .compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
   app.useGlobalPipes(

@@ -6,7 +6,6 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { ContactEntityOutDTO } from "./grassroots-shared/Contact.entity.dto";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { AuthModule } from "./auth/Auth.module";
-import { UsersModule } from "./users/Users.module";
 import { PassportModuleImport } from "./auth/PassportModuleImport";
 import { UsersService } from "./users/Users.service";
 import { UserEntity } from "./grassroots-shared/User.entity";
@@ -101,14 +100,10 @@ export async function listenAndConfigureApp(
     ConfigModule.forRoot({
       // First file takes preference.
       envFilePath: ["../.env.development.local", "../.env.development"],
-      isGlobal: true,
+      isGlobal: false,
     }),
     ContactsModule,
     AuthModule,
-    UsersModule,
-    PassportModuleImport(),
-    AuthModule,
-    UsersModule,
     PassportModuleImport(),
   ],
   controllers: [AppController, AuthController],
