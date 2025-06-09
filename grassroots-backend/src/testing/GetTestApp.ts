@@ -7,7 +7,6 @@ import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { EntityManager, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
-import { EntityManagerModule } from "../orm/EntityManager.module";
 import { EntityManagerProvider } from "../orm/EntityManager.provider";
 
 let app: NestExpressApplication | undefined = undefined;
@@ -49,7 +48,6 @@ export async function getTestApp(
         inject: [ConfigService],
       }),
       PassportModuleImport(),
-      EntityManagerModule,
       ...(dependencies.imports ?? []),
     ],
   })
