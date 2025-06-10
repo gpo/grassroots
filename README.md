@@ -40,118 +40,193 @@ You're modifying tables from multiple threads at the same time. Serialize whatev
 `Invalid hook call.`
 You might accidentally have installed a dependency in the root package, instead of the frontend package. I'm not sure why this causes this error. Remove the dependency from the root package, `npm prune`, install it in the frontend package, and restart vite.
 
-## Windows setup
+# Grassroots Development Setup Windows
 
-Go to notepad or any text editor run as admin
+## Prerequisites
 
-Open the file found at C:\Windows\System32\drivers\etc\hosts or similar
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+- Git (for cloning the repository)
 
-Add
+## Quick Start
 
-```
-$LOCAL_IP grassroots.local
-```
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd grassroots
+   ```
 
-That's:
+2. **Set up local domain (Optional)**
+   
+   **Windows:** Open Notepad as Administrator, then open `C:\Windows\System32\drivers\etc\hosts` and add:
+   ```
+   127.0.0.1 grassroots.local
+   ```
+   
+   **macOS/Linux:** Edit `/etc/hosts` and add:
+   ```
+   127.0.0.1 grassroots.local
+   ```
 
-```
-127.0.0.1 grassroots.local
-```
+3. **Start the application**
+   ```bash
+   docker-compose -f docker/compose.yaml up -d --build
+   ```
 
-alternatively if step above does not work you can go to http://localhost:5173
+4. **Access the application**
+   - Frontend: http://localhost:5173 or http://grassroots.local
+   - Backend API: http://localhost:3000
+   - Test API endpoint: http://localhost:3000/contacts
 
-## Initial Setup
+## Development Workflow
 
-After modifying your hosts file, run the setup script:
+### Full Docker Setup (Recommended)
 
-```sh
-./setup.sh
-```
+Everything runs in containers, ensuring consistent environments across all platforms.
 
-This script will initialize the development environment (must have WSL or git bash this command is POSIX and will not run in ps or cmd)
-
-install docker https://www.docker.com/products/docker-desktop/ (if not already installed)
-
-docker-compose -f docker/compose.yaml up -d db
-
-# Dev Setup Guide - Running in Dev Mode
-
-# Option 1: Traditional Setup (Database in Docker, Apps locally)
-
-docker-compose -f docker/compose.yaml up -d db
-cd grassroots-backend
-npm install # first time only
-npm run start:dev
-
-# In new terminal
-
-cd grassroots-frontend  
-npm install # first time only
-npm run dev
-
-# Option 2: Full Docker Setup (Everything in containers - PR #53)
-
-# Note: Requires checking out PR #53 until merged
-
-git fetch origin pull/53/head:pr-53
-git checkout pr-53
-
-# Prerequisites for Windows:
-
-git config core.autocrlf false
-echo "\*.sh text eol=lf" >> .gitattributes
-
-# Start containers
-
+```bash
+# Start all services
 docker-compose -f docker/compose.yaml up -d --build
 
-# Terminal 1 - Backend
+# View logs
+docker-compose -f docker/compose.yaml logs -f
 
-docker exec -it grassroots_dev bash
-cd /app/grassroots-backend
-rm -rf node_modules package-lock.json # first time only
+# Stop services
+docker-compose -f docker/compose.yaml down
+```
+
+### Hybrid Setup (Alternative)
+
+If you prefer to run the applications locally while keeping the database in Docker:
+
+```bash
+# Start only the database
+docker-compose -f docker/compose.yaml up -d db
+
+# Terminal 1 - Backend
+cd grassroots-backend
 npm install
 npm run start:dev
 
-# Terminal 2 - Frontend
-
-docker exec -it grassroots_dev bash
-cd /app/grassroots-frontend
-rm -rf node_modules package-lock.json # first time only
+# Terminal 2 - Frontend  
+cd grassroots-frontend
 npm install
 npm run dev
+```
 
-# Troubleshooting Docker Setup
+## Configuration
 
-# Check .env.development contains:
+The application uses environment-specific configuration files:
 
-# POSTGRES_HOST=db
+- `.env.development` - Development environment settings
+- `.env.production` - Production environment settings
 
-# POSTGRES_DATABASE=grassroots
+Key environment variables:
+```env
+POSTGRES_HOST=db
+POSTGRES_DATABASE=grassroots
+POSTGRES_USER=grassroots
+POSTGRES_PASSWORD=localDevPassword
+POSTGRES_PORT=5432
+```
 
-# POSTGRES_USER=grassroots
+## Troubleshooting
 
-# POSTGRES_PASSWORD=localDevPassword
+### Container Issues
 
-# POSTGRES_PORT=5432
+**Check container status:**
+```bash
+docker-compose -f docker/compose.yaml ps
+```
 
-# Fix line ending issues
+**View container logs:**
+```bash
+docker-compose -f docker/compose.yaml logs grassroots_dev
+docker-compose -f docker/compose.yaml logs db
+```
 
+**Rebuild containers:**
+```bash
+docker-compose -f docker/compose.yaml down
+docker-compose -f docker/compose.yaml up -d --build
+```
+
+### Port Conflicts
+
+Ensure these ports are available:
+- **3000** - Backend API
+- **5173** - Frontend development server  
+- **5432** - PostgreSQL database
+
+### Windows-Specific Issues
+
+If you encounter line ending issues on Windows:
+
+```bash
+git config core.autocrlf false
+echo "*.sh text eol=lf" >> .gitattributes
 git checkout HEAD -- docker/docker-entrypoint.sh
-docker-compose -f docker/compose.yaml up -d --build grassroots_dev
+```
 
-# Check logs if container fails
+### Database Connection Issues
 
-docker logs grassroots_dev
+1. Verify the database container is running:
+   ```bash
+   docker-compose -f docker/compose.yaml ps db
+   ```
 
-# Port conflicts - ensure these are free:
+2. Check database logs:
+   ```bash
+   docker-compose -f docker/compose.yaml logs db
+   ```
 
-# 3000 (Backend), 5173 (Frontend), 5432 (Database)
+3. Test database connection:
+   ```bash
+   docker exec -it grassroots_db psql -U grassroots -d grassroots
+   ```
 
-# Accessing the Application
+## Development Commands
 
-# Frontend: http://localhost:5173 or http://grassroots.local
+### Docker Commands
+```bash
+# Start development environment
+docker-compose -f docker/compose.yaml up -d
 
-# Backend API: http://localhost:3000
+# Execute commands in containers
+docker exec -it grassroots_dev bash
+docker exec -it grassroots_db psql -U grassroots -d grassroots
 
-# Test API: http://localhost:3000/contacts
+# Clean up everything
+docker-compose -f docker/compose.yaml down -v
+docker system prune -f
+```
+
+### Application Commands (inside containers)
+```bash
+# Backend
+cd /app/grassroots-backend
+npm install
+npm run start:dev
+npm test
+
+# Frontend
+cd /app/grassroots-frontend  
+npm install
+npm run dev
+npm run build
+```
+
+## Architecture
+
+- **Frontend**: React application served on port 5173
+- **Backend**: Node.js API server on port 3000
+- **Database**: PostgreSQL on port 5432
+- **Container Network**: All services communicate through Docker's internal network
+
+## Contributing
+
+1. Make your changes
+2. Test locally using `docker-compose -f docker/compose.yaml up -d --build`
+3. Ensure all services start successfully
+4. Submit a pull request
+
+For questions or issues, please check the troubleshooting section above or create an issue in the repository.
