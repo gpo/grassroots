@@ -22,6 +22,19 @@ That's:
 
 if you're developing on the machine you're browsing from.
 
+3. if you're on Windows and are getting the error: /usr/local/bin/docker-entrypoint.sh: no such file or directory
+
+```
+dos2unix docker/docker-entrypoint.sh
+```
+
+4. Run mikro-orm migration inside docker dev container (WIP)
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-back
+end && npx mikro-orm migration:up"
+```
+
 # Running in Dev Mode
 
 We're running things in docker.
