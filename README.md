@@ -50,32 +50,36 @@ You might accidentally have installed a dependency in the root package, instead 
 ## Quick Start
 
 1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd grassroots
-   ```
+
+```bash
+git clone <repository-url>
+cd grassroots
+```
 
 2. **Set up local domain (Optional)**
-   
    **Windows:** Open Notepad as Administrator, then open `C:\Windows\System32\drivers\etc\hosts` and add:
-   ```
-   127.0.0.1 grassroots.local
-   ```
-   
-   **macOS/Linux:** Edit `/etc/hosts` and add:
-   ```
-   127.0.0.1 grassroots.local
-   ```
+
+```
+127.0.0.1 grassroots.local
+```
+
+**macOS/Linux:** Edit `/etc/hosts` and add:
+
+```
+127.0.0.1 grassroots.local
+```
 
 3. **Start the application**
-   ```bash
-   docker-compose -f docker/compose.yaml up -d --build
-   ```
+
+```bash
+docker-compose -f docker/compose.yaml up -d --build
+```
 
 4. **Access the application**
-   - Frontend: http://localhost:5173 or http://grassroots.local
-   - Backend API: http://localhost:3000
-   - Test API endpoint: http://localhost:3000/contacts
+
+- Frontend: http://localhost:5173 or http://grassroots.local
+- Backend API: http://localhost:3000
+- Test API endpoint: http://localhost:3000/contacts
 
 ## Development Workflow
 
@@ -107,7 +111,7 @@ cd grassroots-backend
 npm install
 npm run start:dev
 
-# Terminal 2 - Frontend  
+# Terminal 2 - Frontend
 cd grassroots-frontend
 npm install
 npm run dev
@@ -121,6 +125,7 @@ The application uses environment-specific configuration files:
 - `.env.production` - Production environment settings
 
 Key environment variables:
+
 ```env
 POSTGRES_HOST=db
 POSTGRES_DATABASE=grassroots
@@ -134,17 +139,20 @@ POSTGRES_PORT=5432
 ### Container Issues
 
 **Check container status:**
+
 ```bash
 docker-compose -f docker/compose.yaml ps
 ```
 
 **View container logs:**
+
 ```bash
 docker-compose -f docker/compose.yaml logs grassroots_dev
 docker-compose -f docker/compose.yaml logs db
 ```
 
 **Rebuild containers:**
+
 ```bash
 docker-compose -f docker/compose.yaml down
 docker-compose -f docker/compose.yaml up -d --build
@@ -153,8 +161,9 @@ docker-compose -f docker/compose.yaml up -d --build
 ### Port Conflicts
 
 Ensure these ports are available:
+
 - **3000** - Backend API
-- **5173** - Frontend development server  
+- **5173** - Frontend development server
 - **5432** - PostgreSQL database
 
 ### Windows-Specific Issues
@@ -170,23 +179,27 @@ git checkout HEAD -- docker/docker-entrypoint.sh
 ### Database Connection Issues
 
 1. Verify the database container is running:
-   ```bash
-   docker-compose -f docker/compose.yaml ps db
-   ```
+
+```bash
+docker-compose -f docker/compose.yaml ps db
+```
 
 2. Check database logs:
-   ```bash
-   docker-compose -f docker/compose.yaml logs db
-   ```
+
+```bash
+docker-compose -f docker/compose.yaml logs db
+```
 
 3. Test database connection:
-   ```bash
-   docker exec -it grassroots_db psql -U grassroots -d grassroots
-   ```
+
+```bash
+docker exec -it grassroots_db psql -U grassroots -d grassroots
+```
 
 ## Development Commands
 
 ### Docker Commands
+
 ```bash
 # Start development environment
 docker-compose -f docker/compose.yaml up -d
@@ -201,6 +214,7 @@ docker system prune -f
 ```
 
 ### Application Commands (inside containers)
+
 ```bash
 # Backend
 cd /app/grassroots-backend
@@ -209,7 +223,7 @@ npm run start:dev
 npm test
 
 # Frontend
-cd /app/grassroots-frontend  
+cd /app/grassroots-frontend
 npm install
 npm run dev
 npm run build
