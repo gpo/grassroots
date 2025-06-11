@@ -1,6 +1,7 @@
 ```mermaid
 graph TD
-  RootTestModule-->PassportModule
+  RootTestModule-->ConfigModule
+RootTestModule-->PassportModule
 RootTestModule-->ContactsModule
 ContactsModule-->MikroOrmModule
 ```

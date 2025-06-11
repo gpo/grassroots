@@ -42,6 +42,7 @@ export class GoogleOAuthStrategy extends PassportStrategy(
     } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
   }
 
+  // TODO: eventually we shouldn't let anyone with a Google account login.
   validate: VerifyFunction = async (
     issuer: string,
     profile: Profile,
