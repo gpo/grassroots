@@ -1,7 +1,5 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { Test, TestingModuleBuilder } from "@nestjs/testing";
 import { AppService } from "./App.service";
-import { AuthService } from "./auth/Auth.service";
-import { UsersService } from "./users/Users.service";
 import { AppController } from "./App.controller";
 import { beforeEach, describe, expect, it } from "vitest";
 
@@ -9,11 +7,11 @@ describe("AppController", () => {
   let appController: AppController;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const builder: TestingModuleBuilder = Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService, AuthService, UsersService],
-    }).compile();
-
+      providers: [AppService],
+    });
+    const app = await builder.compile();
     appController = app.get<AppController>(AppController);
   });
 

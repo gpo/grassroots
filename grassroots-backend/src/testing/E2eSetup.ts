@@ -3,22 +3,30 @@ import { listenAndConfigureApp } from "../App.module";
 import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { EntityManagerProvider } from "../orm/EntityManager.provider";
 import { TestFixture, TestFixtureProps } from "./Setup";
+import { EntityManager } from "@mikro-orm/core";
+
+type GrassRootsAPIRaw = (
+  path: keyof paths,
+  options?: RequestInit,
+) => Promise<Response>;
 
 type E2ETestFixtureProps = TestFixtureProps & {
   grassrootsAPI: Client<paths>;
+  grassrootsAPIRaw: GrassRootsAPIRaw;
 };
 
 class E2ETestFixture extends TestFixture {
   grassrootsAPI: Client<paths>;
+  // grassrootsAPI parses the response as JSON. This uses the strongly typed paths from grassrootsAPI,
+  // but just provides a thin wrapper over normal fetch.
+  grassrootsAPIRaw: GrassRootsAPIRaw;
 
   constructor(props: E2ETestFixtureProps) {
     super(props);
     this.grassrootsAPI = props.grassrootsAPI;
-    this.entityManager = this.app.get<EntityManagerProvider>(
-      EntityManagerProvider,
-    ).entityManager;
+    this.grassrootsAPIRaw = props.grassrootsAPIRaw;
+    this.entityManager = this.app.get<EntityManager>(EntityManager);
   }
 }
 
@@ -31,11 +39,15 @@ export function useE2ETestFixture(
   beforeAll(async () => {
     const { app } = await getTestApp(dependencies);
     const { port } = await listenAndConfigureApp(app, 0);
+    const baseUrl = `http://localhost:${String(port)}`;
     const grassrootsAPI = createClient<paths>({
-      baseUrl: `http://localhost:${String(port)}`,
+      baseUrl,
       credentials: "include",
     });
-    fixture = new E2ETestFixture({ app, grassrootsAPI });
+    const grassrootsAPIRaw: GrassRootsAPIRaw = (path, options) => {
+      return fetch(baseUrl + path, options);
+    };
+    fixture = new E2ETestFixture({ app, grassrootsAPI, grassrootsAPIRaw });
   });
 
   afterAll(async () => {

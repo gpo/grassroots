@@ -12,7 +12,12 @@ export function PrimaryKey(): DecoratorResult {
   return noop;
 }
 
-export function Property(): DecoratorResult {
+interface PropertyOptions {
+  nullable?: boolean;
+}
+
+export function Property(options?: PropertyOptions): DecoratorResult {
+  void options;
   return noop;
 }
 

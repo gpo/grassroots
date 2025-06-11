@@ -60,6 +60,16 @@
       "schema": "public",
       "indexes": [
         {
+          "columnNames": [
+            "email"
+          ],
+          "composite": false,
+          "keyName": "contact_entity_out_dto_email_unique",
+          "constraint": true,
+          "primary": false,
+          "unique": true
+        },
+        {
           "keyName": "contact_entity_out_dto_pkey",
           "columnNames": [
             "id"
@@ -83,6 +93,36 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "first_name": {
+          "name": "first_name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "last_name": {
+          "name": "last_name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "display_name": {
+          "name": "display_name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "length": 255,
           "mappedType": "string"
         }
