@@ -9,7 +9,7 @@ describe("AuthController (e2e) while signed out", () => {
     imports: [AuthModule],
   });
 
-  it("Redirects to Google signing", async () => {
+  it("Redirects to Google signin", async () => {
     const f = getFixture();
     const response = await f.grassrootsAPIRaw("/auth/login", {
       redirect: "manual",
