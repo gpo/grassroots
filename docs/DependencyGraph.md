@@ -2,10 +2,11 @@
 graph TD
   AppModule-->ConfigModule
 AppModule-->ContactsModule
-ContactsModule-->EntityManagerModule
-EntityManagerModule-->MikroOrmModule
+ContactsModule-->MikroOrmModule
 AppModule-->AuthModule
 AuthModule-->UsersModule
+UsersModule-->MikroOrmModule
 AuthModule-->PassportModule
+AuthModule-->ConfigModule
 AppModule-->PassportModule
 ```

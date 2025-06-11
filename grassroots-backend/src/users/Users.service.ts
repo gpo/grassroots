@@ -1,17 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import { UserEntity } from "../grassroots-shared/User.entity";
-import { plainToClass } from "class-transformer";
+import { PropsOf } from "../grassroots-shared/Cast";
+import { EntityManager, EntityRepository } from "@mikro-orm/core";
 
 @Injectable()
 export class UsersService {
-  findByEmail(email: string): Promise<UserEntity | undefined> {
-    // TODO: This is just a stub for now, until we implement OAuth.
-    return new Promise((resolve) => {
-      resolve(
-        plainToClass(UserEntity, {
-          email,
-        }),
-      );
-    });
+  repo: EntityRepository<UserEntity>;
+  constructor(private readonly entityManager: EntityManager) {
+    this.repo = entityManager.getRepository<UserEntity>(UserEntity);
+  }
+  async findOrCreate(
+    user: PropsOf<UserEntity>,
+  ): Promise<UserEntity | undefined> {
+    return await this.repo.upsert(user);
   }
 }

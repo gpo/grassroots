@@ -56,7 +56,7 @@ export async function listenAndConfigureApp(
   passport.deserializeUser((email: string, done) => {
     const usersService = app.get<UsersService>(UsersService);
     usersService
-      .findByEmail(email)
+      .findOrCreate({ email })
       .then((user: UserEntity | undefined) => {
         done(null, user);
       })

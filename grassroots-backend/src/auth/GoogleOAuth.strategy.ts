@@ -1,27 +1,73 @@
-import { Strategy as LocalStrategy } from "passport-local";
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { AuthService } from "./Auth.service";
-import { UserEntity } from "../grassroots-shared/User.entity";
+import {
+  Strategy as GoogleStrategy,
+  VerifyCallback,
+  VerifyFunction,
+  Profile,
+} from "passport-google-oidc";
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
+import { UsersService } from "../users/Users.service";
+import OpenIDConnectStrategy from "passport-openidconnect";
+import { UserEntity } from "../grassroots-shared/User.entity";
 
-// This doesn't work if set to "default".
-export const DEFAULT_PASSPORT_STRATEGY_NAME = "temporaryLocalStrategy";
+export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
 
-// TODO: switch to OAuth.
 @Injectable()
 export class GoogleOAuthStrategy extends PassportStrategy(
-  LocalStrategy,
+  GoogleStrategy,
   DEFAULT_PASSPORT_STRATEGY_NAME,
 ) {
-  constructor(private authService: AuthService) {
-    super({ usernameField: "email" });
+  constructor(
+    private config: ConfigService,
+    private userService: UsersService,
+  ) {
+    const clientID = config.get<string>("GOOGLE_CLIENT_ID");
+    if (clientID === undefined) {
+      throw new Error("Missing environment variable GOOGLE_CLIENT_ID");
+    }
+    const clientSecret = config.get<string>("GOOGLE_CLIENT_SECRET");
+    if (clientSecret === undefined) {
+      throw new Error("Missing environment variable GOOGLE_CLIENT_SECRET");
+    }
+    const callbackURL = config.get<string>("GOOGLE_AUTH_CALLBACK_URL");
+    if (callbackURL === undefined) {
+      throw new Error("Missing environment variable GOOGLE_AUTH_CALLBACK_URL");
+    }
+    super({
+      clientID,
+      clientSecret,
+      callbackURL,
+      scope: ["email", "profile"],
+    } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
   }
 
-  async validate(email: string, password: string): Promise<UserEntity | null> {
-    const user = await this.authService.validateUser(email, password);
-    if (!user) {
-      throw new UnauthorizedException();
+  validate: VerifyFunction = async (
+    issuer: string,
+    profile: Profile,
+    done: VerifyCallback,
+  ): Promise<void> => {
+    const email = profile.emails?.[0];
+    if (email == undefined) {
+      throw new Error("Google Account has no associated email address.");
     }
-    return user;
-  }
+    let user: UserEntity | undefined = undefined;
+    try {
+      user = await this.userService.findOrCreate({
+        email: email.value,
+        displayName: profile.displayName,
+        firstName: profile.name?.givenName,
+        lastName: profile.name?.familyName,
+      });
+      done(null, user);
+    } catch (err) {
+      let typedErr: undefined | Error = undefined;
+      if (err instanceof Error) {
+        typedErr = err;
+      } else {
+        typedErr = new Error(String(err));
+      }
+      done(typedErr);
+    }
+  };
 }
