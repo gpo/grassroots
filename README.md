@@ -30,14 +30,6 @@ if you're developing on the machine you're browsing from.
 docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
 ```
 
-If you have an error with code 'MODULE_NOT_FOUND', run:
-
-```
-docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm i"
-docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm audit fix"
-docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
-```
-
 # <a name="devMode"></a> Running in Dev Mode
 
 We're running things in docker.
@@ -86,8 +78,22 @@ npx mikro-orm migration:create
 
 ## Frequently Seen Problems
 
-`duplicate key value violates unique constraint "pg_class_relname_nsp_index"`
-You're modifying tables from multiple threads at the same time. Serialize whatever you're doing!
+- `duplicate key value violates unique constraint "pg_class_relname_nsp_index"`
+  You're modifying tables from multiple threads at the same time. Serialize whatever you're doing!
 
-`Invalid hook call.`
-You might accidentally have installed a dependency in the root package, instead of the frontend package. I'm not sure why this causes this error. Remove the dependency from the root package, `npm prune`, install it in the frontend package, and restart vite.
+- `Invalid hook call.`
+  You might accidentally have installed a dependency in the root package, instead of the frontend package. I'm not sure why this causes this error. Remove the dependency from the root package, `npm prune`, install it in the frontend package, and restart vite.
+
+- On Windows `/usr/local/bin/docker-entrypoint.sh: no such file or directory`
+
+```
+dos2unix docker/docker-entrypoint.sh
+```
+
+- when running `docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"` you get `MODULE_NOT_FOUND`
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm i"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm audit fix"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+```
