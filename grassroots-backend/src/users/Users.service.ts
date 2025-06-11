@@ -14,4 +14,8 @@ export class UsersService {
   ): Promise<UserEntity | undefined> {
     return await this.repo.upsert(user);
   }
+
+  async findOne(user: PropsOf<UserEntity>): Promise<UserEntity | null> {
+    return await this.repo.findOne(user);
+  }
 }
