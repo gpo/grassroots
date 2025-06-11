@@ -22,20 +22,23 @@ That's:
 
 if you're developing on the machine you're browsing from.
 
-3. if you're on Windows and are getting the error: /usr/local/bin/docker-entrypoint.sh: no such file or directory
-
-```
-dos2unix docker/docker-entrypoint.sh
-```
+3. start up docker dev environment (see [Running in Dev Mode](#devMode))
 
 4. Run mikro-orm migration inside docker dev container (WIP)
 
 ```
-docker compose exec grassroots_dev bash -c "cd grassroots-back
-end && npx mikro-orm migration:up"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
 ```
 
-# Running in Dev Mode
+If you have an error with code 'MODULE_NOT_FOUND', run:
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm i"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm audit fix"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+```
+
+# <a name="devMode"></a> Running in Dev Mode
 
 We're running things in docker.
 
