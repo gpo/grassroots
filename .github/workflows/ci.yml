@@ -57,9 +57,6 @@ jobs:
       - name: Format code with Prettier
         run: npx prettier --write .
 
-      - name: fix using editorconfig
-        run: npx ec
-
       - name: Push Changes
         id: auto-commit-action
         uses: stefanzweifel/git-auto-commit-action@v5
