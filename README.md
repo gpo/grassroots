@@ -22,6 +22,14 @@ That's:
 
 if you're developing on the machine you're browsing from.
 
+3. start up docker dev environment (see [Running in Dev Mode](#devMode))
+
+4. Run mikro-orm migration inside docker dev container
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+```
+
 # Running in Dev Mode
 
 We're running things in docker.
@@ -75,3 +83,11 @@ You're modifying tables from multiple threads at the same time. Serialize whatev
 
 `Invalid hook call.`
 You might accidentally have installed a dependency in the root package, instead of the frontend package. I'm not sure why this causes this error. Remove the dependency from the root package, `npm prune`, install it in the frontend package, and restart vite.
+
+When migrating the database with `docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"` you get `MODULE_NOT_FOUND`
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm i"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm audit fix"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+```
