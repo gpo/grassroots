@@ -54,9 +54,6 @@ jobs:
         run: npx eslint . --output-file eslint_report.json --format json --fix
         continue-on-error: true
 
-      - name: fix using editorconfig
-        run: npx eclint fix $(git ls-files | grep -v "\.\(tsx\?\|json\)$")
-
       - name: Format code with Prettier
         run: npx prettier --write .
 
