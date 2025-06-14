@@ -4,9 +4,10 @@ import { UserEntity } from "./grassroots-shared/User.entity";
 import { ContactEntityOutDTO } from "./grassroots-shared/Contact.entity.dto";
 
 import dotenvFlow from "dotenv-flow";
+import { getEnvFilePaths } from "./GetEnvFilePaths";
 dotenvFlow.config({
   // Reversed so that earlier files take priority, to align with the ConfigModule.
-  files: ["../.env.development.local", "../.env.development"].reverse(),
+  files: getEnvFilePaths().reverse(),
 });
 
 export default defineConfig({

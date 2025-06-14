@@ -32,6 +32,10 @@ docker compose exec grassroots_dev /bin/bash -c "cd grassroots-frontend && npm r
 docker compose exec grassroots_dev /bin/bash -c "cd grassroots-backend && npm run start:dev" # Backend
 ```
 
+## Environment Variables
+
+Environment variables are read both within and outside the nestJS context (for mikro-orm.config.ts and GlobalSetup.ts). Due to this, we don't inject the ConfigModule for tests, instead, we define a different set of env files for development vs test.
+
 ## Migrations
 
 To migrate:

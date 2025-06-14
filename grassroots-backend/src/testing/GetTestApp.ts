@@ -25,10 +25,6 @@ export async function getTestApp(
   }
   const moduleRef = await Test.createTestingModule({
     imports: [
-      ConfigModule.forRoot({
-        envFilePath: ["../.env.test.local", "../.env.test"],
-        isGlobal: false,
-      }),
       MikroOrmModule.forRootAsync({
         imports: [ConfigModule],
         driver: PostgreSqlDriver,

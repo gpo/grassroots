@@ -412,10 +412,12 @@
         "type": "object",
         "properties": {
           "rowsToSkip": {
-            "type": "number"
+            "type": "number",
+            "minimum": 0
           },
           "rowsToTake": {
-            "type": "number"
+            "type": "number",
+            "minimum": 1
           }
         },
         "required": [
