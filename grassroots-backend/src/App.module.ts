@@ -3,7 +3,6 @@ import { AppController } from "./App.controller";
 import { AppService } from "./App.service";
 import { ContactsModule } from "./contacts/Contacts.module";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { ContactEntityOutDTO } from "./grassroots-shared/Contact.entity.dto";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { AuthModule } from "./auth/Auth.module";
 import { PassportModuleImport } from "./auth/PassportModuleImport";
@@ -14,6 +13,8 @@ import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import expressSession from "express-session";
 import passport from "passport";
+import mikroORMConfig from "./mikro-orm.config";
+import { getEnvFilePaths } from "./GetEnvFilePaths";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,
@@ -85,24 +86,16 @@ export async function listenAndConfigureApp(
       imports: [ConfigModule],
       driver: PostgreSqlDriver,
       useFactory: (config: ConfigService): MikroOrmModuleOptions => {
-        return {
-          driver: PostgreSqlDriver,
-          host: config.get<string>("POSTGRES_HOST"),
-          port: config.get<number>("POSTGRES_PORT"),
-          user: config.get<string>("POSTGRES_USER"),
-          password: config.get<string>("POSTGRES_PASSWORD"),
-          dbName: config.get<string>("POSTGRES_DATABASE"),
-          entities: [ContactEntityOutDTO, UserEntity],
-        };
+        void config;
+        return mikroORMConfig;
       },
+      // While we don't have an explicit dependency here, we need the ConfigModule to
+      // initialize process.env before this runs.
       inject: [ConfigService],
     }),
     ConfigModule.forRoot({
-      // First file takes preference.
-      envFilePath:
-        process.env.MODE == "test"
-          ? ["../.env.test"]
-          : ["../.env.development.local", "../.env.development"],
+      // First file takes precedence.
+      envFilePath: getEnvFilePaths(),
       isGlobal: false,
     }),
     ContactsModule,
