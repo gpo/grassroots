@@ -99,7 +99,10 @@ export async function listenAndConfigureApp(
     }),
     ConfigModule.forRoot({
       // First file takes preference.
-      envFilePath: ["../.env.development.local", "../.env.development"],
+      envFilePath:
+        process.env.MODE == "test"
+          ? ["../.env.test"]
+          : ["../.env.development.local", "../.env.development"],
       isGlobal: false,
     }),
     ContactsModule,
