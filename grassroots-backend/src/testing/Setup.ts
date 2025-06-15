@@ -2,7 +2,6 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { EntityManager, MikroORM } from "@mikro-orm/core";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { EntityManagerProvider } from "../orm/EntityManager.provider";
 
 export interface TestFixtureProps {
   app: NestExpressApplication;
@@ -15,9 +14,7 @@ export class TestFixture {
 
   constructor(props: TestFixtureProps) {
     this.app = props.app;
-    this.entityManager = this.app.get<EntityManagerProvider>(
-      EntityManagerProvider,
-    ).entityManager;
+    this.entityManager = this.app.get<EntityManager>(EntityManager);
     this.orm = this.app.get<MikroORM>(MikroORM);
   }
 }

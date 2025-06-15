@@ -6,18 +6,15 @@ import {
   PaginatedContactOutDTO,
   PaginatedContactSearchInDTO,
 } from "../grassroots-shared/Contact.entity.dto.js";
-import { EntityRepository, FilterQuery } from "@mikro-orm/core";
+import { EntityManager, EntityRepository, FilterQuery } from "@mikro-orm/core";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
-import { EntityManagerProvider } from "../orm/EntityManager.provider.js";
 
 @Injectable()
 export class ContactsService {
   repo: EntityRepository<ContactEntityOutDTO>;
-  constructor(private readonly entityManagerProvider: EntityManagerProvider) {
+  constructor(private readonly entityManager: EntityManager) {
     this.repo =
-      entityManagerProvider.entityManager.getRepository<ContactEntityOutDTO>(
-        ContactEntityOutDTO,
-      );
+      entityManager.getRepository<ContactEntityOutDTO>(ContactEntityOutDTO);
   }
 
   async create(

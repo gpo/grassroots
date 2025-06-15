@@ -1,4 +1,4 @@
-http://grassroots.local {
+http://grassroots.org {
     log {
         level DEBUG
     }

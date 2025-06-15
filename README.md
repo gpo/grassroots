@@ -8,7 +8,7 @@ Run setup.sh.
 Add
 
 ```
-$LOCAL_IP grassroots.local
+$LOCAL_IP grassroots.org
 ```
 
 to your /etc/hosts.
@@ -16,7 +16,7 @@ to your /etc/hosts.
 That's:
 
 ```
-127.0.0.1 grassroots.local
+127.0.0.1 grassroots.org
 ```
 
 if you're developing on the machine you're browsing from.

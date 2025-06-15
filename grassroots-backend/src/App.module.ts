@@ -50,13 +50,13 @@ export async function listenAndConfigureApp(
 
   app.use(passport.initialize());
   passport.serializeUser((user: Express.User, done) => {
-    done(null, user.email);
+    done(null, user.id);
   });
 
-  passport.deserializeUser((email: string, done) => {
+  passport.deserializeUser((id: string, done) => {
     const usersService = app.get<UsersService>(UsersService);
     usersService
-      .findByEmail(email)
+      .findOrCreate({ id })
       .then((user: UserEntity | undefined) => {
         done(null, user);
       })
@@ -65,6 +65,7 @@ export async function listenAndConfigureApp(
       });
   });
   app.use(passport.session());
+
   await app.listen(desiredPort);
   // We don't always get the port we ask for (e.g., "0" means "next available").
   // Figure out what port we actually got.

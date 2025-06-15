@@ -2,6 +2,5 @@
 graph TD
   RootTestModule-->PassportModule
 RootTestModule-->ContactsModule
-ContactsModule-->EntityManagerModule
-EntityManagerModule-->MikroOrmModule
+ContactsModule-->MikroOrmModule
 ```

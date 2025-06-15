@@ -15,6 +15,7 @@ describe("ContactsService", () => {
 
   function useService(): { service: ContactsService } {
     const fixture = getFixture();
+
     return {
       service: fixture.app.get<ContactsService>(ContactsService),
     };
