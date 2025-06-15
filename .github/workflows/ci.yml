@@ -85,6 +85,9 @@ jobs:
       POSTGRES_DB: grassroots_test
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
+      GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID_DUMMY_FOR_TEST
+      GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET_DUMMY_FOR_TEST
+      GOOGLE_AUTH_CALLBACK_URL: http://grassroots.org/api/auth/google/callback
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
