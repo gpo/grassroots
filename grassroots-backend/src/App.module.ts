@@ -50,13 +50,13 @@ export async function listenAndConfigureApp(
 
   app.use(passport.initialize());
   passport.serializeUser((user: Express.User, done) => {
-    done(null, user.email);
+    done(null, user.id);
   });
 
-  passport.deserializeUser((email: string, done) => {
+  passport.deserializeUser((id: string, done) => {
     const usersService = app.get<UsersService>(UsersService);
     usersService
-      .findOrCreate({ email })
+      .findOrCreate({ id })
       .then((user: UserEntity | undefined) => {
         done(null, user);
       })

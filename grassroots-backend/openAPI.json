@@ -393,9 +393,15 @@
       "UserEntity": {
         "type": "object",
         "properties": {
-          "email": {
-            "type": "string",
-            "format": "email"
+          "id": {
+            "type": "string"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            }
           },
           "firstName": {
             "type": "string"
@@ -408,7 +414,7 @@
           }
         },
         "required": [
-          "email"
+          "id"
         ]
       },
       "LoginStateDTO": {

@@ -115,7 +115,12 @@ export default async () => {
           import("./grassroots-shared/User.entity"),
           {
             UserEntity: {
-              email: { required: true, type: () => String, format: "email" },
+              id: { required: true, type: () => String },
+              emails: {
+                required: false,
+                type: () => [String],
+                format: "email",
+              },
               firstName: { required: false, type: () => String },
               lastName: { required: false, type: () => String },
               displayName: { required: false, type: () => String },

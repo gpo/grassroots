@@ -167,8 +167,8 @@ export interface components {
             message: string;
         };
         UserEntity: {
-            /** Format: email */
-            email: string;
+            id: string;
+            emails?: string[];
             firstName?: string;
             lastName?: string;
             displayName?: string;

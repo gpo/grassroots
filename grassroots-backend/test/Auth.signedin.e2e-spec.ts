@@ -17,6 +17,6 @@ describe("AuthController (e2e) while signed in", () => {
     );
 
     expect(response.data?.isLoggedIn).toBe(true);
-    expect(response.data?.user?.email).toBe(MOCK_AUTH_GUARD_USER.email);
+    expect(response.data?.user?.id).toBe(MOCK_AUTH_GUARD_USER.id);
   });
 });

@@ -48,14 +48,13 @@ export class GoogleOAuthStrategy extends PassportStrategy(
     profile: Profile,
     done: VerifyCallback,
   ): Promise<void> => {
-    const email = profile.emails?.[0];
-    if (email == undefined) {
-      throw new Error("Google Account has no associated email address.");
-    }
+    const id = profile.id;
+    console.log("ID is ", id);
     let user: UserEntity | undefined = undefined;
     try {
       user = await this.userService.findOrCreate({
-        email: email.value,
+        id,
+        emails: profile.emails?.map((v) => v.value) ?? [],
         displayName: profile.displayName,
         firstName: profile.name?.givenName,
         lastName: profile.name?.familyName,

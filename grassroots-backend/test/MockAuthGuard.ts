@@ -3,7 +3,8 @@ import { GrassrootsRequest } from "../src/types/GrassrootsRequest";
 import { UserEntity } from "../src/grassroots-shared/User.entity";
 
 export const MOCK_AUTH_GUARD_USER: UserEntity = {
-  email: "test@example.com",
+  id: "testid",
+  emails: ["test@example.com"],
   displayName: "Test Example",
 };
 

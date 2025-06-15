@@ -3,9 +3,13 @@ import { IsEmail, IsOptional, IsString } from "class-validator";
 
 @Entity()
 export class UserEntity {
+  @IsString()
   @PrimaryKey()
-  @IsEmail()
-  email!: string;
+  id!: string;
+  @IsEmail({}, { each: true })
+  @IsOptional()
+  @Property({ type: "json", nullable: true })
+  emails?: string[];
   @IsString()
   @IsOptional()
   @Property({ nullable: true })
