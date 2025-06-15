@@ -79,6 +79,8 @@ jobs:
   backend-tests:
     name: Backend Tests
     runs-on: ubuntu-latest
+    env:
+      GITHUB_ACTIONS: true
 
     steps:
       - name: Checkout code
