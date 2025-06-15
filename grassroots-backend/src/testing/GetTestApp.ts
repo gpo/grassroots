@@ -4,11 +4,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Type, ValidationPipe } from "@nestjs/common";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
-import {
-  EntityManager,
-  PostgreSqlDriver,
-  RequestContext,
-} from "@mikro-orm/postgresql";
+import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
@@ -61,17 +57,6 @@ export async function getTestApp(
   const moduleRef = await builder.compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
-  // Associate the test entity manager with RequestContexts by default.
-  app.use(
-    (req: unknown, res: unknown, next: (...args: unknown[]) => unknown) => {
-      void req;
-      void res;
-      if (!app) {
-        throw new Error("app undefined");
-      }
-      RequestContext.create(app.get<EntityManager>(EntityManager), next);
-    },
-  );
 
   app.useGlobalPipes(
     new ValidationPipe({ transform: true, forbidUnknownValues: true }),

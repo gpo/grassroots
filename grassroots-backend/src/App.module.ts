@@ -65,6 +65,7 @@ export async function listenAndConfigureApp(
       });
   });
   app.use(passport.session());
+
   await app.listen(desiredPort);
   // We don't always get the port we ask for (e.g., "0" means "next available").
   // Figure out what port we actually got.
