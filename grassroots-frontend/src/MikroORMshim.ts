@@ -14,7 +14,7 @@ export function PrimaryKey(): DecoratorResult {
 
 interface PropertyOptions {
   nullable?: boolean;
-  type: string;
+  type?: string;
 }
 
 export function Property(options?: PropertyOptions): DecoratorResult {
