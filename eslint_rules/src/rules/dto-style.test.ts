@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import * as vitest from "vitest";
 
-import { rule } from "./no-loop-over-enum.js";
+import { rule } from "./dto-style.js";
 
 RuleTester.afterAll = vitest.afterAll;
 RuleTester.it = vitest.it;
@@ -25,31 +25,20 @@ const ruleTester = new RuleTester({
 
 ruleTester.run("no-loop-over-enum", rule, {
   valid: [
-    `enum Values {}`,
-    `for (const a in []) {}`,
-    `for (const a of []) {}`,
-    `
-      const values = {};
-      for (const a in values) {}
-    `,
-    `
-      const values = [];
-      for (const a of values) {}
-    `,
+    `class FooDTO { a!: number; b?: number}`,
+    `class FooDTO { a!: number}`,
+    `class FooDTO { a?: number}`,
   ],
   invalid: [
     {
-      code: `
-          enum Values {}
-          for (const a in Values) {}
-      `,
+      code: `class FooDTO { a: number}`,
       errors: [
         {
-          column: 27,
-          endColumn: 33,
-          line: 3,
-          endLine: 3,
-          messageId: "loopOverEnum",
+          column: 16,
+          endColumn: 25,
+          line: 1,
+          endLine: 1,
+          messageId: "definiteOrOptional",
         },
       ],
     },

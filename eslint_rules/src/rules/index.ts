@@ -1,4 +1,4 @@
-import { rule as noLoopOverEnums } from "./no-loop-over-enum.js";
+import { rule as noLoopOverEnums } from "./dto-style.js";
 
 const rules = {
   "no-loop-over-enums": noLoopOverEnums,
