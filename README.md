@@ -135,23 +135,6 @@ npm install
 npm run dev
 ```
 
-## Configuration
-
-The application uses environment-specific configuration files:
-
-- `.env.development` - Development environment settings
-- `.env.production` - Production environment settings
-
-Key environment variables:
-
-```env
-POSTGRES_HOST=db
-POSTGRES_DATABASE=grassroots
-POSTGRES_USER=grassroots
-POSTGRES_PASSWORD=localDevPassword
-POSTGRES_PORT=5432
-```
-
 ## Troubleshooting
 
 ### Container Issues
@@ -182,17 +165,6 @@ Ensure these ports are available:
 
 - **3000** - Backend API
 - **5173** - Frontend development server
-- **5432** - PostgreSQL database
-
-### Windows-Specific Issues
-
-If you encounter line ending issues on Windows:
-
-```bash
-git config core.autocrlf false
-echo "*.sh text eol=lf" >> .gitattributes
-git checkout HEAD -- docker/docker-entrypoint.sh
-```
 
 ### Database Connection Issues
 
@@ -254,11 +226,3 @@ npm run build
 - **Database**: PostgreSQL on port 5432
 - **Container Network**: All services communicate through Docker's internal network
 
-## Contributing
-
-1. Make your changes
-2. Test locally using `docker-compose -f docker/compose.yaml up -d --build`
-3. Ensure all services start successfully
-4. Submit a pull request
-
-For questions or issues, please check the troubleshooting section above or create an issue in the repository.
