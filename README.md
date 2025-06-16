@@ -225,4 +225,3 @@ npm run build
 - **Backend**: Node.js API server on port 3000
 - **Database**: PostgreSQL on port 5432
 - **Container Network**: All services communicate through Docker's internal network
-
