@@ -8,6 +8,7 @@ import pluginRouter from "@tanstack/eslint-plugin-router";
 import checkFile from "eslint-plugin-check-file";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import eslintNestJs from "@darraghor/eslint-plugin-nestjs-typed";
+import exampleTypedLinting from "./eslint_rules/lib/index.js";
 
 export default tseslint.config(
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
@@ -19,6 +20,7 @@ export default tseslint.config(
   ...tseslint.configs.stylisticTypeChecked,
   eslintConfigPrettier,
   eslintNestJs.configs.flatRecommended,
+  ...exampleTypedLinting.configs.flatRecommended,
   {
     ignores: [
       "**/*.mjs",
@@ -26,6 +28,7 @@ export default tseslint.config(
       "**/*.js",
       "**/*.gen.ts",
       "grassroots-backend/src/migrations/",
+      "eslint_rules/lib",
     ],
   },
   {
