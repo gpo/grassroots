@@ -1,3 +1,4 @@
+/* eslint-disable check-file/no-index */
 // Based on https://github.com/darraghoriordan/eslint-plugin-nestjs-typed/blob/main/src/index.ts.
 
 import { fileURLToPath } from "url";
@@ -10,6 +11,7 @@ import rules from "./rules/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const { name, version } = JSON.parse(
   readFileSync(resolve(__dirname, "../package.json"), "utf8"),
 ) as {
@@ -30,7 +32,7 @@ export const parser: TSESLint.FlatConfig.Parser = {
 };
 
 const recommended: Partial<Linter.RulesRecord> = {
-  "grassroots/no-loop-over-enums": "error",
+  "grassroots/dto-and-entity-style": "error",
 };
 
 const flatBaseConfig = (
@@ -62,7 +64,7 @@ export default {
         rules: recommended,
       },
     ],
-  } as {
+  } satisfies {
     flatRecommended: TSESLint.FlatConfig.ConfigArray;
   },
 };

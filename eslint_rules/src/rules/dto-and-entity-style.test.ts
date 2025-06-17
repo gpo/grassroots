@@ -3,7 +3,7 @@ import tseslint from "typescript-eslint";
 import { RuleTester } from "@typescript-eslint/rule-tester";
 import * as vitest from "vitest";
 
-import { rule } from "./dto-style.js";
+import { rule } from "./dto-and-entity-style.js";
 
 RuleTester.afterAll = vitest.afterAll;
 RuleTester.it = vitest.it;

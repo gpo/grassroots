@@ -37,12 +37,13 @@ export const rule = createRule({
       requiresTypeChecking: true,
     },
     messages: {
-      definiteOrOptional:
-        "Properties must be definite (with a ! suffix) or optional (with a ? suffix).",
+      definiteOrOptional: `Properties must be definite (with a ! suffix) or optional (with a ? suffix).
+        Since these objects are constructed via class-transformer, they won't be initialized in the constructor.
+        This lets typescript know that it can assume they're present despite this.`,
     },
     type: "suggestion",
     schema: [],
   },
-  name: "dto-style",
+  name: "dto-and-entity-style",
   defaultOptions: [],
 });

@@ -21,12 +21,11 @@
   },
   "main": "lib/index.js",
   "scripts": {
-    "docs": "eslint-doc-generator",
-    "lint": "eslint",
+    "docs": "tsc && eslint-doc-generator",
     "tsc": "tsc",
     "test": "vitest"
   },
-  "name": "eslint-plugin-example-typed-linting",
+  "name": "grassroots_eslint",
   "type": "module",
   "version": "0.0.0"
 }
