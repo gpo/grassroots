@@ -29,6 +29,8 @@ export default tseslint.config(
       "**/*.gen.ts",
       "grassroots-backend/src/migrations/",
       "eslint_rules/lib",
+      // Getting this validated is tricky due to eslint requirements around the base dir.
+      "eslint_rules/vitest.config.ts",
     ],
   },
   {
