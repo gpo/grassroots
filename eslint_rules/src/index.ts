@@ -52,19 +52,16 @@ const flatBaseConfig = (
   return baseConfig;
 };
 
-export const plugin: TSESLint.FlatConfig.Plugin = { rules, meta };
-
-export default {
-  plugin,
-  configs: {
-    flatRecommended: [
-      flatBaseConfig(plugin, parser),
-      {
-        name: "grassroots/recommended",
-        rules: recommended,
-      },
-    ],
-  } satisfies {
-    flatRecommended: TSESLint.FlatConfig.ConfigArray;
-  },
+const plugin: TSESLint.FlatConfig.Plugin = { rules, meta };
+const configs = {
+  flatRecommended: [
+    flatBaseConfig(plugin, parser),
+    {
+      name: "grassroots/recommended",
+      rules: recommended,
+    },
+  ],
+} satisfies {
+  flatRecommended: TSESLint.FlatConfig.ConfigArray;
 };
+export { plugin, rules, configs };

@@ -34,9 +34,9 @@ export default tseslint.config(
 
 💭 Requires [type information](https://typescript-eslint.io/linting/typed-linting).
 
-| Name                                                   | Description               | 💭  |
-| :----------------------------------------------------- | :------------------------ | :-- |
-| [no-loop-over-enums](docs/rules/no-loop-over-enums.md) | Avoid looping over enums. | 💭  |
+| Name                                                       | Description                          | 💭 |
+| :--------------------------------------------------------- | :----------------------------------- | :- |
+| [dto-and-entity-style](docs/rules/dto-and-entity-style.md) | Ensure DTO's follow our style guide. | 💭 |
 
 <!-- end auto-generated rules list -->
 
