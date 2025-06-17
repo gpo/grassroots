@@ -7,9 +7,15 @@ export default async () => {
     ["./grassroots-shared/Paginated.dto"]: await import(
       "./grassroots-shared/Paginated.dto"
     ),
-    ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
     ["./grassroots-shared/User.entity"]: await import(
       "./grassroots-shared/User.entity"
+    ),
+    ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
+    ["./grassroots-shared/LoginState.dto"]: await import(
+      "./grassroots-shared/LoginState.dto"
+    ),
+    ["./grassroots-shared/Void.dto"]: await import(
+      "./grassroots-shared/Void.dto"
     ),
   };
   return {
@@ -18,15 +24,6 @@ export default async () => {
         [
           import("./app/entities/Hello.dto"),
           { HelloOutDTO: { message: { required: true, type: () => String } } },
-        ],
-        [
-          import("./grassroots-shared/User.entity"),
-          {
-            UserEntity: {
-              email: { required: true, type: () => String, format: "email" },
-              password: { required: true, type: () => String },
-            },
-          },
         ],
         [
           import("./grassroots-shared/Paginated.dto"),
@@ -115,6 +112,35 @@ export default async () => {
           },
         ],
         [
+          import("./grassroots-shared/User.entity"),
+          {
+            UserEntity: {
+              id: { required: true, type: () => String },
+              emails: {
+                required: false,
+                type: () => [String],
+                format: "email",
+              },
+              firstName: { required: false, type: () => String },
+              lastName: { required: false, type: () => String },
+              displayName: { required: false, type: () => String },
+            },
+          },
+        ],
+        [
+          import("./grassroots-shared/LoginState.dto"),
+          {
+            LoginStateDTO: {
+              isLoggedIn: { required: true, type: () => Boolean },
+              user: {
+                required: false,
+                type: () => t["./grassroots-shared/User.entity"].UserEntity,
+              },
+            },
+          },
+        ],
+        [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
+        [
           import("./contacts/entities/ValidationError.dto"),
           {
             ValidationErrorOutDTO: {
@@ -131,7 +157,6 @@ export default async () => {
           {
             AppController: {
               getHello: { type: t["./app/entities/Hello.dto"].HelloOutDTO },
-              login: { type: t["./grassroots-shared/User.entity"].UserEntity },
             },
           },
         ],
@@ -168,7 +193,15 @@ export default async () => {
           import("./auth/Auth.controller"),
           {
             AuthController: {
-              login: { type: t["./grassroots-shared/User.entity"].UserEntity },
+              login: {},
+              googleAuthRedirect: {},
+              isUserLoggedIn: {
+                type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
+              },
+              example: {
+                type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
+              },
+              logout: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
             },
           },
         ],

@@ -1,11 +1,25 @@
-import { Entity, PrimaryKey } from "@mikro-orm/core";
-import { IsEmail, IsString } from "class-validator";
+import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import { IsEmail, IsOptional, IsString } from "class-validator";
 
 @Entity()
 export class UserEntity {
-  @PrimaryKey()
-  @IsEmail()
-  email!: string;
   @IsString()
-  password!: string;
+  @PrimaryKey()
+  id!: string;
+  @IsEmail({}, { each: true })
+  @IsOptional()
+  @Property({ type: "json", nullable: true })
+  emails?: string[];
+  @IsString()
+  @IsOptional()
+  @Property({ nullable: true })
+  firstName?: string;
+  @IsString()
+  @IsOptional()
+  @Property({ nullable: true })
+  lastName?: string;
+  @IsString()
+  @IsOptional()
+  @Property({ nullable: true })
+  displayName?: string;
 }
