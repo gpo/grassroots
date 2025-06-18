@@ -16,10 +16,26 @@ install_deps_if_needed() {
     cd /app
 }
 
+# Function to create symlink for grassroots-shared
+create_shared_symlink() {
+    local source="$1"
+    local destination="$2"
+    
+    if [ -L "$destination" ] || [ -e "$destination" ]; then
+        echo "Removing existing file/symlink"
+        rm -rf "$destination"
+    fi
+    ln -sf "$source" "$destination"
+    echo "Symlink created successfully"
+}
+
 # Install dependencies for each project
 install_deps_if_needed "/app" "root"
 install_deps_if_needed "/app/grassroots-frontend" "frontend"
 install_deps_if_needed "/app/grassroots-backend" "backend"
+
+# Create the symlink
+create_shared_symlink "/app/grassroots-backend/src/grassroots-shared" "/app/grassroots-frontend/src/grassroots-shared"
 
 # Execute the command passed to docker run
 echo "Running command: $@"
