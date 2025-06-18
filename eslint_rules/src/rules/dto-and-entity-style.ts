@@ -13,7 +13,7 @@ export const rule = createRule({
         if (name === undefined) {
           return;
         }
-        if (!/.*DTO/.exec(name)) {
+        if (!/(DTO|Entity)/.exec(name)) {
           return;
         }
         for (const element of node.body.body) {

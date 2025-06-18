@@ -53,15 +53,15 @@ const flatBaseConfig = (
 };
 
 const plugin: TSESLint.FlatConfig.Plugin = { rules, meta };
-const configs = {
+const configs: TSESLint.FlatConfig.SharedConfigs = {
   flatRecommended: [
-    flatBaseConfig(plugin, parser),
     {
-      name: "grassroots/recommended",
-      rules: recommended,
+      ...flatBaseConfig(plugin, parser),
+      ...{
+        name: "grassroots/recommended",
+        rules: recommended,
+      },
     },
   ],
-} satisfies {
-  flatRecommended: TSESLint.FlatConfig.ConfigArray;
 };
 export { plugin, rules, configs };

@@ -1,32 +1,6 @@
-# `eslint-plugin-example-typed-linting`
+# Grassroots eslint rules.
 
 Currently built manually via `npm run tsc`.
-
-An example ESLint plugin showing typed linting with `@typescript-eslint/utils`.
-
-For documentation on custom ESLint plugins with typescript-eslint, see: <https://typescript-eslint.io/developers/custom-rules>.
-
-```js
-// eslint.config.js
-import eslint from '@eslint/js';
-import exampleTypedLinting from 'eslint-plugin-example-typed-linting'
-import tseslint from 'typescript-eslint';
-
-export default tseslint.config(
-    { ignores: ["lib"] },
-    eslint.configs.recommended,
-    tseslint.configs.recommendedTypeChecked,
-    exampleTypedLinting.configs.recommended // 👈
-    {
-        languageOptions: {
-            parserOptions: {
-                projectService:true,
-                tsconfigRootDir: import.meta.dirname,
-            },
-        },
-    },
-);
-```
 
 ## Rules
 
@@ -40,26 +14,9 @@ export default tseslint.config(
 
 <!-- end auto-generated rules list -->
 
-## Development
+### Docs
 
-To set up this individual package, `cd` to the path to it, then install dependencies:
-
-```shell
-cd path/to/eslint-plugin-example-typed-linting
-npm i
-```
-
-Then build files into the `lib` directory with TypeScript:
-
-```shell
-npm run tsc
-```
-
-You'll then be able to run standard package scripts:
-
-- `npm run docs`: Regenerates documentation using [`eslint-doc-generator`](https://github.com/bmish/eslint-doc-generator)
-  - `npm run docs --check`: Validates that documentation is generated and up-to-date.
-- `npm run lint`: Linting this plugin itself with ESLint
+Run `npm run docs` to auto generate documentation.
 
 ### Testing
 
