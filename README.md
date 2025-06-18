@@ -4,8 +4,8 @@ Political Campaign Software focused on voter outreach and volunteer management.
 
 # Setup
 
-Run setup.sh.
-Add
+1. Run setup.sh.
+2. Add
 
 ```
 $LOCAL_IP grassroots.org
@@ -21,15 +21,44 @@ That's:
 
 if you're developing on the machine you're browsing from.
 
+3. start up docker dev environment (see [Running in Dev Mode](#devMode))
+
+4. Run mikro-orm migration inside docker dev container
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+```
+
 # Running in Dev Mode
 
 We're running things in docker.
+
+### On Mac or Linux:
 
 ```sh
 cd docker
 docker compose up
 docker compose exec grassroots_dev /bin/bash -c "cd grassroots-frontend && npm run dev" # Frontend
 docker compose exec grassroots_dev /bin/bash -c "cd grassroots-backend && npm run start:dev" # Backend
+```
+
+### On Windows:
+
+1. Start up Docker
+
+2. Terminal 1: (git bash)
+
+```
+cd docker
+docker compose build grassroots_dev
+docker compose up
+```
+
+3. Terminals 2 & 3: (git bash)
+
+```
+cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-frontend && npm run dev" #Frontend
+cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm run start:dev" #Backend
 ```
 
 ## Environment Variables
@@ -57,6 +86,14 @@ You're modifying tables from multiple threads at the same time. Serialize whatev
 
 `Invalid hook call.`
 You might accidentally have installed a dependency in the root package, instead of the frontend package. I'm not sure why this causes this error. Remove the dependency from the root package, `npm prune`, install it in the frontend package, and restart vite.
+
+When migrating the database with `docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"` you get `MODULE_NOT_FOUND`
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm i"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm audit fix"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+```
 
 # Grassroots Development Setup Windows
 
