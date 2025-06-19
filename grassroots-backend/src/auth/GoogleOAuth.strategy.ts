@@ -49,7 +49,6 @@ export class GoogleOAuthStrategy extends PassportStrategy(
     done: VerifyCallback,
   ): Promise<void> => {
     const id = profile.id;
-    console.log("ID is ", id);
     let user: UserEntity | undefined = undefined;
     try {
       user = await this.userService.findOrCreate({

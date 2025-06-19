@@ -52,7 +52,9 @@ export async function getTestApp(
   });
   builder = overrideEntityManagerForTest(builder);
   if (dependencies.overrideAuthGuard === true) {
-    builder = builder.overrideGuard(DefaultAuthGuard).useClass(MockAuthGuard);
+    builder = builder
+      .overrideProvider(DefaultAuthGuard)
+      .useClass(MockAuthGuard);
   }
   const moduleRef = await builder.compile();
 
