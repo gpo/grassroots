@@ -57,8 +57,8 @@ docker compose up
 3. Terminals 2 & 3: (git bash)
 
 ```
-cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-frontend && npm run dev" #Frontend
-cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm run start:dev" #Backend
+cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-frontend && npm run dev"
+cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm run start:dev"
 ```
 
 ## Environment Variables
