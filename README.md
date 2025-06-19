@@ -4,8 +4,8 @@ Political Campaign Software focused on voter outreach and volunteer management.
 
 # Setup
 
-Run setup.sh.
-Add
+1. Run setup.sh.
+2. Add
 
 ```
 $LOCAL_IP grassroots.org
@@ -21,15 +21,44 @@ That's:
 
 if you're developing on the machine you're browsing from.
 
+3. start up docker dev environment (see [Running in Dev Mode](#devMode))
+
+4. Run mikro-orm migration inside docker dev container
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+```
+
 # Running in Dev Mode
 
 We're running things in docker.
+
+### On Mac or Linux:
 
 ```sh
 cd docker
 docker compose up
 docker compose exec grassroots_dev /bin/bash -c "cd grassroots-frontend && npm run dev" # Frontend
 docker compose exec grassroots_dev /bin/bash -c "cd grassroots-backend && npm run start:dev" # Backend
+```
+
+### On Windows:
+
+1. Start up Docker
+
+2. Terminal 1: (git bash)
+
+```
+cd docker
+docker compose build grassroots_dev
+docker compose up
+```
+
+3. Terminals 2 & 3: (git bash)
+
+```
+cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-frontend && npm run dev"
+cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm run start:dev"
 ```
 
 ## Environment Variables
@@ -58,6 +87,14 @@ You're modifying tables from multiple threads at the same time. Serialize whatev
 `Invalid hook call.`
 You might accidentally have installed a dependency in the root package, instead of the frontend package. I'm not sure why this causes this error. Remove the dependency from the root package, `npm prune`, install it in the frontend package, and restart vite.
 
+When migrating the database with `docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"` you get `MODULE_NOT_FOUND`
+
+```
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm i"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm audit fix"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+```
+
 # Grassroots Development Setup Windows
 
 ## Prerequisites
@@ -78,19 +115,19 @@ cd grassroots
    **Windows:** Open Notepad as Administrator, then open `C:\Windows\System32\drivers\etc\hosts` and add:
 
 ```
-127.0.0.1 grassroots.local
+127.0.0.1 grassroots.org
 ```
 
 **macOS/Linux:** Edit `/etc/hosts` and add:
 
 ```
-127.0.0.1 grassroots.local
+127.0.0.1 grassroots.org
 ```
 
 3. **Start the application**
 
 ```bash
-docker-compose -f docker/compose.yaml up -d --build
+docker compose -f docker/compose.yaml up  --build
 ```
 
 4. **Access the application**
@@ -107,13 +144,13 @@ Everything runs in containers, ensuring consistent environments across all platf
 
 ```bash
 # Start all services
-docker-compose -f docker/compose.yaml up -d --build
+docker compose -f docker/compose.yaml up --build
 
 # View logs
-docker-compose -f docker/compose.yaml logs -f
+docker compose -f docker/compose.yaml logs -f
 
 # Stop services
-docker-compose -f docker/compose.yaml down
+docker compose -f docker/compose.yaml down
 ```
 
 ### Hybrid Setup (Alternative)
@@ -122,7 +159,7 @@ If you prefer to run the applications locally while keeping the database in Dock
 
 ```bash
 # Start only the database
-docker-compose -f docker/compose.yaml up -d db
+docker compose -f docker/compose.yaml up db
 
 # Terminal 1 - Backend
 cd grassroots-backend
@@ -142,21 +179,21 @@ npm run dev
 **Check container status:**
 
 ```bash
-docker-compose -f docker/compose.yaml ps
+docker compose -f docker/compose.yaml ps
 ```
 
 **View container logs:**
 
 ```bash
-docker-compose -f docker/compose.yaml logs grassroots_dev
-docker-compose -f docker/compose.yaml logs db
+docker compose -f docker/compose.yaml logs grassroots_dev
+docker compose -f docker/compose.yaml logs db
 ```
 
 **Rebuild containers:**
 
 ```bash
-docker-compose -f docker/compose.yaml down
-docker-compose -f docker/compose.yaml up -d --build
+docker compose -f docker/compose.yaml down
+docker compose -f docker/compose.yaml up --build
 ```
 
 ### Port Conflicts
@@ -171,19 +208,20 @@ Ensure these ports are available:
 1. Verify the database container is running:
 
 ```bash
-docker-compose -f docker/compose.yaml ps db
+docker compose -f docker/compose.yaml ps db
 ```
 
 2. Check database logs:
 
 ```bash
-docker-compose -f docker/compose.yaml logs db
+docker compose -f docker/compose.yaml logs db
 ```
 
 3. Test database connection:
 
 ```bash
-docker exec -it grassroots_db psql -U grassroots -d grassroots
+docker exec -it db psql -U grassroots -d grassroots
+docker exec -it test_db psql -U grassroots -d grassroots
 ```
 
 ## Development Commands
@@ -192,14 +230,15 @@ docker exec -it grassroots_db psql -U grassroots -d grassroots
 
 ```bash
 # Start development environment
-docker-compose -f docker/compose.yaml up -d
+docker compose -f docker/compose.yaml up
 
 # Execute commands in containers
 docker exec -it grassroots_dev bash
-docker exec -it grassroots_db psql -U grassroots -d grassroots
+docker exec -it db psql -U grassroots grassroots
+docker exec -it test_db psql -U grassroots grassroots
 
 # Clean up everything
-docker-compose -f docker/compose.yaml down -v
+docker compose -f docker/compose.yaml down -v
 docker system prune -f
 ```
 
