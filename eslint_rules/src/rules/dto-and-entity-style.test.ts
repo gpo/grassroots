@@ -28,6 +28,7 @@ ruleTester.run("no-loop-over-enum", rule, {
     `class FooDTO { a!: number; b?: number}`,
     `class FooDTO { a!: number}`,
     `class FooDTO { a?: number}`,
+    `class Foo { a: number}`,
   ],
   invalid: [
     {
