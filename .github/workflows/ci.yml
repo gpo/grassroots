@@ -39,16 +39,16 @@ jobs:
           npx syncpack fix-mismatches
           npm install
 
-      - name: Run TypeScript Checks
-        run: |
-          npx tsc --noEmit --project grassroots-frontend
-          npx tsc --noEmit --project grassroots-backend
-
       - name: Build backend
         run: npm run build --prefix grassroots-backend
 
       - name: Build frontend
         run: npm run build:ci --prefix grassroots-frontend
+
+      - name: Run TypeScript Checks
+        run: |
+          npx tsc --noEmit --project grassroots-frontend
+          npx tsc --noEmit --project grassroots-backend
 
       - name: Run ESLint
         run: npx eslint . --output-file eslint_report.json --format json --fix
