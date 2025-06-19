@@ -16,3 +16,6 @@ eslint_report.json
 
 # Transient docker files
 docker/data
+
+# Version Control Extensions
+.git-branches.toml
