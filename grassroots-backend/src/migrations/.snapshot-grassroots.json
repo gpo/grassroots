@@ -96,6 +96,15 @@
           "length": 255,
           "mappedType": "string"
         },
+        "emails": {
+          "name": "emails",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "mappedType": "json"
+        },
         "first_name": {
           "name": "first_name",
           "type": "varchar(255)",
