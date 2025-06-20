@@ -34,19 +34,19 @@ export class DefaultAuthGuard extends AuthGuard(
 
   handleRequest<UserEntity>(
     err: unknown,
-    user: UserEntity | false,
+    user: UserEntity | false | undefined,
     info: unknown,
     context: ExecutionContext,
-  ): UserEntity | false {
+  ): UserEntity | false | undefined {
     console.log("handleRequest", user);
     const request: Request = context.switchToHttp().getRequest();
 
-    if (user === false) {
+    if (user === false || user === undefined) {
       if (request.method !== "GET") {
         throw new UnauthorizedException();
       }
     }
 
-    return user;
+    return super.handleRequest(err, user, info, context);
   }
 }
