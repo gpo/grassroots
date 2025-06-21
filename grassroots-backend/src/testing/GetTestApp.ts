@@ -8,7 +8,7 @@ import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../grassroots-shared/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
-import { DefaultAuthGuard } from "../auth/DefaultAuth.guard";
+import { OAuth } from "../auth/OAuth.guard";
 import { MockAuthGuard } from "../../test/MockAuthGuard";
 
 let app: NestExpressApplication | undefined = undefined;
@@ -52,9 +52,7 @@ export async function getTestApp(
   });
   builder = overrideEntityManagerForTest(builder);
   if (dependencies.overrideAuthGuard === true) {
-    builder = builder
-      .overrideProvider(DefaultAuthGuard)
-      .useClass(MockAuthGuard);
+    builder = builder.overrideProvider(OAuth).useClass(MockAuthGuard);
   }
   const moduleRef = await builder.compile();
 

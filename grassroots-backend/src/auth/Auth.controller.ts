@@ -1,4 +1,11 @@
-import { Controller, Request, Get, Response, Post } from "@nestjs/common";
+import {
+  Controller,
+  Request,
+  Get,
+  Response,
+  Post,
+  UseGuards,
+} from "@nestjs/common";
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { ConfigService } from "@nestjs/config";
@@ -6,18 +13,23 @@ import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
 import { VoidDTO } from "../grassroots-shared/Void.dto";
 import { ApiProperty, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
+import { OAuthGuard } from "./OAuth.guard";
+import { OAuthRoute } from "./OAuthRoute.decorator";
 
 @Controller("auth")
 export class AuthController {
   constructor(private configService: ConfigService) {}
 
-  // This method provides an endpoint to force login.
-  // This can be used for a login button for example.
+  // The frontend can redirect here to trigger login.
   @Get("login")
+  @UseGuards(OAuthGuard)
+  @OAuthRoute()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   login(): void {}
 
   @Get("google/callback")
+  @UseGuards(OAuthGuard)
+  @OAuthRoute()
   @ApiProperty()
   googleAuthRedirect(
     @Request() req: GrassrootsRequest,
