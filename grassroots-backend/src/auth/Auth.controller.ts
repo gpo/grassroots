@@ -66,7 +66,6 @@ export class AuthController {
   }
 
   @Post("logout")
-  // TODO: does this need to be public?
   async logout(@Request() req: GrassrootsRequest): Promise<VoidDTO> {
     return new Promise((resolve, reject) => {
       req.logout((err: Error | undefined) => {
