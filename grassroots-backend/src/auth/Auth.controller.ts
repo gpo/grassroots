@@ -1,32 +1,35 @@
 import {
   Controller,
-  UseGuards,
   Request,
   Get,
   Response,
   Post,
+  UseGuards,
 } from "@nestjs/common";
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
-import { DefaultAuthGuard } from "./DefaultAuth.guard";
 import { ConfigService } from "@nestjs/config";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
 import { VoidDTO } from "../grassroots-shared/Void.dto";
 import { ApiProperty, ApiResponse } from "@nestjs/swagger";
+import { PublicRoute } from "./PublicRoute.decorator";
+import { OAuthGuard } from "./OAuth.guard";
+import { OAuthRoute } from "./OAuthRoute.decorator";
 
 @Controller("auth")
 export class AuthController {
   constructor(private configService: ConfigService) {}
 
-  // This method provides an endpoint to force login.
-  // This can be used for a login button for example.
-  @UseGuards(DefaultAuthGuard)
+  // The frontend can redirect here to trigger login.
   @Get("login")
+  @UseGuards(OAuthGuard)
+  @OAuthRoute()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   login(): void {}
 
   @Get("google/callback")
-  @UseGuards(DefaultAuthGuard)
+  @UseGuards(OAuthGuard)
+  @OAuthRoute()
   @ApiProperty()
   googleAuthRedirect(
     @Request() req: GrassrootsRequest,
@@ -48,6 +51,7 @@ export class AuthController {
   }
 
   @Get("is_authenticated")
+  @PublicRoute()
   isUserLoggedIn(@Request() req: GrassrootsRequest): LoginStateDTO {
     return { isLoggedIn: req.isAuthenticated(), user: req.user };
   }
@@ -55,7 +59,6 @@ export class AuthController {
   // This is an example of using user info, to enable a test.
   // TODO: remove this once we have real routes using user info.
   @Get("example_route_using_user")
-  @UseGuards(DefaultAuthGuard)
   // Not sure why UseGuards breaks the OpenAPI plugin.
   @ApiResponse({ status: 200, type: LoginStateDTO })
   example(@Request() req: GrassrootsRequest): LoginStateDTO {

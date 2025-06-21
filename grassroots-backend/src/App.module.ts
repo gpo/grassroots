@@ -8,7 +8,6 @@ import { AuthModule } from "./auth/Auth.module";
 import { PassportModuleImport } from "./auth/PassportModuleImport";
 import { UsersService } from "./users/Users.service";
 import { UserEntity } from "./grassroots-shared/User.entity";
-import { AuthController } from "./auth/Auth.controller";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import expressSession from "express-session";
@@ -103,7 +102,7 @@ export async function listenAndConfigureApp(
     AuthModule,
     PassportModuleImport(),
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController],
   providers: [AppService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
