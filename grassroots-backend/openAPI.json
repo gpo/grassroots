@@ -27,9 +27,7 @@
             }
           }
         },
-        "tags": [
-          "App"
-        ]
+        "tags": ["App"]
       }
     },
     "/auth/login": {
@@ -51,9 +49,7 @@
             }
           }
         },
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/auth/google/callback": {
@@ -75,9 +71,7 @@
             }
           }
         },
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/auth/is_authenticated": {
@@ -106,9 +100,7 @@
             }
           }
         },
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/auth/example_route_using_user": {
@@ -137,9 +129,7 @@
             }
           }
         },
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/auth/logout": {
@@ -168,9 +158,7 @@
             }
           }
         },
-        "tags": [
-          "Auth"
-        ]
+        "tags": ["Auth"]
       }
     },
     "/contacts": {
@@ -209,9 +197,7 @@
             }
           }
         },
-        "tags": [
-          "Contacts"
-        ]
+        "tags": ["Contacts"]
       },
       "get": {
         "operationId": "ContactsController_findAll",
@@ -241,9 +227,7 @@
             }
           }
         },
-        "tags": [
-          "Contacts"
-        ]
+        "tags": ["Contacts"]
       }
     },
     "/contacts/bulk-create": {
@@ -282,9 +266,7 @@
             }
           }
         },
-        "tags": [
-          "Contacts"
-        ]
+        "tags": ["Contacts"]
       }
     },
     "/contacts/search": {
@@ -323,9 +305,7 @@
             }
           }
         },
-        "tags": [
-          "Contacts"
-        ]
+        "tags": ["Contacts"]
       }
     },
     "/contacts/{id}": {
@@ -363,9 +343,7 @@
             }
           }
         },
-        "tags": [
-          "Contacts"
-        ]
+        "tags": ["Contacts"]
       }
     }
   },
@@ -386,9 +364,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "message"
-        ]
+        "required": ["message"]
       },
       "UserEntity": {
         "type": "object",
@@ -413,9 +389,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id"
-        ]
+        "required": ["id"]
       },
       "LoginStateDTO": {
         "type": "object",
@@ -427,9 +401,7 @@
             "$ref": "#/components/schemas/UserEntity"
           }
         },
-        "required": [
-          "isLoggedIn"
-        ]
+        "required": ["isLoggedIn"]
       },
       "VoidDTO": {
         "type": "object",
@@ -452,12 +424,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "email",
-          "firstName",
-          "lastName",
-          "phoneNumber"
-        ]
+        "required": ["email", "firstName", "lastName", "phoneNumber"]
       },
       "ContactEntityOutDTO": {
         "type": "object",
@@ -480,13 +447,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "id",
-          "email",
-          "firstName",
-          "lastName",
-          "phoneNumber"
-        ]
+        "required": ["id", "email", "firstName", "lastName", "phoneNumber"]
       },
       "CreateBulkContactRequestDto": {
         "type": "object",
@@ -498,9 +459,7 @@
             }
           }
         },
-        "required": [
-          "contacts"
-        ]
+        "required": ["contacts"]
       },
       "CreateBulkContactResponseDTO": {
         "type": "object",
@@ -512,9 +471,7 @@
             }
           }
         },
-        "required": [
-          "ids"
-        ]
+        "required": ["ids"]
       },
       "ContactSearchInDTO": {
         "type": "object",
@@ -549,10 +506,7 @@
             "minimum": 1
           }
         },
-        "required": [
-          "rowsToSkip",
-          "rowsToTake"
-        ]
+        "required": ["rowsToSkip", "rowsToTake"]
       },
       "PaginatedContactSearchInDTO": {
         "type": "object",
@@ -564,10 +518,7 @@
             "$ref": "#/components/schemas/PaginatedInDTO"
           }
         },
-        "required": [
-          "contact",
-          "paginated"
-        ]
+        "required": ["contact", "paginated"]
       },
       "PaginatedOutDTO": {
         "type": "object",
@@ -581,10 +532,7 @@
             "minimum": 0
           }
         },
-        "required": [
-          "rowsSkipped",
-          "rowsTotal"
-        ]
+        "required": ["rowsSkipped", "rowsTotal"]
       },
       "PaginatedContactOutDTO": {
         "type": "object",
@@ -599,10 +547,7 @@
             "$ref": "#/components/schemas/PaginatedOutDTO"
           }
         },
-        "required": [
-          "contacts",
-          "paginated"
-        ]
+        "required": ["contacts", "paginated"]
       },
       "GetContactByIDResponse": {
         "type": "object",
@@ -616,9 +561,7 @@
             ]
           }
         },
-        "required": [
-          "contact"
-        ]
+        "required": ["contact"]
       },
       "ValidationErrorOutDTO": {
         "type": "object",
@@ -636,11 +579,7 @@
             "type": "string"
           }
         },
-        "required": [
-          "statusCode",
-          "message",
-          "error"
-        ]
+        "required": ["statusCode", "message", "error"]
       }
     }
   }
