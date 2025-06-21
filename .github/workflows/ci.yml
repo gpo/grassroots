@@ -39,6 +39,9 @@ jobs:
           npx syncpack fix-mismatches
           npm install
 
+      - name: Generate backend files
+        run: npm run gen-files-only --prefix grassroots-backend
+
       - name: Build backend
         run: npm run build --prefix grassroots-backend
 
