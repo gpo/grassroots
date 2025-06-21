@@ -6,6 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
+    "postinstall": "scripts/postinstall.sh",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
