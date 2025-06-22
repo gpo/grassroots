@@ -13,5 +13,5 @@
     "incremental": true,
     "skipLibCheck": true
   },
-  "exclude": ["src/testing/typetests/**", "src/FormattedMetadata.ts"]
+  "exclude": ["src/testing/typetests/**"]
 }

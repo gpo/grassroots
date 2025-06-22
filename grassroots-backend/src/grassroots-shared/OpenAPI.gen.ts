@@ -15,14 +15,14 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/auth/login": {
+  "/auth/example_route_using_user": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get: operations["AuthController_login"];
+    get: operations["AuthController_example"];
     put?: never;
     post?: never;
     delete?: never;
@@ -63,14 +63,14 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
-  "/auth/example_route_using_user": {
+  "/auth/login": {
     parameters: {
       query?: never;
       header?: never;
       path?: never;
       cookie?: never;
     };
-    get: operations["AuthController_example"];
+    get: operations["AuthController_login"];
     put?: never;
     post?: never;
     delete?: never;
@@ -163,35 +163,20 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    HelloOutDTO: {
-      message: string;
-    };
-    UserEntity: {
-      id: string;
-      emails?: string[];
-      firstName?: string;
-      lastName?: string;
-      displayName?: string;
-    };
-    LoginStateDTO: {
-      isLoggedIn: boolean;
-      user?: components["schemas"]["UserEntity"];
-    };
-    VoidDTO: Record<string, never>;
-    CreateContactInDto: {
-      /** Format: email */
-      email: string;
-      firstName: string;
-      lastName: string;
-      phoneNumber: string;
-    };
     ContactEntityOutDTO: {
-      id: number;
       /** Format: email */
       email: string;
       firstName: string;
+      id: number;
       lastName: string;
       phoneNumber: string;
+    };
+    ContactSearchInDTO: {
+      email?: string;
+      firstName?: string;
+      id?: number;
+      lastName?: string;
+      phoneNumber?: string;
     };
     CreateBulkContactRequestDto: {
       contacts: components["schemas"]["CreateContactInDto"][];
@@ -199,37 +184,52 @@ export interface components {
     CreateBulkContactResponseDTO: {
       ids: number[];
     };
-    ContactSearchInDTO: {
-      id?: number;
-      email?: string;
-      firstName?: string;
-      lastName?: string;
-      phoneNumber?: string;
+    CreateContactInDto: {
+      /** Format: email */
+      email: string;
+      firstName: string;
+      lastName: string;
+      phoneNumber: string;
     };
-    PaginatedInDTO: {
-      rowsToSkip: number;
-      rowsToTake: number;
+    GetContactByIDResponse: {
+      contact: components["schemas"]["ContactEntityOutDTO"] | null;
     };
-    PaginatedContactSearchInDTO: {
-      contact: components["schemas"]["ContactSearchInDTO"];
-      paginated: components["schemas"]["PaginatedInDTO"];
+    HelloOutDTO: {
+      message: string;
     };
-    PaginatedOutDTO: {
-      rowsSkipped: number;
-      rowsTotal: number;
+    LoginStateDTO: {
+      isLoggedIn: boolean;
+      user?: components["schemas"]["UserEntity"];
     };
     PaginatedContactOutDTO: {
       contacts: components["schemas"]["ContactEntityOutDTO"][];
       paginated: components["schemas"]["PaginatedOutDTO"];
     };
-    GetContactByIDResponse: {
-      contact: components["schemas"]["ContactEntityOutDTO"] | null;
+    PaginatedContactSearchInDTO: {
+      contact: components["schemas"]["ContactSearchInDTO"];
+      paginated: components["schemas"]["PaginatedInDTO"];
+    };
+    PaginatedInDTO: {
+      rowsToSkip: number;
+      rowsToTake: number;
+    };
+    PaginatedOutDTO: {
+      rowsSkipped: number;
+      rowsTotal: number;
+    };
+    UserEntity: {
+      displayName?: string;
+      emails?: string[];
+      firstName?: string;
+      id: string;
+      lastName?: string;
     };
     ValidationErrorOutDTO: {
-      statusCode: number;
-      message: string[];
       error: string;
+      message: string[];
+      statusCode: number;
     };
+    VoidDTO: Record<string, never>;
   };
   responses: never;
   parameters: never;
@@ -267,7 +267,7 @@ export interface operations {
       };
     };
   };
-  AuthController_login: {
+  AuthController_example: {
     parameters: {
       query?: never;
       header?: never;
@@ -280,7 +280,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["LoginStateDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -347,7 +349,7 @@ export interface operations {
       };
     };
   };
-  AuthController_example: {
+  AuthController_login: {
     parameters: {
       query?: never;
       header?: never;
@@ -360,9 +362,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["LoginStateDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
