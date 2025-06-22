@@ -18,6 +18,11 @@ RUN deluser node --remove-home \
     && groupadd -g ${GID} ${UNAME} \
     && useradd -g ${UNAME} -u ${UID} ${UNAME} -m
 
+# Install additional tools
+RUN apt-get update \
+    && apt-get install -y zsh \
+    && apt-get clean
+
 COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # We need to make these before we mount them to make sure the permissions are correct.

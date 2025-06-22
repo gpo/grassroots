@@ -12,6 +12,7 @@
   },
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
+    "start": "concurrently \"npm run start --prefix grassroots-frontend\" \"npm run start --prefix grassroots-backend\"",
     "prepare": "husky",
     "test": "npm run test --prefix grassroots-frontend && npm run test --prefix grassroots-backend && npm run test --prefix eslint_rules",
     "format": "prettier . --write",
