@@ -6,16 +6,10 @@
       "request": "launch",
       "name": "NestJS gen-files-only",
       "program": "${workspaceFolder}/grassroots-backend/node_modules/.bin/nest",
-      "args": [
-        "start",
-        "--",
-        "--gen-files-only"
-      ],
+      "args": ["start", "--", "--gen-files-only"],
       "cwd": "${workspaceFolder}/grassroots-backend",
       "console": "integratedTerminal",
-      "skipFiles": [
-        "<node_internals>/**"
-      ]
+      "skipFiles": ["<node_internals>/**"]
     }
   ]
-} 
+}
