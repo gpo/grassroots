@@ -6,7 +6,6 @@ import {
 import { Reflector } from "@nestjs/core";
 import { DECORATOR_METADATA_INDICATING_PUBLIC_ROUTE } from "./PublicRoute.decorator";
 import { GrassrootsRequest } from "../types/GrassrootsRequest";
-import { DECORATOR_METADATA_INDICATING_OAUTH_ROUTE } from "./OAuthRoute.decorator";
 
 @Injectable()
 export class SessionGuard {
@@ -18,12 +17,7 @@ export class SessionGuard {
       [context.getHandler(), context.getClass()],
     );
 
-    const isOAuthRoute = this.reflector.getAllAndOverride<boolean>(
-      DECORATOR_METADATA_INDICATING_OAUTH_ROUTE,
-      [context.getHandler(), context.getClass()],
-    );
-
-    if (isRoutePublic || isOAuthRoute) {
+    if (isRoutePublic) {
       return true;
     }
 

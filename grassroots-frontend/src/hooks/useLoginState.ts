@@ -21,9 +21,7 @@ export function useLoginState(): {
     queryKey: [LOGIN_STATE_QUERY_KEY],
     retry: 1,
     queryFn: async () => {
-      const result = await grassrootsAPI.GET("/auth/is_authenticated", {
-        credentials: "include",
-      });
+      const result = await grassrootsAPI.GET("/auth/is_authenticated");
       return result.data ?? ({ isLoggedIn: false } satisfies LoginStateDTO);
     },
   });

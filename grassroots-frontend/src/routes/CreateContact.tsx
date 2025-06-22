@@ -25,7 +25,6 @@ function CreateContact(): JSX.Element {
     mutationFn: async (contact: CreateContactInDto) => {
       const result = await grassrootsAPI.POST("/contacts", {
         body: contact,
-        credentials: "include",
       });
       if (!result.data) {
         throw new Error("Failed to create contact.");

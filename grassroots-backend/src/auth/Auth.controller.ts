@@ -14,7 +14,6 @@ import { VoidDTO } from "../grassroots-shared/Void.dto";
 import { ApiProperty, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";
-import { OAuthRoute } from "./OAuthRoute.decorator";
 
 @Controller("auth")
 export class AuthController {
@@ -23,13 +22,13 @@ export class AuthController {
   // The frontend can redirect here to trigger login.
   @Get("login")
   @UseGuards(OAuthGuard)
-  @OAuthRoute()
+  @PublicRoute()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   login(): void {}
 
   @Get("google/callback")
   @UseGuards(OAuthGuard)
-  @OAuthRoute()
+  @PublicRoute()
   @ApiProperty()
   googleAuthRedirect(
     @Request() req: GrassrootsRequest,
