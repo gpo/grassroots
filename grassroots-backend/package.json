@@ -6,7 +6,7 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/metadata.stub.ts src/metadata.ts; fi",
+    "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.ts src/metadata.ts; fi",
     "build": "nest build",
     "start": "nest start",
     "start:dev": "nest start --watch",
