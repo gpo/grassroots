@@ -11,7 +11,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/Main",
-    "start:prod:debug": "nest build && node --trace-event-categories usertiming --inspect-brk dist/Main",
+    "start:prod:debug": "nest build && node --inspect-brk dist/Main",
     "gen-files-only": "nest start -- --gen-files-only",
     "test": "vitest run && npx tstyche",
     "test:watch": "vitest watch",
