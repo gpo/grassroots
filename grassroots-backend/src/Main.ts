@@ -19,11 +19,8 @@ import { writeFormatted } from "./util/FormattingWriter";
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "./src/grassroots-shared/OpenAPI.gen.ts";
 
-async function bootstrap(port: number): Promise<void> {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
-  await listenAndConfigureApp(app, port);
-
-  console.time("generate files");
+async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
+  performance.mark("writeOpenAPI");
   const config = new DocumentBuilder()
     .setTitle("Grassroots")
     .setDescription("The Grassroots API description")
@@ -41,7 +38,6 @@ async function bootstrap(port: number): Promise<void> {
 
   const openAPIStr = stringify(openAPI, null, 2);
 
-  // The OpenAPI Spec has changed, do some post processing.
   const openAPISpecWrite = await writeFormatted({
     filePath: openAPISchemaPath,
     text: openAPIStr,
@@ -59,12 +55,10 @@ async function bootstrap(port: number): Promise<void> {
     });
     console.log("Done updating OpenAPI Schema TS bindings");
   }
+  performance.measure("writeOpenAPI");
+}
 
-  await writeFormatted({
-    filePath: "../docs/DependencyGraph.md",
-    text: graphDependencies(app),
-  });
-
+async function writeFormattedMetadata(): Promise<void> {
   const metadataPath = "./src/metadata.ts";
   const formattedMetadataPath = "./src/FormattedMetadata.gen.ts";
   const metadataTs = await readFile(metadataPath, "utf8");
@@ -72,6 +66,25 @@ async function bootstrap(port: number): Promise<void> {
     filePath: formattedMetadataPath,
     text: metadataTs,
   });
+}
+
+async function bootstrap(port: number): Promise<void> {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  await listenAndConfigureApp(app, port);
+
+  console.time("generate files");
+
+  const postStartupTasks = [
+    writeOpenAPI(app),
+    writeFormatted({
+      filePath: "../docs/DependencyGraph.md",
+      text: graphDependencies(app),
+    }),
+    writeFormattedMetadata(),
+  ];
+
+  await Promise.all(postStartupTasks);
+
   console.timeEnd("generate files");
 
   if (process.argv.includes("--gen-files-only")) {
