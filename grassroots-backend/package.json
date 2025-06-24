@@ -10,8 +10,8 @@
     "start": "nest start --watch --debug",
     "start:prod": "node dist/Main",
     "gen-files-only": "nest start -- --gen-files-only",
-    "test": "vitest run && npx tstyche",
-    "test:watch": "vitest watch",
+    "test": "vitest watch",
+    "test:ci": "vitest run",
     "test:tstyche": "npx tstyche"
   },
   "dependencies": {

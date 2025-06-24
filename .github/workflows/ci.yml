@@ -98,4 +98,4 @@ jobs:
           compose-file: "./docker/compose-ci.yaml"
 
       - name: Tests
-        run: npm run test --prefix grassroots-backend
+        run: npm run test:ci --prefix grassroots-backend
