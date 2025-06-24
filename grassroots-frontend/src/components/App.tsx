@@ -1,16 +1,16 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { JSX, StrictMode } from "react";
-import { useLoginState } from "../hooks/useLoginState";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
 // Import the generated route tree
 import { routeTree } from "../routeTree.gen";
+import { getLoginState, LoginStateContext } from "../context/LoginStateContext";
 
 // Create a new router instance
 const router = createRouter({
   routeTree,
   context: {
-    loginState: undefined,
+    loginState: Promise.resolve(undefined),
   },
 });
 
@@ -24,12 +24,14 @@ declare module "@tanstack/react-router" {
 const queryClient = new QueryClient();
 
 export function App(): JSX.Element {
-  const loginState = useLoginState(queryClient);
+  const loginState = getLoginState();
   return (
     <StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} context={{ loginState }} />
-      </QueryClientProvider>
+      <LoginStateContext.Provider value={loginState}>
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router} context={{ loginState }} />
+        </QueryClientProvider>
+      </LoginStateContext.Provider>
     </StrictMode>
   );
 }

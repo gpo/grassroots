@@ -1,25 +1,36 @@
 /* eslint-disable check-file/no-index */
 import { createFileRoute } from "@tanstack/react-router";
-import { JSX } from "react";
-import { useLoginState } from "../hooks/useLoginState";
+import { JSX, useContext, useState } from "react";
+import { LoginState, LoginStateContext } from "../context/LoginStateContext";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
 function Index(): JSX.Element {
-  const { isLoggedInQueryResult: isLoggedIn, logout } = useLoginState();
+  const loginStatePromise = useContext(LoginStateContext);
+  const [loginState, setLoginState] = useState<LoginState | undefined>(
+    undefined,
+  );
+
+  loginStatePromise
+    .then((v) => {
+      setLoginState(v);
+    })
+    .catch((e: unknown) => {
+      throw e;
+    });
   return (
     <>
       <h1>Temporary auth tools</h1>
       <p>
-        {isLoggedIn.data?.isLoggedIn == true ? (
+        {loginState?.user ? (
           <button
             onClick={() => {
-              void logout();
+              void loginState.logout();
             }}
           >
-            Logout {isLoggedIn.data.user?.displayName ?? ""}
+            Logout {loginState.user.displayName ?? ""}
           </button>
         ) : (
           <a href="http://grassroots.org/api/auth/login">Login</a>

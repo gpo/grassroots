@@ -5,11 +5,11 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { AppShell, Button, MantineProvider, ScrollArea } from "@mantine/core";
 import { RoutedLink } from "../components/RoutedLink";
-import { LoginState } from "../hooks/useLoginState";
 import { navigateToBackendRoute } from "../GrassRootsAPI";
+import { LoginState } from "../context/LoginStateContext";
 
 interface RouterContext {
-  loginState: LoginState | undefined;
+  loginState: Promise<LoginState | undefined>;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
@@ -51,8 +51,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       </AppShell>
     </MantineProvider>
   ),
-  beforeLoad: ({ context, location }) => {
-    if (context.loginState?.isLoggedIn !== true) {
+  beforeLoad: async ({ context, location }) => {
+    const loginState = await context.loginState;
+    if (!loginState) {
       navigateToBackendRoute("/auth/login", { redirect_path: location.href });
     }
   },

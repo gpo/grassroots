@@ -221,7 +221,6 @@ export interface components {
             displayName?: string;
         };
         LoginStateDTO: {
-            isLoggedIn: boolean;
             user?: components["schemas"]["UserEntity"];
         };
         VoidDTO: Record<string, never>;

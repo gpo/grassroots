@@ -614,16 +614,10 @@
       "LoginStateDTO": {
         "type": "object",
         "properties": {
-          "isLoggedIn": {
-            "type": "boolean"
-          },
           "user": {
             "$ref": "#/components/schemas/UserEntity"
           }
-        },
-        "required": [
-          "isLoggedIn"
-        ]
+        }
       },
       "VoidDTO": {
         "type": "object",

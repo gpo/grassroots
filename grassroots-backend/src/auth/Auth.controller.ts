@@ -55,7 +55,7 @@ export class AuthController {
   @Get("is_authenticated")
   @PublicRoute()
   isUserLoggedIn(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return { isLoggedIn: req.isAuthenticated(), user: req.user };
+    return { user: req.user };
   }
 
   // This is an example of using user info, to enable a test.
@@ -64,7 +64,7 @@ export class AuthController {
   // Not sure why UseGuards breaks the OpenAPI plugin.
   @ApiResponse({ status: 200, type: LoginStateDTO })
   example(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return { isLoggedIn: req.isAuthenticated(), user: req.user };
+    return { user: req.user };
   }
 
   @Post("logout")
