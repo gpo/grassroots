@@ -52,6 +52,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     </MantineProvider>
   ),
   beforeLoad: async ({ context, location }) => {
+    // If we want more unauthenticated routes, we could have a folder of routes that aren't authenticated,
+    // or similar.
+    if (location.href == "/") {
+      return;
+    }
+
     const loginState = await context.loginState;
     if (!loginState) {
       navigateToBackendRoute("/auth/login", { redirect_path: location.href });
