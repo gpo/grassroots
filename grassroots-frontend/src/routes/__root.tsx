@@ -1,12 +1,22 @@
 import "@mantine/core/styles.css";
 
-import { createRootRoute, Outlet } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  Outlet,
+  redirect,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
 import { AppShell, Button, MantineProvider, ScrollArea } from "@mantine/core";
 import { RoutedLink } from "../components/RoutedLink";
+import { LoginState } from "../hooks/useLoginState";
+import { navigateToBackendRoute } from "../GrassRootsAPI";
 
-export const Route = createRootRoute({
+interface RouterContext {
+  loginState: LoginState | undefined;
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <MantineProvider>
       <AppShell
@@ -45,4 +55,13 @@ export const Route = createRootRoute({
       </AppShell>
     </MantineProvider>
   ),
+  beforeLoad: ({ context, location }) => {
+    if (context.loginState?.isLoggedIn !== true) {
+      navigateToBackendRoute("/auth/login");
+      // eslint-disable-next-line @typescript-eslint/only-throw-error
+      throw redirect({
+        href: "/login?redirect=" + location.href,
+      });
+    }
+  },
 });

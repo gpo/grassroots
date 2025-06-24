@@ -8,7 +8,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Index(): JSX.Element {
-  const { isLoggedIn, logout } = useLoginState();
+  const { isLoggedInQueryResult: isLoggedIn, logout } = useLoginState();
   return (
     <>
       <h1>Temporary auth tools</h1>

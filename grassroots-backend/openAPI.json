@@ -1,238 +1,4 @@
 {
-  "components": {
-    "schemas": {
-      "ContactEntityOutDTO": {
-        "properties": {
-          "email": {
-            "format": "email",
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
-        "required": ["id", "email", "firstName", "lastName", "phoneNumber"],
-        "type": "object"
-      },
-      "ContactSearchInDTO": {
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "CreateBulkContactRequestDto": {
-        "properties": {
-          "contacts": {
-            "items": {
-              "$ref": "#/components/schemas/CreateContactInDto"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["contacts"],
-        "type": "object"
-      },
-      "CreateBulkContactResponseDTO": {
-        "properties": {
-          "ids": {
-            "items": {
-              "type": "number"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["ids"],
-        "type": "object"
-      },
-      "CreateContactInDto": {
-        "properties": {
-          "email": {
-            "format": "email",
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
-        "required": ["email", "firstName", "lastName", "phoneNumber"],
-        "type": "object"
-      },
-      "GetContactByIDResponse": {
-        "properties": {
-          "contact": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ContactEntityOutDTO"
-              }
-            ],
-            "nullable": true
-          }
-        },
-        "required": ["contact"],
-        "type": "object"
-      },
-      "HelloOutDTO": {
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["message"],
-        "type": "object"
-      },
-      "LoginStateDTO": {
-        "properties": {
-          "isLoggedIn": {
-            "type": "boolean"
-          },
-          "user": {
-            "$ref": "#/components/schemas/UserEntity"
-          }
-        },
-        "required": ["isLoggedIn"],
-        "type": "object"
-      },
-      "PaginatedContactOutDTO": {
-        "properties": {
-          "contacts": {
-            "items": {
-              "$ref": "#/components/schemas/ContactEntityOutDTO"
-            },
-            "type": "array"
-          },
-          "paginated": {
-            "$ref": "#/components/schemas/PaginatedOutDTO"
-          }
-        },
-        "required": ["contacts", "paginated"],
-        "type": "object"
-      },
-      "PaginatedContactSearchInDTO": {
-        "properties": {
-          "contact": {
-            "$ref": "#/components/schemas/ContactSearchInDTO"
-          },
-          "paginated": {
-            "$ref": "#/components/schemas/PaginatedInDTO"
-          }
-        },
-        "required": ["contact", "paginated"],
-        "type": "object"
-      },
-      "PaginatedInDTO": {
-        "properties": {
-          "rowsToSkip": {
-            "minimum": 0,
-            "type": "number"
-          },
-          "rowsToTake": {
-            "minimum": 1,
-            "type": "number"
-          }
-        },
-        "required": ["rowsToSkip", "rowsToTake"],
-        "type": "object"
-      },
-      "PaginatedOutDTO": {
-        "properties": {
-          "rowsSkipped": {
-            "minimum": 0,
-            "type": "number"
-          },
-          "rowsTotal": {
-            "minimum": 0,
-            "type": "number"
-          }
-        },
-        "required": ["rowsSkipped", "rowsTotal"],
-        "type": "object"
-      },
-      "UserEntity": {
-        "properties": {
-          "displayName": {
-            "type": "string"
-          },
-          "emails": {
-            "items": {
-              "format": "email",
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          }
-        },
-        "required": ["id"],
-        "type": "object"
-      },
-      "ValidationErrorOutDTO": {
-        "properties": {
-          "error": {
-            "type": "string"
-          },
-          "message": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "statusCode": {
-            "type": "number"
-          }
-        },
-        "required": ["statusCode", "message", "error"],
-        "type": "object"
-      },
-      "VoidDTO": {
-        "properties": {},
-        "type": "object"
-      }
-    }
-  },
-  "info": {
-    "contact": {},
-    "description": "The Grassroots API description",
-    "title": "Grassroots",
-    "version": "0.0"
-  },
   "openapi": "3.0.0",
   "paths": {
     "/": {
@@ -241,56 +7,257 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/HelloOutDTO"
                 }
               }
-            },
-            "description": ""
+            }
           },
           "401": {
+            "description": "Validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorOutDTO"
                 }
               }
-            },
-            "description": "Validation failed"
+            }
           }
         },
-        "tags": ["App"]
+        "tags": [
+          "App"
+        ]
       }
     },
-    "/auth/example_route_using_user": {
+    "/contacts": {
+      "post": {
+        "operationId": "ContactsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateContactInDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactEntityOutDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Contacts"
+        ]
+      },
       "get": {
-        "operationId": "AuthController_example",
+        "operationId": "ContactsController_findAll",
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/LoginStateDTO"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ContactEntityOutDTO"
+                  }
                 }
               }
-            },
-            "description": ""
+            }
           },
           "401": {
+            "description": "Validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorOutDTO"
                 }
               }
-            },
-            "description": "Validation failed"
+            }
           }
         },
-        "tags": ["Auth"]
+        "tags": [
+          "Contacts"
+        ]
+      }
+    },
+    "/contacts/bulk-create": {
+      "post": {
+        "operationId": "ContactsController_bulkCreate",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateBulkContactRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateBulkContactResponseDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Contacts"
+        ]
+      }
+    },
+    "/contacts/search": {
+      "post": {
+        "operationId": "ContactsController_search",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PaginatedContactSearchInDTO"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginatedContactOutDTO"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Contacts"
+        ]
+      }
+    },
+    "/contacts/{id}": {
+      "get": {
+        "operationId": "ContactsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetContactByIDResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Contacts"
+        ]
+      }
+    },
+    "/auth/login": {
+      "get": {
+        "operationId": "AuthController_login",
+        "parameters": [
+          {
+            "name": "path",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "401": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/auth/google/callback": {
@@ -302,17 +269,19 @@
             "description": ""
           },
           "401": {
+            "description": "Validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorOutDTO"
                 }
               }
-            },
-            "description": "Validation failed"
+            }
           }
         },
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/auth/is_authenticated": {
@@ -321,49 +290,60 @@
         "parameters": [],
         "responses": {
           "200": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LoginStateDTO"
                 }
               }
-            },
-            "description": ""
+            }
           },
           "401": {
+            "description": "Validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorOutDTO"
                 }
               }
-            },
-            "description": "Validation failed"
+            }
           }
         },
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
-    "/auth/login": {
+    "/auth/example_route_using_user": {
       "get": {
-        "operationId": "AuthController_login",
+        "operationId": "AuthController_example",
         "parameters": [],
         "responses": {
           "200": {
-            "description": ""
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginStateDTO"
+                }
+              }
+            }
           },
           "401": {
+            "description": "Validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorOutDTO"
                 }
               }
-            },
-            "description": "Validation failed"
+            }
           }
         },
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/auth/logout": {
@@ -372,215 +352,305 @@
         "parameters": [],
         "responses": {
           "201": {
+            "description": "",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/VoidDTO"
                 }
               }
-            },
-            "description": ""
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
-                }
-              }
-            },
-            "description": "Validation failed"
-          }
-        },
-        "tags": ["Auth"]
-      }
-    },
-    "/contacts": {
-      "get": {
-        "operationId": "ContactsController_findAll",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ContactEntityOutDTO"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": ""
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
-                }
-              }
-            },
-            "description": "Validation failed"
-          }
-        },
-        "tags": ["Contacts"]
-      },
-      "post": {
-        "operationId": "ContactsController_create",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateContactInDto"
-              }
             }
           },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContactEntityOutDTO"
-                }
-              }
-            },
-            "description": ""
-          },
           "401": {
+            "description": "Validation failed",
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ValidationErrorOutDTO"
                 }
-              }
-            },
-            "description": "Validation failed"
-          }
-        },
-        "tags": ["Contacts"]
-      }
-    },
-    "/contacts/bulk-create": {
-      "post": {
-        "operationId": "ContactsController_bulkCreate",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CreateBulkContactRequestDto"
               }
             }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateBulkContactResponseDTO"
-                }
-              }
-            },
-            "description": ""
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
-                }
-              }
-            },
-            "description": "Validation failed"
           }
         },
-        "tags": ["Contacts"]
-      }
-    },
-    "/contacts/search": {
-      "post": {
-        "operationId": "ContactsController_search",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/PaginatedContactSearchInDTO"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedContactOutDTO"
-                }
-              }
-            },
-            "description": ""
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
-                }
-              }
-            },
-            "description": "Validation failed"
-          }
-        },
-        "tags": ["Contacts"]
-      }
-    },
-    "/contacts/{id}": {
-      "get": {
-        "operationId": "ContactsController_findOne",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "number"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetContactByIDResponse"
-                }
-              }
-            },
-            "description": ""
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
-                }
-              }
-            },
-            "description": "Validation failed"
-          }
-        },
-        "tags": ["Contacts"]
+        "tags": [
+          "Auth"
+        ]
       }
     }
   },
+  "info": {
+    "title": "Grassroots",
+    "description": "The Grassroots API description",
+    "version": "0.0",
+    "contact": {}
+  },
+  "tags": [],
   "servers": [],
-  "tags": []
+  "components": {
+    "schemas": {
+      "HelloOutDTO": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "CreateContactInDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "phoneNumber"
+        ]
+      },
+      "ContactEntityOutDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "minimum": 1
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "phoneNumber"
+        ]
+      },
+      "CreateBulkContactRequestDto": {
+        "type": "object",
+        "properties": {
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CreateContactInDto"
+            }
+          }
+        },
+        "required": [
+          "contacts"
+        ]
+      },
+      "CreateBulkContactResponseDTO": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "required": [
+          "ids"
+        ]
+      },
+      "ContactSearchInDTO": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "minimum": 1
+          },
+          "email": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phoneNumber": {
+            "type": "string"
+          }
+        }
+      },
+      "PaginatedInDTO": {
+        "type": "object",
+        "properties": {
+          "rowsToSkip": {
+            "type": "number",
+            "minimum": 0
+          },
+          "rowsToTake": {
+            "type": "number",
+            "minimum": 1
+          }
+        },
+        "required": [
+          "rowsToSkip",
+          "rowsToTake"
+        ]
+      },
+      "PaginatedContactSearchInDTO": {
+        "type": "object",
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/ContactSearchInDTO"
+          },
+          "paginated": {
+            "$ref": "#/components/schemas/PaginatedInDTO"
+          }
+        },
+        "required": [
+          "contact",
+          "paginated"
+        ]
+      },
+      "PaginatedOutDTO": {
+        "type": "object",
+        "properties": {
+          "rowsSkipped": {
+            "type": "number",
+            "minimum": 0
+          },
+          "rowsTotal": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "rowsSkipped",
+          "rowsTotal"
+        ]
+      },
+      "PaginatedContactOutDTO": {
+        "type": "object",
+        "properties": {
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContactEntityOutDTO"
+            }
+          },
+          "paginated": {
+            "$ref": "#/components/schemas/PaginatedOutDTO"
+          }
+        },
+        "required": [
+          "contacts",
+          "paginated"
+        ]
+      },
+      "GetContactByIDResponse": {
+        "type": "object",
+        "properties": {
+          "contact": {
+            "nullable": true,
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ContactEntityOutDTO"
+              }
+            ]
+          }
+        },
+        "required": [
+          "contact"
+        ]
+      },
+      "UserEntity": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "email"
+            }
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "LoginStateDTO": {
+        "type": "object",
+        "properties": {
+          "isLoggedIn": {
+            "type": "boolean"
+          },
+          "user": {
+            "$ref": "#/components/schemas/UserEntity"
+          }
+        },
+        "required": [
+          "isLoggedIn"
+        ]
+      },
+      "VoidDTO": {
+        "type": "object",
+        "properties": {}
+      },
+      "ValidationErrorOutDTO": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "number"
+          },
+          "message": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "statusCode",
+          "message",
+          "error"
+        ]
+      }
+    }
+  }
 }

@@ -9,6 +9,7 @@ import checkFile from "eslint-plugin-check-file";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import eslintNestJs from "@darraghor/eslint-plugin-nestjs-typed";
 import * as GrassrootsEslintRules from "./eslint_rules/lib/index.js";
+import reactRefresh from "eslint-plugin-react-refresh";
 
 export default tseslint.config(
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
@@ -21,6 +22,7 @@ export default tseslint.config(
   eslintConfigPrettier,
   eslintNestJs.configs.flatRecommended,
   ...GrassrootsEslintRules.configs.flatRecommended,
+  reactRefresh.configs.recommended,
   {
     ignores: [
       "**/*.mjs",

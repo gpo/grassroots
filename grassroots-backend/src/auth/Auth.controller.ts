@@ -5,13 +5,14 @@ import {
   Response,
   Post,
   UseGuards,
+  Query,
 } from "@nestjs/common";
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { ConfigService } from "@nestjs/config";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
 import { VoidDTO } from "../grassroots-shared/Void.dto";
-import { ApiProperty, ApiResponse } from "@nestjs/swagger";
+import { ApiProperty, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";
 
@@ -23,8 +24,10 @@ export class AuthController {
   @Get("login")
   @UseGuards(OAuthGuard)
   @PublicRoute()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  login(): void {}
+  @ApiQuery({ name: "path", type: String })
+  login(@Query() path: string): void {
+    void path;
+  }
 
   @Get("google/callback")
   @UseGuards(OAuthGuard)
