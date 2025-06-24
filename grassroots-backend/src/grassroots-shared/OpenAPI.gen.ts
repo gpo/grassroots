@@ -424,7 +424,7 @@ export interface operations {
     AuthController_login: {
         parameters: {
             query: {
-                path: string;
+                redirect_path: string;
             };
             header?: never;
             path?: never;

@@ -23,19 +23,21 @@ type PathsWithGetMap = {
 
 type QueryRecord = Record<string, string>;
 
+// With this approach, you need to explicitly pass a query of undefined. We could get around that,
+// but this is already complicated enough.
 export function navigateToBackendRoute<
   T extends keyof PathsWithGetMap,
   // Infer the type of query.
-  Q extends PathsWithGetMap[T] extends { query: infer QQ } ? QQ : never,
-  // If query doesn't extend Record<string, string>, we can't use it here, so we map it to never.
->(pathUntyped: T, query?: Q extends QueryRecord ? Q : never): void {
+  Q extends PathsWithGetMap[T] extends { query: infer QQ } ? QQ : undefined,
+  // If query doesn't extend Record<string, string>, we can't use it here, so we map it to undefined.
+>(pathUntyped: T, query: Q extends QueryRecord ? Q : undefined): void {
   // Typescript can't tell that T will always be a string, so we have to tell it.
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   let path = pathUntyped as string;
-  if (query) {
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const queryRecord = query as QueryRecord;
-    path += "?" + new URLSearchParams(queryRecord).toString();
+
+  if (query !== undefined) {
+    path += "?" + new URLSearchParams(query).toString();
   }
+
   window.location.href = path;
 }

@@ -232,7 +232,7 @@
         "operationId": "AuthController_login",
         "parameters": [
           {
-            "name": "path",
+            "name": "redirect_path",
             "required": true,
             "in": "query",
             "schema": {

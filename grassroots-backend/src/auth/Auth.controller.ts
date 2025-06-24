@@ -24,9 +24,9 @@ export class AuthController {
   @Get("login")
   @UseGuards(OAuthGuard)
   @PublicRoute()
-  @ApiQuery({ name: "path", type: String })
-  login(@Query() path: string): void {
-    void path;
+  @ApiQuery({ name: "redirect_path", type: String })
+  login(@Query() redirect_path: string): void {
+    void redirect_path;
   }
 
   @Get("google/callback")
