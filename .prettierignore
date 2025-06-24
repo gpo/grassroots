@@ -1,3 +1,4 @@
 **/*.gen.ts
 **/openAPI.json
 grassroots-backend/src/migrations/
+grassroots-backend/src/metadata.ts
