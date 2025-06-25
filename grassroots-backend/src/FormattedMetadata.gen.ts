@@ -29,18 +29,6 @@ export default async () => {
           { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
         [
-          import("./contacts/entities/Contact.entity"),
-          {
-            ContactEntity: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              email: { required: true, type: () => String, format: "email" },
-              firstName: { required: true, type: () => String },
-              lastName: { required: true, type: () => String },
-              phoneNumber: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
           import("./grassroots-shared/Paginated.dto"),
           {
             PaginatedRequestDTO: {
@@ -123,9 +111,21 @@ export default async () => {
           },
         ],
         [
-          import("./users/User.entity"),
+          import("./contacts/entities/Contact.entity"),
           {
-            UserEntity: {
+            ContactEntity: {
+              id: { required: true, type: () => Number, minimum: 1 },
+              email: { required: true, type: () => String, format: "email" },
+              firstName: { required: true, type: () => String },
+              lastName: { required: true, type: () => String },
+              phoneNumber: { required: true, type: () => String },
+            },
+          },
+        ],
+        [
+          import("./grassroots-shared/User.dto"),
+          {
+            UserDTO: {
               id: { required: true, type: () => String },
               emails: {
                 required: false,
@@ -139,9 +139,9 @@ export default async () => {
           },
         ],
         [
-          import("./grassroots-shared/User.dto"),
+          import("./users/User.entity"),
           {
-            UserDTO: {
+            UserEntity: {
               id: { required: true, type: () => String },
               emails: {
                 required: false,

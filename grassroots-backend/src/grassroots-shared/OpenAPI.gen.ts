@@ -206,7 +206,6 @@ export interface components {
       message: string;
     };
     LoginStateDTO: {
-      isLoggedIn: boolean;
       user?: components["schemas"]["UserDTO"];
     };
     PaginatedContactResponseDTO: {
@@ -359,7 +358,9 @@ export interface operations {
   };
   AuthController_login: {
     parameters: {
-      query?: never;
+      query: {
+        redirect_path: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
