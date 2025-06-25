@@ -1,0 +1,107 @@
+#!/bin/bash
+
+# Force all commands to run inside the grassroots_dev container
+# This ensures consistent development environment for all team members
+# Usage: ./run <any-command-and-args>
+
+set -e  # Exit on any error
+
+# Project-specific configuration
+COMPOSE_FILE="docker/compose.yaml"
+SERVICE_NAME="grassroots_dev"
+
+# Function to check if we're in the project root
+check_project_root() {
+    if [[ ! -f "$COMPOSE_FILE" ]]; then
+        echo "Error: Must run from project root (where docker/compose.yaml exists)"
+        echo "Current directory: $(pwd)"
+        exit 1
+    fi
+}
+
+# Function to ensure container is running
+ensure_container_running() {
+    local service=$1
+    local compose_file=$2
+    
+    # Check if the service is running
+    if ! docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
+        echo "Starting $service container..."
+        docker compose -f "$compose_file" up -d "$service"
+        
+        # Wait for container to be ready
+        echo "Waiting for container to be ready..."
+        sleep 3
+        
+        # Verify it's running
+        if ! docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
+            echo "Error: Failed to start $service container"
+            exit 1
+        fi
+        
+        echo "Container is ready!"
+    fi
+}
+
+# Function to provide helpful examples
+show_examples() {
+    echo "Usage: ./run <command> [args...]"
+    echo ""
+    echo "All commands run inside the grassroots_dev container automatically."
+    echo ""
+    echo "Common examples:"
+    echo ""
+    echo "  Backend:"
+    echo "    ./run cd grassroots-backend && npm install"
+    echo "    ./run cd grassroots-backend && npm run start:dev"
+    echo "    ./run cd grassroots-backend && npm test"
+    echo "    ./run cd grassroots-backend && npx mikro-orm migration:up"
+    echo ""
+    echo "  Frontend:"
+    echo "    ./run cd grassroots-frontend && npm install"
+    echo "    ./run cd grassroots-frontend && npm run dev"
+    echo "    ./run cd grassroots-frontend && npm run build"
+    echo ""
+    echo "  General:"
+    echo "    ./run bash                    # Open shell"
+    echo "    ./run npm --version           # Check versions"
+    echo "    ./run git status              # Git commands"
+    echo "    ./run ls -la                  # File operations"
+    echo ""
+    echo "This replaces the old workflow of:"
+    echo "  docker compose exec grassroots_dev bash -c \"cd grassroots-backend && npm test\""
+    echo "With the simpler:"
+    echo "  ./run cd grassroots-backend && npm test"
+}
+
+# Main logic - force everything into container
+main() {
+    if [[ $# -eq 0 ]]; then
+        show_examples
+        exit 1
+    fi
+
+    # Check if we're in the right directory
+    check_project_root
+
+    # Check if docker is available
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "Error: Docker not found. Please install Docker."
+        exit 1
+    fi
+
+    if ! docker compose version >/dev/null 2>&1; then
+        echo "Error: Docker Compose not found. Please install Docker Compose."
+        exit 1
+    fi
+
+    # Ensure the container is running
+    ensure_container_running "$SERVICE_NAME" "$COMPOSE_FILE"
+    
+    # Always run the command inside the container
+    # Use -T to avoid TTY allocation issues in git hooks
+    exec docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE_NAME" bash -c "$*"
+}
+
+# Run main function with all arguments
+main "$@"
