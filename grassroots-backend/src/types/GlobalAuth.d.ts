@@ -1,4 +1,4 @@
-import { UserEntity } from "../grassroots-shared/User.entity";
+import { UserEntity } from "../users/User.entity";
 
 declare global {
   namespace Express {

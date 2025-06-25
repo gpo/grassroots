@@ -7,7 +7,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { AuthModule } from "./auth/Auth.module";
 import { PassportModuleImport } from "./auth/PassportModuleImport";
 import { UsersService } from "./users/Users.service";
-import { UserEntity } from "./grassroots-shared/User.entity";
+import { UserEntity } from "./users/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import expressSession from "express-session";

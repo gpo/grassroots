@@ -1,28 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useCallback } from "react";
 
-import { CreateContactInDto } from "../grassroots-shared/Contact.entity.dto";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { TextField } from "../components/TextField";
+import { CreateContactRequestDto } from "../grassroots-shared/Contact.dto";
 
 export const Route = createFileRoute("/CreateContact")({
   component: CreateContact,
 });
 
-const TextFieldMakeContact = TextField<CreateContactInDto>;
+const TextFieldMakeContact = TextField<CreateContactRequestDto>;
 
 function CreateContact(): JSX.Element {
-  const form = useForm<CreateContactInDto>({
-    resolver: classValidatorResolver(CreateContactInDto),
+  const form = useForm<CreateContactRequestDto>({
+    resolver: classValidatorResolver(CreateContactRequestDto),
     mode: "onBlur",
   });
 
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: async (contact: CreateContactInDto) => {
+    mutationFn: async (contact: CreateContactRequestDto) => {
       const result = await grassrootsAPI.POST("/contacts", {
         body: contact,
       });
@@ -37,7 +37,7 @@ function CreateContact(): JSX.Element {
     },
   });
 
-  const onSubmit: SubmitHandler<CreateContactInDto> = useCallback(
+  const onSubmit: SubmitHandler<CreateContactRequestDto> = useCallback(
     async (data) => {
       await mutateAsync(data);
       form.reset();

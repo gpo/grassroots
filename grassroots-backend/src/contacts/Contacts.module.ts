@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
 import { ContactsService } from "./Contacts.service";
 import { ContactsController } from "./Contacts.controller";
-import { ContactEntityOutDTO } from "../grassroots-shared/Contact.entity.dto";
+import { ContactEntity } from "./entities/Contact.entity";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 
 @Module({
-  imports: [MikroOrmModule.forFeature([ContactEntityOutDTO])],
+  imports: [MikroOrmModule.forFeature([ContactEntity])],
   controllers: [ContactsController],
   providers: [ContactsService],
 })

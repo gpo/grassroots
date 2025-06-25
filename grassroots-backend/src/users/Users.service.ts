@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { UserEntity } from "../grassroots-shared/User.entity";
+import { UserEntity } from "./User.entity";
 import { PropsOf } from "../grassroots-shared/Cast";
 import { EntityManager, EntityRepository } from "@mikro-orm/core";
 

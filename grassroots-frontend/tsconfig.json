@@ -15,10 +15,7 @@
     "jsx": "react-jsx",
 
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "paths": {
-      "@mikro-orm/core": ["./src/MikroORMshim"]
-    }
+    "experimentalDecorators": true
   },
   "include": ["src", "grassroots-shared", "vite.config.ts"]
 }

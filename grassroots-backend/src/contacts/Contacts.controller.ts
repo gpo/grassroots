@@ -1,14 +1,14 @@
 import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ContactsService } from "./Contacts.service";
+import { ContactEntity } from "./entities/Contact.entity";
 import {
-  ContactEntityOutDTO,
-  GetContactByIDResponse,
-  CreateContactInDto,
-  PaginatedContactOutDTO,
-  PaginatedContactSearchInDTO,
   CreateBulkContactRequestDto,
   CreateBulkContactResponseDTO,
-} from "../grassroots-shared/Contact.entity.dto";
+  CreateContactRequestDto,
+  GetContactByIDResponseDTO,
+  PaginatedContactResponseDTO,
+  PaginatedContactSearchRequestDTO,
+} from "../grassroots-shared/Contact.dto";
 
 @Controller("contacts")
 export class ContactsController {
@@ -16,8 +16,8 @@ export class ContactsController {
 
   @Post()
   create(
-    @Body() createContactDto: CreateContactInDto,
-  ): Promise<ContactEntityOutDTO> {
+    @Body() createContactDto: CreateContactRequestDto,
+  ): Promise<ContactEntity> {
     return this.contactsService.create(createContactDto);
   }
 
@@ -29,19 +29,19 @@ export class ContactsController {
   }
 
   @Get()
-  findAll(): Promise<ContactEntityOutDTO[]> {
+  findAll(): Promise<ContactEntity[]> {
     return this.contactsService.findAll();
   }
 
   @Post("search")
   search(
-    @Body() contact: PaginatedContactSearchInDTO,
-  ): Promise<PaginatedContactOutDTO> {
+    @Body() contact: PaginatedContactSearchRequestDTO,
+  ): Promise<PaginatedContactResponseDTO> {
     return this.contactsService.search(contact);
   }
 
   @Get(":id")
-  async findOne(@Param("id") id: number): Promise<GetContactByIDResponse> {
+  async findOne(@Param("id") id: number): Promise<GetContactByIDResponseDTO> {
     return {
       contact: await this.contactsService.findOne(id),
     };

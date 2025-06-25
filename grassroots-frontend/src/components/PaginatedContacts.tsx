@@ -1,8 +1,8 @@
 import { JSX } from "react";
 import { ContactRow } from "./ContactRow";
-import { PaginatedContactOutDTO } from "../grassroots-shared/Contact.entity.dto";
+import { PaginatedContactResponseDTO } from "../grassroots-shared/Contact.dto";
 
-type PaginatedContactsProps = PaginatedContactOutDTO & {
+type PaginatedContactsProps = PaginatedContactResponseDTO & {
   setRowsToSkip: React.Dispatch<React.SetStateAction<number>>;
   rowsPerPage: number;
 };
