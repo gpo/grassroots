@@ -42,7 +42,6 @@ export function useE2ETestFixture(
     const baseUrl = `http://localhost:${String(port)}`;
     const grassrootsAPI = createClient<paths>({
       baseUrl,
-      credentials: "include",
     });
     const grassrootsAPIRaw: GrassRootsAPIRaw = (path, options) => {
       return fetch(baseUrl + path, options);

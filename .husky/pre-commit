@@ -1,2 +1,10 @@
 #!/bin/bash
+
+# Only run pre-commit checks if we're running in the devcontainer
+# This is a temporary workaround until #100 is merged
+if [ -z "$IN_DEVCONTAINER" ]; then
+  echo "Not running in the devcontainer. Skipping pre-commit hook."
+  exit 0
+fi
+
 npx lint-staged

@@ -21,9 +21,7 @@ export function useLoginState(): {
     queryKey: [LOGIN_STATE_QUERY_KEY],
     retry: 1,
     queryFn: async () => {
-      const result = await grassrootsAPI.GET("/auth/is_authenticated", {
-        credentials: "include",
-      });
+      const result = await grassrootsAPI.GET("/auth/is_authenticated");
       return result.data ?? ({ isLoggedIn: false } satisfies LoginStateDTO);
     },
   });
@@ -35,10 +33,9 @@ export function useLoginState(): {
       await grassrootsAPI.POST("/auth/logout", {});
     },
     retry: 1,
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: [LOGIN_STATE_QUERY_KEY],
-      });
+    onSuccess: () => {
+      // Fully clear the query cache to avoid leaking data across the signout boundary.
+      queryClient.getQueryCache().clear();
     },
   });
 

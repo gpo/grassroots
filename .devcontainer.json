@@ -1,7 +1,14 @@
 {
   "customizations": {
     "vscode": {
-      "extensions": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+      "extensions": [
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "bierner.markdown-mermaid",
+        "ms-azuretools.vscode-docker",
+        "github.vscode-github-actions",
+        "editorconfig.editorconfig"
+      ]
     }
   },
   "dockerComposeFile": ["docker/compose.yaml"],

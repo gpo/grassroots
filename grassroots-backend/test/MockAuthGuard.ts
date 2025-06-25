@@ -9,7 +9,7 @@ export const MOCK_AUTH_GUARD_USER: UserEntity = {
 };
 
 @Injectable()
-export class MockAuthGuard implements CanActivate {
+export class MockSessionGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const req: GrassrootsRequest = context.switchToHttp().getRequest();
     req.user = MOCK_AUTH_GUARD_USER;
