@@ -39,3 +39,5 @@ services:
     ports:
       - "5173:5173"
       - "3000:3000"
+    environment:
+      - IN_DEVCONTAINER=true

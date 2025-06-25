@@ -8,13 +8,11 @@
   "scripts": {
     "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
     "build": "nest build",
-    "start": "nest start",
-    "start:dev": "nest start --watch",
-    "start:debug": "nest start --debug --watch",
+    "start": "nest start --watch --debug",
     "start:prod": "node dist/Main",
     "gen-files-only": "nest start -- --gen-files-only",
-    "test": "vitest run && npx tstyche",
-    "test:watch": "vitest watch",
+    "test": "vitest watch",
+    "test:ci": "vitest run",
     "test:tstyche": "npx tstyche"
   },
   "dependencies": {
