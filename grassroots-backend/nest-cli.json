@@ -7,6 +7,13 @@
     "deleteOutDir": true,
     "builder": "swc",
     "typeCheck": true,
-    "plugins": ["@nestjs/swagger"]
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "dtoFileNameSuffix": [".dto.ts"]
+        }
+      }
+    ]
   }
 }

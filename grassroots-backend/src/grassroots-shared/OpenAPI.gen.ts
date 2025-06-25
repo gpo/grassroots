@@ -163,14 +163,7 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ContactEntity: {
-      /** Format: email */
-      email: string;
-      firstName: string;
-      id: number;
-      lastName: string;
-      phoneNumber: string;
-    };
+    ContactEntity: Record<string, never>;
     ContactResponseDTO: {
       /** Format: email */
       email: string;
@@ -426,7 +419,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactEntity"][];
+          "application/json": components["schemas"]["ContactResponseDTO"][];
         };
       };
       /** @description Validation failed */

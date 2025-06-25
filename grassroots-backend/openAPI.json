@@ -2,26 +2,7 @@
   "components": {
     "schemas": {
       "ContactEntity": {
-        "properties": {
-          "email": {
-            "format": "email",
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
-        "required": ["id", "email", "firstName", "lastName", "phoneNumber"],
+        "properties": {},
         "type": "object"
       },
       "ContactResponseDTO": {
@@ -433,7 +414,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/ContactEntity"
+                    "$ref": "#/components/schemas/ContactResponseDTO"
                   },
                   "type": "array"
                 }

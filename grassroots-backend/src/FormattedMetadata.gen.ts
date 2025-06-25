@@ -111,37 +111,9 @@ export default async () => {
           },
         ],
         [
-          import("./contacts/entities/Contact.entity"),
-          {
-            ContactEntity: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              email: { required: true, type: () => String, format: "email" },
-              firstName: { required: true, type: () => String },
-              lastName: { required: true, type: () => String },
-              phoneNumber: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
           import("./grassroots-shared/User.dto"),
           {
             UserDTO: {
-              id: { required: true, type: () => String },
-              emails: {
-                required: false,
-                type: () => [String],
-                format: "email",
-              },
-              firstName: { required: false, type: () => String },
-              lastName: { required: false, type: () => String },
-              displayName: { required: false, type: () => String },
-            },
-          },
-        ],
-        [
-          import("./users/User.entity"),
-          {
-            UserEntity: {
               id: { required: true, type: () => String },
               emails: {
                 required: false,
@@ -198,7 +170,7 @@ export default async () => {
                   .CreateBulkContactResponseDTO,
               },
               findAll: {
-                type: [t["./contacts/entities/Contact.entity"].ContactEntity],
+                type: [t["./grassroots-shared/Contact.dto"].ContactResponseDTO],
               },
               search: {
                 type: t["./grassroots-shared/Contact.dto"]
