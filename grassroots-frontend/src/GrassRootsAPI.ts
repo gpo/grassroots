@@ -1,5 +1,6 @@
 import createFetchClient from "openapi-fetch";
 import { paths } from "./grassroots-shared/OpenAPI.gen";
+import { redirect } from "@tanstack/react-router";
 
 export const grassrootsAPI = createFetchClient<paths>({
   baseUrl: import.meta.env.VITE_BACKEND_HOST,
@@ -39,5 +40,10 @@ export function navigateToBackendRoute<
     path = "api" + path + "?" + new URLSearchParams(query).toString();
   }
 
-  window.location.href = path;
+  // Use a tanstack router redirect to avoid races.
+  // eslint-disable-next-line @typescript-eslint/only-throw-error
+  throw redirect({
+    href: path,
+    reloadDocument: true,
+  });
 }
