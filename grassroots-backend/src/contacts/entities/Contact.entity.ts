@@ -7,9 +7,11 @@ import {
 } from "class-validator";
 import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
 import "reflect-metadata";
+import { ContactResponseDTO } from "../../grassroots-shared/Contact.dto";
+import { PropsOf } from "../../grassroots-shared/Cast";
 
 @Entity()
-export class ContactEntity {
+export class ContactEntity implements PropsOf<ContactResponseDTO> {
   @PrimaryKey()
   @IsInt()
   @Min(1)
