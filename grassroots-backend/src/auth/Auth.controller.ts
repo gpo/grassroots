@@ -26,6 +26,7 @@ export class AuthController {
   @PublicRoute()
   @ApiQuery({ name: "redirect_path", type: String })
   login(@Query() redirect_path: string): void {
+    // The redirect path is used by the OAuth guard.
     void redirect_path;
   }
 
@@ -44,11 +45,18 @@ export class AuthController {
     if (!req.user) {
       throw new Error("No user found for login.");
     }
+    // The session doesn't container the redirect path by the time req.login is called,
+    // so make sure to stash it here.
+    const redirectPath = req.session.redirect_path ?? host;
+    // To prevent a redirect path accidentally being used multiple times, clear this
+    // as soon as it's read.
+    req.session.redirect_path = undefined;
+
     req.login(req.user, (err) => {
       if (err !== undefined) {
         throw err;
       }
-      response.redirect(host);
+      response.redirect(redirectPath);
     });
   }
 

@@ -28,7 +28,8 @@ export async function listenAndConfigureApp(
       secret: "your-secret",
       resave: false,
       saveUninitialized: false,
-      cookie: { secure: false }, // TODO: change to true once we're using https.
+      // TODO: update once we're using https. Make sure oauth redirection still works.
+      cookie: { secure: false, sameSite: "lax" },
     }),
   );
 

@@ -36,7 +36,7 @@ export function navigateToBackendRoute<
   let path = pathUntyped as string;
 
   if (query !== undefined) {
-    path = "api/" + path + "?" + new URLSearchParams(query).toString();
+    path = "api" + path + "?" + new URLSearchParams(query).toString();
   }
 
   window.location.href = path;
