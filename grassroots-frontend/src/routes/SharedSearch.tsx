@@ -2,8 +2,8 @@ import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useState } from "react";
 import { useContactSearch } from "../hooks/useContactSearch";
 import { PaginatedContacts } from "../components/PaginatedContacts";
-import { cast } from "../grassroots-shared/Cast";
 import { ContactSearchRequestDTO } from "../grassroots-shared/Contact.dto";
+import { cast } from "../grassroots-shared/util/Cast";
 
 export const Route = createFileRoute("/SharedSearch")({
   component: SharedSearch,

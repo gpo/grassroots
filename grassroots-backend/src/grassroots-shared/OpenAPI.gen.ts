@@ -163,8 +163,7 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ContactEntity: Record<string, never>;
-    ContactResponseDTO: {
+    ContactDTO: {
       /** Format: email */
       email: string;
       firstName: string;
@@ -172,28 +171,17 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
-    ContactSearchRequestDTO: {
-      email?: string;
-      firstName?: string;
-      id?: number;
-      lastName?: string;
-      phoneNumber?: string;
-    };
+    ContactEntity: Record<string, never>;
+    ContactSearchRequestDTO: Record<string, never>;
     CreateBulkContactRequestDto: {
       contacts: components["schemas"]["CreateContactRequestDto"][];
     };
     CreateBulkContactResponseDTO: {
       ids: number[];
     };
-    CreateContactRequestDto: {
-      /** Format: email */
-      email: string;
-      firstName: string;
-      lastName: string;
-      phoneNumber: string;
-    };
+    CreateContactRequestDto: Record<string, never>;
     GetContactByIDResponseDTO: {
-      contact: components["schemas"]["ContactResponseDTO"] | null;
+      contact: components["schemas"]["ContactDTO"] | null;
     };
     HelloOutDTO: {
       message: string;
@@ -202,7 +190,7 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     PaginatedContactResponseDTO: {
-      contacts: components["schemas"]["ContactResponseDTO"][];
+      contacts: components["schemas"]["ContactDTO"][];
       paginated: components["schemas"]["PaginatedResponseDTO"];
     };
     PaginatedContactSearchRequestDTO: {
@@ -351,9 +339,7 @@ export interface operations {
   };
   AuthController_login: {
     parameters: {
-      query: {
-        redirect_path: string;
-      };
+      query?: never;
       header?: never;
       path?: never;
       cookie?: never;
@@ -419,7 +405,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactResponseDTO"][];
+          "application/json": components["schemas"]["ContactDTO"][];
         };
       };
       /** @description Validation failed */

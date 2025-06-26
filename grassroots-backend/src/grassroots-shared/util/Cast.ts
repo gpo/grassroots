@@ -1,11 +1,6 @@
 import { ClassConstructor, plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
-
-// Roughly, given a class, gives you an interface with its attributes.
-export type PropsOf<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  [K in keyof T as T[K] extends Function ? never : K]: T[K];
-};
+import { PropsOf } from "./PropsOf";
 
 export function cast<T extends object>(
   cls: ClassConstructor<T>,

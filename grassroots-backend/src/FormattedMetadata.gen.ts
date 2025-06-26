@@ -44,19 +44,14 @@ export default async () => {
         [
           import("./grassroots-shared/Contact.dto"),
           {
-            ContactResponseDTO: {
+            ContactDTO: {
               id: { required: true, type: () => Number, minimum: 1 },
               email: { required: true, type: () => String, format: "email" },
               firstName: { required: true, type: () => String },
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
-            CreateContactRequestDto: {
-              email: { required: true, type: () => String, format: "email" },
-              firstName: { required: true, type: () => String },
-              lastName: { required: true, type: () => String },
-              phoneNumber: { required: true, type: () => String },
-            },
+            CreateContactRequestDto: {},
             CreateBulkContactRequestDto: {
               contacts: {
                 required: true,
@@ -71,18 +66,11 @@ export default async () => {
             GetContactByIDResponseDTO: {
               contact: {
                 required: true,
-                type: () =>
-                  t["./grassroots-shared/Contact.dto"].ContactResponseDTO,
+                type: () => t["./grassroots-shared/Contact.dto"].ContactDTO,
                 nullable: true,
               },
             },
-            ContactSearchRequestDTO: {
-              id: { required: false, type: () => Number, minimum: 1 },
-              email: { required: false, type: () => String },
-              firstName: { required: false, type: () => String },
-              lastName: { required: false, type: () => String },
-              phoneNumber: { required: false, type: () => String },
-            },
+            ContactSearchRequestDTO: {},
             PaginatedContactSearchRequestDTO: {
               contact: {
                 required: true,
@@ -98,9 +86,7 @@ export default async () => {
             PaginatedContactResponseDTO: {
               contacts: {
                 required: true,
-                type: () => [
-                  t["./grassroots-shared/Contact.dto"].ContactResponseDTO,
-                ],
+                type: () => [t["./grassroots-shared/Contact.dto"].ContactDTO],
               },
               paginated: {
                 required: true,
@@ -170,7 +156,7 @@ export default async () => {
                   .CreateBulkContactResponseDTO,
               },
               findAll: {
-                type: [t["./grassroots-shared/Contact.dto"].ContactResponseDTO],
+                type: [t["./grassroots-shared/Contact.dto"].ContactDTO],
               },
               search: {
                 type: t["./grassroots-shared/Contact.dto"]

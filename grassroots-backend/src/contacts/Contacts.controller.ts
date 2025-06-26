@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ContactsService } from "./Contacts.service";
 import { ContactEntity } from "./entities/Contact.entity";
 import {
-  ContactResponseDTO,
+  ContactDTO,
   CreateBulkContactRequestDto,
   CreateBulkContactResponseDTO,
   CreateContactRequestDto,
@@ -30,7 +30,7 @@ export class ContactsController {
   }
 
   @Get()
-  findAll(): Promise<ContactResponseDTO[]> {
+  findAll(): Promise<ContactDTO[]> {
     return this.contactsService.findAll();
   }
 

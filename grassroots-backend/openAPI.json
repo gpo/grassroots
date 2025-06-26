@@ -1,11 +1,7 @@
 {
   "components": {
     "schemas": {
-      "ContactEntity": {
-        "properties": {},
-        "type": "object"
-      },
-      "ContactResponseDTO": {
+      "ContactDTO": {
         "properties": {
           "email": {
             "format": "email",
@@ -28,25 +24,12 @@
         "required": ["id", "email", "firstName", "lastName", "phoneNumber"],
         "type": "object"
       },
+      "ContactEntity": {
+        "properties": {},
+        "type": "object"
+      },
       "ContactSearchRequestDTO": {
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
+        "properties": {},
         "type": "object"
       },
       "CreateBulkContactRequestDto": {
@@ -74,22 +57,7 @@
         "type": "object"
       },
       "CreateContactRequestDto": {
-        "properties": {
-          "email": {
-            "format": "email",
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
-        "required": ["email", "firstName", "lastName", "phoneNumber"],
+        "properties": {},
         "type": "object"
       },
       "GetContactByIDResponseDTO": {
@@ -97,7 +65,7 @@
           "contact": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/ContactResponseDTO"
+                "$ref": "#/components/schemas/ContactDTO"
               }
             ],
             "nullable": true
@@ -127,7 +95,7 @@
         "properties": {
           "contacts": {
             "items": {
-              "$ref": "#/components/schemas/ContactResponseDTO"
+              "$ref": "#/components/schemas/ContactDTO"
             },
             "type": "array"
           },
@@ -414,7 +382,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/ContactResponseDTO"
+                    "$ref": "#/components/schemas/ContactDTO"
                   },
                   "type": "array"
                 }

@@ -1,27 +1,22 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { IsEmail, IsOptional, IsString } from "class-validator";
-import { PropsOf } from "../grassroots-shared/Cast";
 import { UserDTO } from "../grassroots-shared/User.dto";
+import { AssertPropsEqual } from "../grassroots-shared/util/TypesEqual";
+import { PropsOf } from "../grassroots-shared/util/PropsOf";
 
 @Entity()
 export class UserEntity implements PropsOf<UserDTO> {
-  @IsString()
   @PrimaryKey()
   id!: string;
-  @IsEmail({}, { each: true })
-  @IsOptional()
   @Property({ type: "json", nullable: true })
   emails?: string[];
-  @IsString()
-  @IsOptional()
   @Property({ nullable: true })
   firstName?: string;
-  @IsString()
-  @IsOptional()
   @Property({ nullable: true })
   lastName?: string;
-  @IsString()
-  @IsOptional()
   @Property({ nullable: true })
   displayName?: string;
+
+  foo!: number;
 }
+
+export type Check = AssertPropsEqual<UserDTO, UserEntity>;

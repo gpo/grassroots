@@ -1,8 +1,8 @@
 import { JSX } from "react";
-import { ContactResponseDTO } from "../grassroots-shared/Contact.dto";
+import { ContactDTO } from "../grassroots-shared/Contact.dto";
 
 interface ContactRowProps {
-  contact: ContactResponseDTO;
+  contact: ContactDTO;
 }
 
 export function ContactRow(props: ContactRowProps): JSX.Element {
