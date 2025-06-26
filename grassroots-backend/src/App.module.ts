@@ -14,6 +14,9 @@ import expressSession from "express-session";
 import passport from "passport";
 import mikroORMConfig from "./mikro-orm.config";
 import { getEnvFilePaths } from "./GetEnvFilePaths";
+import connectPgSimple from "connect-pg-simple";
+import { Pool } from "pg";
+import { notNull } from "./grassroots-shared/util/NotNull";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,
@@ -22,28 +25,34 @@ export async function listenAndConfigureApp(
   app.useGlobalPipes(
     new ValidationPipe({ transform: true, forbidUnknownValues: true }),
   );
-  // TODO: migrate to a real session store (https://github.com/expressjs/session?tab=readme-ov-file#compatible-session-stores)
-  app.use(
-    expressSession({
-      secret: "your-secret",
-      resave: false,
-      saveUninitialized: false,
-      cookie: { secure: false }, // TODO: change to true once we're using https.
-    }),
-  );
-
   const config = app.get<ConfigService>(ConfigService);
   const SESSION_SECRET = config.get<string>("SESSION_SECRET");
   if (SESSION_SECRET === undefined) {
     throw new Error("Missing SESSION_SECRET environment variable.");
   }
-  // TODO: migrate to a real session store (https://github.com/expressjs/session?tab=readme-ov-file#compatible-session-stores)
+  const pool = new Pool({
+    user: notNull(mikroORMConfig.user, "postgres user is null"),
+    host: mikroORMConfig.host,
+    database: mikroORMConfig.dbName,
+    password: notNull(
+      process.env.POSTGRES_PASSWORD,
+      "postgres password is null",
+    ),
+    port: mikroORMConfig.port,
+  });
+  const PgStore = connectPgSimple(expressSession);
   app.use(
     expressSession({
+      store: new PgStore({
+        pool,
+        tableName: "user_sessions",
+        createTableIfMissing: true,
+      }),
       secret: SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
-      cookie: { secure: false }, // TODO: change to true once we're using https.
+      // TODO: update once we're using https. Make sure oauth redirection still works.
+      cookie: { secure: false, sameSite: "lax" },
     }),
   );
 
