@@ -14,12 +14,8 @@ export class OAuthGuard extends AuthGuard(DEFAULT_PASSPORT_STRATEGY_NAME) {
     const req = context.switchToHttp().getRequest<GrassrootsRequest>();
 
     // This is set in the login route.
-    const redirectPathParam = req.query.redirect_path;
-    if (
-      redirectPathParam !== undefined &&
-      typeof redirectPathParam === "string"
-    ) {
-      const redirectPath: string = redirectPathParam;
+    const redirectPath = req.query.redirect_path;
+    if (typeof redirectPath === "string") {
       req.session.redirect_path = redirectPath;
     }
 
