@@ -20,7 +20,12 @@ export async function writeFormatted(options: {
   });
 
   if (options.onlyIfChanged === true) {
-    const oldText = await readFile(options.filePath, "utf8");
+    let oldText: string | undefined = undefined;
+    try {
+      oldText = await readFile(options.filePath, "utf8");
+    } catch {
+      /* File doesn't exist */
+    }
     if (oldText == formatted) {
       return { noChange: true };
     }
