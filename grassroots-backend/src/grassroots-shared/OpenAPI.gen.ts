@@ -351,7 +351,9 @@ export interface operations {
   };
   AuthController_login: {
     parameters: {
-      query?: never;
+      query: {
+        redirect_path: string;
+      };
       header?: never;
       path?: never;
       cookie?: never;
