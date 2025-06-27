@@ -172,14 +172,26 @@ export interface components {
       phoneNumber: string;
     };
     ContactEntity: Record<string, never>;
-    ContactSearchRequestDTO: Record<string, never>;
+    ContactSearchRequestDTO: {
+      email?: string;
+      firstName?: string;
+      id?: number;
+      lastName?: string;
+      phoneNumber?: string;
+    };
     CreateBulkContactRequestDto: {
       contacts: components["schemas"]["CreateContactRequestDto"][];
     };
     CreateBulkContactResponseDTO: {
       ids: number[];
     };
-    CreateContactRequestDto: Record<string, never>;
+    CreateContactRequestDto: {
+      /** Format: email */
+      email: string;
+      firstName: string;
+      lastName: string;
+      phoneNumber: string;
+    };
     GetContactByIDResponseDTO: {
       contact: components["schemas"]["ContactDTO"] | null;
     };

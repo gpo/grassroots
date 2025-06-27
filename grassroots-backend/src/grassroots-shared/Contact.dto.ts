@@ -11,7 +11,6 @@ import {
 } from "class-validator";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "./Paginated.dto";
 import "reflect-metadata";
-import { IntersectionType, OmitType, PartialType } from "@nestjs/mapped-types";
 
 export class ContactDTO {
   @IsInt()
@@ -31,7 +30,19 @@ export class ContactDTO {
   phoneNumber!: string;
 }
 
-export class CreateContactRequestDto extends OmitType(ContactDTO, ["id"]) {}
+export class CreateContactRequestDto {
+  @IsEmail()
+  email!: string;
+
+  @IsNotEmpty()
+  firstName!: string;
+
+  @IsNotEmpty()
+  lastName!: string;
+
+  @IsPhoneNumber("CA")
+  phoneNumber!: string;
+}
 
 export class CreateBulkContactRequestDto {
   @ValidateNested({ each: true })
@@ -49,7 +60,7 @@ export class GetContactByIDResponseDTO {
   contact!: ContactDTO | null;
 }
 
-class ContactSearchRequestId {
+export class ContactSearchRequestDTO {
   @IsOptional()
   @Transform(({ value }: { value: string | undefined }) => {
     if (value === "" || value === undefined) {
@@ -62,12 +73,15 @@ class ContactSearchRequestId {
   @IsInt()
   @Min(1)
   id?: number;
+  @IsOptional()
+  email?: string;
+  @IsOptional()
+  firstName?: string;
+  @IsOptional()
+  lastName?: string;
+  @IsOptional()
+  phoneNumber?: string;
 }
-
-export class ContactSearchRequestDTO extends IntersectionType(
-  OmitType(PartialType(ContactDTO), ["id"]),
-  ContactSearchRequestId,
-) {}
 
 export class PaginatedContactSearchRequestDTO {
   @ValidateNested()

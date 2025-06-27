@@ -23,4 +23,4 @@ export class ContactEntity implements PropsOf<ContactDTO> {
   phoneNumber!: string;
 }
 
-export type Check = AssertPropsEqual<ContactEntity, ContactDTO>;
+export const check: AssertPropsEqual<ContactEntity, ContactDTO> = true;

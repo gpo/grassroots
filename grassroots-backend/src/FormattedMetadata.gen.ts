@@ -51,7 +51,12 @@ export default async () => {
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
-            CreateContactRequestDto: {},
+            CreateContactRequestDto: {
+              email: { required: true, type: () => String, format: "email" },
+              firstName: { required: true, type: () => String },
+              lastName: { required: true, type: () => String },
+              phoneNumber: { required: true, type: () => String },
+            },
             CreateBulkContactRequestDto: {
               contacts: {
                 required: true,
@@ -70,7 +75,13 @@ export default async () => {
                 nullable: true,
               },
             },
-            ContactSearchRequestDTO: {},
+            ContactSearchRequestDTO: {
+              id: { required: false, type: () => Number, minimum: 1 },
+              email: { required: false, type: () => String },
+              firstName: { required: false, type: () => String },
+              lastName: { required: false, type: () => String },
+              phoneNumber: { required: false, type: () => String },
+            },
             PaginatedContactSearchRequestDTO: {
               contact: {
                 required: true,
