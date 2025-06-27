@@ -131,7 +131,6 @@ export default async () => {
           import("./grassroots-shared/LoginState.dto"),
           {
             LoginStateDTO: {
-              isLoggedIn: { required: true, type: () => Boolean },
               user: {
                 required: false,
                 type: () => t["./grassroots-shared/User.entity"].UserEntity,

@@ -113,14 +113,10 @@
       },
       "LoginStateDTO": {
         "properties": {
-          "isLoggedIn": {
-            "type": "boolean"
-          },
           "user": {
             "$ref": "#/components/schemas/UserEntity"
           }
         },
-        "required": ["isLoggedIn"],
         "type": "object"
       },
       "PaginatedContactOutDTO": {
@@ -347,7 +343,16 @@
     "/auth/login": {
       "get": {
         "operationId": "AuthController_login",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "redirect_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""

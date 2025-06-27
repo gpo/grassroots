@@ -24,7 +24,6 @@ describe("AuthController (e2e) while signed out", () => {
 
     const response = await f.grassrootsAPI.GET("/auth/is_authenticated");
 
-    expect(response.data?.isLoggedIn).toBe(false);
     expect(response.data?.user).toBe(undefined);
   });
 });
