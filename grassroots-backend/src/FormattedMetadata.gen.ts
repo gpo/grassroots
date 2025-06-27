@@ -181,14 +181,6 @@ export default async () => {
           },
         ],
         [
-          import("./users/Users.controller"),
-          {
-            UsersController: {
-              findAll: { type: [t["./grassroots-shared/User.dto"].UserDTO] },
-            },
-          },
-        ],
-        [
           import("./auth/Auth.controller"),
           {
             AuthController: {
@@ -201,6 +193,14 @@ export default async () => {
                 type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
               },
               logout: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+            },
+          },
+        ],
+        [
+          import("./users/Users.controller"),
+          {
+            UsersController: {
+              findAll: { type: [t["./grassroots-shared/User.dto"].UserDTO] },
             },
           },
         ],

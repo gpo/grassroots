@@ -4,8 +4,9 @@ import { PropsOf } from "./PropsOf";
 // export const check: AssertPropsEqual<A, B> = true;
 
 export type AssertPropsEqual<T, U> =
-  PropsOf<T> extends PropsOf<U>
-    ? PropsOf<U> extends PropsOf<T>
-      ? true
-      : never
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+  (<G>() => G extends PropsOf<T> ? 1 : 2) extends <G>() => G extends PropsOf<U>
+    ? 1
+    : 2
+    ? true
     : never;
