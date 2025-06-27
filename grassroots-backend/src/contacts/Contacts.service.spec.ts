@@ -1,12 +1,10 @@
 import { ContactsService } from "./Contacts.service";
-import {
-  ContactEntityOutDTO,
-  CreateContactInDto,
-} from "../grassroots-shared/Contact.entity.dto";
+import { ContactEntity } from "./entities/Contact.entity";
 import { instanceToPlain, plainToClass } from "class-transformer";
 import { useTestFixture } from "../testing/Setup";
 import { describe, expect, it } from "vitest";
 import { ContactsModule } from "./Contacts.module";
+import { CreateContactRequestDto } from "../grassroots-shared/Contact.dto";
 
 describe("ContactsService", () => {
   const getFixture = useTestFixture({
@@ -28,7 +26,7 @@ describe("ContactsService", () => {
 
   it("should create and return a contact", async () => {
     const { service } = useService();
-    const contact: CreateContactInDto = {
+    const contact: CreateContactRequestDto = {
       email: "test@test.com",
       firstName: "Test",
       lastName: "Test",
@@ -39,7 +37,7 @@ describe("ContactsService", () => {
     const allContacts = await service.findAll();
     expect(allContacts.length).toEqual(1);
     expect(allContacts[0]).toEqual(
-      plainToClass(ContactEntityOutDTO, {
+      plainToClass(ContactEntity, {
         ...instanceToPlain(contact),
         id: created.id,
       }),

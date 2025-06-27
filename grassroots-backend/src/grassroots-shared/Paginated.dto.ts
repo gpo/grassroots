@@ -1,6 +1,6 @@
 import { IsInt, Min } from "class-validator";
 
-export class PaginatedInDTO {
+export class PaginatedRequestDTO {
   @IsInt()
   @Min(0)
   rowsToSkip!: number;
@@ -9,7 +9,7 @@ export class PaginatedInDTO {
   rowsToTake!: number;
 }
 
-export class PaginatedOutDTO {
+export class PaginatedResponseDTO {
   @IsInt()
   @Min(0)
   rowsSkipped!: number;

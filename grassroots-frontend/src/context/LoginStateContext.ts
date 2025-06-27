@@ -1,11 +1,11 @@
 import { createContext } from "react";
 import { grassrootsAPI } from "../GrassRootsAPI";
-import { UserEntity } from "../grassroots-shared/User.entity";
+import { UserDTO } from "../grassroots-shared/User.dto";
 
 export const LOGIN_URL = "http://grassroots.org/api/auth/login";
 
 export interface LoginState {
-  user: UserEntity;
+  user: UserDTO;
   logout: () => Promise<void>;
 }
 

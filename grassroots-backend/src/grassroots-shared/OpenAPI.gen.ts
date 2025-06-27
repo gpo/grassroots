@@ -163,7 +163,7 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ContactEntityOutDTO: {
+    ContactDTO: {
       /** Format: email */
       email: string;
       firstName: string;
@@ -171,7 +171,8 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
-    ContactSearchInDTO: {
+    ContactEntity: Record<string, never>;
+    ContactSearchRequestDTO: {
       email?: string;
       firstName?: string;
       id?: number;
@@ -179,44 +180,44 @@ export interface components {
       phoneNumber?: string;
     };
     CreateBulkContactRequestDto: {
-      contacts: components["schemas"]["CreateContactInDto"][];
+      contacts: components["schemas"]["CreateContactRequestDto"][];
     };
     CreateBulkContactResponseDTO: {
       ids: number[];
     };
-    CreateContactInDto: {
+    CreateContactRequestDto: {
       /** Format: email */
       email: string;
       firstName: string;
       lastName: string;
       phoneNumber: string;
     };
-    GetContactByIDResponse: {
-      contact: components["schemas"]["ContactEntityOutDTO"] | null;
+    GetContactByIDResponseDTO: {
+      contact: components["schemas"]["ContactDTO"] | null;
     };
     HelloOutDTO: {
       message: string;
     };
     LoginStateDTO: {
-      user?: components["schemas"]["UserEntity"];
+      user?: components["schemas"]["UserDTO"];
     };
-    PaginatedContactOutDTO: {
-      contacts: components["schemas"]["ContactEntityOutDTO"][];
-      paginated: components["schemas"]["PaginatedOutDTO"];
+    PaginatedContactResponseDTO: {
+      contacts: components["schemas"]["ContactDTO"][];
+      paginated: components["schemas"]["PaginatedResponseDTO"];
     };
-    PaginatedContactSearchInDTO: {
-      contact: components["schemas"]["ContactSearchInDTO"];
-      paginated: components["schemas"]["PaginatedInDTO"];
+    PaginatedContactSearchRequestDTO: {
+      contact: components["schemas"]["ContactSearchRequestDTO"];
+      paginated: components["schemas"]["PaginatedRequestDTO"];
     };
-    PaginatedInDTO: {
+    PaginatedRequestDTO: {
       rowsToSkip: number;
       rowsToTake: number;
     };
-    PaginatedOutDTO: {
+    PaginatedResponseDTO: {
       rowsSkipped: number;
       rowsTotal: number;
     };
-    UserEntity: {
+    UserDTO: {
       displayName?: string;
       emails?: string[];
       firstName?: string;
@@ -418,7 +419,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactEntityOutDTO"][];
+          "application/json": components["schemas"]["ContactDTO"][];
         };
       };
       /** @description Validation failed */
@@ -441,7 +442,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateContactInDto"];
+        "application/json": components["schemas"]["CreateContactRequestDto"];
       };
     };
     responses: {
@@ -450,7 +451,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactEntityOutDTO"];
+          "application/json": components["schemas"]["ContactEntity"];
         };
       };
       /** @description Validation failed */
@@ -505,7 +506,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["PaginatedContactSearchInDTO"];
+        "application/json": components["schemas"]["PaginatedContactSearchRequestDTO"];
       };
     };
     responses: {
@@ -514,7 +515,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["PaginatedContactOutDTO"];
+          "application/json": components["schemas"]["PaginatedContactResponseDTO"];
         };
       };
       /** @description Validation failed */
@@ -544,7 +545,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["GetContactByIDResponse"];
+          "application/json": components["schemas"]["GetContactByIDResponseDTO"];
         };
       };
       /** @description Validation failed */
