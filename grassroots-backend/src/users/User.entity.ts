@@ -15,6 +15,8 @@ export class UserEntity implements PropsOf<UserDTO> {
   lastName?: string;
   @Property({ nullable: true })
   displayName?: string;
+  @Property({ nullable: false })
+  riding!: string;
 }
 
 export const check: AssertPropsEqual<UserDTO, UserEntity> = true;
