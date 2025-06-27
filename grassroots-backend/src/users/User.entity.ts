@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { UserDTO } from "../grassroots-shared/User.dto";
-import { AssertPropsEqual } from "../grassroots-shared/util/TypesEqual";
+import { AssertPropsEqual } from "../grassroots-shared/util/AssertPropsEqual";
 import { PropsOf } from "../grassroots-shared/util/PropsOf";
 
 @Entity()
