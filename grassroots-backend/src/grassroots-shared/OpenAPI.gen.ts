@@ -159,11 +159,28 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/users": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["UsersController_findAll"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ContactDTO: {
+    ContactEntity: Record<string, never>;
+    ContactResponseDTO: {
       /** Format: email */
       email: string;
       firstName: string;
@@ -171,7 +188,6 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
-    ContactEntity: Record<string, never>;
     ContactSearchRequestDTO: {
       email?: string;
       firstName?: string;
@@ -193,7 +209,7 @@ export interface components {
       phoneNumber: string;
     };
     GetContactByIDResponseDTO: {
-      contact: components["schemas"]["ContactDTO"] | null;
+      contact: components["schemas"]["ContactResponseDTO"] | null;
     };
     HelloOutDTO: {
       message: string;
@@ -202,7 +218,7 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     PaginatedContactResponseDTO: {
-      contacts: components["schemas"]["ContactDTO"][];
+      contacts: components["schemas"]["ContactResponseDTO"][];
       paginated: components["schemas"]["PaginatedResponseDTO"];
     };
     PaginatedContactSearchRequestDTO: {
@@ -419,7 +435,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactDTO"][];
+          "application/json": components["schemas"]["ContactEntity"][];
         };
       };
       /** @description Validation failed */
@@ -546,6 +562,34 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["GetContactByIDResponseDTO"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  UsersController_findAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserDTO"][];
         };
       };
       /** @description Validation failed */

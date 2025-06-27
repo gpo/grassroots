@@ -181,6 +181,14 @@ export default async () => {
           },
         ],
         [
+          import("./users/Users.controller"),
+          {
+            UsersController: {
+              findAll: { type: [t["./grassroots-shared/User.dto"].UserDTO] },
+            },
+          },
+        ],
+        [
           import("./auth/Auth.controller"),
           {
             AuthController: {

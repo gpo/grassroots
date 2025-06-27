@@ -34,7 +34,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             <RoutedLink to="/CreateContact">Create Contact</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
-            <RoutedLink to="/Search">Search</RoutedLink>
+            <RoutedLink to="/Search">Search Contacts</RoutedLink>
+          </AppShell.Section>
+          <AppShell.Section>
+            <RoutedLink to="/Users">Users</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
             <Button>Add 100 Random Contacts</Button>

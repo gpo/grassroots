@@ -18,4 +18,8 @@ export class UsersService {
   async findOne(user: PropsOf<UserEntity>): Promise<UserEntity | null> {
     return await this.repo.findOne(user);
   }
+
+  async findAll(): Promise<UserEntity[]> {
+    return await this.repo.find({});
+  }
 }
