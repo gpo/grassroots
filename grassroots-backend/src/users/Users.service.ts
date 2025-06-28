@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { UserEntity } from "../grassroots-shared/User.entity";
-import { PropsOf } from "../grassroots-shared/Cast";
+import { UserEntity } from "./User.entity";
 import { EntityManager, EntityRepository } from "@mikro-orm/core";
+import { PropsOf } from "../grassroots-shared/util/PropsOf";
 
 @Injectable()
 export class UsersService {
@@ -17,5 +17,9 @@ export class UsersService {
 
   async findOne(user: PropsOf<UserEntity>): Promise<UserEntity | null> {
     return await this.repo.findOne(user);
+  }
+
+  async findAll(): Promise<UserEntity[]> {
+    return await this.repo.find({});
   }
 }

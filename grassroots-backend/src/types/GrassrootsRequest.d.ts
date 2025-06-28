@@ -1,4 +1,4 @@
 import { Request } from "express";
-import { UserEntity } from "../grassroots-shared/User.entity";
+import { UserEntity } from "../users/User.entity";
 
 export type GrassrootsRequest = Request & UserEntity;

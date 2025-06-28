@@ -1,12 +1,10 @@
-import { IsBoolean, IsOptional, ValidateNested } from "class-validator";
-import { UserEntity } from "./User.entity";
+import { IsOptional, ValidateNested } from "class-validator";
 import { Type } from "class-transformer";
+import { UserDTO } from "./User.dto";
 
 export class LoginStateDTO {
-  @IsBoolean()
-  isLoggedIn!: boolean;
-  @Type(() => UserEntity)
+  @Type(() => UserDTO)
   @IsOptional()
   @ValidateNested()
-  user?: UserEntity;
+  user?: UserDTO;
 }

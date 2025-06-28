@@ -1,24 +1,25 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import {
-  PaginatedContactOutDTO,
-  PaginatedContactSearchInDTO,
-} from "../grassroots-shared/Contact.entity.dto";
 import { grassrootsAPI } from "../GrassRootsAPI";
+import {
+  PaginatedContactResponseDTO,
+  PaginatedContactSearchRequestDTO,
+} from "../grassroots-shared/Contact.dto";
 
 export function useContactSearch(
-  searchParams: PaginatedContactSearchInDTO,
-): UseQueryResult<PaginatedContactOutDTO> {
-  return useQuery<PaginatedContactOutDTO>({
+  searchParams: PaginatedContactSearchRequestDTO,
+): UseQueryResult<PaginatedContactResponseDTO> {
+  return useQuery<PaginatedContactResponseDTO>({
     queryKey: ["contacts", searchParams],
     staleTime: 60 * 1000,
     retry: 1,
     // If the user hits the next button, keep showing the prior data until new data is ready.
-    placeholderData: (priorData) => priorData ?? PaginatedContactOutDTO.empty(),
+    placeholderData: (priorData) =>
+      priorData ?? PaginatedContactResponseDTO.empty(),
     queryFn: async () => {
       const result = await grassrootsAPI.POST("/contacts/search", {
         body: searchParams,
       });
-      return result.data ?? PaginatedContactOutDTO.empty();
+      return result.data ?? PaginatedContactResponseDTO.empty();
     },
   });
 }

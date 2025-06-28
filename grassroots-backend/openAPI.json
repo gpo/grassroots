@@ -1,7 +1,7 @@
 {
   "components": {
     "schemas": {
-      "ContactEntityOutDTO": {
+      "ContactDTO": {
         "properties": {
           "email": {
             "format": "email",
@@ -24,7 +24,11 @@
         "required": ["id", "email", "firstName", "lastName", "phoneNumber"],
         "type": "object"
       },
-      "ContactSearchInDTO": {
+      "ContactEntity": {
+        "properties": {},
+        "type": "object"
+      },
+      "ContactSearchRequestDTO": {
         "properties": {
           "email": {
             "type": "string"
@@ -49,7 +53,7 @@
         "properties": {
           "contacts": {
             "items": {
-              "$ref": "#/components/schemas/CreateContactInDto"
+              "$ref": "#/components/schemas/CreateContactRequestDto"
             },
             "type": "array"
           }
@@ -69,7 +73,7 @@
         "required": ["ids"],
         "type": "object"
       },
-      "CreateContactInDto": {
+      "CreateContactRequestDto": {
         "properties": {
           "email": {
             "format": "email",
@@ -88,12 +92,12 @@
         "required": ["email", "firstName", "lastName", "phoneNumber"],
         "type": "object"
       },
-      "GetContactByIDResponse": {
+      "GetContactByIDResponseDTO": {
         "properties": {
           "contact": {
             "allOf": [
               {
-                "$ref": "#/components/schemas/ContactEntityOutDTO"
+                "$ref": "#/components/schemas/ContactDTO"
               }
             ],
             "nullable": true
@@ -113,44 +117,40 @@
       },
       "LoginStateDTO": {
         "properties": {
-          "isLoggedIn": {
-            "type": "boolean"
-          },
           "user": {
-            "$ref": "#/components/schemas/UserEntity"
+            "$ref": "#/components/schemas/UserDTO"
           }
         },
-        "required": ["isLoggedIn"],
         "type": "object"
       },
-      "PaginatedContactOutDTO": {
+      "PaginatedContactResponseDTO": {
         "properties": {
           "contacts": {
             "items": {
-              "$ref": "#/components/schemas/ContactEntityOutDTO"
+              "$ref": "#/components/schemas/ContactDTO"
             },
             "type": "array"
           },
           "paginated": {
-            "$ref": "#/components/schemas/PaginatedOutDTO"
+            "$ref": "#/components/schemas/PaginatedResponseDTO"
           }
         },
         "required": ["contacts", "paginated"],
         "type": "object"
       },
-      "PaginatedContactSearchInDTO": {
+      "PaginatedContactSearchRequestDTO": {
         "properties": {
           "contact": {
-            "$ref": "#/components/schemas/ContactSearchInDTO"
+            "$ref": "#/components/schemas/ContactSearchRequestDTO"
           },
           "paginated": {
-            "$ref": "#/components/schemas/PaginatedInDTO"
+            "$ref": "#/components/schemas/PaginatedRequestDTO"
           }
         },
         "required": ["contact", "paginated"],
         "type": "object"
       },
-      "PaginatedInDTO": {
+      "PaginatedRequestDTO": {
         "properties": {
           "rowsToSkip": {
             "minimum": 0,
@@ -164,7 +164,7 @@
         "required": ["rowsToSkip", "rowsToTake"],
         "type": "object"
       },
-      "PaginatedOutDTO": {
+      "PaginatedResponseDTO": {
         "properties": {
           "rowsSkipped": {
             "minimum": 0,
@@ -178,7 +178,7 @@
         "required": ["rowsSkipped", "rowsTotal"],
         "type": "object"
       },
-      "UserEntity": {
+      "UserDTO": {
         "properties": {
           "displayName": {
             "type": "string"
@@ -347,7 +347,16 @@
     "/auth/login": {
       "get": {
         "operationId": "AuthController_login",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "redirect_path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": ""
@@ -405,7 +414,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/ContactEntityOutDTO"
+                    "$ref": "#/components/schemas/ContactDTO"
                   },
                   "type": "array"
                 }
@@ -433,7 +442,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateContactInDto"
+                "$ref": "#/components/schemas/CreateContactRequestDto"
               }
             }
           },
@@ -444,7 +453,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContactEntityOutDTO"
+                  "$ref": "#/components/schemas/ContactEntity"
                 }
               }
             },
@@ -511,7 +520,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/PaginatedContactSearchInDTO"
+                "$ref": "#/components/schemas/PaginatedContactSearchRequestDTO"
               }
             }
           },
@@ -522,7 +531,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/PaginatedContactOutDTO"
+                  "$ref": "#/components/schemas/PaginatedContactResponseDTO"
                 }
               }
             },
@@ -560,7 +569,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/GetContactByIDResponse"
+                  "$ref": "#/components/schemas/GetContactByIDResponseDTO"
                 }
               }
             },
@@ -578,6 +587,38 @@
           }
         },
         "tags": ["Contacts"]
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UserDTO"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Users"]
       }
     }
   },

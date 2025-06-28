@@ -3,14 +3,14 @@ import { PaginatedContacts } from "../components/PaginatedContacts";
 import { JSX, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useContactSearch } from "../hooks/useContactSearch";
-import {
-  ContactSearchInDTO,
-  PaginatedContactSearchInDTO,
-} from "../grassroots-shared/Contact.entity.dto";
 import { TextField } from "../components/TextField";
 import { RoutedLink } from "../components/RoutedLink";
 import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
 import { plainToInstance } from "class-transformer";
+import {
+  ContactSearchRequestDTO,
+  PaginatedContactSearchRequestDTO,
+} from "../grassroots-shared/Contact.dto";
 
 export const Route = createFileRoute("/Search")({
   component: Search,
@@ -19,9 +19,9 @@ export const Route = createFileRoute("/Search")({
 const ROWS_PER_PAGE = 10;
 
 function Search(): JSX.Element {
-  const form = useForm<ContactSearchInDTO>({
+  const form = useForm<ContactSearchRequestDTO>({
     resolver: transformingClassValidatorResolver(
-      ContactSearchInDTO,
+      ContactSearchRequestDTO,
       {},
       { mode: "sync" },
     ),
@@ -30,8 +30,8 @@ function Search(): JSX.Element {
 
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
-  const searchParams: PaginatedContactSearchInDTO = {
-    contact: plainToInstance(ContactSearchInDTO, form.watch()),
+  const searchParams: PaginatedContactSearchRequestDTO = {
+    contact: plainToInstance(ContactSearchRequestDTO, form.watch()),
     paginated: {
       rowsToSkip,
       rowsToTake: ROWS_PER_PAGE,

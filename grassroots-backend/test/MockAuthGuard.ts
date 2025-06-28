@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common";
 import { GrassrootsRequest } from "../src/types/GrassrootsRequest";
-import { UserEntity } from "../src/grassroots-shared/User.entity";
+import { UserEntity } from "../src/users/User.entity";
 
 export const MOCK_AUTH_GUARD_USER: UserEntity = {
   id: "testid",

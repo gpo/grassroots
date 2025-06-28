@@ -1,7 +1,7 @@
 /* eslint-disable check-file/filename-naming-convention */
 import { defineConfig, PostgreSqlDriver } from "@mikro-orm/postgresql";
-import { UserEntity } from "./grassroots-shared/User.entity";
-import { ContactEntityOutDTO } from "./grassroots-shared/Contact.entity.dto";
+import { UserEntity } from "./users/User.entity";
+import { ContactEntity } from "./contacts/entities/Contact.entity";
 
 import dotenvFlow from "dotenv-flow";
 import { getEnvFilePaths } from "./GetEnvFilePaths";
@@ -13,7 +13,7 @@ dotenvFlow.config({
 export default defineConfig({
   metadataCache: { enabled: false },
   driver: PostgreSqlDriver,
-  entities: [ContactEntityOutDTO, UserEntity],
+  entities: [ContactEntity, UserEntity],
   host: process.env.POSTGRES_HOST,
   port: Number(process.env.POSTGRES_PORT),
   user: process.env.POSTGRES_USER,

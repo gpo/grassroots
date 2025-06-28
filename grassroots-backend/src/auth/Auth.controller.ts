@@ -5,13 +5,14 @@ import {
   Response,
   Post,
   UseGuards,
+  Query,
 } from "@nestjs/common";
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { ConfigService } from "@nestjs/config";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
 import { VoidDTO } from "../grassroots-shared/Void.dto";
-import { ApiProperty, ApiResponse } from "@nestjs/swagger";
+import { ApiProperty, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";
 
@@ -23,8 +24,11 @@ export class AuthController {
   @Get("login")
   @UseGuards(OAuthGuard)
   @PublicRoute()
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  login(): void {}
+  @ApiQuery({ name: "redirect_path", type: String })
+  login(@Query() redirect_path: string): void {
+    // The redirect path is used by the OAuth guard.
+    void redirect_path;
+  }
 
   @Get("google/callback")
   @UseGuards(OAuthGuard)
@@ -41,18 +45,25 @@ export class AuthController {
     if (!req.user) {
       throw new Error("No user found for login.");
     }
+    // The session doesn't container the redirect path by the time req.login is called,
+    // so make sure to stash it here.
+    const redirectPath = req.session.redirect_path ?? host;
+    // To prevent a redirect path accidentally being used multiple times, clear this
+    // as soon as it's read.
+    req.session.redirect_path = undefined;
+
     req.login(req.user, (err) => {
       if (err !== undefined) {
         throw err;
       }
-      response.redirect(host);
+      response.redirect(redirectPath);
     });
   }
 
   @Get("is_authenticated")
   @PublicRoute()
   isUserLoggedIn(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return { isLoggedIn: req.isAuthenticated(), user: req.user };
+    return { user: req.user };
   }
 
   // This is an example of using user info, to enable a test.
@@ -61,7 +72,7 @@ export class AuthController {
   // Not sure why UseGuards breaks the OpenAPI plugin.
   @ApiResponse({ status: 200, type: LoginStateDTO })
   example(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return { isLoggedIn: req.isAuthenticated(), user: req.user };
+    return { user: req.user };
   }
 
   @Post("logout")
