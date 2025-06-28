@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Force all commands to run inside the grassroots_dev container
-# This ensures consistent development environment for all team members
+# Cross-platform script to run commands inside or outside container
+# Automatically detects context and routes commands appropriately
 # Usage: ./run <any-command-and-args>
 
 set -e  # Exit on any error
@@ -10,97 +10,229 @@ set -e  # Exit on any error
 COMPOSE_FILE="docker/compose.yaml"
 SERVICE_NAME="grassroots_dev"
 
-# Function to check if we're in the project root
-check_project_root() {
-    if [[ ! -f "$COMPOSE_FILE" ]]; then
-        echo "Error: Must run from project root (where docker/compose.yaml exists)"
-        echo "Current directory: $(pwd)"
-        exit 1
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Function to check if we're inside a container
+is_inside_container() {
+    # Check for devcontainer environment variable
+    if [[ -n "$IN_DEVCONTAINER" ]]; then
+        return 0
     fi
+    
+    # Check for common container indicators
+    if [[ -f /.dockerenv ]]; then
+        return 0
+    fi
+    
+    # Check for container-specific environment variables
+    if [[ -n "$CONTAINER" ]] || [[ -n "$DOCKER_CONTAINER" ]]; then
+        return 0
+    fi
+    
+    # Check if we're in a container by looking at cgroup
+    if [[ -f /proc/1/cgroup ]] && grep -q docker /proc/1/cgroup 2>/dev/null; then
+        return 0
+    fi
+    
+    return 1
 }
 
-# Function to ensure container is running
+# Function to find the project root
+find_project_root() {
+    local current_dir="$SCRIPT_DIR"
+    
+    # Walk up the directory tree looking for docker/compose.yaml
+    while [[ "$current_dir" != "/" ]]; do
+        if [[ -f "$current_dir/$COMPOSE_FILE" ]]; then
+            echo "$current_dir"
+            return 0
+        fi
+        current_dir="$(dirname "$current_dir")"
+    done
+    
+    # If not found, assume script is in project root
+    echo "$SCRIPT_DIR"
+    return 1
+}
+
+# Function to ensure container is running with smart startup
 ensure_container_running() {
     local service=$1
     local compose_file=$2
+    local project_root=$3
     
-    # Check if the service is running
-    if ! docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
-        echo "Starting $service container..."
-        docker compose -f "$compose_file" up -d "$service"
-        
-        # Wait for container to be ready
-        echo "Waiting for container to be ready..."
-        sleep 3
-        
-        # Verify it's running
-        if ! docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
-            echo "Error: Failed to start $service container"
-            exit 1
-        fi
-        
-        echo "Container is ready!"
+    # Change to project root to run docker-compose
+    cd "$project_root"
+    
+    # Check what's currently running
+    local main_running=false
+    local db_running=false
+    local test_db_running=false
+    
+    if docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
+        main_running=true
     fi
+    
+    if docker compose -f "$compose_file" ps "db" 2>/dev/null | grep -q "Up"; then
+        db_running=true
+    fi
+    
+    if docker compose -f "$compose_file" ps "test_db" 2>/dev/null | grep -q "Up"; then
+        test_db_running=true
+    fi
+    
+    # If main service is running, we're good
+    if [[ "$main_running" == "true" ]]; then
+        return 0
+    fi
+    
+    # Main service needs to start - determine what else is missing
+    local missing_services=""
+    if [[ "$db_running" == "false" ]]; then
+        missing_services="$missing_services db"
+    fi
+    if [[ "$test_db_running" == "false" ]]; then
+        missing_services="$missing_services test_db"
+    fi
+    
+    # If in CI or non-interactive, start all services
+    if [[ ! -t 0 ]] || [[ -n "$CI" ]]; then
+        echo "Non-interactive environment detected. Starting all services..."
+        docker compose -f "$compose_file" up -d
+    else
+        # Interactive prompt
+        echo "grassroots_dev container is not running."
+        if [[ -n "$missing_services" ]]; then
+            echo "The following additional services are also not running:$missing_services"
+            echo "Some commands may fail without database services."
+        fi
+        echo ""
+        echo "Options:"
+        echo "  1) Start all services (recommended)"
+        echo "  2) Start only grassroots_dev"
+        echo "  3) Start grassroots_dev only (skip databases)"
+        echo ""
+        read -p "Choose option (1-3): " choice
+        
+        case $choice in
+            1)
+                echo "Starting all services..."
+                docker compose -f "$compose_file" up -d
+                ;;
+            2|3|*)
+                echo "Starting grassroots_dev only..."
+                docker compose -f "$compose_file" up -d "$service"
+                ;;
+        esac
+    fi
+    
+    # Wait for container to be ready
+    echo "Waiting for container to be ready..."
+    sleep 3
+    
+    # Verify main service is running
+    if ! docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
+        echo "Error: Failed to start $service container"
+        return 1
+    fi
+    
+    echo "Container is ready!"
+    return 0
 }
 
-# Function to provide helpful examples
+# Function to provide helpful examples using heredoc
 show_examples() {
-    echo "Usage: ./run <command> [args...]"
-    echo ""
-    echo "All commands run inside the grassroots_dev container automatically."
-    echo ""
-    echo "Common examples:"
-    echo ""
-    echo "  Backend:"
-    echo "    ./run cd grassroots-backend && npm install"
-    echo "    ./run cd grassroots-backend && npm run start:dev"
-    echo "    ./run cd grassroots-backend && npm test"
-    echo "    ./run cd grassroots-backend && npx mikro-orm migration:up"
-    echo ""
-    echo "  Frontend:"
-    echo "    ./run cd grassroots-frontend && npm install"
-    echo "    ./run cd grassroots-frontend && npm run dev"
-    echo "    ./run cd grassroots-frontend && npm run build"
-    echo ""
-    echo "  General:"
-    echo "    ./run bash                    # Open shell"
-    echo "    ./run npm --version           # Check versions"
-    echo "    ./run git status              # Git commands"
-    echo "    ./run ls -la                  # File operations"
-    echo ""
-    echo "This replaces the old workflow of:"
-    echo "  docker compose exec grassroots_dev bash -c \"cd grassroots-backend && npm test\""
-    echo "With the simpler:"
-    echo "  ./run cd grassroots-backend && npm test"
+    cat << 'EOF'
+Usage: ./run <command> [args...]
+
+This script automatically detects if you're inside or outside the container
+and routes commands appropriately to ensure consistent development environment.
+
+Common examples:
+
+  Backend:
+    ./run cd grassroots-backend && npm install
+    ./run cd grassroots-backend && npm run start:dev
+    ./run cd grassroots-backend && npm test
+    ./run cd grassroots-backend && npx mikro-orm migration:up
+
+  Frontend:
+    ./run cd grassroots-frontend && npm install
+    ./run cd grassroots-frontend && npm run dev
+    ./run cd grassroots-frontend && npm run build
+
+  General:
+    ./run bash                    # Open shell
+    ./run npm --version           # Check versions
+    ./run git status              # Git commands
+    ./run ls -la                  # File operations
+
+Notes:
+- When run from outside container: Routes commands to grassroots_dev container
+- When run from inside container: Executes commands directly
+- Can be run from any directory within the project
+EOF
 }
 
-# Main logic - force everything into container
+# Function to run command locally (inside container)
+run_locally() {
+    exec "$@"
+}
+
+# Function to run command in container
+run_in_container() {
+    local project_root=$1
+    local compose_file=$2
+    local service=$3
+    shift 3
+    
+    if ! ensure_container_running "$service" "$compose_file" "$project_root"; then
+        echo "Container failed to start, cannot execute command"
+        exit 1
+    fi
+    
+    # Run the command inside the container
+    # Use -T to avoid TTY allocation issues in git hooks
+    exec docker compose -f "$compose_file" exec -T "$service" bash -c "$*"
+}
+
+# Main logic - detect context and route appropriately
 main() {
     if [[ $# -eq 0 ]]; then
         show_examples
         exit 1
     fi
 
-    # Check if we're in the right directory
-    check_project_root
-
-    # Check if docker is available
-    if ! command -v docker >/dev/null 2>&1; then
-        echo "Error: Docker not found. Please install Docker."
-        exit 1
-    fi
-
-    if ! docker compose version >/dev/null 2>&1; then
-        echo "Error: Docker Compose not found. Please install Docker Compose."
-        exit 1
-    fi
-
-    # Ensure the container is running
-    ensure_container_running "$SERVICE_NAME" "$COMPOSE_FILE"
+    # Find the project root
+    PROJECT_ROOT=$(find_project_root)
     
-    # Always run the command inside the container
-    # Use -T to avoid TTY allocation issues in git hooks
-    exec docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE_NAME" bash -c "$*"
+    if is_inside_container; then
+        # We're inside a container - run the command directly
+        run_locally "$@"
+    else
+        # We're outside a container - run the command inside the container
+        
+        # Check if docker is available
+        if ! command -v docker >/dev/null 2>&1; then
+            echo "Error: Docker not found. Please install Docker."
+            exit 1
+        fi
+
+        if ! docker compose version >/dev/null 2>&1; then
+            echo "Error: Docker Compose not found. Please install Docker Compose."
+            exit 1
+        fi
+
+        # Check if compose file exists
+        if [[ ! -f "$PROJECT_ROOT/$COMPOSE_FILE" ]]; then
+            echo "Error: $COMPOSE_FILE not found in project root ($PROJECT_ROOT)"
+            echo "Make sure you're running this from within the project directory"
+            exit 1
+        fi
+
+        run_in_container "$PROJECT_ROOT" "$COMPOSE_FILE" "$SERVICE_NAME" "$@"
+    fi
 }
 
 # Run main function with all arguments
