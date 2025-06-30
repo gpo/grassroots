@@ -179,8 +179,7 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ContactEntity: Record<string, never>;
-    ContactResponseDTO: {
+    ContactDTO: {
       /** Format: email */
       email: string;
       firstName: string;
@@ -188,6 +187,7 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
+    ContactEntity: Record<string, never>;
     ContactSearchRequestDTO: {
       email?: string;
       firstName?: string;
@@ -195,13 +195,13 @@ export interface components {
       lastName?: string;
       phoneNumber?: string;
     };
-    CreateBulkContactRequestDto: {
-      contacts: components["schemas"]["CreateContactRequestDto"][];
+    CreateBulkContactRequestDTO: {
+      contacts: components["schemas"]["CreateContactRequestDTO"][];
     };
     CreateBulkContactResponseDTO: {
       ids: number[];
     };
-    CreateContactRequestDto: {
+    CreateContactRequestDTO: {
       /** Format: email */
       email: string;
       firstName: string;
@@ -209,7 +209,7 @@ export interface components {
       phoneNumber: string;
     };
     GetContactByIDResponseDTO: {
-      contact: components["schemas"]["ContactResponseDTO"] | null;
+      contact: components["schemas"]["ContactDTO"] | null;
     };
     HelloOutDTO: {
       message: string;
@@ -218,7 +218,7 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     PaginatedContactResponseDTO: {
-      contacts: components["schemas"]["ContactResponseDTO"][];
+      contacts: components["schemas"]["ContactDTO"][];
       paginated: components["schemas"]["PaginatedResponseDTO"];
     };
     PaginatedContactSearchRequestDTO: {
@@ -435,7 +435,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactEntity"][];
+          "application/json": components["schemas"]["ContactDTO"][];
         };
       };
       /** @description Validation failed */
@@ -458,7 +458,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateContactRequestDto"];
+        "application/json": components["schemas"]["CreateContactRequestDTO"];
       };
     };
     responses: {
@@ -490,7 +490,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateBulkContactRequestDto"];
+        "application/json": components["schemas"]["CreateBulkContactRequestDTO"];
       };
     };
     responses: {

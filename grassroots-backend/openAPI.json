@@ -49,11 +49,11 @@
         },
         "type": "object"
       },
-      "CreateBulkContactRequestDto": {
+      "CreateBulkContactRequestDTO": {
         "properties": {
           "contacts": {
             "items": {
-              "$ref": "#/components/schemas/CreateContactRequestDto"
+              "$ref": "#/components/schemas/CreateContactRequestDTO"
             },
             "type": "array"
           }
@@ -73,7 +73,7 @@
         "required": ["ids"],
         "type": "object"
       },
-      "CreateContactRequestDto": {
+      "CreateContactRequestDTO": {
         "properties": {
           "email": {
             "format": "email",
@@ -442,7 +442,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateContactRequestDto"
+                "$ref": "#/components/schemas/CreateContactRequestDTO"
               }
             }
           },
@@ -481,7 +481,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateBulkContactRequestDto"
+                "$ref": "#/components/schemas/CreateBulkContactRequestDTO"
               }
             }
           },

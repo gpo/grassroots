@@ -10,6 +10,9 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
+    ["./grassroots-shared/Organization.dto"]: await import(
+      "./grassroots-shared/Organization.dto"
+    ),
     ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
     ["./contacts/entities/Contact.entity"]: await import(
       "./contacts/entities/Contact.entity"
@@ -51,17 +54,17 @@ export default async () => {
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
-            CreateContactRequestDto: {
+            CreateContactRequestDTO: {
               email: { required: true, type: () => String, format: "email" },
               firstName: { required: true, type: () => String },
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
-            CreateBulkContactRequestDto: {
+            CreateBulkContactRequestDTO: {
               contacts: {
                 required: true,
                 type: () => [
-                  t["./grassroots-shared/Contact.dto"].CreateContactRequestDto,
+                  t["./grassroots-shared/Contact.dto"].CreateContactRequestDTO,
                 ],
               },
             },
@@ -135,6 +138,37 @@ export default async () => {
           },
         ],
         [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
+        [
+          import("./grassroots-shared/Organization.dto"),
+          {
+            OrganizationDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
+              name: { required: true, type: () => String },
+              parent: {
+                required: false,
+                type: () =>
+                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+              },
+              children: {
+                required: true,
+                type: () => [
+                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                ],
+              },
+            },
+            ShallowOrganizationDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
+              name: { required: true, type: () => String },
+            },
+            CreateRootOrganizationDTO: {
+              name: { required: true, type: () => String },
+            },
+            CreateOrganizationDTO: {
+              name: { required: true, type: () => String },
+              parentID: { required: true, type: () => Number, minimum: 1 },
+            },
+          },
+        ],
         [
           import("./contacts/entities/ValidationError.dto"),
           {
