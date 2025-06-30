@@ -3,9 +3,9 @@ import { ContactsService } from "./Contacts.service";
 import { ContactEntity } from "./entities/Contact.entity";
 import {
   ContactDTO,
-  CreateBulkContactRequestDto,
+  CreateBulkContactRequestDTO,
   CreateBulkContactResponseDTO,
-  CreateContactRequestDto,
+  CreateContactRequestDTO,
   GetContactByIDResponseDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
@@ -17,14 +17,14 @@ export class ContactsController {
 
   @Post()
   create(
-    @Body() createContactDto: CreateContactRequestDto,
+    @Body() createContactDto: CreateContactRequestDTO,
   ): Promise<ContactEntity> {
     return this.contactsService.create(createContactDto);
   }
 
   @Post("bulk-create")
   bulkCreate(
-    @Body() createContactDtos: CreateBulkContactRequestDto,
+    @Body() createContactDtos: CreateBulkContactRequestDTO,
   ): Promise<CreateBulkContactResponseDTO> {
     return this.contactsService.bulkCreate(createContactDtos.contacts);
   }
