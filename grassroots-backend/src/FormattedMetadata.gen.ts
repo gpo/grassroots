@@ -139,6 +139,18 @@ export default async () => {
         ],
         [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
+          import("./grassroots-shared/Role.dto"),
+          {
+            RoleDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
+              name: { required: true, type: () => String },
+              canViewContacts: { required: true, type: () => Boolean },
+              canManageContacts: { required: true, type: () => Boolean },
+              canManageUsers: { required: true, type: () => Boolean },
+            },
+          },
+        ],
+        [
           import("./grassroots-shared/Organization.dto"),
           {
             OrganizationDTO: {
