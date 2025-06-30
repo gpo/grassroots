@@ -2,7 +2,6 @@ import { useTestFixture } from "../testing/Setup";
 import { describe, expect, it } from "vitest";
 import { OrganizationsModule } from "./Organizations.module";
 import { OrganizationsService } from "./Organizations.service";
-import { EntityManager } from "@mikro-orm/core";
 
 describe("OrganizationsService", () => {
   const getFixture = useTestFixture({
@@ -11,18 +10,16 @@ describe("OrganizationsService", () => {
 
   function useService(): {
     service: OrganizationsService;
-    entityManager: EntityManager;
   } {
     const fixture = getFixture();
 
     return {
       service: fixture.app.get<OrganizationsService>(OrganizationsService),
-      entityManager: fixture.entityManager,
     };
   }
 
   it("should create a tree", async () => {
-    const { service, entityManager } = useService();
+    const { service } = useService();
     // Ensure these variables go out of scope, we don't want to rely on their values
     // in the following test, we want everything to come from the database.
     {
@@ -45,11 +42,6 @@ describe("OrganizationsService", () => {
         parentID: A.id,
       });
     }
-
-    // To avoid stuff from being loaded from memory instead of the db, we need to clear
-    // the memory cache.
-    await entityManager.flush();
-    entityManager.clear();
 
     const allOrganizations = await service.findAll();
     expect(allOrganizations.length).toEqual(4);
