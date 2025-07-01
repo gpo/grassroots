@@ -23,7 +23,9 @@ might be:
 ```
 
 ## 2. Add auth credentials
+
 In the newly created file `.env.development.local`, fill in the values for
+
 ```
 GOOGLE_CLIENT_ID = FILL_IN
 GOOGLE_CLIENT_SECRET = FILL_IN
