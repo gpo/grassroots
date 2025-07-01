@@ -5,27 +5,31 @@ import {
   CreateOrganizationRootDTO,
   OrganizationDTO,
 } from "../grassroots-shared/Organization.dto";
-import { OrganizationEntity } from "./Organization.entity";
 
 @Controller("organizations")
 export class OrganizationsController {
   constructor(private readonly organizationsService: OrganizationsService) {}
 
   @Post()
-  create(
+  async create(
     @Body() createOrganizationDTO: CreateOrganizationDTO,
-  ): Promise<OrganizationEntity> {
-    return this.organizationsService.create(
+  ): Promise<OrganizationDTO> {
+    const organization = await this.organizationsService.create(
       createOrganizationDTO,
       createOrganizationDTO.parentID,
     );
+    return organization.toDTO();
   }
 
   @Post("create-root")
-  createRoot(
+  async createRoot(
     @Body() createOrganizationDTO: CreateOrganizationRootDTO,
-  ): Promise<OrganizationEntity> {
-    return this.organizationsService.create(createOrganizationDTO, null);
+  ): Promise<OrganizationDTO> {
+    const organization = await this.organizationsService.create(
+      createOrganizationDTO,
+      null,
+    );
+    return organization.toDTO();
   }
 
   @Get()

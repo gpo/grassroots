@@ -165,14 +165,26 @@
             "type": "string"
           },
           "parent": {
-            "$ref": "#/components/schemas/MaybeLoaded"
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MaybeLoaded"
+              }
+            ],
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrganizationDTO"
+              },
+              {
+                "enum": ["unloaded"],
+                "type": "string"
+              },
+              {
+                "type": "undefined"
+              }
+            ]
           }
         },
-        "required": ["id", "name", "children"],
-        "type": "object"
-      },
-      "OrganizationEntity": {
-        "properties": {},
+        "required": ["parent", "id", "name", "children"],
         "type": "object"
       },
       "PaginatedContactResponseDTO": {
@@ -690,7 +702,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationEntity"
+                  "$ref": "#/components/schemas/OrganizationDTO"
                 }
               }
             },
@@ -729,7 +741,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationEntity"
+                  "$ref": "#/components/schemas/OrganizationDTO"
                 }
               }
             },

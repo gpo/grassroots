@@ -1,3 +1,4 @@
+import { applyDecorators } from "@nestjs/common";
 import { ApiProperty, getSchemaPath } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
@@ -21,6 +22,19 @@ class MaybeLoaded<T> {
     }
     return this._value;
   }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+export function ApiPropertyMaybeLoaded(type: Function): PropertyDecorator {
+  return applyDecorators(
+    ApiProperty({
+      oneOf: [
+        { $ref: getSchemaPath(type) },
+        { type: "string", enum: ["unloaded"] },
+        { type: "undefined" },
+      ],
+    }),
+  );
 }
 
 export function MaybeLoadedOf<T>(
@@ -52,8 +66,8 @@ export class OrganizationDTO {
 
   @ValidateNested()
   @Type(() => MaybeLoadedOf(OrganizationDTO))
-  @IsOptional()
-  parent?: MaybeLoaded<OrganizationDTO>;
+  @ApiPropertyMaybeLoaded(OrganizationDTO)
+  parent!: MaybeLoaded<OrganizationDTO>;
 
   @ValidateNested({ each: true })
   @Type(() => OrganizationDTO)

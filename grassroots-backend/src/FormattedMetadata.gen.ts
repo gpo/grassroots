@@ -147,7 +147,7 @@ export default async () => {
             OrganizationDTO: {
               id: { required: true, type: () => Number, minimum: 1 },
               name: { required: true, type: () => String },
-              parent: { required: false },
+              parent: { required: true },
               children: {
                 required: true,
                 type: () => [
@@ -155,6 +155,7 @@ export default async () => {
                 ],
               },
             },
+            MaybeParent: {},
             CreateOrganizationRootDTO: {
               name: { required: true, type: () => String },
             },
@@ -162,7 +163,6 @@ export default async () => {
               name: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
             },
-            MaybeParent: {},
           },
         ],
         [
@@ -239,12 +239,10 @@ export default async () => {
           {
             OrganizationsController: {
               create: {
-                type: t["./organizations/Organization.entity"]
-                  .OrganizationEntity,
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
               createRoot: {
-                type: t["./organizations/Organization.entity"]
-                  .OrganizationEntity,
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
               findAll: {
                 type: [

@@ -1,8 +1,3 @@
-import { useTestFixture } from "../testing/Setup";
-import { describe, expect, it } from "vitest";
-import { OrganizationsModule } from "./Organizations.module";
-import { OrganizationsService } from "./Organizations.service";
-
 /*
 describe("OrganizationsService", () => {
   const getFixture = useTestFixture({
@@ -22,10 +17,9 @@ describe("OrganizationsService", () => {
 
 });*/
 
-import { describe, expect, it } from "vitest";
+import { assert, describe, expect, it } from "vitest";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
-import { writeFile } from "fs/promises";
-import { ContactsModule } from "../src/contacts/Contacts.module";
+import { OrganizationsModule } from "../src/organizations/Organizations.module";
 
 describe("Organizations (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -34,35 +28,41 @@ describe("Organizations (e2e)", () => {
 
   it("should create a tree", async () => {
     const f = getFixture();
-    const { data, response } = await f.grassrootsAPI.POST("/organizations", {
-      body: TEST_CONTACT,
-    });
-    const { service } = useService();
-    // Ensure these variables go out of scope, we don't want to rely on their values
-    // in the following test, we want everything to come from the database.
-    {
-      const A = await service.createRootOrganization({
-        name: "A",
-      });
+    const { data: a } = await f.grassrootsAPI.POST(
+      "/organizations/create-root",
+      {
+        body: {
+          name: "A",
+        },
+      },
+    );
+    assert(a !== undefined);
 
-      const B = await service.create({
+    const { data: b } = await f.grassrootsAPI.POST("/organizations", {
+      body: {
         name: "B",
-        parentID: A.id,
-      });
+        parentID: a.id,
+      },
+    });
+    assert(b !== undefined);
 
-      await service.create({
+    await f.grassrootsAPI.POST("/organizations", {
+      body: {
         name: "C",
-        parentID: B.id,
-      });
+        parentID: b.id,
+      },
+    });
 
-      await service.create({
+    await f.grassrootsAPI.POST("/organizations", {
+      body: {
         name: "Unrelated",
-        parentID: A.id,
-      });
-    }
+        parentID: a.id,
+      },
+    });
 
-    const allOrganizations = await service.findAll();
-    expect(allOrganizations.length).toEqual(4);
+    const { data: organizations } = await f.grassrootsAPI.GET("/organizations");
+    assert(organizations !== undefined);
+    expect(organizations.length).toEqual(4);
 
     const cAncestors = service.getAncestors(await service.findOneByName("C"));
     expect(cAncestors.map((x) => x.name)).toEqual(["B", "A"]);

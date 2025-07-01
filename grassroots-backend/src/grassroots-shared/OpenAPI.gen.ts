@@ -261,9 +261,13 @@ export interface components {
       children: components["schemas"]["OrganizationDTO"][];
       id: number;
       name: string;
-      parent?: components["schemas"]["MaybeLoaded"];
+      parent: components["schemas"]["MaybeLoaded"] &
+        (
+          | components["schemas"]["OrganizationDTO"]
+          | "unloaded"
+          | Record<string, never>
+        );
     };
-    OrganizationEntity: Record<string, never>;
     PaginatedContactResponseDTO: {
       contacts: components["schemas"]["ContactDTO"][];
       paginated: components["schemas"]["PaginatedResponseDTO"];
@@ -668,7 +672,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationEntity"];
+          "application/json": components["schemas"]["OrganizationDTO"];
         };
       };
       /** @description Validation failed */
@@ -700,7 +704,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationEntity"];
+          "application/json": components["schemas"]["OrganizationDTO"];
         };
       };
       /** @description Validation failed */
