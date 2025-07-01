@@ -16,9 +16,6 @@ export class OrganizationsService {
     parentID: number | null,
   ): Promise<OrganizationEntity> {
     const newOrganization = this.repo.create(organization);
-    console.log("new organization");
-    console.log(newOrganization);
-    console.log(JSON.stringify(newOrganization));
 
     if (parentID != null) {
       const parent = await this.repo.findOne({

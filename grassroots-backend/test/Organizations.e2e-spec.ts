@@ -47,12 +47,13 @@ describe("Organizations (e2e)", () => {
 
     assert(b !== undefined);
 
-    await f.grassrootsAPI.POST("/organizations", {
+    const { data: c } = await f.grassrootsAPI.POST("/organizations", {
       body: {
         name: "C",
         parentID: b.id,
       },
     });
+    assert(c !== undefined);
 
     await f.grassrootsAPI.POST("/organizations", {
       body: {
@@ -64,5 +65,18 @@ describe("Organizations (e2e)", () => {
     const { data: organizations } = await f.grassrootsAPI.GET("/organizations");
     assert(organizations !== undefined);
     expect(organizations.length).toEqual(4);
+
+    const { data: ancestors } = await f.grassrootsAPI.GET(
+      "/organizations/ancestors-of/{id}",
+      {
+        params: {
+          path: {
+            id: c.id,
+          },
+        },
+      },
+    );
+    assert(ancestors !== undefined);
+    expect(ancestors.map((x) => x.name)).toEqual(["B", "A"]);
   });
 });

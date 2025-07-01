@@ -14,7 +14,6 @@ export class OrganizationsController {
   async create(
     @Body() createOrganizationDTO: CreateOrganizationDTO,
   ): Promise<OrganizationDTO> {
-    console.log("INSIDE CREATE");
     const organization = await this.organizationsService.create(
       createOrganizationDTO,
       createOrganizationDTO.parentID,
