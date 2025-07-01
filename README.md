@@ -31,35 +31,32 @@ docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-o
 
 # Running in Dev Mode
 
-We're running things in docker.
+We're running things in Docker. A simple, cross-platform development workflow might be:
 
-### On Mac or Linux:
-
+1. Start up Docker in one terminal
 ```sh
 cd docker
 docker compose up
-docker compose exec grassroots_dev /bin/bash -c "cd grassroots-frontend && npm run dev" # Frontend
-docker compose exec grassroots_dev /bin/bash -c "cd grassroots-backend && npm run start:dev" # Backend
 ```
 
-### On Windows:
-
-1. Start up Docker
-
-2. Terminal 1: (git bash)
-
-```
-cd docker
-docker compose build grassroots_dev
-docker compose up
+2. In another terminal, set up and start the frontend in your now running `grassroots_dev` Docker container
+```sh
+docker compose exec grassroots_dev /bin/bash
+cd grassroots-frontend
+npm install
+npm run start
 ```
 
-3. Terminals 2 & 3: (git bash)
+3. In another terminal, set up and start the backend in the same `grassroots_dev` Docker container
+```sh
+docker compose exec grassroots_dev /bin/bash
+cd grassroots-frontend
+npm install
+npm run start
+```
 
-```
-cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-frontend && npm run dev"
-cd docker && docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm run start:dev"
-```
+## Windows
+You might consider using [Git BASH](https://gitforwindows.org/) if you're developing on Windows.
 
 ## Environment Variables
 
