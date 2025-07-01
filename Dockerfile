@@ -13,10 +13,14 @@ ARG GID=1000
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y sudo
+
 # First remove the node user to avoid uid/gid conflicts, then we create our user.
 RUN deluser node --remove-home \
     && groupadd -g ${GID} ${UNAME} \
-    && useradd -g ${UNAME} -u ${UID} ${UNAME} -m
+    && useradd -g ${UNAME} -u ${UID} ${UNAME} -m \
+    && echo "${UNAME} ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${UNAME}-nopasswd \
+    && chmod 440 "/etc/sudoers.d/${UNAME}-nopasswd"
 
 COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
