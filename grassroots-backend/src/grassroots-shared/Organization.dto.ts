@@ -1,3 +1,4 @@
+import { ApiProperty, getSchemaPath } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
   IsInt,
@@ -7,6 +8,40 @@ import {
   ValidateNested,
 } from "class-validator";
 
+class MaybeLoaded<T> {
+  _value?: T | "unloaded";
+
+  loaded(): boolean {
+    return this._value !== "unloaded";
+  }
+
+  get(): T | undefined {
+    if (this._value === "unloaded") {
+      throw new Error("Trying to get value which wasn't loaded from the db.");
+    }
+    return this._value;
+  }
+}
+
+export function MaybeLoadedOf<T>(
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  type: Function,
+): new (...args: unknown[]) => MaybeLoaded<T> {
+  class DecoratedMaybeLoaded extends MaybeLoaded<T> {
+    // eslint-disable-next-line @darraghor/nestjs-typed/api-property-matches-property-optionality
+    @ValidateNested()
+    @IsOptional()
+    @ApiProperty({
+      oneOf: [
+        { $ref: getSchemaPath(type) },
+        { type: "string", enum: ["unloaded"] },
+        { type: "undefined" },
+      ],
+    })
+    declare _value: T | "unloaded" | undefined;
+  }
+  return DecoratedMaybeLoaded;
+}
 export class OrganizationDTO {
   @IsInt()
   @Min(1)
@@ -16,25 +51,21 @@ export class OrganizationDTO {
   name!: string;
 
   @ValidateNested()
-  @Type(() => OrganizationDTO)
+  @Type(() => MaybeLoadedOf(OrganizationDTO))
   @IsOptional()
-  parent?: OrganizationDTO;
+  parent?: MaybeLoaded<OrganizationDTO>;
 
   @ValidateNested({ each: true })
   @Type(() => OrganizationDTO)
   children!: OrganizationDTO[];
 }
 
-export class ShallowOrganizationDTO {
-  @IsInt()
-  @Min(1)
-  id!: number;
+export class MaybeParent extends MaybeLoadedOf<OrganizationDTO>(
+  OrganizationDTO,
+) {}
+//export type MaybeParent = MaybeLoaded<OrganizationDTO>;
 
-  @IsNotEmpty()
-  name!: string;
-}
-
-export class CreateRootOrganizationDTO {
+export class CreateOrganizationRootDTO {
   @IsNotEmpty()
   name!: string;
 }

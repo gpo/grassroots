@@ -92,6 +92,28 @@
         "required": ["email", "firstName", "lastName", "phoneNumber"],
         "type": "object"
       },
+      "CreateOrganizationDTO": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "parentID": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": ["name", "parentID"],
+        "type": "object"
+      },
+      "CreateOrganizationRootDTO": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "type": "object"
+      },
       "GetContactByIDResponseDTO": {
         "properties": {
           "contact": {
@@ -121,6 +143,36 @@
             "$ref": "#/components/schemas/UserDTO"
           }
         },
+        "type": "object"
+      },
+      "MaybeLoaded": {
+        "properties": {},
+        "type": "object"
+      },
+      "OrganizationDTO": {
+        "properties": {
+          "children": {
+            "items": {
+              "$ref": "#/components/schemas/OrganizationDTO"
+            },
+            "type": "array"
+          },
+          "id": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "$ref": "#/components/schemas/MaybeLoaded"
+          }
+        },
+        "required": ["id", "name", "children"],
+        "type": "object"
+      },
+      "OrganizationEntity": {
+        "properties": {},
         "type": "object"
       },
       "PaginatedContactResponseDTO": {
@@ -587,6 +639,114 @@
           }
         },
         "tags": ["Contacts"]
+      }
+    },
+    "/organizations": {
+      "get": {
+        "operationId": "OrganizationsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrganizationDTO"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
+      },
+      "post": {
+        "operationId": "OrganizationsController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationEntity"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
+      }
+    },
+    "/organizations/create-root": {
+      "post": {
+        "operationId": "OrganizationsController_createRoot",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationRootDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationEntity"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
       }
     },
     "/users": {

@@ -1,9 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { OrganizationEntity } from "./Organization.entity";
 import {
-  CreateOrganizationDTO,
-  CreateRootOrganizationDTO,
-  ShallowOrganizationDTO,
+  CreateOrganizationRootDTO,
+  OrganizationDTO,
 } from "../grassroots-shared/Organization.dto";
 import { EntityManager, EntityRepository, Loaded } from "@mikro-orm/core";
 
@@ -14,24 +13,22 @@ export class OrganizationsService {
     this.repo =
       entityManager.getRepository<OrganizationEntity>(OrganizationEntity);
   }
-  async create(
-    createOrganizationDto: CreateOrganizationDTO,
-  ): Promise<OrganizationEntity> {
-    const organization = this.repo.create(createOrganizationDto);
-    const parentOrganization = await this.repo.findOne({
-      id: createOrganizationDto.parentID,
-    });
-    if (parentOrganization === null) {
-      throw new Error("Invalid parent organization");
-    }
-    organization.parent = parentOrganization;
-    return organization;
-  }
 
-  async createRootOrganization(
-    createOrganizationDto: CreateRootOrganizationDTO,
+  async create(
+    organization: CreateOrganizationRootDTO,
+    parentID: number | null,
   ): Promise<OrganizationEntity> {
-    return await this.repo.upsert(createOrganizationDto);
+    const newOrganization = this.repo.create(organization);
+    if (parentID != null) {
+      const parent = await this.repo.findOne({
+        id: parentID,
+      });
+      if (parent === null) {
+        throw new Error("Invalid parent organization");
+      }
+      newOrganization.parent = parent;
+    }
+    return newOrganization;
   }
 
   async findAll(): Promise<Loaded<OrganizationEntity[]>> {
@@ -42,11 +39,12 @@ export class OrganizationsService {
     return await this.repo.findOneOrFail({ name });
   }
 
-  getAncestors(organization: OrganizationEntity): ShallowOrganizationDTO[] {
-    const ancestors: ShallowOrganizationDTO[] = [];
-    let current: OrganizationEntity | undefined | null = organization.parent;
+  getAncestors(organization: OrganizationEntity): OrganizationDTO[] {
+    const ancestors: OrganizationDTO[] = [];
+    let current: Loaded<OrganizationEntity> | undefined | null =
+      organization.parent;
     while (current !== undefined && current !== null) {
-      ancestors.push(current);
+      ancestors.push(current.toDTO());
       current = current.parent;
     }
     return ancestors;

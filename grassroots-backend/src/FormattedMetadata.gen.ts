@@ -23,6 +23,9 @@ export default async () => {
     ["./grassroots-shared/Void.dto"]: await import(
       "./grassroots-shared/Void.dto"
     ),
+    ["./organizations/Organization.entity"]: await import(
+      "./organizations/Organization.entity"
+    ),
   };
   return {
     "@nestjs/swagger": {
@@ -144,11 +147,7 @@ export default async () => {
             OrganizationDTO: {
               id: { required: true, type: () => Number, minimum: 1 },
               name: { required: true, type: () => String },
-              parent: {
-                required: false,
-                type: () =>
-                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
-              },
+              parent: { required: false },
               children: {
                 required: true,
                 type: () => [
@@ -156,17 +155,14 @@ export default async () => {
                 ],
               },
             },
-            ShallowOrganizationDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              name: { required: true, type: () => String },
-            },
-            CreateRootOrganizationDTO: {
+            CreateOrganizationRootDTO: {
               name: { required: true, type: () => String },
             },
             CreateOrganizationDTO: {
               name: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
             },
+            MaybeParent: {},
           },
         ],
         [
@@ -235,6 +231,26 @@ export default async () => {
                 type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
               },
               logout: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+            },
+          },
+        ],
+        [
+          import("./organizations/Organizations.controller"),
+          {
+            OrganizationsController: {
+              create: {
+                type: t["./organizations/Organization.entity"]
+                  .OrganizationEntity,
+              },
+              createRoot: {
+                type: t["./organizations/Organization.entity"]
+                  .OrganizationEntity,
+              },
+              findAll: {
+                type: [
+                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                ],
+              },
             },
           },
         ],

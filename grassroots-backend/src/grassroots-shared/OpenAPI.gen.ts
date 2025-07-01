@@ -159,6 +159,38 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/organizations": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["OrganizationsController_findAll"];
+    put?: never;
+    post: operations["OrganizationsController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/organizations/create-root": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["OrganizationsController_createRoot"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/users": {
     parameters: {
       query?: never;
@@ -208,6 +240,13 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
+    CreateOrganizationDTO: {
+      name: string;
+      parentID: number;
+    };
+    CreateOrganizationRootDTO: {
+      name: string;
+    };
     GetContactByIDResponseDTO: {
       contact: components["schemas"]["ContactDTO"] | null;
     };
@@ -217,6 +256,14 @@ export interface components {
     LoginStateDTO: {
       user?: components["schemas"]["UserDTO"];
     };
+    MaybeLoaded: Record<string, never>;
+    OrganizationDTO: {
+      children: components["schemas"]["OrganizationDTO"][];
+      id: number;
+      name: string;
+      parent?: components["schemas"]["MaybeLoaded"];
+    };
+    OrganizationEntity: Record<string, never>;
     PaginatedContactResponseDTO: {
       contacts: components["schemas"]["ContactDTO"][];
       paginated: components["schemas"]["PaginatedResponseDTO"];
@@ -562,6 +609,98 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["GetContactByIDResponseDTO"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  OrganizationsController_findAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrganizationDTO"][];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  OrganizationsController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateOrganizationDTO"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrganizationEntity"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  OrganizationsController_createRoot: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreateOrganizationRootDTO"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrganizationEntity"];
         };
       };
       /** @description Validation failed */
