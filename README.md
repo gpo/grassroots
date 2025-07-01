@@ -22,7 +22,14 @@ might be:
 ./setup.sh
 ```
 
-## 2. Update your hosts file
+## 2. Add auth credentials
+In the newly created file `.env.development.local`, fill in the values for
+```
+GOOGLE_CLIENT_ID = FILL_IN
+GOOGLE_CLIENT_SECRET = FILL_IN
+```
+
+## 3. Update your hosts file
 
 Add the line
 
@@ -39,14 +46,14 @@ If you're on Windows, open Notepad as Administrator, then open
 127.0.0.1 grassroots.org
 ```
 
-## 3. Start up Docker in one terminal
+## 4. Start up Docker in one terminal
 
 ```sh
 cd docker
 docker compose up
 ```
 
-## 4. In another terminal, set up and run the frontend application in your now running `grassroots_dev` Docker container
+## 5. In another terminal, set up and run the frontend application in your now running `grassroots_dev` Docker container
 
 ```sh
 cd docker
@@ -55,7 +62,7 @@ cd grassroots-frontend
 npm run start
 ```
 
-## 5. In another terminal, set up and run the backend application in the same `grassroots_dev` Docker container
+## 6. In another terminal, set up and run the backend application in the same `grassroots_dev` Docker container
 
 ```sh
 cd docker
@@ -65,7 +72,7 @@ npx mikro-orm migration:up
 npm run start
 ```
 
-## 6. Access the running services
+## 7. Access the running services
 
 - Frontend: http://localhost:5173 or http://grassroots.org
 - Backend API: http://localhost:3000
