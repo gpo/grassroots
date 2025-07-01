@@ -15,8 +15,9 @@ import { plainToInstance } from "class-transformer";
 
 @Entity()
 export class OrganizationEntity extends BaseEntity {
-  @PrimaryKey()
+  @PrimaryKey({ autoincrement: true })
   id!: number;
+
   @Property()
   name!: string;
 

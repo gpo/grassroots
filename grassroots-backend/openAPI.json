@@ -722,6 +722,47 @@
         "tags": ["Organizations"]
       }
     },
+    "/organizations/ancestors-of/{id}": {
+      "get": {
+        "operationId": "OrganizationsController_getAncestors",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrganizationDTO"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
+      }
+    },
     "/organizations/create-root": {
       "post": {
         "operationId": "OrganizationsController_createRoot",

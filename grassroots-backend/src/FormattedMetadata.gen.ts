@@ -23,9 +23,6 @@ export default async () => {
     ["./grassroots-shared/Void.dto"]: await import(
       "./grassroots-shared/Void.dto"
     ),
-    ["./organizations/Organization.entity"]: await import(
-      "./organizations/Organization.entity"
-    ),
   };
   return {
     "@nestjs/swagger": {
@@ -245,6 +242,11 @@ export default async () => {
                 type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
               findAll: {
+                type: [
+                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                ],
+              },
+              getAncestors: {
                 type: [
                   t["./grassroots-shared/Organization.dto"].OrganizationDTO,
                 ],

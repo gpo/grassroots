@@ -175,6 +175,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/organizations/ancestors-of/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["OrganizationsController_getAncestors"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/organizations/create-root": {
     parameters: {
       query?: never;
@@ -673,6 +689,36 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["OrganizationDTO"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  OrganizationsController_getAncestors: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrganizationDTO"][];
         };
       };
       /** @description Validation failed */

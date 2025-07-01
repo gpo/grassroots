@@ -1,9 +1,6 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { OrganizationEntity } from "./Organization.entity";
-import {
-  CreateOrganizationRootDTO,
-  OrganizationDTO,
-} from "../grassroots-shared/Organization.dto";
+import { CreateOrganizationRootDTO } from "../grassroots-shared/Organization.dto";
 import { EntityManager, EntityRepository, Loaded } from "@mikro-orm/core";
 
 @Injectable()
@@ -19,6 +16,10 @@ export class OrganizationsService {
     parentID: number | null,
   ): Promise<OrganizationEntity> {
     const newOrganization = this.repo.create(organization);
+    console.log("new organization");
+    console.log(newOrganization);
+    console.log(JSON.stringify(newOrganization));
+
     if (parentID != null) {
       const parent = await this.repo.findOne({
         id: parentID,
@@ -28,6 +29,7 @@ export class OrganizationsService {
       }
       newOrganization.parent = parent;
     }
+    await this.entityManager.flush();
     return newOrganization;
   }
 
@@ -39,12 +41,18 @@ export class OrganizationsService {
     return await this.repo.findOneOrFail({ name });
   }
 
-  getAncestors(organization: OrganizationEntity): OrganizationDTO[] {
-    const ancestors: OrganizationDTO[] = [];
+  async getAncestors(organizationID: number): Promise<OrganizationEntity[]> {
+    const ancestors: OrganizationEntity[] = [];
     let current: Loaded<OrganizationEntity> | undefined | null =
-      organization.parent;
-    while (current !== undefined && current !== null) {
-      ancestors.push(current.toDTO());
+      await this.repo.findOne({ id: organizationID });
+    if (current === null) {
+      throw new NotFoundException(
+        `No organization with id ${String(organizationID)} found.`,
+      );
+    }
+    current = current.parent;
+    while (current !== undefined) {
+      ancestors.push(current);
       current = current.parent;
     }
     return ancestors;

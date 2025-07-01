@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { OrganizationsService } from "./Organizations.service";
 import {
   CreateOrganizationDTO,
@@ -14,6 +14,7 @@ export class OrganizationsController {
   async create(
     @Body() createOrganizationDTO: CreateOrganizationDTO,
   ): Promise<OrganizationDTO> {
+    console.log("INSIDE CREATE");
     const organization = await this.organizationsService.create(
       createOrganizationDTO,
       createOrganizationDTO.parentID,
@@ -35,6 +36,13 @@ export class OrganizationsController {
   @Get()
   async findAll(): Promise<OrganizationDTO[]> {
     const organizationEntities = await this.organizationsService.findAll();
+    return organizationEntities.map((x) => x.toDTO());
+  }
+
+  @Get("ancestors-of/:id")
+  async getAncestors(@Param("id") id: number): Promise<OrganizationDTO[]> {
+    const organizationEntities =
+      await this.organizationsService.getAncestors(id);
     return organizationEntities.map((x) => x.toDTO());
   }
 }
