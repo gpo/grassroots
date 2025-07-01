@@ -6,6 +6,7 @@ management.
 # Recommended Development Setup
 
 First, make sure you've installed
+
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 - Git (for cloning the repository)
 - Node.JS
@@ -24,9 +25,11 @@ might be:
 ## 2. Update your hosts file
 
 Add the line
+
 ```
 127.0.0.1 grassroots.org
 ```
+
 to your hosts file, `/etc/hosts`, assuming you're developing on the machine you're browsing from.
 
 If you're on Windows, open Notepad as Administrator, then open
@@ -44,6 +47,7 @@ docker compose up
 ```
 
 ## 4. In another terminal, set up and run the frontend application in your now running `grassroots_dev` Docker container
+
 ```sh
 cd docker
 docker compose exec grassroots_dev bash
@@ -52,6 +56,7 @@ npm run start
 ```
 
 ## 5. In another terminal, set up and run the backend application in the same `grassroots_dev` Docker container
+
 ```sh
 cd docker
 docker compose exec grassroots_dev bash
@@ -61,6 +66,7 @@ npm run start
 ```
 
 ## 6. Access the running services
+
 - Frontend: http://localhost:5173 or http://grassroots.org
 - Backend API: http://localhost:3000
 - Test API endpoint: http://localhost:3000/contacts
