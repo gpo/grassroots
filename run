@@ -71,7 +71,9 @@ ensure_container_running() {
     local test_db_running=false
     
     if docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
-        main_running=true
+        return 0;
+    else
+        docker compose -f "$compose_file" up -d;
     fi
     
     if docker compose -f "$compose_file" ps "db" 2>/dev/null | grep -q "Up"; then
@@ -152,10 +154,10 @@ and routes commands appropriately to ensure consistent development environment.
 Common examples:
 
   Backend:
-    ./run cd grassroots-backend && npm install
-    ./run cd grassroots-backend && npm run start:dev
-    ./run cd grassroots-backend && npm test
-    ./run cd grassroots-backend && npx mikro-orm migration:up
+    ./run "cd grassroots-backend && npm install"
+    ./run "cd grassroots-backend && npm run start:dev"
+    ./run "cd grassroots-backend && npm test"
+    ./run "cd grassroots-backend && npx mikro-orm migration:up"
 
   Frontend:
     ./run cd grassroots-frontend && npm install
