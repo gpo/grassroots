@@ -273,15 +273,19 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     MaybeLoaded: Record<string, never>;
-    OrganizationDTO: {
-      children: components["schemas"]["OrganizationDTO"][];
+    OrganizationResponseDTO: {
+      children: components["schemas"]["OrganizationResponseDTO"][];
       id: number;
       name: string;
       parent: components["schemas"]["MaybeLoaded"] &
         (
-          | components["schemas"]["OrganizationDTO"]
-          | "unloaded"
-          | Record<string, never>
+          | {
+              /** @enum {string} */
+              value?: "unloaded";
+            }
+          | {
+              value?: components["schemas"]["OrganizationResponseDTO"];
+            }
         );
     };
     PaginatedContactResponseDTO: {
@@ -656,7 +660,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationDTO"][];
+          "application/json": components["schemas"]["OrganizationResponseDTO"][];
         };
       };
       /** @description Validation failed */
@@ -688,7 +692,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationDTO"];
+          "application/json": components["schemas"]["OrganizationResponseDTO"];
         };
       };
       /** @description Validation failed */
@@ -718,7 +722,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationDTO"][];
+          "application/json": components["schemas"]["OrganizationResponseDTO"][];
         };
       };
       /** @description Validation failed */
@@ -750,7 +754,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationDTO"];
+          "application/json": components["schemas"]["OrganizationResponseDTO"];
         };
       };
       /** @description Validation failed */

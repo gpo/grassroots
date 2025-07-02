@@ -149,16 +149,15 @@
         "properties": {},
         "type": "object"
       },
-      "OrganizationDTO": {
+      "OrganizationResponseDTO": {
         "properties": {
           "children": {
             "items": {
-              "$ref": "#/components/schemas/OrganizationDTO"
+              "$ref": "#/components/schemas/OrganizationResponseDTO"
             },
             "type": "array"
           },
           "id": {
-            "minimum": 1,
             "type": "number"
           },
           "name": {
@@ -172,14 +171,20 @@
             ],
             "oneOf": [
               {
-                "$ref": "#/components/schemas/OrganizationDTO"
+                "properties": {
+                  "value": {
+                    "enum": ["unloaded"],
+                    "type": "string"
+                  }
+                }
               },
               {
-                "enum": ["unloaded"],
-                "type": "string"
-              },
-              {
-                "type": "undefined"
+                "properties": {
+                  "value": {
+                    "$ref": "#/components/schemas/OrganizationResponseDTO"
+                  }
+                },
+                "required": []
               }
             ]
           }
@@ -663,7 +668,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/OrganizationDTO"
+                    "$ref": "#/components/schemas/OrganizationResponseDTO"
                   },
                   "type": "array"
                 }
@@ -702,7 +707,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationDTO"
+                  "$ref": "#/components/schemas/OrganizationResponseDTO"
                 }
               }
             },
@@ -741,7 +746,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/OrganizationDTO"
+                    "$ref": "#/components/schemas/OrganizationResponseDTO"
                   },
                   "type": "array"
                 }
@@ -782,7 +787,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationDTO"
+                  "$ref": "#/components/schemas/OrganizationResponseDTO"
                 }
               }
             },

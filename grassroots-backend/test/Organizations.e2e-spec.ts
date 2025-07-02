@@ -78,5 +78,8 @@ describe("Organizations (e2e)", () => {
     );
     assert(ancestors !== undefined);
     expect(ancestors.map((x) => x.name)).toEqual(["B", "A"]);
+
+    expect(a.parent.value == "unloaded");
+    expect(b.parent != null);
   });
 });

@@ -3,7 +3,7 @@ import { OrganizationsService } from "./Organizations.service";
 import {
   CreateOrganizationDTO,
   CreateOrganizationRootDTO,
-  OrganizationDTO,
+  OrganizationResponseDTO,
 } from "../grassroots-shared/Organization.dto";
 
 @Controller("organizations")
@@ -13,7 +13,7 @@ export class OrganizationsController {
   @Post()
   async create(
     @Body() createOrganizationDTO: CreateOrganizationDTO,
-  ): Promise<OrganizationDTO> {
+  ): Promise<OrganizationResponseDTO> {
     const organization = await this.organizationsService.create(
       createOrganizationDTO,
       createOrganizationDTO.parentID,
@@ -24,7 +24,7 @@ export class OrganizationsController {
   @Post("create-root")
   async createRoot(
     @Body() createOrganizationDTO: CreateOrganizationRootDTO,
-  ): Promise<OrganizationDTO> {
+  ): Promise<OrganizationResponseDTO> {
     const organization = await this.organizationsService.create(
       createOrganizationDTO,
       null,
@@ -33,13 +33,15 @@ export class OrganizationsController {
   }
 
   @Get()
-  async findAll(): Promise<OrganizationDTO[]> {
+  async findAll(): Promise<OrganizationResponseDTO[]> {
     const organizationEntities = await this.organizationsService.findAll();
     return organizationEntities.map((x) => x.toDTO());
   }
 
   @Get("ancestors-of/:id")
-  async getAncestors(@Param("id") id: number): Promise<OrganizationDTO[]> {
+  async getAncestors(
+    @Param("id") id: number,
+  ): Promise<OrganizationResponseDTO[]> {
     const organizationEntities =
       await this.organizationsService.getAncestors(id);
     return organizationEntities.map((x) => x.toDTO());

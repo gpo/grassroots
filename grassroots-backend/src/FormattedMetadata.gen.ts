@@ -141,18 +141,18 @@ export default async () => {
         [
           import("./grassroots-shared/Organization.dto"),
           {
-            OrganizationDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
+            OrganizationResponseDTO: {
+              id: { required: true, type: () => Number },
               name: { required: true, type: () => String },
               parent: { required: true },
               children: {
                 required: true,
                 type: () => [
-                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                  t["./grassroots-shared/Organization.dto"]
+                    .OrganizationResponseDTO,
                 ],
               },
             },
-            MaybeParent: {},
             CreateOrganizationRootDTO: {
               name: { required: true, type: () => String },
             },
@@ -236,19 +236,23 @@ export default async () => {
           {
             OrganizationsController: {
               create: {
-                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationResponseDTO,
               },
               createRoot: {
-                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationResponseDTO,
               },
               findAll: {
                 type: [
-                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                  t["./grassroots-shared/Organization.dto"]
+                    .OrganizationResponseDTO,
                 ],
               },
               getAncestors: {
                 type: [
-                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                  t["./grassroots-shared/Organization.dto"]
+                    .OrganizationResponseDTO,
                 ],
               },
             },
