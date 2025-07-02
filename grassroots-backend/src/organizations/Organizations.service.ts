@@ -34,8 +34,10 @@ export class OrganizationsService {
     return await this.repo.find({});
   }
 
-  async findOneByName(name: string): Promise<Loaded<OrganizationEntity>> {
-    return await this.repo.findOneOrFail({ name });
+  async findOne(
+    organization: Partial<OrganizationEntity>,
+  ): Promise<Loaded<OrganizationEntity>> {
+    return await this.repo.findOneOrFail(organization);
   }
 
   async getAncestors(organizationID: number): Promise<OrganizationEntity[]> {

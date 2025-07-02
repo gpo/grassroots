@@ -148,10 +148,18 @@
       "OrganizationResponseDTO": {
         "properties": {
           "children": {
-            "items": {
-              "$ref": "#/components/schemas/OrganizationResponseDTO"
-            },
-            "type": "array"
+            "anyOf": [
+              {
+                "enum": ["unloaded"],
+                "type": "string"
+              },
+              {
+                "items": {
+                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                },
+                "type": "array"
+              }
+            ]
           },
           "id": {
             "type": "number"
@@ -171,7 +179,7 @@
             ]
           }
         },
-        "required": ["id", "name", "children"],
+        "required": ["id", "name"],
         "type": "object"
       },
       "PaginatedContactResponseDTO": {
@@ -766,6 +774,44 @@
         },
         "responses": {
           "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
+      }
+    },
+    "/organizations/{id}": {
+      "get": {
+        "operationId": "OrganizationsController_findById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {

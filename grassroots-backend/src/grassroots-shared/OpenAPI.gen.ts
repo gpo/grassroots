@@ -207,6 +207,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/organizations/{id}": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["OrganizationsController_findById"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/users": {
     parameters: {
       query?: never;
@@ -273,7 +289,9 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     OrganizationResponseDTO: {
-      children: components["schemas"]["OrganizationResponseDTO"][];
+      children?:
+        | "unloaded"
+        | components["schemas"]["OrganizationResponseDTO"][];
       id: number;
       name: string;
       parent?: "unloaded" | components["schemas"]["OrganizationResponseDTO"];
@@ -740,6 +758,36 @@ export interface operations {
     };
     responses: {
       201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["OrganizationResponseDTO"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  OrganizationsController_findById: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path: {
+        id: number;
+      };
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
         headers: {
           [name: string]: unknown;
         };

@@ -62,5 +62,22 @@ describe("Organizations (e2e)", () => {
     );
     assert(ancestors !== undefined);
     expect(ancestors.map((x) => x.name)).toEqual(["B", "A"]);
+
+    await f.entityManager.flush();
+
+    // Test unloaded parents.
+    const { data: cFlushed } = await f.grassrootsAPI.GET(
+      "/organizations/{id}",
+      {
+        params: {
+          path: {
+            id: c.id,
+          },
+        },
+      },
+    );
+    const cParent = getMaybeLoadedOrThrow(cFlushed)?.parent;
+    const cParentParent = getMaybeLoadedOrThrow(cParent)?.parent;
+    console.log(cParentParent);
   });
 });

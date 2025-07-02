@@ -38,6 +38,14 @@ export class OrganizationsController {
     return organizationEntities.map((x) => x.toDTO());
   }
 
+  @Get(":id")
+  async findById(@Param("id") id: number): Promise<OrganizationResponseDTO> {
+    const organizationEntity = await this.organizationsService.findOne({
+      id: id,
+    });
+    return organizationEntity.toDTO();
+  }
+
   @Get("ancestors-of/:id")
   async getAncestors(
     @Param("id") id: number,

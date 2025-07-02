@@ -10,9 +10,6 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
-    ["./grassroots-shared/Organization.dto"]: await import(
-      "./grassroots-shared/Organization.dto"
-    ),
     ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
     ["./contacts/entities/Contact.entity"]: await import(
       "./contacts/entities/Contact.entity"
@@ -22,6 +19,9 @@ export default async () => {
     ),
     ["./grassroots-shared/Void.dto"]: await import(
       "./grassroots-shared/Void.dto"
+    ),
+    ["./grassroots-shared/Organization.dto"]: await import(
+      "./grassroots-shared/Organization.dto"
     ),
   };
   return {
@@ -145,13 +145,7 @@ export default async () => {
               id: { required: true, type: () => Number },
               name: { required: true, type: () => String },
               parent: { required: true, type: () => Object },
-              children: {
-                required: true,
-                type: () => [
-                  t["./grassroots-shared/Organization.dto"]
-                    .OrganizationResponseDTO,
-                ],
-              },
+              children: { required: true, type: () => Object },
             },
             CreateOrganizationRootDTO: {
               name: { required: true, type: () => String },
@@ -248,6 +242,10 @@ export default async () => {
                   t["./grassroots-shared/Organization.dto"]
                     .OrganizationResponseDTO,
                 ],
+              },
+              findById: {
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationResponseDTO,
               },
               getAncestors: {
                 type: [

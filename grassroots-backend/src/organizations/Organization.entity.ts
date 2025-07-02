@@ -18,7 +18,9 @@ export class OrganizationEntity extends BaseEntity {
   @Property()
   name!: string;
 
-  @ManyToOne(() => OrganizationEntity, { nullable: true })
+  @ManyToOne(() => OrganizationEntity, {
+    nullable: true,
+  })
   parent?: OrganizationEntity;
 
   @OneToMany(() => OrganizationEntity, (organization) => organization.parent)
