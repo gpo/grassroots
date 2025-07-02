@@ -3,9 +3,9 @@ http://grassroots.org {
         level DEBUG
     }
     handle_path /api/* {
-        reverse_proxy localhost:3000
+        reverse_proxy grassroots_dev:3000
     }
     handle_path /* {
-        reverse_proxy localhost:5173
+        reverse_proxy grassroots_dev:5173
     }
 }
