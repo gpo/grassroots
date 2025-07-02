@@ -24,9 +24,9 @@ services:
       - ./data/caddy:/data
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
     image: caddy
-    network_mode: host
-    cap_add:
-      - NET_ADMIN
+    ports:
+      - "80:80"
+      - "443:443"
 
   grassroots_dev:
     container_name: grassroots_dev
