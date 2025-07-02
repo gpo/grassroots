@@ -145,10 +145,6 @@
         },
         "type": "object"
       },
-      "MaybeLoaded": {
-        "properties": {},
-        "type": "object"
-      },
       "OrganizationResponseDTO": {
         "properties": {
           "children": {
@@ -164,32 +160,18 @@
             "type": "string"
           },
           "parent": {
-            "allOf": [
+            "anyOf": [
               {
-                "$ref": "#/components/schemas/MaybeLoaded"
-              }
-            ],
-            "oneOf": [
-              {
-                "properties": {
-                  "value": {
-                    "enum": ["unloaded"],
-                    "type": "string"
-                  }
-                }
+                "enum": ["unloaded"],
+                "type": "string"
               },
               {
-                "properties": {
-                  "value": {
-                    "$ref": "#/components/schemas/OrganizationResponseDTO"
-                  }
-                },
-                "required": []
+                "$ref": "#/components/schemas/OrganizationResponseDTO"
               }
             ]
           }
         },
-        "required": ["parent", "id", "name", "children"],
+        "required": ["id", "name", "children"],
         "type": "object"
       },
       "PaginatedContactResponseDTO": {

@@ -8,7 +8,6 @@ import {
   Property,
 } from "@mikro-orm/core";
 import { OrganizationResponseDTO } from "../grassroots-shared/Organization.dto";
-import { plainToInstance } from "class-transformer";
 import { MaybeLoaded } from "../grassroots-shared/MaybeLoaded";
 
 @Entity()
@@ -26,15 +25,10 @@ export class OrganizationEntity extends BaseEntity {
   children?: Collection<OrganizationEntity>;
 
   toDTO(): OrganizationResponseDTO {
-    const maybeParent: MaybeLoaded<OrganizationResponseDTO> = plainToInstance(
-      MaybeLoaded<OrganizationResponseDTO>,
-      {
-        _value:
-          this.parent?.isInitialized() === false
-            ? "unloaded"
-            : this.parent?.toDTO(),
-      },
-    );
+    const maybeParent: MaybeLoaded<OrganizationResponseDTO> =
+      this.parent?.isInitialized() === false
+        ? "unloaded"
+        : this.parent?.toDTO();
 
     return {
       id: this.id,

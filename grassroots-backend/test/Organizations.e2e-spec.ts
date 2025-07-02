@@ -1,25 +1,7 @@
-/*
-describe("OrganizationsService", () => {
-  const getFixture = useTestFixture({
-    imports: [OrganizationsModule],
-  });
-
-  function useService(): {
-    service: OrganizationsService;
-  } {
-    const fixture = getFixture();
-
-    return {
-      service: fixture.app.get<OrganizationsService>(OrganizationsService),
-    };
-  }
-
-
-});*/
-
 import { assert, describe, expect, it } from "vitest";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
 import { OrganizationsModule } from "../src/organizations/Organizations.module";
+import { getMaybeLoadedOrThrow } from "../src/grassroots-shared/MaybeLoaded";
 
 describe("Organizations (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -37,6 +19,7 @@ describe("Organizations (e2e)", () => {
       },
     );
     assert(a !== undefined);
+    expect(getMaybeLoadedOrThrow(a.parent)).toBe(undefined);
 
     const { data: b } = await f.grassrootsAPI.POST("/organizations", {
       body: {
@@ -46,6 +29,7 @@ describe("Organizations (e2e)", () => {
     });
 
     assert(b !== undefined);
+    expect(getMaybeLoadedOrThrow(b.parent)?.id).toBe(a.id);
 
     const { data: c } = await f.grassrootsAPI.POST("/organizations", {
       body: {
@@ -78,8 +62,5 @@ describe("Organizations (e2e)", () => {
     );
     assert(ancestors !== undefined);
     expect(ancestors.map((x) => x.name)).toEqual(["B", "A"]);
-
-    expect(a.parent.value == "unloaded");
-    expect(b.parent != null);
   });
 });

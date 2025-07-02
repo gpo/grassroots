@@ -272,21 +272,11 @@ export interface components {
     LoginStateDTO: {
       user?: components["schemas"]["UserDTO"];
     };
-    MaybeLoaded: Record<string, never>;
     OrganizationResponseDTO: {
       children: components["schemas"]["OrganizationResponseDTO"][];
       id: number;
       name: string;
-      parent: components["schemas"]["MaybeLoaded"] &
-        (
-          | {
-              /** @enum {string} */
-              value?: "unloaded";
-            }
-          | {
-              value?: components["schemas"]["OrganizationResponseDTO"];
-            }
-        );
+      parent?: "unloaded" | components["schemas"]["OrganizationResponseDTO"];
     };
     PaginatedContactResponseDTO: {
       contacts: components["schemas"]["ContactDTO"][];
