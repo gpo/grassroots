@@ -14,7 +14,6 @@
 //   } else {
 //   }
 // }
-//
 
 export type MaybeLoaded<T> = T | "unloaded" | undefined;
 
@@ -39,13 +38,7 @@ export function mapItems<T extends object, G>(
   maybe: MaybeLoaded<T[]>,
   f: (x: T) => G,
 ): MaybeLoaded<G[]> {
-  if (!isLoaded(maybe)) {
-    return "unloaded";
-  }
-  if (maybe === undefined) {
-    return undefined;
-  }
-  return maybe.map((x) => f(x));
+  return map(maybe, (x) => x.map((x) => f(x)));
 }
 
 export function getOrThrow<T>(x: MaybeLoaded<T>): T | undefined {
