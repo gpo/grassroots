@@ -1,12 +1,13 @@
 import { IsInt, IsNotEmpty, Min } from "class-validator";
-import { ApiPropertyMaybeLoaded, MaybeLoaded } from "./MaybeLoaded";
+import * as MaybeLoaded from "./MaybeLoaded";
+import * as MaybeLoadedEntity from "../database/MaybeLoadedEntity";
 
 export class OrganizationResponseDTO {
   id!: number;
   name!: string;
 
-  @ApiPropertyMaybeLoaded(OrganizationResponseDTO)
-  parent!: MaybeLoaded<OrganizationResponseDTO>;
+  @MaybeLoadedEntity.PropertyDecorator(OrganizationResponseDTO)
+  parent!: MaybeLoaded.MaybeLoaded<OrganizationResponseDTO>;
 }
 
 export class CreateOrganizationRootDTO {

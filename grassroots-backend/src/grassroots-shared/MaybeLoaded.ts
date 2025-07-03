@@ -1,43 +1,22 @@
-import { Collection } from "@mikro-orm/core";
-import { applyDecorators } from "@nestjs/common";
-import { ApiProperty, getSchemaPath } from "@nestjs/swagger";
+// MaybeLoaded<T> represents a relation that may or may not be loaded.
+// We use a raw type instead of a class because it allows type narrowing (see "isLoading")
+// and vastly simplifies serialization / deserialization.
+
+// Expected usage:
+// Create via `toMaybeLoaded(entity)` (outside the shared folder since it relies on mikroorm entities)).
+// const maybeEntity = toMaybeLoaded(entity);
+// Convert to a dto via map or mapItems.
+// const maybe = MaybeLoaded.map(maybeEntity, (x) => x.toDTO());
+// Check if it's loaded with the type guard `isLoaded`
+//
+// if MaybeLoaded.isLoaded(maybe) {
+//   if (maybe === undefined) {
+//   } else {
+//   }
+// }
+//
 
 export type MaybeLoaded<T> = T | "unloaded" | undefined;
-
-export interface ApiPropertyMaybeLoadedOptions {
-  isArray?: boolean;
-}
-
-export function ApiPropertyMaybeLoaded(
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  type: Function,
-  options?: ApiPropertyMaybeLoadedOptions,
-): PropertyDecorator {
-  if (options?.isArray === true) {
-    return applyDecorators(
-      ApiProperty({
-        required: false,
-        anyOf: [
-          { type: "string", enum: ["unloaded"] },
-          {
-            type: "array",
-            items: { $ref: getSchemaPath(type) },
-          },
-        ],
-      }),
-    );
-  }
-
-  return applyDecorators(
-    ApiProperty({
-      required: false,
-      anyOf: [
-        { type: "string", enum: ["unloaded"] },
-        { $ref: getSchemaPath(type) },
-      ],
-    }),
-  );
-}
 
 export function isLoaded<T>(maybe: MaybeLoaded<T>): maybe is T | undefined {
   return maybe !== "unloaded";
@@ -57,7 +36,7 @@ export function map<T, G>(
 }
 
 export function mapItems<T extends object, G>(
-  maybe: MaybeLoaded<Collection<T>>,
+  maybe: MaybeLoaded<T[]>,
   f: (x: T) => G,
 ): MaybeLoaded<G[]> {
   if (!isLoaded(maybe)) {
@@ -66,7 +45,7 @@ export function mapItems<T extends object, G>(
   if (maybe === undefined) {
     return undefined;
   }
-  return maybe.getItems().map((x) => f(x));
+  return maybe.map((x) => f(x));
 }
 
 export function getOrThrow<T>(x: MaybeLoaded<T>): T | undefined {
