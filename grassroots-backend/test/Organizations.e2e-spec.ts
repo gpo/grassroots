@@ -76,7 +76,7 @@ describe("Organizations (e2e)", () => {
         },
       },
     );
-    const cParent = getMaybeLoadedOrThrow(cFlushed)?.parent;
+    const cParent = getMaybeLoadedOrThrow(cFlushed?.parent);
     const cParentParent = getMaybeLoadedOrThrow(cParent)?.parent;
     console.log(cParentParent);
   });

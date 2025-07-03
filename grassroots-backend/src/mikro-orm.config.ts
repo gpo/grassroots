@@ -20,4 +20,5 @@ export default defineConfig({
   user: process.env.POSTGRES_USER,
   password: process.env.POSTGRES_PASSWORD,
   dbName: process.env.POSTGRES_DATABASE,
+  debug: true,
 });

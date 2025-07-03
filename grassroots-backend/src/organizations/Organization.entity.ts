@@ -32,11 +32,16 @@ export class OrganizationEntity extends BaseEntity {
         ? "unloaded"
         : this.parent?.toDTO();
 
+    const maybeChildren: MaybeLoaded<OrganizationResponseDTO[]> =
+      this.children?.isInitialized() === false
+        ? "unloaded"
+        : this.children?.getItems().map((x) => x.toDTO());
+
     return {
       id: this.id,
       name: this.name,
       parent: maybeParent,
-      children: [], // TODO
+      children: maybeChildren,
     };
   }
 }
