@@ -1,7 +1,7 @@
 import { assert, describe, expect, it } from "vitest";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
 import { OrganizationsModule } from "../src/organizations/Organizations.module";
-import { getMaybeLoadedOrThrow } from "../src/grassroots-shared/MaybeLoaded";
+import * as MaybeLoaded from "../src/grassroots-shared/MaybeLoaded";
 
 describe("Organizations (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -19,7 +19,8 @@ describe("Organizations (e2e)", () => {
       },
     );
     assert(a !== undefined);
-    expect(getMaybeLoadedOrThrow(a.parent)).toBe(undefined);
+    expect(MaybeLoaded.isLoaded(a.parent)).toBe(true);
+    expect(a.parent !== undefined);
 
     const { data: b } = await f.grassrootsAPI.POST("/organizations", {
       body: {
@@ -29,7 +30,7 @@ describe("Organizations (e2e)", () => {
     });
 
     assert(b !== undefined);
-    expect(getMaybeLoadedOrThrow(b.parent)?.id).toBe(a.id);
+    expect(MaybeLoaded.getOrThrow(b.parent)?.id).toBe(a.id);
 
     const { data: c } = await f.grassrootsAPI.POST("/organizations", {
       body: {
@@ -76,8 +77,8 @@ describe("Organizations (e2e)", () => {
         },
       },
     );
-    const cParent = getMaybeLoadedOrThrow(cFlushed?.parent);
-    const cParentParent = getMaybeLoadedOrThrow(cParent)?.parent;
+    const cParent = MaybeLoaded.getOrThrow(cFlushed?.parent);
+    const cParentParent = MaybeLoaded.getOrThrow(cParent)?.parent;
     console.log(cParentParent);
   });
 });

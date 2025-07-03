@@ -7,9 +7,6 @@ export class OrganizationResponseDTO {
 
   @ApiPropertyMaybeLoaded(OrganizationResponseDTO)
   parent!: MaybeLoaded<OrganizationResponseDTO>;
-
-  @ApiPropertyMaybeLoaded(OrganizationResponseDTO, { isArray: true })
-  children!: MaybeLoaded<OrganizationResponseDTO[]>;
 }
 
 export class CreateOrganizationRootDTO {

@@ -8,7 +8,8 @@ import {
   Property,
 } from "@mikro-orm/core";
 import { OrganizationResponseDTO } from "../grassroots-shared/Organization.dto";
-import { MaybeLoaded } from "../grassroots-shared/MaybeLoaded";
+import * as MaybeLoaded from "../grassroots-shared/MaybeLoaded";
+import { toMaybeLoaded } from "../database/ToMaybeLoaded";
 
 @Entity()
 export class OrganizationEntity extends BaseEntity {
@@ -27,21 +28,13 @@ export class OrganizationEntity extends BaseEntity {
   children?: Collection<OrganizationEntity>;
 
   toDTO(): OrganizationResponseDTO {
-    const maybeParent: MaybeLoaded<OrganizationResponseDTO> =
-      this.parent?.isInitialized() === false
-        ? "unloaded"
-        : this.parent?.toDTO();
-
-    const maybeChildren: MaybeLoaded<OrganizationResponseDTO[]> =
-      this.children?.isInitialized() === false
-        ? "unloaded"
-        : this.children?.getItems().map((x) => x.toDTO());
+    const maybeParentEntity = toMaybeLoaded(this.parent);
+    const maybeParent = MaybeLoaded.map(maybeParentEntity, (x) => x.toDTO());
 
     return {
       id: this.id,
       name: this.name,
       parent: maybeParent,
-      children: maybeChildren,
     };
   }
 }
