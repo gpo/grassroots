@@ -3,7 +3,7 @@
 // and vastly simplifies serialization / deserialization.
 
 // Expected usage:
-// Create via `toMaybeLoaded(entity)` (outside the shared folder since it relies on mikroorm entities)).
+// Create via `toMaybeLoaded(entity)` (outside the shared folder since it relies on mikroorm entities).
 // const maybeEntity = toMaybeLoaded(entity);
 // Convert to a dto via map or mapItems.
 // const maybe = MaybeLoaded.map(maybeEntity, (x) => x.toDTO());

@@ -9,7 +9,7 @@ import {
 } from "@mikro-orm/core";
 import { OrganizationResponseDTO } from "../grassroots-shared/Organization.dto";
 import * as MaybeLoaded from "../grassroots-shared/MaybeLoaded";
-import { toMaybeLoaded } from "../database/ToMaybeLoaded";
+import { toMaybeLoaded } from "../database/MaybeLoadedEntity";
 
 @Entity()
 export class OrganizationEntity extends BaseEntity {
