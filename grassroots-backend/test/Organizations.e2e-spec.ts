@@ -1,7 +1,6 @@
 import { assert, describe, expect, it } from "vitest";
 import { useE2ETestFixture } from "../src/testing/E2eSetup";
 import { OrganizationsModule } from "../src/organizations/Organizations.module";
-import * as MaybeLoaded from "../src/grassroots-shared/MaybeLoaded";
 
 describe("Organizations (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -19,8 +18,7 @@ describe("Organizations (e2e)", () => {
       },
     );
     assert(a !== undefined);
-    expect(MaybeLoaded.isLoaded(a.parent)).toBe(true);
-    expect(a.parent !== undefined);
+    expect(a.parentId).toEqual(undefined);
 
     const { data: b } = await f.grassrootsAPI.POST("/organizations", {
       body: {
@@ -30,7 +28,7 @@ describe("Organizations (e2e)", () => {
     });
 
     assert(b !== undefined);
-    expect(MaybeLoaded.getOrThrow(b.parent)?.id).toBe(a.id);
+    expect(b.parentId).toEqual(a.id);
 
     const { data: c } = await f.grassrootsAPI.POST("/organizations", {
       body: {
@@ -63,22 +61,5 @@ describe("Organizations (e2e)", () => {
     );
     assert(ancestors !== undefined);
     expect(ancestors.map((x) => x.name)).toEqual(["B", "A"]);
-
-    await f.entityManager.flush();
-
-    // Test unloaded parents.
-    const { data: cFlushed } = await f.grassrootsAPI.GET(
-      "/organizations/{id}",
-      {
-        params: {
-          path: {
-            id: c.id,
-          },
-        },
-      },
-    );
-    const cParent = MaybeLoaded.getOrThrow(cFlushed?.parent);
-    const cParentParent = MaybeLoaded.getOrThrow(cParent)?.parent;
-    console.log(cParentParent);
   });
 });

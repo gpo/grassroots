@@ -289,12 +289,9 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     OrganizationResponseDTO: {
-      children?:
-        | "unloaded"
-        | components["schemas"]["OrganizationResponseDTO"][];
       id: number;
       name: string;
-      parent?: "unloaded" | components["schemas"]["OrganizationResponseDTO"];
+      parentId?: number;
     };
     PaginatedContactResponseDTO: {
       contacts: components["schemas"]["ContactDTO"][];

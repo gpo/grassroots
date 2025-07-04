@@ -147,36 +147,14 @@
       },
       "OrganizationResponseDTO": {
         "properties": {
-          "children": {
-            "anyOf": [
-              {
-                "enum": ["unloaded"],
-                "type": "string"
-              },
-              {
-                "items": {
-                  "$ref": "#/components/schemas/OrganizationResponseDTO"
-                },
-                "type": "array"
-              }
-            ]
-          },
           "id": {
             "type": "number"
           },
           "name": {
             "type": "string"
           },
-          "parent": {
-            "anyOf": [
-              {
-                "enum": ["unloaded"],
-                "type": "string"
-              },
-              {
-                "$ref": "#/components/schemas/OrganizationResponseDTO"
-              }
-            ]
+          "parentId": {
+            "type": "number"
           }
         },
         "required": ["id", "name"],
