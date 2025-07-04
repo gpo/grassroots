@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Cross-platform script to run commands inside or outside container
 # Automatically detects context and routes commands appropriately
@@ -13,25 +13,10 @@ SERVICE_NAME="grassroots_dev"
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Function to check if we're inside a container
-is_inside_container() {
-    # Check for devcontainer environment variable (primary check)
-    if [[ -n "$IN_DEVCONTAINER" ]]; then
-        return 0
-    fi
-    
-    # Check for dockerenv file
-    if [[ -f /.dockerenv ]]; then
-        return 0
-    fi
-    
-    return 1
-}
-
 # Function to find the project root
 find_project_root() {
     local current_dir="$SCRIPT_DIR"
-    
+
     # Walk up the directory tree looking for docker/compose.yaml
     while [[ "$current_dir" != "/" ]]; do
         if [[ -f "$current_dir/$COMPOSE_FILE" ]]; then
@@ -40,64 +25,41 @@ find_project_root() {
         fi
         current_dir="$(dirname "$current_dir")"
     done
-    
-    # If not found, assume script is in project root
-    echo "$SCRIPT_DIR"
-    return 0
+
+    # Check if compose file exists
+    echo "Error: $COMPOSE_FILE not found in project root"
+    echo "Make sure you're running this from within the project directory"
+    exit 1
 }
 
 # Function to ensure container is running with smart startup
 ensure_container_running() {
-    local service=$1
-    local compose_file=$2
-    local project_root=$3
-    
-    # Change to project root to run docker-compose
-    cd "$project_root"
-    
+    # Check if docker is available
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "Error: Docker not found. Please install Docker."
+        exit 1
+    fi
+
+    if ! docker compose version >/dev/null 2>&1; then
+        echo "Error: Docker Compose not found. Please install Docker Compose."
+        exit 1
+    fi
+
     # Check if main service is running
-    if docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
+    if docker compose -f "$COMPOSE_FILE" ps "$SERVICE_NAME" 2>/dev/null | grep -q "Up"; then
         return 0
     fi
-    
-    # Main service needs to start
-    # If in CI or non-interactive, start all services
-    if [[ ! -t 0 ]] || [[ -n "$CI" ]]; then
-        echo "Non-interactive environment detected. Starting all services..."
-        docker compose -f "$compose_file" up -d
-    else
-        # Interactive prompt - simplified per Ian's feedback
-        echo "grassroots_dev container is not running."
-        echo ""
-        echo "Options:"
-        echo "  1) Start all services (recommended)"
-        echo "  2) Start only grassroots_dev"
-        echo ""
-        read -p "Choose option (1-2): " choice
-        
-        case $choice in
-            1)
-                echo "Starting all services..."
-                docker compose -f "$compose_file" up -d
-                ;;
-            2|*)
-                echo "Starting grassroots_dev only..."
-                docker compose -f "$compose_file" up -d "$service"
-                ;;
-        esac
-    fi
-    
-    # Wait for container to be ready
-    echo "Waiting for container to be ready..."
-    sleep 3
-    
+
+    # If not running, start the container
+    docker compose -f "$COMPOSE_FILE" up -d
+
     # Verify main service is running
-    if ! docker compose -f "$compose_file" ps "$service" 2>/dev/null | grep -q "Up"; then
-        echo "Error: Failed to start $service container"
-        return 1
+    if ! docker compose -f "$COMPOSE_FILE" ps "$SERVICE_NAME" 2>/dev/null | grep -q "Up"; then
+        echo "Error: Failed to start project"
+        echo "Please start the project with 'cd docker && docker compose up'"
+        exit 1
     fi
-    
-    echo "Container is ready!"
+
     return 0
 }
 
@@ -135,63 +97,32 @@ Notes:
 EOF
 }
 
-# Function to run command locally (inside container)
-run_locally() {
-    exec "$@"
-}
-
-# Function to run command in container
-run_in_container() {
-    local project_root=$1
-    local compose_file=$2
-    local service=$3
-    shift 3
-    
-    if ! ensure_container_running "$service" "$compose_file" "$project_root"; then
-        echo "Container failed to start, cannot execute command"
-        exit 1
-    fi
-    
-    # Run the command inside the container
-    # Use -T to avoid TTY allocation issues in git hooks
-    exec docker compose -f "$compose_file" exec -T "$service" bash -c "$*"
-}
-
 # Main logic - detect context and route appropriately
 main() {
+    local project_root
+
     if [[ $# -eq 0 ]]; then
         show_examples
         exit 1
     fi
 
-    # Find the project root
-    PROJECT_ROOT=$(find_project_root)
-    
-    if is_inside_container; then
+    if [[ -f /.dockerenv ]]; then
         # We're inside a container - run the command directly
-        run_locally "$@"
+        exec "$@"
     else
         # We're outside a container - run the command inside the container
-        
-        # Check if docker is available
-        if ! command -v docker >/dev/null 2>&1; then
-            echo "Error: Docker not found. Please install Docker."
-            exit 1
-        fi
 
-        if ! docker compose version >/dev/null 2>&1; then
-            echo "Error: Docker Compose not found. Please install Docker Compose."
-            exit 1
-        fi
+        # Change to project root to run docker-compose
+        cd "$(find_project_root)"
 
-        # Check if compose file exists
-        if [[ ! -f "$PROJECT_ROOT/$COMPOSE_FILE" ]]; then
-            echo "Error: $COMPOSE_FILE not found in project root ($PROJECT_ROOT)"
-            echo "Make sure you're running this from within the project directory"
-            exit 1
-        fi
+        ensure_container_running
 
-        run_in_container "$PROJECT_ROOT" "$COMPOSE_FILE" "$SERVICE_NAME" "$@"
+        # Run the command inside the container
+        if [ -t 1 ]; then
+            exec docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE_NAME" bash -c "$*"
+        else
+            exec docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c "$*"
+        fi
     fi
 }
 
