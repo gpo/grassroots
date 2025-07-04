@@ -1,13 +1,9 @@
 import { IsInt, IsNotEmpty, Min } from "class-validator";
-import * as MaybeLoaded from "./MaybeLoaded";
-import * as MaybeLoadedEntity from "../database/MaybeLoadedEntity";
 
 export class OrganizationResponseDTO {
   id!: number;
   name!: string;
-
-  @MaybeLoadedEntity.PropertyDecorator(OrganizationResponseDTO)
-  parent!: MaybeLoaded.MaybeLoaded<OrganizationResponseDTO>;
+  parentId?: number;
 }
 
 export class CreateOrganizationRootDTO {

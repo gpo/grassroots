@@ -146,8 +146,7 @@ export default async () => {
             OrganizationResponseDTO: {
               id: { required: true, type: () => Number },
               name: { required: true, type: () => String },
-              parent: { required: true, type: () => Object },
-              children: { required: true, type: () => Object },
+              parentId: { required: false, type: () => Number },
             },
             CreateOrganizationRootDTO: {
               name: { required: true, type: () => String },
