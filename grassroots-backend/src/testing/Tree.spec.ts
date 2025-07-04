@@ -1,9 +1,9 @@
 // Use the OrganizationDTO as an example.
 
 import { describe, expect, it } from "vitest";
-import { OrganizationResponseDTO } from "./Organization.dto";
-import { cast } from "./util/Cast";
-import { Tree } from "./Tree";
+import { OrganizationResponseDTO } from "../grassroots-shared/Organization.dto";
+import { cast } from "../grassroots-shared/util/Cast";
+import { Tree } from "../grassroots-shared/Tree";
 
 describe("tree", () => {
   it("should provide parent and children pointers", () => {
