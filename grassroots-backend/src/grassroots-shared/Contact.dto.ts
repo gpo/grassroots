@@ -30,7 +30,7 @@ export class ContactDTO {
   phoneNumber!: string;
 }
 
-export class CreateContactRequestDto {
+export class CreateContactRequestDTO {
   @IsEmail()
   email!: string;
 
@@ -44,10 +44,10 @@ export class CreateContactRequestDto {
   phoneNumber!: string;
 }
 
-export class CreateBulkContactRequestDto {
+export class CreateBulkContactRequestDTO {
   @ValidateNested({ each: true })
-  @Type(() => CreateContactRequestDto)
-  contacts!: CreateContactRequestDto[];
+  @Type(() => CreateContactRequestDTO)
+  contacts!: CreateContactRequestDTO[];
 }
 
 export class CreateBulkContactResponseDTO {

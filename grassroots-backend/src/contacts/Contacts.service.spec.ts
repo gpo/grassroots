@@ -4,7 +4,7 @@ import { instanceToPlain, plainToClass } from "class-transformer";
 import { useTestFixture } from "../testing/Setup";
 import { describe, expect, it } from "vitest";
 import { ContactsModule } from "./Contacts.module";
-import { CreateContactRequestDto } from "../grassroots-shared/Contact.dto";
+import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto";
 
 describe("ContactsService", () => {
   const getFixture = useTestFixture({
@@ -26,7 +26,7 @@ describe("ContactsService", () => {
 
   it("should create and return a contact", async () => {
     const { service } = useService();
-    const contact: CreateContactRequestDto = {
+    const contact: CreateContactRequestDTO = {
       email: "test@test.com",
       firstName: "Test",
       lastName: "Test",
