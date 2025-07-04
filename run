@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+
+# Cross-platform script to run commands inside or outside container
+# Automatically detects context and routes commands appropriately
+# Usage: ./run <any-command-and-args>
+
+set -e  # Exit on any error
+
+# Project-specific configuration
+COMPOSE_FILE="docker/compose.yaml"
+SERVICE_NAME="grassroots_dev"
+
+# Get the directory where this script is located
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Function to ensure container is running with smart startup
+ensure_container_running() {
+    # Check if docker is available
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "Error: Docker not found. Please install Docker."
+        exit 1
+    fi
+
+    if ! docker compose version >/dev/null 2>&1; then
+        echo "Error: Docker Compose not found. Please install Docker Compose."
+        exit 1
+    fi
+
+    # Check if main service is running
+    if docker compose -f "$COMPOSE_FILE" ps "$SERVICE_NAME" 2>/dev/null | grep -q "Up"; then
+        return 0
+    fi
+
+    # If not running, start the container
+    docker compose -f "$COMPOSE_FILE" up -d
+
+    # Verify main service is running
+    if ! docker compose -f "$COMPOSE_FILE" ps "$SERVICE_NAME" 2>/dev/null | grep -q "Up"; then
+        echo "Error: Failed to start project"
+        echo "Please start the project with 'cd docker && docker compose up'"
+        exit 1
+    fi
+
+    return 0
+}
+
+# Function to provide helpful examples using heredoc
+show_examples() {
+    cat << 'EOF'
+Usage: ./run <command> [args...]
+
+This script automatically detects if you're inside or outside the container
+and routes commands appropriately to ensure consistent development environment.
+
+Common examples:
+
+  Backend:
+    ./run "cd grassroots-backend && npm install"
+    ./run "cd grassroots-backend && npm run start:dev"
+    ./run "cd grassroots-backend && npm test"
+    ./run "cd grassroots-backend && npx mikro-orm migration:up"
+
+  Frontend:
+    ./run "cd grassroots-frontend && npm install"
+    ./run "cd grassroots-frontend && npm run dev"
+    ./run "cd grassroots-frontend && npm run build"
+
+  General:
+    ./run bash                    # Open shell
+    ./run npm --version           # Check versions
+    ./run git status              # Git commands
+    ./run ls -la                  # File operations
+
+Notes:
+- When run from outside container: Routes commands to grassroots_dev container
+- When run from inside container: Executes commands directly
+- Can be run from any directory within the project
+EOF
+}
+
+# Main logic - detect context and route appropriately
+main() {
+    if [[ $# -eq 0 ]]; then
+        show_examples
+        exit 1
+    fi
+
+    if [[ -f /.dockerenv ]]; then
+        # We're inside a container - run the command directly
+        exec "$@"
+    else
+        # We're outside a container - run the command inside the container
+
+        # Change to project root to run docker-compose
+        cd $PROJECT_ROOT
+
+        ensure_container_running
+
+        # Run the command inside the container
+        if [ -t 1 ]; then
+            exec docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE_NAME" bash -c "$*"
+        else
+            exec docker compose -f "$COMPOSE_FILE" exec "$SERVICE_NAME" bash -c "$*"
+        fi
+    fi
+}
+
+# Run main function with all arguments
+main "$@"
