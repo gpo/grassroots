@@ -12,6 +12,6 @@ describe("Roles (e2e)", () => {
     const { data } = await f.grassrootsAPI.GET("/roles");
     assert(data !== undefined);
     expect(data.length).toEqual(4);
-    expect(data[0]?.name == "Test");
+    expect(data[0]?.name).toEqual("No Permissions");
   });
 });
