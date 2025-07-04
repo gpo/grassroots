@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { OrganizationResponseDTO } from "./Organization.dto";
 import { cast } from "./util/Cast";
-import { Tree } from "../testing/Tree";
+import { Tree } from "./Tree";
 
 describe("tree", () => {
   it("should provide parent and children pointers", () => {
