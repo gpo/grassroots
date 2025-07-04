@@ -1,4 +1,5 @@
-http://grassroots.org {
+https://grassroots.org {
+    tls internal
     log {
         level DEBUG
     }
@@ -8,4 +9,8 @@ http://grassroots.org {
     handle_path /* {
         reverse_proxy grassroots_dev:5173
     }
+}
+
+http://grassroots.org {
+    redir https://grassroots.org{uri} permanent
 }

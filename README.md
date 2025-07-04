@@ -76,9 +76,8 @@ npm run start
 
 ## 7. Access the running services
 
-- Frontend: http://localhost:5173 or http://grassroots.org
-- Backend API: http://localhost:3000
-- Test API endpoint: http://localhost:3000/contacts
+- Frontend: https://grassroots.org or http://localhost:5173
+- Backend API: https://grassroots.org/api or http://localhost:3000
 
 # Migrations
 
