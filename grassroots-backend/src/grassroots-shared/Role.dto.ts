@@ -1,27 +1,8 @@
-import {
-  IsBoolean,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  Min,
-} from "class-validator";
 import "reflect-metadata";
+import { Permission } from "./Permission";
 
-export class RoleDTO {
-  @IsNumber()
-  @Min(1)
+export class RoleResponseDTO {
   id!: number;
-
-  @IsNotEmpty()
-  @IsString()
   name!: string;
-
-  @IsBoolean()
-  canViewContacts!: boolean;
-
-  @IsBoolean()
-  canManageContacts!: boolean;
-
-  @IsBoolean()
-  canManageUsers!: boolean;
+  permissions!: Permission[];
 }

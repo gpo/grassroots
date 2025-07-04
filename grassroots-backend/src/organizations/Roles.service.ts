@@ -1,49 +1,40 @@
 import { Injectable } from "@nestjs/common";
-import { RoleEntity } from "./Role.entity";
-import { EntityManager, EntityRepository } from "@mikro-orm/core";
-import { RoleDTO } from "../grassroots-shared/Role.dto";
+import { Permission } from "../grassroots-shared/Permission";
+
+class RoleEntity {
+  id!: number;
+  name!: string;
+  permissions!: Permission[];
+}
+
+export type RoleName =
+  | "No Permissions"
+  | "View Only"
+  | "Contact Manager"
+  | "Admin";
+
+export const ROLES: RoleEntity[] = [
+  { id: 1, name: "No Permissions", permissions: [] },
+  { id: 2, name: "View Only", permissions: [Permission.VIEW_CONTACTS] },
+  {
+    id: 3,
+    name: "Contact Manager",
+    permissions: [Permission.VIEW_CONTACTS, Permission.MANAGE_CONTACTS],
+  },
+  {
+    id: 4,
+    name: "Admin",
+    permissions: [
+      Permission.VIEW_CONTACTS,
+      Permission.MANAGE_CONTACTS,
+      Permission.MANAGE_USERS,
+    ],
+  },
+];
 
 @Injectable()
 export class RolesService {
-  repo: EntityRepository<RoleEntity>;
-  constructor(private readonly entityManager: EntityManager) {
-    this.repo = entityManager.getRepository<RoleEntity>(RoleEntity);
-  }
-
-  async recreateRoles(): Promise<void> {
-    await this.repo.nativeDelete({});
-    this.entityManager.clear();
-
-    this.repo.create({
-      name: "No Permissions",
-      canViewContacts: false,
-      canManageContacts: false,
-      canManageUsers: false,
-    });
-
-    this.repo.create({
-      name: "View Only",
-      canViewContacts: true,
-      canManageContacts: false,
-      canManageUsers: false,
-    });
-
-    this.repo.create({
-      name: "Contact Manager",
-      canViewContacts: true,
-      canManageContacts: true,
-      canManageUsers: false,
-    });
-
-    this.repo.create({
-      name: "Admin",
-      canViewContacts: true,
-      canManageContacts: true,
-      canManageUsers: true,
-    });
-  }
-
-  async findAll(): Promise<RoleDTO[]> {
-    return this.repo.findAll();
+  findAll(): RoleEntity[] {
+    return ROLES;
   }
 }

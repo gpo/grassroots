@@ -10,6 +10,9 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
+    ["./grassroots-shared/Permission"]: await import(
+      "./grassroots-shared/Permission"
+    ),
     ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
     ["./contacts/entities/Contact.entity"]: await import(
       "./contacts/entities/Contact.entity"
@@ -22,6 +25,9 @@ export default async () => {
     ),
     ["./grassroots-shared/Organization.dto"]: await import(
       "./grassroots-shared/Organization.dto"
+    ),
+    ["./grassroots-shared/Role.dto"]: await import(
+      "./grassroots-shared/Role.dto"
     ),
   };
   return {
@@ -139,18 +145,6 @@ export default async () => {
         ],
         [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
-          import("./grassroots-shared/Role.dto"),
-          {
-            RoleDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              name: { required: true, type: () => String },
-              canViewContacts: { required: true, type: () => Boolean },
-              canManageContacts: { required: true, type: () => Boolean },
-              canManageUsers: { required: true, type: () => Boolean },
-            },
-          },
-        ],
-        [
           import("./grassroots-shared/Organization.dto"),
           {
             OrganizationResponseDTO: {
@@ -164,6 +158,20 @@ export default async () => {
             CreateOrganizationDTO: {
               name: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
+            },
+          },
+        ],
+        [
+          import("./grassroots-shared/Role.dto"),
+          {
+            RoleResponseDTO: {
+              id: { required: true, type: () => Number },
+              name: { required: true, type: () => String },
+              permissions: {
+                required: true,
+                enum: t["./grassroots-shared/Permission"].Permission,
+                isArray: true,
+              },
             },
           },
         ],
@@ -263,6 +271,16 @@ export default async () => {
                   t["./grassroots-shared/Organization.dto"]
                     .OrganizationResponseDTO,
                 ],
+              },
+            },
+          },
+        ],
+        [
+          import("./organizations/Roles.controller"),
+          {
+            RolesController: {
+              findAll: {
+                type: [t["./grassroots-shared/Role.dto"].RoleResponseDTO],
               },
             },
           },
