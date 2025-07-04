@@ -49,11 +49,11 @@
         },
         "type": "object"
       },
-      "CreateBulkContactRequestDto": {
+      "CreateBulkContactRequestDTO": {
         "properties": {
           "contacts": {
             "items": {
-              "$ref": "#/components/schemas/CreateContactRequestDto"
+              "$ref": "#/components/schemas/CreateContactRequestDTO"
             },
             "type": "array"
           }
@@ -73,7 +73,7 @@
         "required": ["ids"],
         "type": "object"
       },
-      "CreateContactRequestDto": {
+      "CreateContactRequestDTO": {
         "properties": {
           "email": {
             "format": "email",
@@ -90,6 +90,28 @@
           }
         },
         "required": ["email", "firstName", "lastName", "phoneNumber"],
+        "type": "object"
+      },
+      "CreateOrganizationDTO": {
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "parentID": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": ["name", "parentID"],
+        "type": "object"
+      },
+      "CreateOrganizationRootDTO": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
         "type": "object"
       },
       "GetContactByIDResponseDTO": {
@@ -121,6 +143,43 @@
             "$ref": "#/components/schemas/UserDTO"
           }
         },
+        "type": "object"
+      },
+      "OrganizationResponseDTO": {
+        "properties": {
+          "children": {
+            "anyOf": [
+              {
+                "enum": ["unloaded"],
+                "type": "string"
+              },
+              {
+                "items": {
+                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                },
+                "type": "array"
+              }
+            ]
+          },
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "parent": {
+            "anyOf": [
+              {
+                "enum": ["unloaded"],
+                "type": "string"
+              },
+              {
+                "$ref": "#/components/schemas/OrganizationResponseDTO"
+              }
+            ]
+          }
+        },
+        "required": ["id", "name"],
         "type": "object"
       },
       "PaginatedContactResponseDTO": {
@@ -442,7 +501,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateContactRequestDto"
+                "$ref": "#/components/schemas/CreateContactRequestDTO"
               }
             }
           },
@@ -481,7 +540,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateBulkContactRequestDto"
+                "$ref": "#/components/schemas/CreateBulkContactRequestDTO"
               }
             }
           },
@@ -587,6 +646,193 @@
           }
         },
         "tags": ["Contacts"]
+      }
+    },
+    "/organizations": {
+      "get": {
+        "operationId": "OrganizationsController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrganizationResponseDTO"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
+      },
+      "post": {
+        "operationId": "OrganizationsController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
+      }
+    },
+    "/organizations/ancestors-of/{id}": {
+      "get": {
+        "operationId": "OrganizationsController_getAncestors",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrganizationResponseDTO"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
+      }
+    },
+    "/organizations/create-root": {
+      "post": {
+        "operationId": "OrganizationsController_createRoot",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrganizationRootDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
+      }
+    },
+    "/organizations/{id}": {
+      "get": {
+        "operationId": "OrganizationsController_findById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Organizations"]
       }
     },
     "/users": {
