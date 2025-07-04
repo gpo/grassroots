@@ -11,26 +11,7 @@ COMPOSE_FILE="docker/compose.yaml"
 SERVICE_NAME="grassroots_dev"
 
 # Get the directory where this script is located
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
-# Function to find the project root
-find_project_root() {
-    local current_dir="$SCRIPT_DIR"
-
-    # Walk up the directory tree looking for docker/compose.yaml
-    while [[ "$current_dir" != "/" ]]; do
-        if [[ -f "$current_dir/$COMPOSE_FILE" ]]; then
-            echo "$current_dir"
-            return 0
-        fi
-        current_dir="$(dirname "$current_dir")"
-    done
-
-    # Check if compose file exists
-    echo "Error: $COMPOSE_FILE not found in project root"
-    echo "Make sure you're running this from within the project directory"
-    exit 1
-}
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Function to ensure container is running with smart startup
 ensure_container_running() {
@@ -99,8 +80,6 @@ EOF
 
 # Main logic - detect context and route appropriately
 main() {
-    local project_root
-
     if [[ $# -eq 0 ]]; then
         show_examples
         exit 1
@@ -113,7 +92,7 @@ main() {
         # We're outside a container - run the command inside the container
 
         # Change to project root to run docker-compose
-        cd "$(find_project_root)"
+        cd $PROJECT_ROOT
 
         ensure_container_running
 
