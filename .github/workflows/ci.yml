@@ -100,6 +100,12 @@ jobs:
       - name: Run tstyche
         run: npm run test:tstyche --prefix grassroots-backend
 
+      - name: Check mikro-orm migration
+        run: |
+          if ! cd grassroots-backend && npx mikro-orm migration:check 2>&1 | grep -q "No changes required, schema is up-to-date"; then
+            exit 1
+          fi
+
       - name: "Services: Start Test Services"
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
