@@ -6,23 +6,23 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { TextField } from "../components/TextField";
-import { CreateContactRequestDto } from "../grassroots-shared/Contact.dto";
+import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto";
 
 export const Route = createFileRoute("/CreateContact")({
   component: CreateContact,
 });
 
-const TextFieldMakeContact = TextField<CreateContactRequestDto>;
+const TextFieldMakeContact = TextField<CreateContactRequestDTO>;
 
 function CreateContact(): JSX.Element {
-  const form = useForm<CreateContactRequestDto>({
-    resolver: classValidatorResolver(CreateContactRequestDto),
+  const form = useForm<CreateContactRequestDTO>({
+    resolver: classValidatorResolver(CreateContactRequestDTO),
     mode: "onBlur",
   });
 
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: async (contact: CreateContactRequestDto) => {
+    mutationFn: async (contact: CreateContactRequestDTO) => {
       const result = await grassrootsAPI.POST("/contacts", {
         body: contact,
       });
@@ -37,7 +37,7 @@ function CreateContact(): JSX.Element {
     },
   });
 
-  const onSubmit: SubmitHandler<CreateContactRequestDto> = useCallback(
+  const onSubmit: SubmitHandler<CreateContactRequestDTO> = useCallback(
     async (data) => {
       await mutateAsync(data);
       form.reset();

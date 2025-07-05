@@ -9,4 +9,5 @@ UsersModule-->MikroOrmModule
 AuthModule-->PassportModule
 AuthModule-->ConfigModule
 AppModule-->PassportModule
+AppModule-->OrganizationsModule
 ```

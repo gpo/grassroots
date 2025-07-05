@@ -20,6 +20,9 @@ export default async () => {
     ["./grassroots-shared/Void.dto"]: await import(
       "./grassroots-shared/Void.dto"
     ),
+    ["./grassroots-shared/Organization.dto"]: await import(
+      "./grassroots-shared/Organization.dto"
+    ),
   };
   return {
     "@nestjs/swagger": {
@@ -51,17 +54,17 @@ export default async () => {
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
-            CreateContactRequestDto: {
+            CreateContactRequestDTO: {
               email: { required: true, type: () => String, format: "email" },
               firstName: { required: true, type: () => String },
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
-            CreateBulkContactRequestDto: {
+            CreateBulkContactRequestDTO: {
               contacts: {
                 required: true,
                 type: () => [
-                  t["./grassroots-shared/Contact.dto"].CreateContactRequestDto,
+                  t["./grassroots-shared/Contact.dto"].CreateContactRequestDTO,
                 ],
               },
             },
@@ -136,6 +139,23 @@ export default async () => {
         ],
         [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
+          import("./grassroots-shared/Organization.dto"),
+          {
+            OrganizationResponseDTO: {
+              id: { required: true, type: () => Number },
+              name: { required: true, type: () => String },
+              parentId: { required: false, type: () => Number },
+            },
+            CreateOrganizationRootDTO: {
+              name: { required: true, type: () => String },
+            },
+            CreateOrganizationDTO: {
+              name: { required: true, type: () => String },
+              parentID: { required: true, type: () => Number, minimum: 1 },
+            },
+          },
+        ],
+        [
           import("./contacts/entities/ValidationError.dto"),
           {
             ValidationErrorOutDTO: {
@@ -201,6 +221,37 @@ export default async () => {
                 type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
               },
               logout: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+            },
+          },
+        ],
+        [
+          import("./organizations/Organizations.controller"),
+          {
+            OrganizationsController: {
+              create: {
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationResponseDTO,
+              },
+              createRoot: {
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationResponseDTO,
+              },
+              findAll: {
+                type: [
+                  t["./grassroots-shared/Organization.dto"]
+                    .OrganizationResponseDTO,
+                ],
+              },
+              findById: {
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationResponseDTO,
+              },
+              getAncestors: {
+                type: [
+                  t["./grassroots-shared/Organization.dto"]
+                    .OrganizationResponseDTO,
+                ],
+              },
             },
           },
         ],
