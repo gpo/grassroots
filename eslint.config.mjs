@@ -69,6 +69,10 @@ export default tseslint.config(
         "error",
         { assertionStyle: "never" },
       ],
+      "@typescript-eslint/no-unnecessary-condition": [
+        "error",
+        { allowConstantLoopConditions: "always" },
+      ],
       "react/jsx-no-useless-fragment": "error",
       "check-file/no-index": "error",
       "check-file/filename-naming-convention": [
