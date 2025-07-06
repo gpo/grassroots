@@ -3,11 +3,10 @@ import "@mantine/core/styles.css";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 
-import { AppShell, Button, MantineProvider, ScrollArea } from "@mantine/core";
+import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
 import { RoutedLink } from "../components/RoutedLink";
 import { navigateToBackendRoute } from "../GrassRootsAPI";
 import { LoginState } from "../context/LoginStateContext";
-import { populateFakeData } from "../devtools/populateFakeData";
 import { AddFakeDataButton } from "../components/devtools/AddFakeDataButton";
 
 interface RouterContext {
