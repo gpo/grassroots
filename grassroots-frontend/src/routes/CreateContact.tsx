@@ -69,7 +69,7 @@ function CreateContact(): JSX.Element {
           label="Phone Number"
           name="phoneNumber"
         ></TextFieldMakeContact>
-        <input type="submit" disabled={!form.formState.isValid} />
+        <input type="submit"/>
       </form>
     </FormProvider>
   );
