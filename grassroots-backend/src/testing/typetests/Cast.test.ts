@@ -1,3 +1,6 @@
+/* eslint vitest/expect-expect: 0 */
+// We make type assertions that the eslint rule doesn't catch.
+
 import * as tstyche from "tstyche";
 import { cast } from "../../grassroots-shared/util/Cast";
 import { IsNumber, Min } from "class-validator";

@@ -10,6 +10,7 @@ import eslintConfigPrettier from "eslint-config-prettier/flat";
 import eslintNestJs from "@darraghor/eslint-plugin-nestjs-typed";
 import * as GrassrootsEslintRules from "./eslint_rules/lib/index.js";
 import reactRefresh from "eslint-plugin-react-refresh";
+import vitest from "@vitest/eslint-plugin";
 
 export default tseslint.config(
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
@@ -23,6 +24,7 @@ export default tseslint.config(
   eslintNestJs.configs.flatRecommended,
   ...GrassrootsEslintRules.configs.flatRecommended,
   reactRefresh.configs.recommended,
+  vitest.configs.recommended,
   {
     ignores: [
       "**/*.mjs",
@@ -93,6 +95,11 @@ export default tseslint.config(
       "@darraghor/nestjs-typed/api-method-should-specify-api-response": "off",
       // This is currently reporting a bunch of false positives.
       "@darraghor/nestjs-typed/injectable-should-be-provided": "off",
+    },
+    settings: {
+      vitest: {
+        typecheck: true,
+      },
     },
   },
 );
