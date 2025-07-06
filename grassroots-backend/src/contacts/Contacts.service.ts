@@ -4,7 +4,7 @@ import { EntityManager, EntityRepository, FilterQuery } from "@mikro-orm/core";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
 import {
   CreateBulkContactResponseDTO,
-  CreateContactRequestDTO,
+  CreateContactRequestDto,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto.js";
@@ -17,13 +17,15 @@ export class ContactsService {
   }
 
   async create(
-    createContactDto: CreateContactRequestDTO,
+    createContactDto: CreateContactRequestDto,
   ): Promise<ContactEntity> {
-    return await this.repo.upsert(createContactDto);
+    const result = this.repo.create(createContactDto);
+    return await result.persist();
+    return result;
   }
 
   async bulkCreate(
-    createContactsDto: CreateContactRequestDTO[],
+    createContactsDto: CreateContactRequestDto[],
   ): Promise<CreateBulkContactResponseDTO> {
     const contacts = await this.repo.upsertMany(createContactsDto);
     return { ids: contacts.map((x) => x.id) };
