@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { useE2ETestFixture } from "../src/testing/E2eSetup";
-import { AuthModule } from "../src/auth/Auth.module";
+import { useE2ETestFixture } from "../testing/E2eSetup";
+import { AuthModule } from "./Auth.module";
 
 describe("AuthController (e2e) while signed out", () => {
   const getFixture = useE2ETestFixture({

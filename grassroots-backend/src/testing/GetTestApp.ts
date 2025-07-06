@@ -8,7 +8,7 @@ import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "../users/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
-import { MockSessionGuard } from "../../test/MockAuthGuard";
+import { MockSessionGuard } from "./MockAuthGuard";
 import { SessionGuard } from "../auth/Session.guard";
 
 let app: NestExpressApplication | undefined = undefined;

@@ -1,5 +1,5 @@
 import createClient, { Client } from "openapi-fetch";
-import { listenAndConfigureApp } from "../App.module";
+import { listenAndConfigureApp } from "../app/App.module";
 import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
