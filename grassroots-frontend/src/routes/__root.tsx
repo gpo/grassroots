@@ -7,6 +7,8 @@ import { AppShell, Button, MantineProvider, ScrollArea } from "@mantine/core";
 import { RoutedLink } from "../components/RoutedLink";
 import { navigateToBackendRoute } from "../GrassRootsAPI";
 import { LoginState } from "../context/LoginStateContext";
+import { populateFakeData } from "../devtools/populateFakeData";
+import { AddFakeDataButton } from "../components/devtools/AddFakeDataButton";
 
 interface RouterContext {
   loginState: Promise<LoginState | undefined>;
@@ -39,9 +41,11 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           <AppShell.Section>
             <RoutedLink to="/Users">Users</RoutedLink>
           </AppShell.Section>
-          <AppShell.Section>
-            <Button>Add 100 Random Contacts</Button>
-          </AppShell.Section>
+          {import.meta.env.MODE === "development" ? (
+            <AppShell.Section>
+              <AddFakeDataButton></AddFakeDataButton>
+            </AppShell.Section>
+          ) : null}
           <AppShell.Section grow component={ScrollArea}></AppShell.Section>
           <AppShell.Section>
             <TanStackRouterDevtools />
