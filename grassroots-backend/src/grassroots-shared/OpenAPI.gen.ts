@@ -223,6 +223,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/roles": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["RolesController_findAll"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/users": {
     parameters: {
       query?: never;
@@ -311,6 +327,11 @@ export interface components {
     PaginatedResponseDTO: {
       rowsSkipped: number;
       rowsTotal: number;
+    };
+    RoleResponseDTO: {
+      id: number;
+      name: string;
+      permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
     };
     UserDTO: {
       displayName?: string;
@@ -793,6 +814,34 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["OrganizationDTO"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  RolesController_findAll: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["RoleResponseDTO"][];
         };
       };
       /** @description Validation failed */
