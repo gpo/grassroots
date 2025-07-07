@@ -12,7 +12,11 @@ export class UsersService {
   async findOrCreate(
     user: PropsOf<UserEntity>,
   ): Promise<UserEntity | undefined> {
-    return await this.repo.upsert(user);
+    const existing = await this.repo.findOne({ id: user.id });
+    if (existing !== null) {
+      return existing;
+    }
+    return this.repo.create(user);
   }
 
   async findOne(user: PropsOf<UserEntity>): Promise<UserEntity | null> {
