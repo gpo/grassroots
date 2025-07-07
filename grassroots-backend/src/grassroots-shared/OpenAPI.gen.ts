@@ -328,7 +328,7 @@ export interface components {
       rowsSkipped: number;
       rowsTotal: number;
     };
-    RoleResponseDTO: {
+    RoleDTO: {
       id: number;
       name: string;
       permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
@@ -841,7 +841,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["RoleResponseDTO"][];
+          "application/json": components["schemas"]["RoleDTO"][];
         };
       };
       /** @description Validation failed */

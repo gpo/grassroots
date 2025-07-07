@@ -229,9 +229,10 @@
         "required": ["rowsSkipped", "rowsTotal"],
         "type": "object"
       },
-      "RoleResponseDTO": {
+      "RoleDTO": {
         "properties": {
           "id": {
+            "minimum": 0,
             "type": "number"
           },
           "name": {
@@ -850,7 +851,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "$ref": "#/components/schemas/RoleResponseDTO"
+                    "$ref": "#/components/schemas/RoleDTO"
                   },
                   "type": "array"
                 }

@@ -172,26 +172,26 @@ export default async () => {
           { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
         [
-          import("./contacts/entities/ValidationError.dto"),
-          {
-            ValidationErrorOutDTO: {
-              statusCode: { required: true, type: () => Number },
-              message: { required: true, type: () => [String] },
-              error: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
           import("./grassroots-shared/Role.dto"),
           {
-            RoleResponseDTO: {
-              id: { required: true, type: () => Number },
+            RoleDTO: {
+              id: { required: true, type: () => Number, minimum: 0 },
               name: { required: true, type: () => String },
               permissions: {
                 required: true,
                 enum: t["./grassroots-shared/Permission"].Permission,
                 isArray: true,
               },
+            },
+          },
+        ],
+        [
+          import("./contacts/entities/ValidationError.dto"),
+          {
+            ValidationErrorOutDTO: {
+              statusCode: { required: true, type: () => Number },
+              message: { required: true, type: () => [String] },
+              error: { required: true, type: () => String },
             },
           },
         ],
@@ -284,9 +284,7 @@ export default async () => {
           import("./organizations/Roles.controller"),
           {
             RolesController: {
-              findAll: {
-                type: [t["./grassroots-shared/Role.dto"].RoleResponseDTO],
-              },
+              findAll: { type: [t["./grassroots-shared/Role.dto"].RoleDTO] },
             },
           },
         ],
