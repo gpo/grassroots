@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import { AppModule, listenAndConfigureApp } from "./App.module";
+import { AppModule, listenAndConfigureApp } from "./app/App.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { readFile } from "fs/promises";
 import openapiTS, { astToString } from "openapi-typescript";
@@ -11,7 +11,7 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import {
   addValidationErrorsToOpenAPI,
   throwOnInvalidType,
-} from "./PostProcessOpenAPI";
+} from "./util/PostProcessOpenAPI";
 import { ValidationErrorOutDTO } from "./contacts/entities/ValidationError.dto";
 import { graphDependencies } from "./util/GraphDependencies";
 import { writeFormatted } from "./util/FormattingWriter";

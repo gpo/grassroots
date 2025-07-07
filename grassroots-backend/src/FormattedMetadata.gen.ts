@@ -10,7 +10,9 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
-    ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
+    ["./grassroots-shared/Hello.dto"]: await import(
+      "./grassroots-shared/Hello.dto"
+    ),
     ["./contacts/entities/Contact.entity"]: await import(
       "./contacts/entities/Contact.entity"
     ),
@@ -24,10 +26,6 @@ export default async () => {
   return {
     "@nestjs/swagger": {
       models: [
-        [
-          import("./app/entities/Hello.dto"),
-          { HelloOutDTO: { message: { required: true, type: () => String } } },
-        ],
         [
           import("./grassroots-shared/Paginated.dto"),
           {
@@ -124,6 +122,10 @@ export default async () => {
           },
         ],
         [
+          import("./grassroots-shared/Hello.dto"),
+          { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
+        [
           import("./grassroots-shared/LoginState.dto"),
           {
             LoginStateDTO: {
@@ -148,10 +150,12 @@ export default async () => {
       ],
       controllers: [
         [
-          import("./App.controller"),
+          import("./app/App.controller"),
           {
             AppController: {
-              getHello: { type: t["./app/entities/Hello.dto"].HelloOutDTO },
+              getHello: {
+                type: t["./grassroots-shared/Hello.dto"].HelloOutDTO,
+              },
             },
           },
         ],

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { useE2ETestFixture } from "../src/testing/E2eSetup";
+import { useE2ETestFixture } from "../testing/E2eSetup";
 import { writeFile } from "fs/promises";
-import { graphDependencies } from "../src/util/GraphDependencies";
-import { ContactsModule } from "../src/contacts/Contacts.module";
+import { graphDependencies } from "../util/GraphDependencies";
+import { ContactsModule } from "./Contacts.module";
 
 const TEST_CONTACT = {
   email: "test@test.com",

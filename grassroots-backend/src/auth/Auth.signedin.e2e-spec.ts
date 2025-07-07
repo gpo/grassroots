@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { useE2ETestFixture } from "../src/testing/E2eSetup";
-import { AuthModule } from "../src/auth/Auth.module";
-import { UsersModule } from "../src/users/Users.module";
-import { MOCK_AUTH_GUARD_USER } from "./MockAuthGuard";
+import { useE2ETestFixture } from "../testing/E2eSetup";
+import { AuthModule } from "./Auth.module";
+import { UsersModule } from "../users/Users.module";
+import { MOCK_AUTH_GUARD_USER } from "../testing/MockAuthGuard";
 
 describe("AuthController (e2e) while signed in", () => {
   const getFixture = useE2ETestFixture({
