@@ -1,4 +1,5 @@
 **/*.gen.ts linguist-generated=true
 **/metadata.ts linguist-generated=true
 **/openAPI.json linguist-generated=true
+grassroots-backend/src/migrations/.snapshot-grassroots.json linguist-generated=true
 *.sh text eol=lf
