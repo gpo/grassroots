@@ -16,18 +16,15 @@ export class ContactsService {
     this.repo = entityManager.getRepository<ContactEntity>(ContactEntity);
   }
 
-  async create(
-    createContactDto: CreateContactRequestDto,
-  ): Promise<ContactEntity> {
+  create(createContactDto: CreateContactRequestDto): ContactEntity {
     const result = this.repo.create(createContactDto);
-    return await result.persist();
     return result;
   }
 
-  async bulkCreate(
+  bulkCreate(
     createContactsDto: CreateContactRequestDto[],
-  ): Promise<CreateBulkContactResponseDTO> {
-    const contacts = await this.repo.upsertMany(createContactsDto);
+  ): CreateBulkContactResponseDTO {
+    const contacts = createContactsDto.map((x) => this.repo.create(x));
     return { ids: contacts.map((x) => x.id) };
   }
 
