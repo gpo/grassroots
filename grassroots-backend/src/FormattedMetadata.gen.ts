@@ -109,22 +109,6 @@ export default async () => {
           },
         ],
         [
-          import("./grassroots-shared/User.dto"),
-          {
-            UserDTO: {
-              id: { required: true, type: () => String },
-              emails: {
-                required: false,
-                type: () => [String],
-                format: "email",
-              },
-              firstName: { required: false, type: () => String },
-              lastName: { required: false, type: () => String },
-              displayName: { required: false, type: () => String },
-            },
-          },
-        ],
-        [
           import("./grassroots-shared/Organization.dto"),
           {
             OrganizationDTO: {
@@ -150,6 +134,22 @@ export default async () => {
           },
         ],
         [
+          import("./grassroots-shared/User.dto"),
+          {
+            UserDTO: {
+              id: { required: true, type: () => String },
+              emails: {
+                required: false,
+                type: () => [String],
+                format: "email",
+              },
+              firstName: { required: false, type: () => String },
+              lastName: { required: false, type: () => String },
+              displayName: { required: false, type: () => String },
+            },
+          },
+        ],
+        [
           import("./grassroots-shared/LoginState.dto"),
           {
             LoginStateDTO: {
@@ -162,6 +162,10 @@ export default async () => {
         ],
         [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
+          import("./grassroots-shared/Hello.dto"),
+          { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
+        [
           import("./contacts/entities/ValidationError.dto"),
           {
             ValidationErrorOutDTO: {
@@ -170,10 +174,6 @@ export default async () => {
               error: { required: true, type: () => String },
             },
           },
-        ],
-        [
-          import("./grassroots-shared/Hello.dto"),
-          { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
       ],
       controllers: [
