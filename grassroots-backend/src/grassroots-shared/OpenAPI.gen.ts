@@ -272,11 +272,11 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
-    CreateOrganizationDTO: {
+    CreateOrganizationRequestDTO: {
       name: string;
       parentID: number;
     };
-    CreateOrganizationRootDTO: {
+    CreateOrganizationRootRequestDTO: {
       name: string;
     };
     GetContactByIDResponseDTO: {
@@ -288,10 +288,13 @@ export interface components {
     LoginStateDTO: {
       user?: components["schemas"]["UserDTO"];
     };
-    OrganizationResponseDTO: {
+    OrganizationDTO: {
       id: number;
       name: string;
       parentId?: number;
+    };
+    OrganizationListDTO: {
+      organizations: components["schemas"]["OrganizationDTO"][];
     };
     PaginatedContactResponseDTO: {
       contacts: components["schemas"]["ContactDTO"][];
@@ -665,7 +668,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationResponseDTO"][];
+          "application/json": components["schemas"]["OrganizationListDTO"];
         };
       };
       /** @description Validation failed */
@@ -688,7 +691,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateOrganizationDTO"];
+        "application/json": components["schemas"]["CreateOrganizationRequestDTO"];
       };
     };
     responses: {
@@ -697,7 +700,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationResponseDTO"];
+          "application/json": components["schemas"]["OrganizationDTO"];
         };
       };
       /** @description Validation failed */
@@ -727,7 +730,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationResponseDTO"][];
+          "application/json": components["schemas"]["OrganizationListDTO"];
         };
       };
       /** @description Validation failed */
@@ -750,7 +753,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateOrganizationRootDTO"];
+        "application/json": components["schemas"]["CreateOrganizationRootRequestDTO"];
       };
     };
     responses: {
@@ -759,7 +762,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationResponseDTO"];
+          "application/json": components["schemas"]["OrganizationDTO"];
         };
       };
       /** @description Validation failed */
@@ -789,7 +792,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationResponseDTO"];
+          "application/json": components["schemas"]["OrganizationDTO"];
         };
       };
       /** @description Validation failed */

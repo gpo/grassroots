@@ -7,7 +7,7 @@ import {
   PrimaryKey,
   Property,
 } from "@mikro-orm/core";
-import { OrganizationResponseDTO } from "../grassroots-shared/Organization.dto";
+import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
 
 @Entity()
 export class OrganizationEntity extends BaseEntity {
@@ -25,7 +25,7 @@ export class OrganizationEntity extends BaseEntity {
   @OneToMany(() => OrganizationEntity, (organization) => organization.parent)
   children?: Collection<OrganizationEntity>;
 
-  toDTO(): OrganizationResponseDTO {
+  toDTO(): OrganizationDTO {
     return {
       id: this.id,
       name: this.name,

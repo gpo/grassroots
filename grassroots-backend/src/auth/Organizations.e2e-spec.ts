@@ -45,20 +45,20 @@ describe("Organizations (e2e)", () => {
       },
     });
 
-    const { data: organizations } = await f.grassrootsAPI.GET("/organizations");
+    const organizations = (await f.grassrootsAPI.GET("/organizations")).data
+      ?.organizations;
     assert(organizations !== undefined);
     expect(organizations.length).toEqual(4);
 
-    const { data: ancestors } = await f.grassrootsAPI.GET(
-      "/organizations/ancestors-of/{id}",
-      {
+    const ancestors = (
+      await f.grassrootsAPI.GET("/organizations/ancestors-of/{id}", {
         params: {
           path: {
             id: c.id,
           },
         },
-      },
-    );
+      })
+    ).data?.organizations;
     assert(ancestors !== undefined);
     expect(ancestors.map((x) => x.name)).toEqual(["B", "A"]);
   });

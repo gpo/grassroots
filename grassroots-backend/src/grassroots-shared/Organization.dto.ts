@@ -1,17 +1,39 @@
-import { IsInt, IsNotEmpty, Min } from "class-validator";
+import { Type } from "class-transformer";
+import {
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  Min,
+  ValidateNested,
+} from "class-validator";
 
-export class OrganizationResponseDTO {
+export class OrganizationDTO {
+  @IsNumber()
+  @Min(0)
   id!: number;
+
+  @IsNotEmpty()
   name!: string;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
   parentId?: number;
 }
 
-export class CreateOrganizationRootDTO {
+export class OrganizationListDTO {
+  @ValidateNested({ each: true })
+  @Type(() => OrganizationDTO)
+  organizations!: OrganizationDTO[];
+}
+
+export class CreateOrganizationRootRequestDTO {
   @IsNotEmpty()
   name!: string;
 }
 
-export class CreateOrganizationDTO {
+export class CreateOrganizationRequestDTO {
   @IsNotEmpty()
   name!: string;
 

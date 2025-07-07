@@ -10,9 +10,10 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
-    ["./grassroots-shared/Hello.dto"]: await import(
-      "./grassroots-shared/Hello.dto"
+    ["./grassroots-shared/Organization.dto"]: await import(
+      "./grassroots-shared/Organization.dto"
     ),
+    ["./app/entities/Hello.dto"]: await import("./app/entities/Hello.dto"),
     ["./contacts/entities/Contact.entity"]: await import(
       "./contacts/entities/Contact.entity"
     ),
@@ -22,13 +23,14 @@ export default async () => {
     ["./grassroots-shared/Void.dto"]: await import(
       "./grassroots-shared/Void.dto"
     ),
-    ["./grassroots-shared/Organization.dto"]: await import(
-      "./grassroots-shared/Organization.dto"
-    ),
   };
   return {
     "@nestjs/swagger": {
       models: [
+        [
+          import("./app/entities/Hello.dto"),
+          { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
         [
           import("./grassroots-shared/Paginated.dto"),
           {
@@ -125,10 +127,6 @@ export default async () => {
           },
         ],
         [
-          import("./grassroots-shared/Hello.dto"),
-          { HelloOutDTO: { message: { required: true, type: () => String } } },
-        ],
-        [
           import("./grassroots-shared/LoginState.dto"),
           {
             LoginStateDTO: {
@@ -143,15 +141,23 @@ export default async () => {
         [
           import("./grassroots-shared/Organization.dto"),
           {
-            OrganizationResponseDTO: {
-              id: { required: true, type: () => Number },
+            OrganizationDTO: {
+              id: { required: true, type: () => Number, minimum: 0 },
               name: { required: true, type: () => String },
-              parentId: { required: false, type: () => Number },
+              parentId: { required: false, type: () => Number, minimum: 0 },
             },
-            CreateOrganizationRootDTO: {
+            OrganizationListDTO: {
+              organizations: {
+                required: true,
+                type: () => [
+                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                ],
+              },
+            },
+            CreateOrganizationRootRequestDTO: {
               name: { required: true, type: () => String },
             },
-            CreateOrganizationDTO: {
+            CreateOrganizationRequestDTO: {
               name: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
             },
@@ -170,12 +176,10 @@ export default async () => {
       ],
       controllers: [
         [
-          import("./app/App.controller"),
+          import("./App.controller"),
           {
             AppController: {
-              getHello: {
-                type: t["./grassroots-shared/Hello.dto"].HelloOutDTO,
-              },
+              getHello: { type: t["./app/entities/Hello.dto"].HelloOutDTO },
             },
           },
         ],
@@ -233,28 +237,21 @@ export default async () => {
           {
             OrganizationsController: {
               create: {
-                type: t["./grassroots-shared/Organization.dto"]
-                  .OrganizationResponseDTO,
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
               createRoot: {
-                type: t["./grassroots-shared/Organization.dto"]
-                  .OrganizationResponseDTO,
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
               findAll: {
-                type: [
-                  t["./grassroots-shared/Organization.dto"]
-                    .OrganizationResponseDTO,
-                ],
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationListDTO,
               },
               findById: {
-                type: t["./grassroots-shared/Organization.dto"]
-                  .OrganizationResponseDTO,
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
               getAncestors: {
-                type: [
-                  t["./grassroots-shared/Organization.dto"]
-                    .OrganizationResponseDTO,
-                ],
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationListDTO,
               },
             },
           },

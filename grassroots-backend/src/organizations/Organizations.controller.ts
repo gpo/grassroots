@@ -1,9 +1,10 @@
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { OrganizationsService } from "./Organizations.service";
 import {
-  CreateOrganizationDTO,
-  CreateOrganizationRootDTO,
-  OrganizationResponseDTO,
+  CreateOrganizationRequestDTO,
+  CreateOrganizationRootRequestDTO,
+  OrganizationDTO,
+  OrganizationListDTO,
 } from "../grassroots-shared/Organization.dto";
 
 @Controller("organizations")
@@ -12,8 +13,8 @@ export class OrganizationsController {
 
   @Post()
   async create(
-    @Body() createOrganizationDTO: CreateOrganizationDTO,
-  ): Promise<OrganizationResponseDTO> {
+    @Body() createOrganizationDTO: CreateOrganizationRequestDTO,
+  ): Promise<OrganizationDTO> {
     const organization = await this.organizationsService.create(
       createOrganizationDTO,
       createOrganizationDTO.parentID,
@@ -23,8 +24,8 @@ export class OrganizationsController {
 
   @Post("create-root")
   async createRoot(
-    @Body() createOrganizationDTO: CreateOrganizationRootDTO,
-  ): Promise<OrganizationResponseDTO> {
+    @Body() createOrganizationDTO: CreateOrganizationRootRequestDTO,
+  ): Promise<OrganizationDTO> {
     const organization = await this.organizationsService.create(
       createOrganizationDTO,
       null,
@@ -33,13 +34,13 @@ export class OrganizationsController {
   }
 
   @Get()
-  async findAll(): Promise<OrganizationResponseDTO[]> {
+  async findAll(): Promise<OrganizationListDTO> {
     const organizationEntities = await this.organizationsService.findAll();
-    return organizationEntities.map((x) => x.toDTO());
+    return { organizations: organizationEntities.map((x) => x.toDTO()) };
   }
 
   @Get(":id")
-  async findById(@Param("id") id: number): Promise<OrganizationResponseDTO> {
+  async findById(@Param("id") id: number): Promise<OrganizationDTO> {
     const organizationEntity = await this.organizationsService.findOne({
       id: id,
     });
@@ -47,11 +48,9 @@ export class OrganizationsController {
   }
 
   @Get("ancestors-of/:id")
-  async getAncestors(
-    @Param("id") id: number,
-  ): Promise<OrganizationResponseDTO[]> {
+  async getAncestors(@Param("id") id: number): Promise<OrganizationListDTO> {
     const organizationEntities =
       await this.organizationsService.getAncestors(id);
-    return organizationEntities.map((x) => x.toDTO());
+    return { organizations: organizationEntities.map((x) => x.toDTO()) };
   }
 }

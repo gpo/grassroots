@@ -92,7 +92,7 @@
         "required": ["email", "firstName", "lastName", "phoneNumber"],
         "type": "object"
       },
-      "CreateOrganizationDTO": {
+      "CreateOrganizationRequestDTO": {
         "properties": {
           "name": {
             "type": "string"
@@ -105,7 +105,7 @@
         "required": ["name", "parentID"],
         "type": "object"
       },
-      "CreateOrganizationRootDTO": {
+      "CreateOrganizationRootRequestDTO": {
         "properties": {
           "name": {
             "type": "string"
@@ -145,19 +145,33 @@
         },
         "type": "object"
       },
-      "OrganizationResponseDTO": {
+      "OrganizationDTO": {
         "properties": {
           "id": {
+            "minimum": 0,
             "type": "number"
           },
           "name": {
             "type": "string"
           },
           "parentId": {
+            "minimum": 0,
             "type": "number"
           }
         },
         "required": ["id", "name"],
+        "type": "object"
+      },
+      "OrganizationListDTO": {
+        "properties": {
+          "organizations": {
+            "items": {
+              "$ref": "#/components/schemas/OrganizationDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["organizations"],
         "type": "object"
       },
       "PaginatedContactResponseDTO": {
@@ -635,10 +649,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/OrganizationResponseDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/OrganizationListDTO"
                 }
               }
             },
@@ -664,7 +675,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateOrganizationDTO"
+                "$ref": "#/components/schemas/CreateOrganizationRequestDTO"
               }
             }
           },
@@ -675,7 +686,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                  "$ref": "#/components/schemas/OrganizationDTO"
                 }
               }
             },
@@ -713,10 +724,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/OrganizationResponseDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/OrganizationListDTO"
                 }
               }
             },
@@ -744,7 +752,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateOrganizationRootDTO"
+                "$ref": "#/components/schemas/CreateOrganizationRootRequestDTO"
               }
             }
           },
@@ -755,7 +763,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                  "$ref": "#/components/schemas/OrganizationDTO"
                 }
               }
             },
@@ -793,7 +801,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationResponseDTO"
+                  "$ref": "#/components/schemas/OrganizationDTO"
                 }
               }
             },
