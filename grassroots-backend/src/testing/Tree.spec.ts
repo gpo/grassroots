@@ -1,7 +1,7 @@
 // Use the OrganizationDTO as an example.
 
 import { describe, expect, it } from "vitest";
-import { OrganizationResponseDTO } from "../grassroots-shared/Organization.dto";
+import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
 import { cast } from "../grassroots-shared/util/Cast";
 import { Tree } from "../grassroots-shared/Tree";
 
@@ -12,21 +12,21 @@ describe("tree", () => {
     const cID = 103;
     const unrelatedID = 1000;
     const collection = [
-      cast(OrganizationResponseDTO, {
+      cast(OrganizationDTO, {
         id: aID,
         name: "A (Root)",
       }),
-      cast(OrganizationResponseDTO, {
+      cast(OrganizationDTO, {
         id: bID,
         name: "B",
         parentId: aID,
       }),
-      cast(OrganizationResponseDTO, {
+      cast(OrganizationDTO, {
         id: cID,
         name: "C",
         parentId: bID,
       }),
-      cast(OrganizationResponseDTO, {
+      cast(OrganizationDTO, {
         id: unrelatedID,
         name: "Unrelated",
         parentId: aID,
@@ -34,7 +34,7 @@ describe("tree", () => {
       // Reverse to ensure order doesn't matter.
     ].reverse();
 
-    const tree = new Tree<OrganizationResponseDTO>(collection);
+    const tree = new Tree<OrganizationDTO>(collection);
     const root = tree.root;
     expect(root.v.id).toEqual(aID);
 

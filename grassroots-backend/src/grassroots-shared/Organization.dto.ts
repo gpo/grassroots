@@ -7,6 +7,7 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
+import "reflect-metadata";
 
 export class OrganizationDTO {
   @IsNumber()

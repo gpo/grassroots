@@ -1,6 +1,6 @@
 import { assert, describe, expect, it } from "vitest";
-import { useE2ETestFixture } from "../src/testing/E2eSetup";
-import { OrganizationsModule } from "../src/organizations/Organizations.module";
+import { OrganizationsModule } from "../organizations/Organizations.module";
+import { useE2ETestFixture } from "../testing/E2eSetup";
 
 describe("Organizations (e2e)", () => {
   const getFixture = useE2ETestFixture({
