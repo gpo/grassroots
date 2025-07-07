@@ -56,7 +56,7 @@
           "mappedType": "string"
         }
       },
-      "name": "contact_entity_out_dto",
+      "name": "contact_entity",
       "schema": "public",
       "indexes": [
         {
@@ -64,13 +64,13 @@
             "email"
           ],
           "composite": false,
-          "keyName": "contact_entity_out_dto_email_unique",
+          "keyName": "contact_entity_email_unique",
           "constraint": true,
           "primary": false,
           "unique": true
         },
         {
-          "keyName": "contact_entity_out_dto_pkey",
+          "keyName": "contact_entity_pkey",
           "columnNames": [
             "id"
           ],
