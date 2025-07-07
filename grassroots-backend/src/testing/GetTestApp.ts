@@ -1,15 +1,14 @@
 import { Test } from "@nestjs/testing";
-import { ContactEntity } from "../contacts/entities/Contact.entity";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Type, ValidationPipe } from "@nestjs/common";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
-import { UserEntity } from "../users/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
 import { MockSessionGuard } from "./MockAuthGuard";
 import { SessionGuard } from "../auth/Session.guard";
+import mikroORMConfig from "./../mikro-orm.config";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -39,7 +38,7 @@ export async function getTestApp(
             user: config.get<string>("POSTGRES_USER"),
             password: config.get<string>("POSTGRES_PASSWORD"),
             dbName: config.get<string>("POSTGRES_DATABASE"),
-            entities: [ContactEntity, UserEntity],
+            entities: mikroORMConfig.entities,
             // Allows global transaction management, used for our rollback based testing strategy.
             allowGlobalContext: true,
           };

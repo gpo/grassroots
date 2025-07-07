@@ -7,11 +7,11 @@ export default async () => {
     ["./grassroots-shared/Paginated.dto"]: await import(
       "./grassroots-shared/Paginated.dto"
     ),
+    ["./grassroots-shared/Organization.dto"]: await import(
+      "./grassroots-shared/Organization.dto"
+    ),
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
-    ),
-    ["./grassroots-shared/Hello.dto"]: await import(
-      "./grassroots-shared/Hello.dto"
     ),
     ["./contacts/entities/Contact.entity"]: await import(
       "./contacts/entities/Contact.entity"
@@ -21,6 +21,9 @@ export default async () => {
     ),
     ["./grassroots-shared/Void.dto"]: await import(
       "./grassroots-shared/Void.dto"
+    ),
+    ["./grassroots-shared/Hello.dto"]: await import(
+      "./grassroots-shared/Hello.dto"
     ),
   };
   return {
@@ -49,17 +52,17 @@ export default async () => {
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
-            CreateContactRequestDto: {
+            CreateContactRequestDTO: {
               email: { required: true, type: () => String, format: "email" },
               firstName: { required: true, type: () => String },
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
-            CreateBulkContactRequestDto: {
+            CreateBulkContactRequestDTO: {
               contacts: {
                 required: true,
                 type: () => [
-                  t["./grassroots-shared/Contact.dto"].CreateContactRequestDto,
+                  t["./grassroots-shared/Contact.dto"].CreateContactRequestDTO,
                 ],
               },
             },
@@ -106,6 +109,31 @@ export default async () => {
           },
         ],
         [
+          import("./grassroots-shared/Organization.dto"),
+          {
+            OrganizationDTO: {
+              id: { required: true, type: () => Number, minimum: 0 },
+              name: { required: true, type: () => String },
+              parentId: { required: false, type: () => Number, minimum: 0 },
+            },
+            OrganizationListDTO: {
+              organizations: {
+                required: true,
+                type: () => [
+                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                ],
+              },
+            },
+            CreateOrganizationRootRequestDTO: {
+              name: { required: true, type: () => String },
+            },
+            CreateOrganizationRequestDTO: {
+              name: { required: true, type: () => String },
+              parentID: { required: true, type: () => Number, minimum: 1 },
+            },
+          },
+        ],
+        [
           import("./grassroots-shared/User.dto"),
           {
             UserDTO: {
@@ -122,10 +150,6 @@ export default async () => {
           },
         ],
         [
-          import("./grassroots-shared/Hello.dto"),
-          { HelloOutDTO: { message: { required: true, type: () => String } } },
-        ],
-        [
           import("./grassroots-shared/LoginState.dto"),
           {
             LoginStateDTO: {
@@ -138,6 +162,10 @@ export default async () => {
         ],
         [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
+          import("./grassroots-shared/Hello.dto"),
+          { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
+        [
           import("./contacts/entities/ValidationError.dto"),
           {
             ValidationErrorOutDTO: {
@@ -149,16 +177,6 @@ export default async () => {
         ],
       ],
       controllers: [
-        [
-          import("./app/App.controller"),
-          {
-            AppController: {
-              getHello: {
-                type: t["./grassroots-shared/Hello.dto"].HelloOutDTO,
-              },
-            },
-          },
-        ],
         [
           import("./contacts/Contacts.controller"),
           {
@@ -205,6 +223,40 @@ export default async () => {
                 type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
               },
               logout: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+            },
+          },
+        ],
+        [
+          import("./organizations/Organizations.controller"),
+          {
+            OrganizationsController: {
+              create: {
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+              },
+              createRoot: {
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+              },
+              findAll: {
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationListDTO,
+              },
+              findById: {
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+              },
+              getAncestors: {
+                type: t["./grassroots-shared/Organization.dto"]
+                  .OrganizationListDTO,
+              },
+            },
+          },
+        ],
+        [
+          import("./app/App.controller"),
+          {
+            AppController: {
+              getHello: {
+                type: t["./grassroots-shared/Hello.dto"].HelloOutDTO,
+              },
             },
           },
         ],
