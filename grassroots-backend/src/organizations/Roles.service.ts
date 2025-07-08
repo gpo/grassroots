@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Permission } from "../grassroots-shared/Permission";
+import { RoleDTO } from "../grassroots-shared/Role.dto";
 
 class RoleEntity {
   id!: number;
@@ -34,7 +35,7 @@ export const ROLES: RoleEntity[] = [
 
 @Injectable()
 export class RolesService {
-  findAll(): RoleEntity[] {
+  findAll(): RoleDTO[] {
     return ROLES;
   }
 }
