@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { useE2ETestFixture } from "../testing/E2eSetup";
-import { writeFile } from "fs/promises";
-import { graphDependencies } from "../util/GraphDependencies";
+import { writeFile, readFile } from "fs/promises";
 import { ContactsModule } from "./Contacts.module";
+import { useE2ETestFixture } from "../testing/E2eSetup";
+import { graphDependencies } from "../util/GraphDependencies";
 
 const TEST_CONTACT = {
   email: "test@test.com",
@@ -18,10 +18,12 @@ describe("ContactsController (e2e)", () => {
 
   it("generates dependency graph", async () => {
     const f = getFixture();
-    await writeFile(
-      "../docs/DependencyGraphForTest.md",
-      graphDependencies(f.app),
-    );
+    const PATH = "../docs/DependencyGraphForTest.md";
+
+    await writeFile(PATH, graphDependencies(f.app));
+    const written = await readFile(PATH, "utf8");
+
+    expect(written.length).toBeGreaterThan(0);
   });
 
   it("creates a contact", async () => {
