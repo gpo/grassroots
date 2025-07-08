@@ -65,8 +65,8 @@ export async function listenAndConfigureApp(
   passport.deserializeUser((id: string, done) => {
     const usersService = app.get<UsersService>(UsersService);
     usersService
-      .findOrCreate({ id })
-      .then((user: UserEntity | undefined) => {
+      .findOneById(id)
+      .then((user: UserEntity | null) => {
         done(null, user);
       })
       .catch((e: unknown) => {

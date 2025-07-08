@@ -1,6 +1,5 @@
 import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ContactsService } from "./Contacts.service";
-import { ContactEntity } from "./entities/Contact.entity";
 import {
   ContactDTO,
   CreateBulkContactRequestDTO,
@@ -16,14 +15,14 @@ export class ContactsController {
   constructor(private readonly contactsService: ContactsService) {}
 
   @Post()
-  create(
+  async create(
     @Body() createContactDto: CreateContactRequestDTO,
-  ): Promise<ContactEntity> {
+  ): Promise<ContactDTO> {
     return this.contactsService.create(createContactDto);
   }
 
   @Post("bulk-create")
-  bulkCreate(
+  async bulkCreate(
     @Body() createContactDtos: CreateBulkContactRequestDTO,
   ): Promise<CreateBulkContactResponseDTO> {
     const contacts = await this.contactsService.bulkCreate(
