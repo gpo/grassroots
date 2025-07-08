@@ -1,13 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { ContactEntity } from "./entities/Contact.entity.js";
-import {
-  EntityManager,
-  EntityRepository,
-  FilterQuery,
-  RequiredEntityData,
-} from "@mikro-orm/core";
+import { EntityManager, EntityRepository, FilterQuery } from "@mikro-orm/core";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
 import {
+  ContactDTO,
+  CreateContactRequestDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto.js";
@@ -19,23 +16,19 @@ export class ContactsService {
     this.repo = entityManager.getRepository<ContactEntity>(ContactEntity);
   }
 
-  async create(
-    contact: RequiredEntityData<ContactEntity>,
-  ): Promise<ContactEntity> {
+  async create(contact: CreateContactRequestDTO): Promise<ContactDTO> {
     const result = this.repo.create(contact);
     await this.entityManager.flush();
     return result;
   }
 
-  async bulkCreate(
-    contacts: RequiredEntityData<ContactEntity>[],
-  ): Promise<ContactEntity[]> {
+  async bulkCreate(contacts: CreateContactRequestDTO[]): Promise<ContactDTO[]> {
     const result = contacts.map((x) => this.repo.create(x));
     await this.entityManager.flush();
     return result;
   }
 
-  async findAll(): Promise<ContactEntity[]> {
+  async findAll(): Promise<ContactDTO[]> {
     return await this.repo.find({});
   }
 
@@ -71,7 +64,7 @@ export class ContactsService {
     };
   }
 
-  async findOne(id: number): Promise<ContactEntity | null> {
+  async findOne(id: number): Promise<ContactDTO | null> {
     return await this.repo.findOne({ id });
   }
 }
