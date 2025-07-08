@@ -169,16 +169,6 @@ export default async () => {
           { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
         [
-          import("./contacts/entities/ValidationError.dto"),
-          {
-            ValidationErrorOutDTO: {
-              statusCode: { required: true, type: () => Number },
-              message: { required: true, type: () => [String] },
-              error: { required: true, type: () => String },
-            },
-          },
-        ],
-        [
           import("./grassroots-shared/Role.dto"),
           {
             RoleDTO: {
@@ -189,6 +179,16 @@ export default async () => {
                 enum: t["./grassroots-shared/Permission"].Permission,
                 isArray: true,
               },
+            },
+          },
+        ],
+        [
+          import("./contacts/entities/ValidationError.dto"),
+          {
+            ValidationErrorOutDTO: {
+              statusCode: { required: true, type: () => Number },
+              message: { required: true, type: () => [String] },
+              error: { required: true, type: () => String },
             },
           },
         ],
