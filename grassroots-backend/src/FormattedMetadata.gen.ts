@@ -13,6 +13,9 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
+    ["./grassroots-shared/Permission"]: await import(
+      "./grassroots-shared/Permission"
+    ),
     ["./grassroots-shared/LoginState.dto"]: await import(
       "./grassroots-shared/LoginState.dto"
     ),
@@ -21,6 +24,9 @@ export default async () => {
     ),
     ["./grassroots-shared/Hello.dto"]: await import(
       "./grassroots-shared/Hello.dto"
+    ),
+    ["./grassroots-shared/Role.dto"]: await import(
+      "./grassroots-shared/Role.dto"
     ),
   };
   return {
@@ -172,6 +178,20 @@ export default async () => {
             },
           },
         ],
+        [
+          import("./grassroots-shared/Role.dto"),
+          {
+            RoleDTO: {
+              id: { required: true, type: () => Number, minimum: 0 },
+              name: { required: true, type: () => String },
+              permissions: {
+                required: true,
+                enum: t["./grassroots-shared/Permission"].Permission,
+                isArray: true,
+              },
+            },
+          },
+        ],
       ],
       controllers: [
         [
@@ -252,6 +272,14 @@ export default async () => {
               getHello: {
                 type: t["./grassroots-shared/Hello.dto"].HelloOutDTO,
               },
+            },
+          },
+        ],
+        [
+          import("./organizations/Roles.controller"),
+          {
+            RolesController: {
+              findAll: { type: [t["./grassroots-shared/Role.dto"].RoleDTO] },
             },
           },
         ],
