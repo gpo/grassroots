@@ -100,6 +100,7 @@ describe("ContactsController (e2e)", () => {
         },
       },
     );
+    console.log(searchResponse.statusText);
     expect(searchResponse.status).toBe(201);
     expect(data?.contacts.length).toBe(1);
     expect(data?.contacts[0]?.email).toBe("foo@foo.com");

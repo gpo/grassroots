@@ -19,8 +19,14 @@ export class UsersService {
     return this.repo.create(user);
   }
 
-  async findOne(user: PropsOf<UserEntity>): Promise<UserEntity | null> {
-    return await this.repo.findOne(user);
+  async createOrFindOne(user: PropsOf<UserEntity>): Promise<UserEntity | null> {
+    let result = await this.repo.findOne(user);
+    if (result) {
+      return result;
+    }
+    result = this.repo.create(user);
+    await this.entityManager.flush();
+    return result;
   }
 
   async findAll(): Promise<UserEntity[]> {

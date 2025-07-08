@@ -26,7 +26,10 @@ export class ContactsController {
   bulkCreate(
     @Body() createContactDtos: CreateBulkContactRequestDTO,
   ): Promise<CreateBulkContactResponseDTO> {
-    return this.contactsService.bulkCreate(createContactDtos.contacts);
+    const contacts = await this.contactsService.bulkCreate(
+      createContactDtos.contacts,
+    );
+    return { ids: contacts.map((x) => x.id) };
   }
 
   @Get()
