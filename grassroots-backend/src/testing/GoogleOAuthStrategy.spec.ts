@@ -28,7 +28,7 @@ describe("GoogleOAuthStrategy", () => {
   it("should create a user", async () => {
     const FAKE_ID = "testID";
     const { strategy, usersService } = useContext();
-    const before = await usersService.findOne({ id: FAKE_ID });
+    const before = await usersService.createOrFindOne({ id: FAKE_ID });
     expect(before).toBe(null);
 
     strategy.validate(
@@ -45,7 +45,7 @@ describe("GoogleOAuthStrategy", () => {
         }
       },
     );
-    const after = await usersService.findOne({ id: FAKE_ID });
+    const after = await usersService.createOrFindOne({ id: FAKE_ID });
     expect(after?.id).toBe(FAKE_ID);
   });
 });

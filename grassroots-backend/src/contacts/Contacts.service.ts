@@ -1,10 +1,13 @@
 import { Injectable } from "@nestjs/common";
 import { ContactEntity } from "./entities/Contact.entity.js";
-import { EntityManager, EntityRepository, FilterQuery } from "@mikro-orm/core";
+import {
+  EntityManager,
+  EntityRepository,
+  FilterQuery,
+  RequiredEntityData,
+} from "@mikro-orm/core";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
 import {
-  CreateBulkContactResponseDTO,
-  CreateContactRequestDto,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto.js";
@@ -16,16 +19,20 @@ export class ContactsService {
     this.repo = entityManager.getRepository<ContactEntity>(ContactEntity);
   }
 
-  create(createContactDto: CreateContactRequestDto): ContactEntity {
-    const result = this.repo.create(createContactDto);
+  async create(
+    contact: RequiredEntityData<ContactEntity>,
+  ): Promise<ContactEntity> {
+    const result = this.repo.create(contact);
+    await this.entityManager.flush();
     return result;
   }
 
-  bulkCreate(
-    createContactsDto: CreateContactRequestDto[],
-  ): CreateBulkContactResponseDTO {
-    const contacts = createContactsDto.map((x) => this.repo.create(x));
-    return { ids: contacts.map((x) => x.id) };
+  async bulkCreate(
+    contacts: RequiredEntityData<ContactEntity>[],
+  ): Promise<ContactEntity[]> {
+    const result = contacts.map((x) => this.repo.create(x));
+    await this.entityManager.flush();
+    return result;
   }
 
   async findAll(): Promise<ContactEntity[]> {
