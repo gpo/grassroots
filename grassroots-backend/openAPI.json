@@ -229,6 +229,26 @@
         "required": ["rowsSkipped", "rowsTotal"],
         "type": "object"
       },
+      "RoleDTO": {
+        "properties": {
+          "id": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "permissions": {
+            "items": {
+              "enum": ["VIEW_CONTACTS", "MANAGE_CONTACTS", "MANAGE_USERS"],
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["id", "name", "permissions"],
+        "type": "object"
+      },
       "UserDTO": {
         "properties": {
           "displayName": {
@@ -819,6 +839,38 @@
           }
         },
         "tags": ["Organizations"]
+      }
+    },
+    "/roles": {
+      "get": {
+        "operationId": "RolesController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RoleDTO"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Roles"]
       }
     },
     "/users": {
