@@ -69,8 +69,10 @@ async function writeFormattedMetadata(): Promise<void> {
   });
 }
 
-async function createMikroORMMigration(): Promise<void> {
-  const orm = await MikroORM.init();
+async function createMikroORMMigration(
+  app: NestExpressApplication,
+): Promise<void> {
+  const orm = app.get(MikroORM);
   const migrator = orm.getMigrator();
   try {
     await migrator.createMigration().then((migrationResult) => {
@@ -80,6 +82,7 @@ async function createMikroORMMigration(): Promise<void> {
         console.log("MikroORM migration successful");
       }
     });
+    await migrator.up();
   } catch (e) {
     console.error(e);
   }
@@ -98,7 +101,7 @@ async function bootstrap(port: number): Promise<void> {
       text: graphDependencies(app),
     }),
     writeFormattedMetadata(),
-    createMikroORMMigration(),
+    createMikroORMMigration(app),
   ];
 
   await Promise.all(postStartupTasks);
