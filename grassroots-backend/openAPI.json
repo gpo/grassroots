@@ -24,10 +24,6 @@
         "required": ["id", "email", "firstName", "lastName", "phoneNumber"],
         "type": "object"
       },
-      "ContactEntity": {
-        "properties": {},
-        "type": "object"
-      },
       "ContactSearchRequestDTO": {
         "properties": {
           "email": {
@@ -524,7 +520,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ContactEntity"
+                  "$ref": "#/components/schemas/ContactDTO"
                 }
               }
             },
