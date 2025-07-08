@@ -13,12 +13,6 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
-    ["./grassroots-shared/Permission"]: await import(
-      "./grassroots-shared/Permission"
-    ),
-    ["./contacts/entities/Contact.entity"]: await import(
-      "./contacts/entities/Contact.entity"
-    ),
     ["./grassroots-shared/LoginState.dto"]: await import(
       "./grassroots-shared/LoginState.dto"
     ),
@@ -27,9 +21,6 @@ export default async () => {
     ),
     ["./grassroots-shared/Hello.dto"]: await import(
       "./grassroots-shared/Hello.dto"
-    ),
-    ["./grassroots-shared/Role.dto"]: await import(
-      "./grassroots-shared/Role.dto"
     ),
   };
   return {
@@ -172,20 +163,6 @@ export default async () => {
           { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
         [
-          import("./grassroots-shared/Role.dto"),
-          {
-            RoleDTO: {
-              id: { required: true, type: () => Number, minimum: 0 },
-              name: { required: true, type: () => String },
-              permissions: {
-                required: true,
-                enum: t["./grassroots-shared/Permission"].Permission,
-                isArray: true,
-              },
-            },
-          },
-        ],
-        [
           import("./contacts/entities/ValidationError.dto"),
           {
             ValidationErrorOutDTO: {
@@ -201,9 +178,7 @@ export default async () => {
           import("./contacts/Contacts.controller"),
           {
             ContactsController: {
-              create: {
-                type: t["./contacts/entities/Contact.entity"].ContactEntity,
-              },
+              create: { type: t["./grassroots-shared/Contact.dto"].ContactDTO },
               bulkCreate: {
                 type: t["./grassroots-shared/Contact.dto"]
                   .CreateBulkContactResponseDTO,
@@ -277,14 +252,6 @@ export default async () => {
               getHello: {
                 type: t["./grassroots-shared/Hello.dto"].HelloOutDTO,
               },
-            },
-          },
-        ],
-        [
-          import("./organizations/Roles.controller"),
-          {
-            RolesController: {
-              findAll: { type: [t["./grassroots-shared/Role.dto"].RoleDTO] },
             },
           },
         ],
