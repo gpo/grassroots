@@ -1,11 +1,11 @@
 import { Button } from "@mantine/core";
 import { JSX } from "react";
 import { grassrootsAPI } from "../../GrassRootsAPI";
-import { CreateContactRequestDto } from "../../grassroots-shared/Contact.dto";
+import { CreateContactRequestDTO } from "../../grassroots-shared/Contact.dto";
 import { faker } from "@faker-js/faker";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-function getRandomContact(): CreateContactRequestDto {
+function getRandomContact(): CreateContactRequestDTO {
   // Generating valid phone numbers is tough, so we restrict the possible values.
   const phoneNumber =
     "226-" +
