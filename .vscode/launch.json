@@ -3,6 +3,24 @@
   "configurations": [
     {
       "type": "node",
+      "name": "Frontend Debug",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/grassroots-frontend",
+      "program": "${workspaceFolder}/grassroots-frontend/node_modules/.bin/vite",
+      "args": ["--host"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
+      "name": "Backend Debug",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/grassroots-backend",
+      "program": "${workspaceFolder}/grassroots-backend/node_modules/.bin/nest",
+      "args": ["start", "--watch", "--debug"],
+      "console": "integratedTerminal"
+    },
+    {
+      "type": "node",
       "request": "launch",
       "name": "NestJS gen-files-only",
       "program": "${workspaceFolder}/grassroots-backend/node_modules/.bin/nest",
