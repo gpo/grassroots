@@ -114,15 +114,8 @@ jobs:
       - name: Tests
         run: npm run test:ci --prefix grassroots-backend
 
-  db_doc:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout .tbls.yml
-        uses: actions/checkout@v3
-      - name: "Services: Start Test Services"
-        uses: hoverkraft-tech/compose-action@v2.2.0
-        with:
-          compose-file: "./docker/compose-ci.yaml"
-      - uses: k1low/setup-tbls@v1
+      - name: Setup tbls
+        uses: k1low/setup-tbls@v1
+
       - name: Run tbls for generate database document
         run: tbls doc
