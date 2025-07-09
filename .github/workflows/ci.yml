@@ -119,3 +119,10 @@ jobs:
 
       - name: Run tbls for generate database document
         run: tbls doc
+
+      - name: Push Changes
+        id: auto-commit-action
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Generate db schema documentation"
+          commit_options: "--no-verify"
