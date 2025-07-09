@@ -81,6 +81,7 @@ async function createMikroORMMigration(): Promise<void> {
         console.log("MikroORM migration successful");
       }
     });
+    await migrator.up();
   } catch (e) {
     console.error(e);
   } finally {
@@ -91,8 +92,9 @@ async function createMikroORMMigration(): Promise<void> {
 async function bootstrap(port: number): Promise<void> {
   console.time("pre-startup");
   const preStartupTasks = [createMikroORMMigration()];
-  console.timeEnd("pre-startup");
   await Promise.all(preStartupTasks);
+  console.timeEnd("pre-startup");
+
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   await listenAndConfigureApp(app, port);
 
