@@ -15,7 +15,7 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-  @Get()
+  @Get("user-permissions-for-org")
   async getUserPermissionsForOrg(
     @Body() userPermissionsForOrgRequestDTO: UserPermissionsForOrgRequestDTO,
   ): Promise<PermissionsDTO> {
