@@ -4,7 +4,6 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
-  OneToOne,
   PrimaryKey,
   Property,
 } from "@mikro-orm/core";
@@ -27,8 +26,8 @@ export class OrganizationEntity extends BaseEntity {
   @OneToMany(() => OrganizationEntity, (organization) => organization.parent)
   children = new Collection<OrganizationEntity>(this);
 
-  @OneToOne(() => UserRoleEntity)
-  userRoles;
+  @OneToMany(() => UserRoleEntity, (userRole) => userRole.organization)
+  userRoles = new Collection<UserRoleEntity>(this);
 
   toDTO(): OrganizationDTO {
     return {
