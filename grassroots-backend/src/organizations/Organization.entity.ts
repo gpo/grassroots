@@ -2,6 +2,7 @@ import {
   BaseEntity,
   Collection,
   Entity,
+  EntityRepositoryType,
   ManyToOne,
   OneToMany,
   PrimaryKey,
@@ -9,9 +10,12 @@ import {
 } from "@mikro-orm/core";
 import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
 import { UserRoleEntity } from "../users/UserRole.entity";
+import { OrganizationRepository } from "./Organization.repo";
 
-@Entity()
+@Entity({ repository: () => OrganizationRepository })
 export class OrganizationEntity extends BaseEntity {
+  [EntityRepositoryType]?: OrganizationRepository;
+
   @PrimaryKey({ autoincrement: true })
   id!: number;
 

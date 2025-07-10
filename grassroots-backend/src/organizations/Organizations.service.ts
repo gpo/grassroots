@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { OrganizationEntity } from "./Organization.entity";
 import { CreateOrganizationRootRequestDTO } from "../grassroots-shared/Organization.dto";
 import { EntityManager, EntityRepository, Loaded } from "@mikro-orm/core";
@@ -38,22 +38,5 @@ export class OrganizationsService {
     organization: Partial<OrganizationEntity>,
   ): Promise<Loaded<OrganizationEntity>> {
     return await this.repo.findOneOrFail(organization);
-  }
-
-  async getAncestors(organizationID: number): Promise<OrganizationEntity[]> {
-    const ancestors: OrganizationEntity[] = [];
-    let current: Loaded<OrganizationEntity> | undefined | null =
-      await this.repo.findOne({ id: organizationID });
-    if (current === null) {
-      throw new NotFoundException(
-        `No organization with id ${String(organizationID)} found.`,
-      );
-    }
-    current = current.parent;
-    while (current !== undefined) {
-      ancestors.push(current);
-      current = current.parent;
-    }
-    return ancestors;
   }
 }
