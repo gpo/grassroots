@@ -8,40 +8,58 @@ import { readFileSync, existsSync } from "fs";
 import { getEnvFilePaths } from "./GetEnvFilePaths";
 
 /**
- * Loads and combines environment variables from multiple .env files
- * Earlier files in the list take priority (same as dotenv-flow behavior)
+ * Reads and parses a single .env file
+ * Returns null if file cannot be read
  */
-function loadEnvironmentVariables(): Record<string, string> {
-  // Reversed so that earlier files take priority, to align with the ConfigModule
-  const envFiles = getEnvFilePaths().reverse();
-  let combinedEnv: Record<string, string> = {};
-
-  for (const filePath of envFiles) {
-    if (existsSync(filePath)) {
-      try {
-        const fileContent = readFileSync(filePath, "utf8");
-        const parsedEnv = dotenv.parse(fileContent);
-        combinedEnv = { ...combinedEnv, ...parsedEnv };
-      } catch (error) {
-        console.warn(`Warning: Could not read env file ${filePath}:`, error);
-      }
-    }
+function readSingleEnvironmentFile(filePath: string): Record<string, string> {
+  try {
+    const fileContent = readFileSync(filePath, "utf8");
+    return dotenv.parse(fileContent);
+  } catch (error) {
+    // If file exists but can't be read/parsed
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    throw new Error(
+      `Failed to read environment file ${filePath}: ${errorMessage}`,
+    );
   }
-
-  return combinedEnv;
 }
 
-// Load environment configuration
-const envConfig = loadEnvironmentVariables();
+/**
+ * Loads environment variables from multiple .env files
+ * Earlier files in the list take priority over later files
+ */
+function loadAllEnvironmentVariables(): Record<string, string> {
+  const environmentFilePaths = getEnvFilePaths();
+  let allEnvironmentVariables: Record<string, string> = {};
+
+  for (const currentFilePath of environmentFilePaths) {
+    if (!currentFilePath || !existsSync(currentFilePath)) {
+      continue; // Missing files are OK - just skip them
+    }
+
+    // If file exists, it MUST be parseable - throw if not
+    const variablesFromThisFile = readSingleEnvironmentFile(currentFilePath);
+
+    // Earlier files override later files
+    allEnvironmentVariables = {
+      ...variablesFromThisFile,
+      ...allEnvironmentVariables,
+    };
+  }
+
+  return allEnvironmentVariables;
+}
+
+const environmentConfig = loadAllEnvironmentVariables();
 
 export default defineConfig({
   metadataCache: { enabled: false },
   driver: PostgreSqlDriver,
   entities: [ContactEntity, UserEntity, OrganizationEntity],
-  host: envConfig.POSTGRES_HOST,
-  port: Number(envConfig.POSTGRES_PORT),
-  user: envConfig.POSTGRES_USER,
-  password: envConfig.POSTGRES_PASSWORD,
-  dbName: envConfig.POSTGRES_DATABASE,
+  host: environmentConfig.POSTGRES_HOST,
+  port: Number(environmentConfig.POSTGRES_PORT),
+  user: environmentConfig.POSTGRES_USER,
+  password: environmentConfig.POSTGRES_PASSWORD,
+  dbName: environmentConfig.POSTGRES_DATABASE,
   debug: true,
 });
