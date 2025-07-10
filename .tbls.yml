@@ -2,3 +2,5 @@
 
 dsn: postgres://test:test@localhost:5432/grassroots_test?sslmode=disable
 docPath: doc/schema
+er:
+  hideDef: true
