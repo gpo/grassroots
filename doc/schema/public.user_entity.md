@@ -4,24 +4,24 @@
 
 ## Columns
 
-| Name | Type | Default | Nullable | Children | Parents | Comment |
-| ---- | ---- | ------- | -------- | -------- | ------- | ------- |
-| id | varchar(255) |  | false |  |  |  |
-| emails | jsonb |  | true |  |  |  |
-| first_name | varchar(255) |  | true |  |  |  |
-| last_name | varchar(255) |  | true |  |  |  |
-| display_name | varchar(255) |  | true |  |  |  |
+| Name         | Type         | Default | Nullable | Children | Parents | Comment |
+| ------------ | ------------ | ------- | -------- | -------- | ------- | ------- |
+| id           | varchar(255) |         | false    |          |         |         |
+| emails       | jsonb        |         | true     |          |         |         |
+| first_name   | varchar(255) |         | true     |          |         |         |
+| last_name    | varchar(255) |         | true     |          |         |         |
+| display_name | varchar(255) |         | true     |          |         |         |
 
 ## Constraints
 
-| Name | Type | Definition |
-| ---- | ---- | ---------- |
+| Name             | Type        | Definition       |
+| ---------------- | ----------- | ---------------- |
 | user_entity_pkey | PRIMARY KEY | PRIMARY KEY (id) |
 
 ## Indexes
 
-| Name | Definition |
-| ---- | ---------- |
+| Name             | Definition                                                                  |
+| ---------------- | --------------------------------------------------------------------------- |
 | user_entity_pkey | CREATE UNIQUE INDEX user_entity_pkey ON public.user_entity USING btree (id) |
 
 ## Relations
