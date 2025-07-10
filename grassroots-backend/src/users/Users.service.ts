@@ -3,18 +3,15 @@ import { UserEntity } from "./User.entity";
 import { EntityManager, EntityRepository } from "@mikro-orm/core";
 import { UserDTO } from "../grassroots-shared/User.dto";
 import { instanceToPlain } from "class-transformer";
-import { OrganizationsService } from "../organizations/Organizations.service";
 import { OrganizationEntity } from "../organizations/Organization.entity";
 import { Permission } from "../grassroots-shared/Permission";
+import { OrganizationRepository } from "../organizations/Organization.repo";
 
 @Injectable()
 export class UsersService {
   repo: EntityRepository<UserEntity>;
-  organizationRepo: EntityRepository<OrganizationEntity>;
-  constructor(
-    private readonly entityManager: EntityManager,
-    private readonly organizationService: OrganizationsService,
-  ) {
+  organizationRepo: OrganizationRepository;
+  constructor(private readonly entityManager: EntityManager) {
     this.repo = entityManager.getRepository<UserEntity>(UserEntity);
     this.organizationRepo =
       entityManager.getRepository<OrganizationEntity>(OrganizationEntity);
@@ -52,7 +49,7 @@ export class UsersService {
       throw new Error("Invalid organization ID");
     }
     const ancestorOrganizationIds: Set<number> = new Set<number>(
-      (await this.organizationService.getAncestors(organizationId)).map(
+      (await this.organizationRepo.getAncestors(organizationId)).map(
         (x) => x.id,
       ),
     );
