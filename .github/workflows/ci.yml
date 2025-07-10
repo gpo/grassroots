@@ -118,7 +118,7 @@ jobs:
         uses: k1low/setup-tbls@v1
 
       - name: Run tbls for generate database document
-        run: tbls doc
+        run: tbls doc --rm-dist
 
       - name: Push Changes
         id: auto-commit-action
