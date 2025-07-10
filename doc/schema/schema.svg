@@ -56,7 +56,6 @@
 <title>public.organization_entity:parent_id&#45;&gt;public.organization_entity:id</title>
 <path fill="none" stroke="black" d="M603.66,-114.92C610.08,-198.23 609.25,-352.4 601.17,-352.4 592.77,-352.4 592.21,-239.15 599.5,-165.96"/>
 <polygon fill="black" stroke="black" points="603.66,-114.93 607.31,-104.59 603.22,-109.61 602.86,-105.3 602.86,-105.3 602.86,-105.3 603.22,-109.61 598.34,-105.34 603.66,-114.93"/>
-<text text-anchor="start" x="81.76" y="-114.63" font-family="Arial" font-size="10.00">FOREIGN KEY (parent_id) REFERENCES organization_entity(id) ON UPDATE CASCADE ON DELETE SET NULL</text>
 </g>
 <!-- public.user_entity -->
 <g id="node3" class="node">
