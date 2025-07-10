@@ -34,7 +34,7 @@ export class OrganizationsService {
     return await this.repo.find({});
   }
 
-  async findOne(
+  async findOneById(
     organization: Partial<OrganizationEntity>,
   ): Promise<Loaded<OrganizationEntity>> {
     return await this.repo.findOneOrFail(organization);
