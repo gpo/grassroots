@@ -23,12 +23,13 @@ const ruleTester = new RuleTester({
   },
 });
 
-ruleTester.run("no-loop-over-enum", rule, {
+ruleTester.run("definite-or-optional", rule, {
   valid: [
     `class FooDTO { a!: number; b?: number}`,
     `class FooDTO { a!: number}`,
     `class FooDTO { a?: number}`,
     `class Foo { a: number}`,
+    `class Foo { a = 2}`,
   ],
   invalid: [
     {
