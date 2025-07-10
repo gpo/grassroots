@@ -71,21 +71,23 @@ async function writeFormattedMetadata(): Promise<void> {
 }
 
 async function createMikroORMMigration(): Promise<void> {
-  const orm = await MikroORM.init(mikroORMConfig);
-  const migrator = orm.getMigrator();
-  try {
-    await migrator.createMigration().then((migrationResult) => {
-      if (migrationResult.fileName === "") {
-        console.log("No MikroORM migration required");
-      } else {
-        console.log("MikroORM migration successful");
-      }
-    });
-    await migrator.up();
-  } catch (e) {
-    console.error(e);
-  } finally {
-    await orm.close(true);
+  if (mikroORMConfig.host !== "test_db") {
+    const orm = await MikroORM.init(mikroORMConfig);
+    const migrator = orm.getMigrator();
+    try {
+      await migrator.createMigration().then((migrationResult) => {
+        if (migrationResult.fileName === "") {
+          console.log("No MikroORM migration required");
+        } else {
+          console.log("MikroORM migration successful");
+        }
+      });
+      await migrator.up();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      await orm.close(true);
+    }
   }
 }
 
