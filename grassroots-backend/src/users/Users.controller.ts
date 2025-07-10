@@ -10,4 +10,9 @@ export class UsersController {
   findAll(): Promise<UserDTO[]> {
     return this.usersService.findAll();
   }
+
+  @Get()
+  getUserPermissionsForOrg(userId: string) {
+    const user = await this.usersService.findOne({ id: userId });
+  }
 }
