@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Permission } from "../grassroots-shared/Permission";
 import { RoleDTO } from "../grassroots-shared/Role.dto";
 
-class RoleEntity {
+export class RoleEntity {
   id!: number;
   name!: string;
   permissions!: Permission[];
@@ -14,7 +14,7 @@ export type RoleName =
   | "Contact Manager"
   | "Admin";
 
-export const ROLES: RoleEntity[] = [
+const ROLES_ARRAY: RoleEntity[] = [
   { id: 1, name: "No Permissions", permissions: [] },
   { id: 2, name: "View Only", permissions: [Permission.VIEW_CONTACTS] },
   {
@@ -33,9 +33,11 @@ export const ROLES: RoleEntity[] = [
   },
 ];
 
+export const ROLES = new Map(ROLES_ARRAY.map((x: RoleEntity) => [x.id, x]));
+
 @Injectable()
 export class RolesService {
   findAll(): RoleDTO[] {
-    return ROLES;
+    return ROLES_ARRAY;
   }
 }

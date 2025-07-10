@@ -4,10 +4,12 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryKey,
   Property,
 } from "@mikro-orm/core";
 import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
+import { UserRoleEntity } from "../users/UserRole.entity";
 
 @Entity()
 export class OrganizationEntity extends BaseEntity {
@@ -24,6 +26,9 @@ export class OrganizationEntity extends BaseEntity {
 
   @OneToMany(() => OrganizationEntity, (organization) => organization.parent)
   children = new Collection<OrganizationEntity>(this);
+
+  @OneToOne(() => UserRoleEntity)
+  userRoles;
 
   toDTO(): OrganizationDTO {
     return {
