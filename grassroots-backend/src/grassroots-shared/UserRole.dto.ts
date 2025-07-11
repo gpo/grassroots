@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsNumber,
+  IsOptional,
   IsString,
   Min,
   ValidateNested,
@@ -11,10 +12,12 @@ import { Type } from "class-transformer";
 export class UserRoleDTO {
   @IsNumber()
   @Min(1)
-  id!: number;
+  @IsOptional()
+  id?: number;
 
   @IsString()
-  userId!: string;
+  @IsOptional()
+  userId?: string;
 
   @Type(() => RoleDTO)
   @ValidateNested()

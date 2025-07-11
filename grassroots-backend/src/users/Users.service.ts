@@ -16,7 +16,7 @@ export class UsersService {
     this.organizationRepo =
       entityManager.getRepository<OrganizationEntity>(OrganizationEntity);
   }
-  async findOrCreate(user: UserDTO): Promise<UserDTO | undefined> {
+  async findOrCreate(user: UserDTO): Promise<UserDTO> {
     const existing = await this.repo.findOne({ id: user.id });
     if (existing !== null) {
       return existing.toDTO();

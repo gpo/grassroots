@@ -144,10 +144,10 @@ export default async () => {
           import("./grassroots-shared/Role.dto"),
           {
             RoleDTO: {
-              id: { required: true, type: () => Number, minimum: 0 },
-              name: { required: true, type: () => String },
+              id: { required: false, type: () => Number, minimum: 0 },
+              name: { required: false, type: () => String },
               permissions: {
-                required: true,
+                required: false,
                 enum: t["./grassroots-shared/Permission"].Permission,
                 isArray: true,
               },
@@ -158,8 +158,8 @@ export default async () => {
           import("./grassroots-shared/UserRole.dto"),
           {
             UserRoleDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              userId: { required: true, type: () => String },
+              id: { required: false, type: () => Number, minimum: 1 },
+              userId: { required: false, type: () => String },
               role: {
                 required: true,
                 type: () => t["./grassroots-shared/Role.dto"].RoleDTO,
@@ -264,6 +264,7 @@ export default async () => {
           {
             UsersController: {
               findAll: { type: [t["./grassroots-shared/User.dto"].UserDTO] },
+              findOrCreate: { type: t["./grassroots-shared/User.dto"].UserDTO },
               getUserPermissionsForOrg: {
                 type: t["./grassroots-shared/User.dto"].PermissionsDTO,
               },
