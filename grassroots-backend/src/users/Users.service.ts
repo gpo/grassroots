@@ -19,19 +19,22 @@ export class UsersService {
   async findOrCreate(user: UserDTO): Promise<UserDTO | undefined> {
     const existing = await this.repo.findOne({ id: user.id });
     if (existing !== null) {
-      return existing;
+      return existing.toDTO();
     }
-    const result = this.repo.create({ ...instanceToPlain(user), roles: [] });
+    const result = this.repo.create({
+      ...instanceToPlain(user),
+      userRoles: [],
+    });
     await this.entityManager.flush();
-    return result;
+    return result.toDTO();
   }
 
   async findOneById(id: string): Promise<UserDTO | null> {
-    return await this.repo.findOne({ id });
+    return (await this.repo.findOne({ id }))?.toDTO() ?? null;
   }
 
   async findAll(): Promise<UserDTO[]> {
-    return await this.repo.find({});
+    return (await this.repo.find({})).map((x) => x.toDTO());
   }
 
   async getUserPermissionsForOrg(
@@ -53,7 +56,7 @@ export class UsersService {
         (x) => x.id,
       ),
     );
-    const userRoles = user.roles.filter(
+    const userRoles = user.userRoles.filter(
       (role) =>
         role.organization.id === rootOrganization.id ||
         (role.inherited && ancestorOrganizationIds.has(role.organization.id)),

@@ -14,6 +14,7 @@ import { OrganizationRepository } from "./Organization.repo";
 
 @Entity({ repository: () => OrganizationRepository })
 export class OrganizationEntity extends BaseEntity {
+  private __brand!: "OrganizationEntity";
   [EntityRepositoryType]?: OrganizationRepository;
 
   @PrimaryKey({ autoincrement: true })
@@ -34,10 +35,10 @@ export class OrganizationEntity extends BaseEntity {
   userRoles = new Collection<UserRoleEntity>(this);
 
   toDTO(): OrganizationDTO {
-    return {
+    return OrganizationDTO.createWithoutValidation({
       id: this.id,
       name: this.name,
       parentId: this.parent?.id,
-    };
+    });
   }
 }

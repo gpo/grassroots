@@ -8,8 +8,8 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Permission } from "./Permission";
-import { RoleDTO } from "./Role.dto";
 import { Type } from "class-transformer";
+import { UserRoleDTO } from "./UserRole.dto";
 
 export class UserDTO {
   @IsString()
@@ -33,8 +33,8 @@ export class UserDTO {
 
   @ValidateNested({ each: true })
   @IsOptional()
-  @Type(() => RoleDTO)
-  roles?: RoleDTO[];
+  @Type(() => UserRoleDTO)
+  userRoles?: UserRoleDTO[];
 }
 
 export class UserPermissionsForOrgRequestDTO {

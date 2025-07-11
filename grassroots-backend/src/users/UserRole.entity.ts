@@ -1,7 +1,8 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import { Entity, ManyToOne, PrimaryKey, Property, Rel } from "@mikro-orm/core";
 import { UserEntity } from "./User.entity";
 import { RoleEntity, ROLES } from "../organizations/Roles.service";
 import { OrganizationEntity } from "../organizations/Organization.entity";
+import { UserRoleDTO } from "../grassroots-shared/UserRole.dto";
 
 @Entity()
 export class UserRoleEntity {
@@ -9,7 +10,7 @@ export class UserRoleEntity {
   id!: number;
 
   @ManyToOne(() => UserEntity)
-  user!: UserEntity;
+  user!: Rel<UserEntity>;
 
   @Property()
   _roleId!: number;
@@ -27,4 +28,14 @@ export class UserRoleEntity {
 
   @Property()
   inherited!: boolean;
+
+  toDTO(): UserRoleDTO {
+    return {
+      id: this.id,
+      userId: this.user.id,
+      role: this.role.toDTO(),
+      organizationId: this.organization.id,
+      inherited: this.inherited,
+    };
+  }
 }

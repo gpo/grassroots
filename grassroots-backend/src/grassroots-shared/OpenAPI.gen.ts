@@ -255,6 +255,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/users/user-permissions-for-org": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["UsersController_getUserPermissionsForOrg"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -304,6 +320,7 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     OrganizationDTO: {
+      __brand: Record<string, never>;
       id: number;
       name: string;
       parentId?: number;
@@ -327,6 +344,9 @@ export interface components {
       rowsSkipped: number;
       rowsTotal: number;
     };
+    PermissionsDTO: {
+      permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
+    };
     RoleDTO: {
       id: number;
       name: string;
@@ -338,6 +358,18 @@ export interface components {
       firstName?: string;
       id: string;
       lastName?: string;
+      userRoles?: components["schemas"]["UserRoleDTO"][];
+    };
+    UserPermissionsForOrgRequestDTO: {
+      organizationId: number;
+      userId: string;
+    };
+    UserRoleDTO: {
+      id: number;
+      inherited: boolean;
+      organizationId: number;
+      role: components["schemas"]["RoleDTO"];
+      userId: string;
     };
     ValidationErrorOutDTO: {
       error: string;
@@ -869,6 +901,38 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["UserDTO"][];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  UsersController_getUserPermissionsForOrg: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserPermissionsForOrgRequestDTO"];
+      };
+    };
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PermissionsDTO"];
         };
       };
       /** @description Validation failed */

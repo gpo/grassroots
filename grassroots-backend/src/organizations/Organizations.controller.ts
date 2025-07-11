@@ -49,8 +49,6 @@ export class OrganizationsController {
 
   @Get("ancestors-of/:id")
   async getAncestors(@Param("id") id: number): Promise<OrganizationListDTO> {
-    const organizationEntities =
-      await this.organizationsService.getAncestors(id);
-    return { organizations: organizationEntities.map((x) => x.toDTO()) };
+    return await this.organizationsService.getAncestors(id);
   }
 }
