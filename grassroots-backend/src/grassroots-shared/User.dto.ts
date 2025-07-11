@@ -8,6 +8,8 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Permission } from "./Permission";
+import { RoleDTO } from "./Role.dto";
+import { Type } from "class-transformer";
 
 export class UserDTO {
   @IsString()
@@ -28,6 +30,11 @@ export class UserDTO {
   @IsString()
   @IsOptional()
   displayName?: string;
+
+  @ValidateNested({ each: true })
+  @IsOptional()
+  @Type(() => RoleDTO)
+  roles?: RoleDTO[];
 }
 
 export class UserPermissionsForOrgRequestDTO {
