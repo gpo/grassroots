@@ -143,6 +143,9 @@
       },
       "OrganizationDTO": {
         "properties": {
+          "__brand": {
+            "type": "object"
+          },
           "id": {
             "minimum": 0,
             "type": "number"
@@ -155,7 +158,7 @@
             "type": "number"
           }
         },
-        "required": ["id", "name"],
+        "required": ["__brand", "id", "name"],
         "type": "object"
       },
       "OrganizationListDTO": {
@@ -225,6 +228,19 @@
         "required": ["rowsSkipped", "rowsTotal"],
         "type": "object"
       },
+      "PermissionsDTO": {
+        "properties": {
+          "permissions": {
+            "items": {
+              "enum": ["VIEW_CONTACTS", "MANAGE_CONTACTS", "MANAGE_USERS"],
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["permissions"],
+        "type": "object"
+      },
       "RoleDTO": {
         "properties": {
           "id": {
@@ -265,9 +281,51 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "userRoles": {
+            "items": {
+              "$ref": "#/components/schemas/UserRoleDTO"
+            },
+            "type": "array"
           }
         },
         "required": ["id"],
+        "type": "object"
+      },
+      "UserPermissionsForOrgRequestDTO": {
+        "properties": {
+          "organizationId": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": ["userId", "organizationId"],
+        "type": "object"
+      },
+      "UserRoleDTO": {
+        "properties": {
+          "id": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "organizationId": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleDTO"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": ["id", "userId", "role", "organizationId", "inherited"],
         "type": "object"
       },
       "ValidationErrorOutDTO": {
@@ -882,6 +940,45 @@
                     "$ref": "#/components/schemas/UserDTO"
                   },
                   "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Users"]
+      }
+    },
+    "/users/user-permissions-for-org": {
+      "get": {
+        "operationId": "UsersController_getUserPermissionsForOrg",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserPermissionsForOrgRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionsDTO"
                 }
               }
             },

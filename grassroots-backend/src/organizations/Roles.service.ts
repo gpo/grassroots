@@ -1,11 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { Permission } from "../grassroots-shared/Permission";
 import { RoleDTO } from "../grassroots-shared/Role.dto";
+import { plainToInstance } from "class-transformer";
 
 export class RoleEntity {
   id!: number;
   name!: string;
   permissions!: Permission[];
+
+  toDTO(): RoleDTO {
+    return {
+      id: this.id,
+      name: this.name,
+      permissions: this.permissions,
+    };
+  }
 }
 
 export type RoleName =
@@ -31,7 +40,7 @@ const ROLES_ARRAY: RoleEntity[] = [
       Permission.MANAGE_USERS,
     ],
   },
-];
+].map((x) => plainToInstance(RoleEntity, x));
 
 export const ROLES = new Map(ROLES_ARRAY.map((x: RoleEntity) => [x.id, x]));
 

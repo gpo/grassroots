@@ -1,11 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { OrganizationEntity } from "./Organization.entity";
-import { CreateOrganizationRootRequestDTO } from "../grassroots-shared/Organization.dto";
-import { EntityManager, EntityRepository, Loaded } from "@mikro-orm/core";
+import {
+  CreateOrganizationRootRequestDTO,
+  OrganizationListDTO,
+} from "../grassroots-shared/Organization.dto";
+import { EntityManager, Loaded } from "@mikro-orm/core";
+import { OrganizationRepository } from "./Organization.repo";
 
 @Injectable()
 export class OrganizationsService {
-  repo: EntityRepository<OrganizationEntity>;
+  repo: OrganizationRepository;
   constructor(private readonly entityManager: EntityManager) {
     this.repo =
       entityManager.getRepository<OrganizationEntity>(OrganizationEntity);
@@ -38,5 +42,11 @@ export class OrganizationsService {
     organization: Partial<OrganizationEntity>,
   ): Promise<Loaded<OrganizationEntity>> {
     return await this.repo.findOneOrFail(organization);
+  }
+
+  async getAncestors(organizationID: number): Promise<OrganizationListDTO> {
+    const organizationEntities = await this.repo.getAncestors(organizationID);
+    const organizationDTOs = organizationEntities.map((x) => x.toDTO());
+    return { organizations: organizationDTOs };
   }
 }

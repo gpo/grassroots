@@ -1,10 +1,9 @@
 import { Entity, OneToMany, PrimaryKey, Property } from "@mikro-orm/core";
 import { UserDTO } from "../grassroots-shared/User.dto";
-import { PropsOf } from "../grassroots-shared/util/PropsOf";
 import { UserRoleEntity } from "./UserRole.entity";
 
 @Entity()
-export class UserEntity implements Omit<PropsOf<UserDTO>, "roles"> {
+export class UserEntity {
   @PrimaryKey()
   id!: string;
 
@@ -21,5 +20,16 @@ export class UserEntity implements Omit<PropsOf<UserDTO>, "roles"> {
   displayName?: string;
 
   @OneToMany(() => UserRoleEntity, (e) => e.user)
-  roles!: UserRoleEntity[];
+  userRoles!: UserRoleEntity[];
+
+  toDTO(): UserDTO {
+    return {
+      id: this.id,
+      emails: this.emails,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      displayName: this.displayName,
+      userRoles: this.userRoles.map((x) => x.toDTO()),
+    };
+  }
 }
