@@ -258,7 +258,6 @@
             "type": "array"
           }
         },
-        "required": ["id", "name", "permissions"],
         "type": "object"
       },
       "UserDTO": {
@@ -325,7 +324,7 @@
             "type": "string"
           }
         },
-        "required": ["id", "userId", "role", "organizationId", "inherited"],
+        "required": ["role", "organizationId", "inherited"],
         "type": "object"
       },
       "ValidationErrorOutDTO": {
@@ -940,6 +939,45 @@
                     "$ref": "#/components/schemas/UserDTO"
                   },
                   "type": "array"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Users"]
+      }
+    },
+    "/users/find-or-create": {
+      "post": {
+        "operationId": "UsersController_findOrCreate",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
                 }
               }
             },

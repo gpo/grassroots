@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Min,
   ValidateNested,
@@ -12,12 +13,16 @@ import {
 export class RoleDTO {
   @IsNumber()
   @Min(0)
-  id!: number;
+  @IsOptional()
+  id?: number;
+
   @IsString()
   @IsNotEmpty()
-  name!: string;
+  @IsOptional()
+  name?: string;
 
   @ValidateNested({ each: true })
   @IsEnum(Permission)
-  permissions!: Permission[];
+  @IsOptional()
+  permissions?: Permission[];
 }

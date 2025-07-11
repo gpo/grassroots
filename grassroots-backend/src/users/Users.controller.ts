@@ -1,4 +1,4 @@
-import { Body, Controller, Get } from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import {
   PermissionsDTO,
   UserDTO,
@@ -13,6 +13,11 @@ export class UsersController {
   @Get()
   findAll(): Promise<UserDTO[]> {
     return this.usersService.findAll();
+  }
+
+  @Post("find-or-create")
+  async findOrCreate(@Body() user: UserDTO): Promise<UserDTO> {
+    return await this.usersService.findOrCreate(user);
   }
 
   @Get("user-permissions-for-org")

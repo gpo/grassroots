@@ -255,6 +255,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/users/find-or-create": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["UsersController_findOrCreate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/users/user-permissions-for-org": {
     parameters: {
       query?: never;
@@ -348,9 +364,9 @@ export interface components {
       permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
     };
     RoleDTO: {
-      id: number;
-      name: string;
-      permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
+      id?: number;
+      name?: string;
+      permissions?: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
     };
     UserDTO: {
       displayName?: string;
@@ -365,11 +381,11 @@ export interface components {
       userId: string;
     };
     UserRoleDTO: {
-      id: number;
+      id?: number;
       inherited: boolean;
       organizationId: number;
       role: components["schemas"]["RoleDTO"];
-      userId: string;
+      userId?: string;
     };
     ValidationErrorOutDTO: {
       error: string;
@@ -901,6 +917,38 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["UserDTO"][];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  UsersController_findOrCreate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserDTO"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserDTO"];
         };
       };
       /** @description Validation failed */
