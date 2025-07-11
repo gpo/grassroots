@@ -71,7 +71,10 @@ async function writeFormattedMetadata(): Promise<void> {
 }
 
 async function createMikroORMMigration(): Promise<void> {
-  if (mikroORMConfig.host !== "test_db") {
+  const isTestDb: boolean =
+    typeof mikroORMConfig.dbName === "string" &&
+    mikroORMConfig.dbName.includes("test");
+  if (!isTestDb) {
     const orm = await MikroORM.init(mikroORMConfig);
     const migrator = orm.getMigrator();
     try {
