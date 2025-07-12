@@ -31,7 +31,6 @@ export class UsersService {
       this.entityManager.getRepository<UserRoleEntity>(UserRoleEntity);
 
     for (const userRoleDTO of user.userRoles ?? []) {
-      console.log("Creating from DTO", userRoleDTO);
       const roleId = userRoleDTO.role.id;
       if (roleId === undefined) {
         throw new Error("user created with role missing role id");
@@ -63,7 +62,6 @@ export class UsersService {
     userId: string,
     organizationId: number,
   ): Promise<Permission[]> {
-    console.log("into service");
     const user = await this.repo.findOne(userId);
     if (user === null) {
       throw new Error("Invalid user id");
@@ -79,17 +77,12 @@ export class UsersService {
         (x) => x.id,
       ),
     );
-    console.log(ancestorOrganizationIds);
-    console.log("user roles");
-    console.log(user.userRoles.getItems());
+
     const userRoles = user.userRoles.filter(
       (role) =>
         role.organization.id === rootOrganization.id ||
         (role.inherited && ancestorOrganizationIds.has(role.organization.id)),
     );
-
-    console.log("post filter");
-    console.log(userRoles);
 
     const permissions: Set<Permission> = userRoles.reduce(
       (permissions, userRole) => {

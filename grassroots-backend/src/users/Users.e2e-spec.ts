@@ -33,7 +33,7 @@ describe("Users (e2e)", () => {
           lastName: "A",
           userRoles: [
             {
-              inherited: false,
+              inherited: true,
               organizationId: nameToId.get("B") ?? fail(),
               role: ROLES_BY_NAME.get("View Only") ?? fail(),
             },
@@ -42,7 +42,7 @@ describe("Users (e2e)", () => {
       }),
     );
 
-    const rootPermissions = fetchSuccessOrThrow(
+    const noAccessPermissions = fetchSuccessOrThrow(
       await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
         params: {
           query: {
@@ -53,7 +53,7 @@ describe("Users (e2e)", () => {
       }),
     );
 
-    expect(rootPermissions.permissions).toEqual([] satisfies Permission[]);
+    expect(noAccessPermissions.permissions).toEqual([] satisfies Permission[]);
 
     const directPermission = fetchSuccessOrThrow(
       await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
@@ -67,6 +67,21 @@ describe("Users (e2e)", () => {
     );
 
     expect(directPermission.permissions).toEqual([
+      Permission.VIEW_CONTACTS,
+    ] satisfies Permission[]);
+
+    const indirectPermission = fetchSuccessOrThrow(
+      await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
+        params: {
+          query: {
+            organizationId: nameToId.get("C") ?? fail(),
+            userId: user.id,
+          },
+        },
+      }),
+    );
+
+    expect(indirectPermission.permissions).toEqual([
       Permission.VIEW_CONTACTS,
     ] satisfies Permission[]);
   });
