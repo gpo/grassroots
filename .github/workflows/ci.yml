@@ -113,3 +113,16 @@ jobs:
 
       - name: Tests
         run: npm run test:ci --prefix grassroots-backend
+
+      - name: Setup tbls
+        uses: k1low/setup-tbls@v1
+
+      - name: Run tbls for generate database document
+        run: tbls doc --rm-dist
+
+      - name: Push Changes
+        id: auto-commit-action
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Generate db schema documentation"
+          commit_options: "--no-verify"
