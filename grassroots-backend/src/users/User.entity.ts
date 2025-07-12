@@ -1,4 +1,10 @@
-import { Entity, OneToMany, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Collection,
+  Entity,
+  OneToMany,
+  PrimaryKey,
+  Property,
+} from "@mikro-orm/core";
 import { UserDTO } from "../grassroots-shared/User.dto";
 import { UserRoleEntity } from "./UserRole.entity";
 
@@ -20,7 +26,7 @@ export class UserEntity {
   displayName?: string;
 
   @OneToMany(() => UserRoleEntity, (e) => e.user)
-  userRoles!: UserRoleEntity[];
+  userRoles = new Collection<UserRoleEntity>(this);
 
   toDTO(): UserDTO {
     return {

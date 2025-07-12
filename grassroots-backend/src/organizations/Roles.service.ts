@@ -44,6 +44,12 @@ const ROLES_ARRAY: RoleEntity[] = [
 
 export const ROLES = new Map(ROLES_ARRAY.map((x: RoleEntity) => [x.id, x]));
 
+// This is only required while we keep roles out of the database.
+export const ROLES_BY_NAME = new Map<RoleName, RoleEntity>(
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  ROLES_ARRAY.map((x: RoleEntity) => [x.name as RoleName, x]),
+);
+
 @Injectable()
 export class RolesService {
   findAll(): RoleDTO[] {

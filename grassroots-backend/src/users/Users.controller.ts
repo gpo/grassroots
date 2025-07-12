@@ -17,6 +17,8 @@ export class UsersController {
 
   @Post("find-or-create")
   async findOrCreate(@Body() user: UserDTO): Promise<UserDTO> {
+    console.log("Create user with roles");
+    console.log(user.userRoles);
     return await this.usersService.findOrCreate(user);
   }
 
@@ -25,7 +27,6 @@ export class UsersController {
     @Query()
     userPermissionsForOrgRequestDTO: UserPermissionsForOrgRequestDTO,
   ): Promise<PermissionsDTO> {
-    console.log("Into controller");
     return {
       permissions: await this.usersService.getUserPermissionsForOrg(
         userPermissionsForOrgRequestDTO.userId,

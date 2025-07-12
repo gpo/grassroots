@@ -1,4 +1,11 @@
-import { Entity, ManyToOne, PrimaryKey, Property, Rel } from "@mikro-orm/core";
+import {
+  Entity,
+  ManyToOne,
+  OptionalProps,
+  PrimaryKey,
+  Property,
+  Rel,
+} from "@mikro-orm/core";
 import { UserEntity } from "./User.entity";
 import { RoleEntity, ROLES } from "../organizations/Roles.service";
 import { OrganizationEntity } from "../organizations/Organization.entity";
@@ -6,6 +13,10 @@ import { UserRoleDTO } from "../grassroots-shared/UserRole.dto";
 
 @Entity()
 export class UserRoleEntity {
+  // We don't need to be given a role to create a UserRoleEntity, since it's currently
+  // just computed from _roleId.
+  [OptionalProps]?: "role";
+
   @PrimaryKey()
   id!: number;
 
@@ -15,6 +26,7 @@ export class UserRoleEntity {
   @Property()
   _roleId!: number;
 
+  @Property({ persist: false })
   get role(): RoleEntity {
     const r = ROLES.get(this._roleId);
     if (r === undefined) {
