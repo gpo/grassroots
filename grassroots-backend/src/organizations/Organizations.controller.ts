@@ -41,7 +41,7 @@ export class OrganizationsController {
 
   @Get(":id")
   async findById(@Param("id") id: number): Promise<OrganizationDTO> {
-    const organizationEntity = await this.organizationsService.findOne({
+    const organizationEntity = await this.organizationsService.findOneById({
       id: id,
     });
     return organizationEntity.toDTO();
@@ -49,8 +49,6 @@ export class OrganizationsController {
 
   @Get("ancestors-of/:id")
   async getAncestors(@Param("id") id: number): Promise<OrganizationListDTO> {
-    const organizationEntities =
-      await this.organizationsService.getAncestors(id);
-    return { organizations: organizationEntities.map((x) => x.toDTO()) };
+    return await this.organizationsService.getAncestors(id);
   }
 }

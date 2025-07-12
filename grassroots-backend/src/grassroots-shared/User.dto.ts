@@ -1,4 +1,15 @@
-import { IsEmail, IsOptional, IsString } from "class-validator";
+import {
+  IsEmail,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from "class-validator";
+import { Permission } from "./Permission";
+import { Transform, Type } from "class-transformer";
+import { UserRoleDTO } from "./UserRole.dto";
 
 export class UserDTO {
   @IsString()
@@ -19,4 +30,27 @@ export class UserDTO {
   @IsString()
   @IsOptional()
   displayName?: string;
+
+  @ValidateNested({ each: true })
+  @IsOptional()
+  @Type(() => UserRoleDTO)
+  userRoles?: UserRoleDTO[];
+}
+
+export class UserPermissionsForOrgRequestDTO {
+  @IsString()
+  userId!: string;
+
+  @IsNumber()
+  @Min(1)
+  @Transform(({ value }: { value: string }) => {
+    return Number(value);
+  })
+  organizationId!: number;
+}
+
+export class PermissionsDTO {
+  @ValidateNested({ each: true })
+  @IsEnum(Permission)
+  permissions!: Permission[];
 }
