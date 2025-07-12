@@ -31,7 +31,7 @@ export async function createOrganizationTree(
 
   // First we make the current node, then we recurse on the children.
   if (parentID === undefined) {
-    const { data: root } = await f.grassrootsAPI.POST(
+    const { data: root, error } = await f.grassrootsAPI.POST(
       "/organizations/create-root",
       {
         body: {
@@ -40,7 +40,7 @@ export async function createOrganizationTree(
       },
     );
     if (root == undefined) {
-      throw new Error("Failed to create tree root");
+      throw new Error("Failed to create tree root " + String(error.message));
     }
     currentNodeId = root.id;
   } else {
@@ -55,6 +55,8 @@ export async function createOrganizationTree(
     }
     currentNodeId = node.id;
   }
+
+  console.log("new node is", currentNodeId);
 
   nameToId.set(currentNode.name, currentNodeId);
 

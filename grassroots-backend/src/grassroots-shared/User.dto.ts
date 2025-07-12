@@ -8,7 +8,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import { Permission } from "./Permission";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { UserRoleDTO } from "./UserRole.dto";
 
 export class UserDTO {
@@ -43,6 +43,9 @@ export class UserPermissionsForOrgRequestDTO {
 
   @IsNumber()
   @Min(1)
+  @Transform(({ value }: { value: string }) => {
+    return Number(value);
+  })
   organizationId!: number;
 }
 

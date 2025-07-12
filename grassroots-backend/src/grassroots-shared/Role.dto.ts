@@ -7,7 +7,6 @@ import {
   IsOptional,
   IsString,
   Min,
-  ValidateNested,
 } from "class-validator";
 
 export class RoleDTO {
@@ -21,8 +20,7 @@ export class RoleDTO {
   @IsOptional()
   name?: string;
 
-  @ValidateNested({ each: true })
-  @IsEnum(Permission)
+  @IsEnum(Permission, { each: true })
   @IsOptional()
   permissions?: Permission[];
 }
