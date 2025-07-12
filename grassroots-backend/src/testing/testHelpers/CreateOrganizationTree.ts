@@ -56,8 +56,6 @@ export async function createOrganizationTree(
     currentNodeId = node.id;
   }
 
-  console.log("new node is", currentNodeId);
-
   nameToId.set(currentNode.name, currentNodeId);
 
   for (const child of currentNode.children ?? []) {
