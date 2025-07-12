@@ -88,8 +88,6 @@ async function createMikroORMMigration(
       await migrator.up();
     } catch (e) {
       console.error(e);
-    } finally {
-      await orm.close(true);
     }
   }
 }
