@@ -376,10 +376,6 @@ export interface components {
       lastName?: string;
       userRoles?: components["schemas"]["UserRoleDTO"][];
     };
-    UserPermissionsForOrgRequestDTO: {
-      organizationId: number;
-      userId: string;
-    };
     UserRoleDTO: {
       id?: number;
       inherited: boolean;
@@ -964,16 +960,15 @@ export interface operations {
   };
   UsersController_getUserPermissionsForOrg: {
     parameters: {
-      query?: never;
+      query: {
+        userId: string;
+        organizationId: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
     };
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["UserPermissionsForOrgRequestDTO"];
-      };
-    };
+    requestBody?: never;
     responses: {
       200: {
         headers: {

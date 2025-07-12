@@ -19,7 +19,8 @@ export class OrganizationDTO {
   private __brand = BRAND;
 
   @IsNumber()
-  @Min(0)
+  @Min(1)
+  @Type(() => Number)
   id!: number;
 
   @IsNotEmpty()

@@ -41,6 +41,7 @@ export class UsersService {
     userId: string,
     organizationId: number,
   ): Promise<Permission[]> {
+    console.log("into service");
     const user = await this.repo.findOne(userId);
     if (user === null) {
       throw new Error("Invalid user id");

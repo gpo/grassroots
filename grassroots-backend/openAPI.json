@@ -147,7 +147,7 @@
             "type": "object"
           },
           "id": {
-            "minimum": 0,
+            "minimum": 1,
             "type": "number"
           },
           "name": {
@@ -289,19 +289,6 @@
           }
         },
         "required": ["id"],
-        "type": "object"
-      },
-      "UserPermissionsForOrgRequestDTO": {
-        "properties": {
-          "organizationId": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "userId": {
-            "type": "string"
-          }
-        },
-        "required": ["userId", "organizationId"],
         "type": "object"
       },
       "UserRoleDTO": {
@@ -1000,17 +987,25 @@
     "/users/user-permissions-for-org": {
       "get": {
         "operationId": "UsersController_getUserPermissionsForOrg",
-        "parameters": [],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/UserPermissionsForOrgRequestDTO"
-              }
+        "parameters": [
+          {
+            "in": "query",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           },
-          "required": true
-        },
+          {
+            "in": "query",
+            "name": "organizationId",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "content": {

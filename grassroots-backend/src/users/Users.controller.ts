@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
 import {
   PermissionsDTO,
   UserDTO,
@@ -22,8 +22,10 @@ export class UsersController {
 
   @Get("user-permissions-for-org")
   async getUserPermissionsForOrg(
-    @Body() userPermissionsForOrgRequestDTO: UserPermissionsForOrgRequestDTO,
+    @Query()
+    userPermissionsForOrgRequestDTO: UserPermissionsForOrgRequestDTO,
   ): Promise<PermissionsDTO> {
+    console.log("Into controller");
     return {
       permissions: await this.usersService.getUserPermissionsForOrg(
         userPermissionsForOrgRequestDTO.userId,

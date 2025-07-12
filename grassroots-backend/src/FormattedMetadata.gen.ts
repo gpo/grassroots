@@ -119,7 +119,7 @@ export default async () => {
           {
             OrganizationDTO: {
               __brand: { required: true, type: () => Object },
-              id: { required: true, type: () => Number, minimum: 0 },
+              id: { required: true, type: () => Number, minimum: 1 },
               name: { required: true, type: () => String },
               parentId: { required: false, type: () => Number, minimum: 0 },
             },
