@@ -6,6 +6,7 @@ import { Permission } from "../grassroots-shared/Permission";
 import { fail } from "../grassroots-shared/util/Fail";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { fetchSuccessOrThrow } from "../grassroots-shared/util/FetchSuccessOrThrow";
+import { ROLES_BY_NAME } from "../organizations/Roles.service";
 
 describe("Users (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -22,8 +23,6 @@ describe("Users (e2e)", () => {
       ],
     });
 
-    console.log(nameToId);
-
     const user = fetchSuccessOrThrow(
       await f.grassrootsAPI.POST("/users/find-or-create", {
         body: {
@@ -36,19 +35,11 @@ describe("Users (e2e)", () => {
             {
               inherited: false,
               organizationId: nameToId.get("B") ?? fail(),
-              role: {
-                permissions: [Permission.VIEW_CONTACTS],
-              },
+              role: ROLES_BY_NAME.get("View Only") ?? fail(),
             },
           ],
         },
       }),
-    );
-
-    console.log("About to get permissions", nameToId.get("root") ?? fail());
-    console.log(
-      "About to get permissions",
-      typeof (nameToId.get("root") ?? fail()),
     );
 
     const rootPermissions = fetchSuccessOrThrow(
@@ -62,7 +53,20 @@ describe("Users (e2e)", () => {
       }),
     );
 
-    expect(rootPermissions.permissions).toEqual([
+    expect(rootPermissions.permissions).toEqual([] satisfies Permission[]);
+
+    const directPermission = fetchSuccessOrThrow(
+      await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
+        params: {
+          query: {
+            organizationId: nameToId.get("B") ?? fail(),
+            userId: user.id,
+          },
+        },
+      }),
+    );
+
+    expect(directPermission.permissions).toEqual([
       Permission.VIEW_CONTACTS,
     ] satisfies Permission[]);
   });

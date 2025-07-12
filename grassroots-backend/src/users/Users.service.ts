@@ -6,6 +6,7 @@ import { instanceToPlain } from "class-transformer";
 import { OrganizationEntity } from "../organizations/Organization.entity";
 import { Permission } from "../grassroots-shared/Permission";
 import { OrganizationRepository } from "../organizations/Organization.repo";
+import { UserRoleEntity } from "./UserRole.entity";
 
 @Injectable()
 export class UsersService {
@@ -21,12 +22,33 @@ export class UsersService {
     if (existing !== null) {
       return existing.toDTO();
     }
-    const result = this.repo.create({
+    const newUser = this.repo.create({
       ...instanceToPlain(user),
       userRoles: [],
     });
+
+    const userRoleRepo =
+      this.entityManager.getRepository<UserRoleEntity>(UserRoleEntity);
+
+    for (const userRoleDTO of user.userRoles ?? []) {
+      console.log("Creating from DTO", userRoleDTO);
+      const roleId = userRoleDTO.role.id;
+      if (roleId === undefined) {
+        throw new Error("user created with role missing role id");
+      }
+      const organization = this.organizationRepo.getReference(
+        userRoleDTO.organizationId,
+      );
+      userRoleRepo.create({
+        user: newUser,
+        _roleId: roleId,
+        organization: organization,
+        inherited: userRoleDTO.inherited,
+      });
+    }
+
     await this.entityManager.flush();
-    return result.toDTO();
+    return newUser.toDTO();
   }
 
   async findOneById(id: string): Promise<UserDTO | null> {
@@ -57,11 +79,17 @@ export class UsersService {
         (x) => x.id,
       ),
     );
+    console.log(ancestorOrganizationIds);
+    console.log("user roles");
+    console.log(user.userRoles.getItems());
     const userRoles = user.userRoles.filter(
       (role) =>
         role.organization.id === rootOrganization.id ||
         (role.inherited && ancestorOrganizationIds.has(role.organization.id)),
     );
+
+    console.log("post filter");
+    console.log(userRoles);
 
     const permissions: Set<Permission> = userRoles.reduce(
       (permissions, userRole) => {
