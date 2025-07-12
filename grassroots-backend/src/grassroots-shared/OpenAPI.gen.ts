@@ -267,7 +267,6 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
-    ContactEntity: Record<string, never>;
     ContactSearchRequestDTO: {
       email?: string;
       firstName?: string;
@@ -567,7 +566,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactEntity"];
+          "application/json": components["schemas"]["ContactDTO"];
         };
       };
       /** @description Validation failed */

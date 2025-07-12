@@ -3,7 +3,7 @@ import { ContactEntity } from "./entities/Contact.entity.js";
 import { EntityManager, EntityRepository, FilterQuery } from "@mikro-orm/core";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
 import {
-  CreateBulkContactResponseDTO,
+  ContactDTO,
   CreateContactRequestDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
@@ -16,20 +16,19 @@ export class ContactsService {
     this.repo = entityManager.getRepository<ContactEntity>(ContactEntity);
   }
 
-  async create(
-    createContactDto: CreateContactRequestDTO,
-  ): Promise<ContactEntity> {
-    return await this.repo.upsert(createContactDto);
+  async create(contact: CreateContactRequestDTO): Promise<ContactDTO> {
+    const result = this.repo.create(contact);
+    await this.entityManager.flush();
+    return result;
   }
 
-  async bulkCreate(
-    createContactsDto: CreateContactRequestDTO[],
-  ): Promise<CreateBulkContactResponseDTO> {
-    const contacts = await this.repo.upsertMany(createContactsDto);
-    return { ids: contacts.map((x) => x.id) };
+  async bulkCreate(contacts: CreateContactRequestDTO[]): Promise<ContactDTO[]> {
+    const result = contacts.map((x) => this.repo.create(x));
+    await this.entityManager.flush();
+    return result;
   }
 
-  async findAll(): Promise<ContactEntity[]> {
+  async findAll(): Promise<ContactDTO[]> {
     return await this.repo.find({});
   }
 
@@ -65,7 +64,7 @@ export class ContactsService {
     };
   }
 
-  async findOne(id: number): Promise<ContactEntity | null> {
+  async findOne(id: number): Promise<ContactDTO | null> {
     return await this.repo.findOne({ id });
   }
 }

@@ -5,7 +5,7 @@ management.
 
 # Recommended Development Setup
 
-First, make sure you've installed
+Install:
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
 - Git (for cloning the repository)

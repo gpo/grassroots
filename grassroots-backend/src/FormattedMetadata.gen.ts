@@ -16,9 +16,6 @@ export default async () => {
     ["./grassroots-shared/Permission"]: await import(
       "./grassroots-shared/Permission"
     ),
-    ["./contacts/entities/Contact.entity"]: await import(
-      "./contacts/entities/Contact.entity"
-    ),
     ["./grassroots-shared/LoginState.dto"]: await import(
       "./grassroots-shared/LoginState.dto"
     ),
@@ -201,9 +198,7 @@ export default async () => {
           import("./contacts/Contacts.controller"),
           {
             ContactsController: {
-              create: {
-                type: t["./contacts/entities/Contact.entity"].ContactEntity,
-              },
+              create: { type: t["./grassroots-shared/Contact.dto"].ContactDTO },
               bulkCreate: {
                 type: t["./grassroots-shared/Contact.dto"]
                   .CreateBulkContactResponseDTO,

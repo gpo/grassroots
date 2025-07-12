@@ -7,7 +7,6 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import { AuthModule } from "../auth/Auth.module";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { UsersService } from "../users/Users.service";
-import { UserEntity } from "../users/User.entity";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import expressSession from "express-session";
@@ -18,6 +17,7 @@ import connectPgSimple from "connect-pg-simple";
 import { Pool } from "pg";
 import { notNull } from "../grassroots-shared/util/NotNull";
 import { OrganizationsModule } from "../organizations/Organizations.module";
+import { UserDTO } from "../grassroots-shared/User.dto";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,
@@ -65,8 +65,8 @@ export async function listenAndConfigureApp(
   passport.deserializeUser((id: string, done) => {
     const usersService = app.get<UsersService>(UsersService);
     usersService
-      .findOrCreate({ id })
-      .then((user: UserEntity | undefined) => {
+      .findOneById(id)
+      .then((user: UserDTO | null) => {
         done(null, user);
       })
       .catch((e: unknown) => {
