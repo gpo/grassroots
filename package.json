@@ -12,12 +12,12 @@
   },
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
-    "start": "concurrently \"npm run start --prefix grassroots-frontend\" \"npm run start --prefix grassroots-backend\"",
+    "start": "concurrently \"pnpm run start --prefix grassroots-frontend\" \"pnpm run start --prefix grassroots-backend\"",
     "prepare": "husky",
-    "test": "npm run test --prefix grassroots-frontend && npm run test --prefix grassroots-backend && npm run test --prefix eslint_rules",
+    "test": "pnpm run test --prefix grassroots-frontend && pnpm run test --prefix grassroots-backend && pnpm run test --prefix eslint_rules",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
-    "check": "npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend && npx tsc --noEmit --project eslint_rules && npx eslint .",
+    "check": "pnpm exec tsc --noEmit --project grassroots-frontend && pnpm exec tsc --noEmit --project grassroots-backend && pnpm exec tsc --noEmit --project eslint_rules && pnpm exec eslint .",
     "postinstall": "echo '\n### Install Backend ###\n' && npm install --prefix grassroots-backend && echo '\n### Install Frontend ###\n' && npm install --prefix grassroots-frontend && echo '\n### Build custom eslint rules ###\n'&& npm install --prefix eslint_rules && npm run tsc --prefix eslint_rules"
   },
   "devDependencies": {
