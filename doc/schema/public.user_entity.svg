@@ -21,17 +21,17 @@
 <text text-anchor="start" x="53.2" y="-181.6" font-family="Arial" font-size="14.00">id </text>
 <text text-anchor="start" x="67.99" y="-181.6" font-family="Arial" font-size="14.00" fill="#666666">[varchar(255)]</text>
 <polygon fill="none" stroke="black" points="46.2,-138.6 46.2,-169.4 314.16,-169.4 314.16,-138.6 46.2,-138.6"/>
-<text text-anchor="start" x="53.2" y="-150.8" font-family="Arial" font-size="14.00">emails </text>
-<text text-anchor="start" x="97.54" y="-150.8" font-family="Arial" font-size="14.00" fill="#666666">[jsonb]</text>
+<text text-anchor="start" x="53.2" y="-150.8" font-family="Arial" font-size="14.00">first_name </text>
+<text text-anchor="start" x="122.45" y="-150.8" font-family="Arial" font-size="14.00" fill="#666666">[varchar(255)]</text>
 <polygon fill="none" stroke="black" points="46.2,-107.8 46.2,-138.6 314.16,-138.6 314.16,-107.8 46.2,-107.8"/>
-<text text-anchor="start" x="53.2" y="-120" font-family="Arial" font-size="14.00">first_name </text>
-<text text-anchor="start" x="122.45" y="-120" font-family="Arial" font-size="14.00" fill="#666666">[varchar(255)]</text>
+<text text-anchor="start" x="53.2" y="-120" font-family="Arial" font-size="14.00">last_name </text>
+<text text-anchor="start" x="121.68" y="-120" font-family="Arial" font-size="14.00" fill="#666666">[varchar(255)]</text>
 <polygon fill="none" stroke="black" points="46.2,-77 46.2,-107.8 314.16,-107.8 314.16,-77 46.2,-77"/>
-<text text-anchor="start" x="53.2" y="-89.2" font-family="Arial" font-size="14.00">last_name </text>
-<text text-anchor="start" x="121.68" y="-89.2" font-family="Arial" font-size="14.00" fill="#666666">[varchar(255)]</text>
+<text text-anchor="start" x="53.2" y="-89.2" font-family="Arial" font-size="14.00">display_name </text>
+<text text-anchor="start" x="143.48" y="-89.2" font-family="Arial" font-size="14.00" fill="#666666">[varchar(255)]</text>
 <polygon fill="none" stroke="black" points="46.2,-46.2 46.2,-77 314.16,-77 314.16,-46.2 46.2,-46.2"/>
-<text text-anchor="start" x="53.2" y="-58.4" font-family="Arial" font-size="14.00">display_name </text>
-<text text-anchor="start" x="143.48" y="-58.4" font-family="Arial" font-size="14.00" fill="#666666">[varchar(255)]</text>
+<text text-anchor="start" x="53.2" y="-58.4" font-family="Arial" font-size="14.00">emails </text>
+<text text-anchor="start" x="97.54" y="-58.4" font-family="Arial" font-size="14.00" fill="#666666">[jsonb]</text>
 <polygon fill="none" stroke="black" stroke-width="3" points="44.7,-44.7 44.7,-237.3 315.66,-237.3 315.66,-44.7 44.7,-44.7"/>
 </g>
 </g>

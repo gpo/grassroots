@@ -2,12 +2,12 @@
 
 ## Tables
 
-| Name | Columns | Comment | Type |
-| ---- | ------- | ------- | ---- |
-| [public.contact_entity](public.contact_entity.md) | 5 |  | BASE TABLE |
-| [public.organization_entity](public.organization_entity.md) | 3 |  | BASE TABLE |
-| [public.user_entity](public.user_entity.md) | 5 |  | BASE TABLE |
-| [public.user_sessions](public.user_sessions.md) | 3 |  | BASE TABLE |
+| Name                                                          | Columns | Comment | Type       |
+| ------------------------------------------------------------- | ------- | ------- | ---------- |
+| [public.mikro_orm_migrations](public.mikro_orm_migrations.md) | 3       |         | BASE TABLE |
+| [public.user_entity](public.user_entity.md)                   | 5       |         | BASE TABLE |
+| [public.organization_entity](public.organization_entity.md)   | 3       |         | BASE TABLE |
+| [public.contact_entity](public.contact_entity.md)             | 5       |         | BASE TABLE |
 
 ## Relations
 
