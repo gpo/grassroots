@@ -2,11 +2,11 @@ import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common";
 import { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { UserDTO } from "../grassroots-shared/User.dto";
 
-export const MOCK_AUTH_GUARD_USER = UserDTO.from({
+export const MOCK_AUTH_GUARD_USER: UserDTO = {
   id: "testid",
   emails: ["test@example.com"],
   displayName: "Test Example",
-});
+};
 
 @Injectable()
 export class MockSessionGuard implements CanActivate {
