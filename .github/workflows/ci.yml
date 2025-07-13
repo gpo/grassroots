@@ -58,6 +58,15 @@ jobs:
           npx tsc --noEmit --project grassroots-frontend
           npx tsc --noEmit --project grassroots-backend
 
+      - name: Migrate DB
+        run: npx mikro-orm migration:up --prefix grassroots-backend
+
+      - name: Setup tbls
+        uses: k1low/setup-tbls@v1
+
+      - name: Run tbls to generate database document
+        run: tbls doc --rm-dist
+
       - name: Run ESLint
         run: npx eslint . --output-file eslint_report.json --format json --fix
         continue-on-error: true
@@ -113,16 +122,3 @@ jobs:
 
       - name: Tests
         run: npm run test:ci --prefix grassroots-backend
-
-      - name: Setup tbls
-        uses: k1low/setup-tbls@v1
-
-      - name: Run tbls for generate database document
-        run: tbls doc --rm-dist
-
-      - name: Push Changes
-        id: auto-commit-action
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "Generate db schema documentation"
-          commit_options: "--no-verify"
