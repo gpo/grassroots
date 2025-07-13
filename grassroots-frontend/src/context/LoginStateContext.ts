@@ -1,7 +1,6 @@
 import { createContext } from "react";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import { UserDTO } from "../grassroots-shared/User.dto";
-import { Permission } from "../grassroots-shared/Permission";
 
 export const LOGIN_URL = "http://grassroots.org/api/auth/login";
 
@@ -31,20 +30,7 @@ export async function getLoginState(): Promise<LoginState | undefined> {
   // The complexity here is solely to map from permissinos being strings
   // to permissions having the proper enum type.
   return {
-    user: {
-      ...user,
-      userRoles: user.userRoles?.map((userRole) => {
-        return {
-          ...userRole,
-          role: {
-            ...userRole.role,
-            permissions: userRole.role.permissions?.map(
-              (permission) => Permission[permission],
-            ),
-          },
-        };
-      }),
-    },
+    user,
     logout,
   };
 }

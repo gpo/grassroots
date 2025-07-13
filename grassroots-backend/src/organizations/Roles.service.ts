@@ -12,7 +12,7 @@ export class RoleEntity {
     return {
       id: this.id,
       name: this.name,
-      permissions: this.permissions,
+      permissions: { permissions: this.permissions },
     };
   }
 }
@@ -53,6 +53,6 @@ export const ROLES_BY_NAME = new Map<RoleName, RoleEntity>(
 @Injectable()
 export class RolesService {
   findAll(): RoleDTO[] {
-    return ROLES_ARRAY;
+    return ROLES_ARRAY.map((role) => role.toDTO());
   }
 }

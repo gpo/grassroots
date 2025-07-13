@@ -251,11 +251,7 @@
             "type": "string"
           },
           "permissions": {
-            "items": {
-              "enum": ["VIEW_CONTACTS", "MANAGE_CONTACTS", "MANAGE_USERS"],
-              "type": "string"
-            },
-            "type": "array"
+            "$ref": "#/components/schemas/PermissionsDTO"
           }
         },
         "type": "object"

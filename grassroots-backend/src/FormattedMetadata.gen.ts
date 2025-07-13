@@ -13,6 +13,9 @@ export default async () => {
     ["./grassroots-shared/Permission"]: await import(
       "./grassroots-shared/Permission"
     ),
+    ["./grassroots-shared/Permission.dto"]: await import(
+      "./grassroots-shared/Permission.dto"
+    ),
     ["./grassroots-shared/Role.dto"]: await import(
       "./grassroots-shared/Role.dto"
     ),
@@ -141,6 +144,14 @@ export default async () => {
           },
         ],
         [
+          import("./grassroots-shared/Permission.dto"),
+          {
+            PermissionsDTO: {
+              permissions: { required: true, type: () => [Object] },
+            },
+          },
+        ],
+        [
           import("./grassroots-shared/Role.dto"),
           {
             RoleDTO: {
@@ -148,8 +159,8 @@ export default async () => {
               name: { required: false, type: () => String },
               permissions: {
                 required: false,
-                enum: t["./grassroots-shared/Permission"].Permission,
-                isArray: true,
+                type: () =>
+                  t["./grassroots-shared/Permission.dto"].PermissionsDTO,
               },
             },
           },
@@ -197,13 +208,6 @@ export default async () => {
                 required: true,
                 type: () => Number,
                 minimum: 1,
-              },
-            },
-            PermissionsDTO: {
-              permissions: {
-                required: true,
-                enum: t["./grassroots-shared/Permission"].Permission,
-                isArray: true,
               },
             },
           },
@@ -266,7 +270,7 @@ export default async () => {
               findAll: { type: [t["./grassroots-shared/User.dto"].UserDTO] },
               findOrCreate: { type: t["./grassroots-shared/User.dto"].UserDTO },
               getUserPermissionsForOrg: {
-                type: t["./grassroots-shared/User.dto"].PermissionsDTO,
+                type: t["./grassroots-shared/Permission.dto"].PermissionsDTO,
               },
             },
           },

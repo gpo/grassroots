@@ -366,7 +366,7 @@ export interface components {
     RoleDTO: {
       id?: number;
       name?: string;
-      permissions?: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
+      permissions?: components["schemas"]["PermissionsDTO"];
     };
     UserDTO: {
       displayName?: string;

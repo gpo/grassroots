@@ -1,13 +1,14 @@
 import "reflect-metadata";
-import { Permission } from "./Permission";
 import {
-  IsEnum,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
   Min,
+  ValidateNested,
 } from "class-validator";
+import { Type } from "class-transformer";
+import { PermissionsDTO } from "./Permission.dto";
 
 export class RoleDTO {
   @IsNumber()
@@ -20,7 +21,8 @@ export class RoleDTO {
   @IsOptional()
   name?: string;
 
-  @IsEnum(Permission, { each: true })
   @IsOptional()
-  permissions?: Permission[];
+  @ValidateNested()
+  @Type(() => PermissionsDTO)
+  permissions?: PermissionsDTO;
 }

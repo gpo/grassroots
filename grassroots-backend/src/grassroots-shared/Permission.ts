@@ -3,3 +3,8 @@ export enum Permission {
   MANAGE_CONTACTS = "MANAGE_CONTACTS",
   MANAGE_USERS = "MANAGE_USERS",
 }
+
+export type PermissionValue =
+  | "VIEW_CONTACTS"
+  | "MANAGE_CONTACTS"
+  | "MANAGE_USERS";
