@@ -59,7 +59,7 @@ jobs:
           npx tsc --noEmit --project grassroots-backend
 
       - name: Migrate DB
-        run: npx mikro-orm migration:up --prefix grassroots-backend
+        run: cd grassroots-backend && npx mikro-orm migration:up
 
       - name: Setup tbls
         uses: k1low/setup-tbls@v1
