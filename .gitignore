@@ -8,6 +8,8 @@ grassroots-frontend/vite.config.js
 .env.test.local
 .env.local
 
+#Package pointer store
+.pnpm-store
 
 # CI
 eslint_report.json
