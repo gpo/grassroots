@@ -28,7 +28,18 @@
 
 ## Relations
 
-![er](public.contact_entity.svg)
+```mermaid
+erDiagram
+
+
+"public.contact_entity" {
+  integer id
+  varchar_255_ email
+  varchar_255_ first_name
+  varchar_255_ last_name
+  varchar_255_ phone_number
+}
+```
 
 ---
 

@@ -11,7 +11,36 @@
 
 ## Relations
 
-![er](schema.svg)
+```mermaid
+erDiagram
+
+"public.organization_entity" }o--o| "public.organization_entity" : ""
+
+"public.mikro_orm_migrations" {
+  integer id
+  varchar_255_ name
+  timestamp_with_time_zone executed_at
+}
+"public.user_entity" {
+  varchar_255_ id
+  varchar_255_ first_name
+  varchar_255_ last_name
+  varchar_255_ display_name
+  jsonb emails
+}
+"public.organization_entity" {
+  integer id
+  varchar_255_ name
+  integer parent_id FK
+}
+"public.contact_entity" {
+  integer id
+  varchar_255_ email
+  varchar_255_ first_name
+  varchar_255_ last_name
+  varchar_255_ phone_number
+}
+```
 
 ---
 

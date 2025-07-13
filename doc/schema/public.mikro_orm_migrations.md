@@ -24,7 +24,16 @@
 
 ## Relations
 
-![er](public.mikro_orm_migrations.svg)
+```mermaid
+erDiagram
+
+
+"public.mikro_orm_migrations" {
+  integer id
+  varchar_255_ name
+  timestamp_with_time_zone executed_at
+}
+```
 
 ---
 

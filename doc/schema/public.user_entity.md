@@ -26,7 +26,18 @@
 
 ## Relations
 
-![er](public.user_entity.svg)
+```mermaid
+erDiagram
+
+
+"public.user_entity" {
+  varchar_255_ id
+  varchar_255_ first_name
+  varchar_255_ last_name
+  varchar_255_ display_name
+  jsonb emails
+}
+```
 
 ---
 

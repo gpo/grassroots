@@ -25,7 +25,17 @@
 
 ## Relations
 
-![er](public.organization_entity.svg)
+```mermaid
+erDiagram
+
+"public.organization_entity" }o--o| "public.organization_entity" : ""
+
+"public.organization_entity" {
+  integer id
+  varchar_255_ name
+  integer parent_id FK
+}
+```
 
 ---
 
