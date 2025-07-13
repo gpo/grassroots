@@ -1,4 +1,4 @@
-import { TSESTree } from "@typescript-eslint/utils";
+import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
 import { createRule } from "../utils.js";
 import { RuleContext, RuleListener } from "@typescript-eslint/utils/ts-eslint";
@@ -6,10 +6,7 @@ import { RuleContext, RuleListener } from "@typescript-eslint/utils/ts-eslint";
 type MessageIds = "noEntityAccessOutsideServices";
 type Context = Readonly<RuleContext<MessageIds, []>>;
 
-function checkEntityFilename(
-  node: TSESTree.VariableDeclaration,
-  context: Context,
-): void {
+function checkEntityFilename(node: TSESTree.Node, context: Context): void {
   if (
     !context.filename.includes("service") &&
     !context.filename.includes("entity")
@@ -24,23 +21,15 @@ function checkEntityFilename(
 export const rule = createRule({
   create(context: Context): RuleListener {
     return {
-      VariableDeclaration(node: TSESTree.VariableDeclaration): undefined {
-        for (const declaration of node.declarations) {
-          const typeAnnotation = declaration.id.typeAnnotation?.typeAnnotation;
-          if (
-            typeAnnotation?.type !== TSESTree.AST_NODE_TYPES.TSTypeReference
-          ) {
-            continue;
-          }
-          const typeName = typeAnnotation.typeName;
-          if (typeName.type !== TSESTree.AST_NODE_TYPES.Identifier) {
-            continue;
-          }
-          if (!/.*Entity$/.exec(typeName.name)) {
-            continue;
-          }
-          checkEntityFilename(node, context);
+      TSTypeReference(node: TSESTree.TSTypeReference): undefined {
+        const typeName = node.typeName;
+        if (typeName.type !== AST_NODE_TYPES.Identifier) {
+          return;
         }
+        if (!/.*Entity$/.exec(typeName.name)) {
+          return;
+        }
+        checkEntityFilename(node, context);
       },
     };
   },
