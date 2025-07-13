@@ -1,6 +1,7 @@
 import { createContext } from "react";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import { UserDTO } from "../grassroots-shared/User.dto";
+import { Permission } from "../grassroots-shared/Permission";
 
 export const LOGIN_URL = "http://grassroots.org/api/auth/login";
 
@@ -17,8 +18,8 @@ export const LoginStateContext = createContext<Promise<LoginState | undefined>>(
 // Each page load we're either logged in or we're not.
 export async function getLoginState(): Promise<LoginState | undefined> {
   const is_authenticated = await grassrootsAPI.GET("/auth/is_authenticated");
-
-  if (!is_authenticated.data?.user) {
+  const user = is_authenticated.data?.user;
+  if (!user) {
     return undefined;
   }
 
@@ -27,8 +28,23 @@ export async function getLoginState(): Promise<LoginState | undefined> {
     window.location.reload();
   };
 
+  // The complexity here is solely to map from permissinos being strings
+  // to permissions having the proper enum type.
   return {
-    user: is_authenticated.data.user,
+    user: {
+      ...user,
+      userRoles: user.userRoles?.map((userRole) => {
+        return {
+          ...userRole,
+          role: {
+            ...userRole.role,
+            permissions: userRole.role.permissions?.map(
+              (permission) => Permission[permission],
+            ),
+          },
+        };
+      }),
+    },
     logout,
   };
 }
