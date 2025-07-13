@@ -36,6 +36,9 @@ services:
       - /app/node_modules
       - /app/grassroots-frontend/node_modules
       - /app/grassroots-backend/node_modules
+      - pnpm_store:/root/.pnpm-store
     ports:
       - "5173:5173"
       - "3000:3000"
+volumes:
+  pnpm_store:

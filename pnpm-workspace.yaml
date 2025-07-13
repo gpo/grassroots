@@ -1,0 +1,4 @@
+packages:
+  - "grassroots-frontend"
+  - "grassroots-backend"
+  - "eslint_rules"
