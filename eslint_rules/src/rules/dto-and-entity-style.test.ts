@@ -44,5 +44,29 @@ ruleTester.run("definite-or-optional", rule, {
         },
       ],
     },
+    {
+      code: `class FooDto { a!: number}`,
+      errors: [
+        {
+          column: 1,
+          endColumn: 27,
+          line: 1,
+          endLine: 1,
+          messageId: "classNameRules",
+        },
+      ],
+    },
+    {
+      code: `class FooDTOMagic { a!: number}`,
+      errors: [
+        {
+          column: 1,
+          endColumn: 32,
+          line: 1,
+          endLine: 1,
+          messageId: "classNameRules",
+        },
+      ],
+    },
   ],
 });
