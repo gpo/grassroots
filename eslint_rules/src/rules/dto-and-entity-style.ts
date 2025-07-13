@@ -30,7 +30,6 @@ function handleMethodDefinition(
     return;
   }
   if (element.key.name === "constructor") {
-    console.log("have constructor");
     context.report({
       messageId: "noConstructors",
       node: element,
@@ -46,7 +45,9 @@ export const rule = createRule({
         if (name === undefined) {
           return;
         }
-        if (!/(DTO|Entity)/i.exec(name)) {
+        const isDTO = /dto/i.exec(name);
+        const isEntity = /entity/i.exec(name);
+        if (!isDTO && !isEntity) {
           return;
         }
         // We need to match case sensitively, and DTO / Entity should be at the end of the class name.
@@ -65,7 +66,6 @@ export const rule = createRule({
               handleMethodDefinition(element, context);
               break;
             default:
-              console.log(element);
               break;
           }
         }
