@@ -167,5 +167,23 @@ class FooDTO extends createDTOBase("Foo") {
         },
       ],
     },
+
+    {
+      code: `class FooDTO {
+        a!: number;
+        constructor(a: number) {
+          this.a = a;
+        }
+      }`,
+      errors: [
+        {
+          column: 9,
+          endColumn: 10,
+          line: 3,
+          endLine: 5,
+          messageId: "noConstructors",
+        },
+      ],
+    },
   ],
 });
