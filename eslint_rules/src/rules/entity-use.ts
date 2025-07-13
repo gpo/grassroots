@@ -10,7 +10,6 @@ function checkEntityFilename(
   node: TSESTree.VariableDeclaration,
   context: Context,
 ): void {
-  console.log(context.filename);
   if (
     !context.filename.includes("service") &&
     !context.filename.includes("entity")
@@ -37,7 +36,7 @@ export const rule = createRule({
           if (typeName.type !== TSESTree.AST_NODE_TYPES.Identifier) {
             continue;
           }
-          if (!typeName.name.includes("Entity")) {
+          if (!/.*Entity$/.exec(typeName.name)) {
             continue;
           }
           checkEntityFilename(node, context);
