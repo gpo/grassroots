@@ -1,6 +1,14 @@
 #!/bin/bash
 set -e  # Exit immediately if a command exits with non-zero status
 
+#install pnpm and give it a path
+npm install -g pnpm --prefix ~/.local
+export PATH="$HOME/.local/bin:$PATH"
+
+# Configure pnpm to use the mounted store volume (not the project directory)
+export PNPM_HOME="/root/.pnpm-store"
+export PNPM_STORE_DIR="/root/.pnpm-store"
+
 # Function to check and install dependencies if needed
 install_deps_if_needed() {
     local dir="$1"
@@ -9,7 +17,7 @@ install_deps_if_needed() {
     # If node modules is empty, install dependencies.
     if [ -z "$(ls -A $dir/node_modules)" ]; then
         echo "Installing $name dependencies..."
-        cd "$dir" && npm i
+        cd "$dir" && pnpm i
     else
         echo "$name dependencies already installed, skipping."
     fi
