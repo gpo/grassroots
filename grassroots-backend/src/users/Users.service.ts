@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { UserEntity } from "./User.entity";
 import { EntityManager, EntityRepository } from "@mikro-orm/core";
-import { PropsOf } from "../grassroots-shared/util/PropsOf";
+import { UserDTO } from "../grassroots-shared/User.dto";
 
 @Injectable()
 export class UsersService {
@@ -9,17 +9,21 @@ export class UsersService {
   constructor(private readonly entityManager: EntityManager) {
     this.repo = entityManager.getRepository<UserEntity>(UserEntity);
   }
-  async findOrCreate(
-    user: PropsOf<UserEntity>,
-  ): Promise<UserEntity | undefined> {
-    return await this.repo.upsert(user);
+  async findOrCreate(user: UserDTO): Promise<UserDTO | undefined> {
+    const existing = await this.repo.findOne({ id: user.id });
+    if (existing !== null) {
+      return existing;
+    }
+    const result = this.repo.create(user);
+    await this.entityManager.flush();
+    return result;
   }
 
-  async findOne(user: PropsOf<UserEntity>): Promise<UserEntity | null> {
-    return await this.repo.findOne(user);
+  async findOneById(id: string): Promise<UserDTO | null> {
+    return await this.repo.findOne({ id });
   }
 
-  async findAll(): Promise<UserEntity[]> {
+  async findAll(): Promise<UserDTO[]> {
     return await this.repo.find({});
   }
 }
