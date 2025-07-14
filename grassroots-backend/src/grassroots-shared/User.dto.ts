@@ -1,6 +1,7 @@
 import { IsEmail, IsOptional, IsString } from "class-validator";
+import { createBrandedClass } from "./util/CreateBrandedClass";
 
-export class UserDTO {
+export class UserDTO extends createBrandedClass("UserDTO") {
   @IsString()
   id!: string;
 
