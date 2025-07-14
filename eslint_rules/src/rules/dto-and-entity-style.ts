@@ -20,7 +20,7 @@ export const rule = createRule({
           if (element.type !== AST_NODE_TYPES.PropertyDefinition) {
             continue;
           }
-          if (!element.definite && !element.optional) {
+          if (!element.definite && !element.optional && !element.value) {
             context.report({
               messageId: "definiteOrOptional",
               node: element,
