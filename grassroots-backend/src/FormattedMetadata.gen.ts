@@ -28,6 +28,9 @@ export default async () => {
     ["./grassroots-shared/Role.dto"]: await import(
       "./grassroots-shared/Role.dto"
     ),
+    ["./contacts/entities/Contact.entity"]: await import(
+      "./contacts/entities/Contact.entity"
+    ),
   };
   return {
     "@nestjs/swagger": {

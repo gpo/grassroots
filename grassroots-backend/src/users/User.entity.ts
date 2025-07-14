@@ -1,10 +1,8 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { UserDTO } from "../grassroots-shared/User.dto";
-import { AssertPropsEqual } from "../grassroots-shared/util/AssertPropsEqual";
-import { PropsOf } from "../grassroots-shared/util/PropsOf";
+import { createBrandedEntity } from "../util/CreateBrandedEntity";
 
 @Entity()
-export class UserEntity implements PropsOf<UserDTO> {
+export class UserEntity extends createBrandedEntity("UserEntity") {
   @PrimaryKey()
   id!: string;
   @Property({ type: "json", nullable: true })
@@ -16,5 +14,3 @@ export class UserEntity implements PropsOf<UserDTO> {
   @Property({ nullable: true })
   displayName?: string;
 }
-
-export const check: AssertPropsEqual<UserDTO, UserEntity> = true;
