@@ -8,7 +8,11 @@ import { AuthModule } from "../auth/Auth.module";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { UsersService } from "../users/Users.service";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
-import { PostgreSqlDriver } from "@mikro-orm/postgresql";
+import {
+  MikroORM,
+  PostgreSqlDriver,
+  RequestContext,
+} from "@mikro-orm/postgresql";
 import expressSession from "express-session";
 import passport from "passport";
 import mikroORMConfig from "../mikro-orm.config";
@@ -64,14 +68,19 @@ export async function listenAndConfigureApp(
 
   passport.deserializeUser((id: string, done) => {
     const usersService = app.get<UsersService>(UsersService);
-    usersService
-      .findOneById(id)
-      .then((user: UserDTO | null) => {
-        done(null, user);
-      })
-      .catch((e: unknown) => {
-        throw e;
-      });
+
+    const orm = app.get(MikroORM);
+
+    RequestContext.create(orm.em, () => {
+      usersService
+        .findOneById(id)
+        .then((user: UserDTO | null) => {
+          done(null, user);
+        })
+        .catch((e: unknown) => {
+          throw e;
+        });
+    });
   });
   app.use(passport.session());
 
