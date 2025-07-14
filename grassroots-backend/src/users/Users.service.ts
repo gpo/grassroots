@@ -12,18 +12,18 @@ export class UsersService {
   async findOrCreate(user: UserDTO): Promise<UserDTO | undefined> {
     const existing = await this.repo.findOne({ id: user.id });
     if (existing !== null) {
-      return existing;
+      return existing.toDTO();
     }
     const result = this.repo.create(user);
     await this.entityManager.flush();
-    return result;
+    return result.toDTO();
   }
 
   async findOneById(id: string): Promise<UserDTO | null> {
-    return await this.repo.findOne({ id });
+    return (await this.repo.findOne({ id }))?.toDTO() ?? null;
   }
 
   async findAll(): Promise<UserDTO[]> {
-    return await this.repo.find({});
+    return (await this.repo.find({})).map((x: UserEntity) => x.toDTO());
   }
 }
