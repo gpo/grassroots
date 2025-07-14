@@ -1,11 +1,17 @@
-import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
+import {
+  BaseEntity,
+  Entity,
+  PrimaryKey,
+  Property,
+  Unique,
+} from "@mikro-orm/core";
 import "reflect-metadata";
 import { ContactDTO } from "../../grassroots-shared/Contact.dto";
 import { PropsOf } from "../../grassroots-shared/util/PropsOf";
 import { AssertPropsEqual } from "../../grassroots-shared/util/AssertPropsEqual";
 
 @Entity()
-export class ContactEntity implements PropsOf<ContactDTO> {
+export class ContactEntity extends BaseEntity implements PropsOf<ContactDTO> {
   @PrimaryKey()
   id!: number;
 

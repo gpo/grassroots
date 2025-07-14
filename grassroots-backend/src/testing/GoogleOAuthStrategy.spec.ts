@@ -28,24 +28,28 @@ describe("GoogleOAuthStrategy", () => {
   it("should create a user", async () => {
     const FAKE_ID = "testID";
     const { strategy, usersService } = useContext();
-    const before = await usersService.findOne({ id: FAKE_ID });
+    const before = await usersService.findOneById(FAKE_ID);
     expect(before).toBe(null);
 
-    strategy.validate(
-      "foo",
-      {
-        emails: [],
-        provider: "",
-        id: FAKE_ID,
-        displayName: "",
-      },
-      (err: Error | null | undefined) => {
-        if (err) {
-          throw err;
-        }
-      },
-    );
-    const after = await usersService.findOne({ id: FAKE_ID });
+    await new Promise<void>((resolve) => {
+      strategy.validate(
+        "foo",
+        {
+          emails: [],
+          provider: "",
+          id: FAKE_ID,
+          displayName: "",
+        },
+        (err: Error | null | undefined) => {
+          if (err) {
+            throw err;
+          }
+          resolve();
+        },
+      );
+    });
+
+    const after = await usersService.findOneById(FAKE_ID);
     expect(after?.id).toBe(FAKE_ID);
   });
 });

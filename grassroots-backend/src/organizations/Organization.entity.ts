@@ -23,7 +23,7 @@ export class OrganizationEntity extends BaseEntity {
   parent?: OrganizationEntity;
 
   @OneToMany(() => OrganizationEntity, (organization) => organization.parent)
-  children?: Collection<OrganizationEntity>;
+  children = new Collection<OrganizationEntity>(this);
 
   toDTO(): OrganizationDTO {
     return {
