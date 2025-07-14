@@ -6,7 +6,7 @@ import { BaseEntity } from "@mikro-orm/core";
 const __brand: unique symbol = Symbol();
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-abstract class Branded<TBrand> extends BaseEntity {
+export abstract class Branded<TBrand> extends BaseEntity {
   readonly [__brand]!: TBrand;
 }
 

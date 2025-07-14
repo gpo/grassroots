@@ -7,7 +7,8 @@ type MessageIds =
   | "definiteOrOptional"
   | "classNameRules"
   | "noConstructors"
-  | "missingEntityBaseClass";
+  | "missingEntityBaseClass"
+  | "missingDTOBrand";
 type Context = Readonly<RuleContext<MessageIds, []>>;
 
 function handlePropertyDefinition(
@@ -41,26 +42,48 @@ function handleMethodDefinition(
   }
 }
 
+function getSuperclassCalleeName(
+  node: TSESTree.ClassDeclaration,
+): string | null {
+  const superClass = node.superClass;
+
+  if (superClass?.type !== AST_NODE_TYPES.CallExpression) {
+    return null;
+  }
+
+  const callee = superClass.callee;
+  if (callee.type !== AST_NODE_TYPES.Identifier) {
+    return null;
+  }
+  return callee.name;
+}
+
 function verifyEntitySuperclass(
   node: TSESTree.ClassDeclaration,
   context: Context,
 ): void {
-  const superClass = node.superClass;
-
-  if (superClass?.type === AST_NODE_TYPES.CallExpression) {
-    const callee = superClass.callee;
-    if (callee.type === AST_NODE_TYPES.Identifier) {
-      if (callee.name === "createBrandedEntity") {
-        // Looks good!
-        return;
-      }
-    }
+  if (getSuperclassCalleeName(node) === "createBrandedEntity") {
+    return;
   }
   context.report({
     messageId: "missingEntityBaseClass",
     node,
   });
 }
+
+function verifyDTOSuperclass(
+  node: TSESTree.ClassDeclaration,
+  context: Context,
+): void {
+  if (getSuperclassCalleeName(node) === "createBrandedClass") {
+    return;
+  }
+  context.report({
+    messageId: "missingDTOBrand",
+    node,
+  });
+}
+
 export const rule = createRule({
   create(context: Context): RuleListener {
     return {
@@ -76,6 +99,9 @@ export const rule = createRule({
         }
         if (isEntity) {
           verifyEntitySuperclass(node, context);
+        }
+        if (isDTO) {
+          verifyDTOSuperclass(node, context);
         }
         // We need to match case sensitively, and DTO / Entity should be at the end of the class name.
         if (!/(DTO|Entity)$/.exec(name)) {
@@ -114,6 +140,7 @@ export const rule = createRule({
       after class-transformer has already populated some fields, resulting in confusing results. Create
       these objects via class-tranformer's plainToInstance`,
       missingEntityBaseClass: `All entities should extend createBrandedEntity.`,
+      missingDTOBrand: `All DTOs should extend createBrandedClass`,
     },
     type: "suggestion",
     schema: [],

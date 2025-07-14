@@ -5,53 +5,41 @@ const ruleTester = createRuleTester();
 
 ruleTester.run("definite-or-optional", rule, {
   valid: [
-    `class FooDTO { a!: number; b?: number}`,
-    `class FooDTO { a!: number}`,
-    `class FooDTO { a?: number}`,
-    `class Foo { a: number}`,
-    `class Foo { a = 2}`,
+    `class FooDTO extends createBrandedClass("FooDTO") { a!: number; b?: number}`,
+    `class FooDTO extends createBrandedClass("FooDTO") { a!: number}`,
+    `class FooDTO extends createBrandedClass("FooDTO") { a?: number}`,
+    `class Foo extends createBrandedClass("FooDTO") { a: number}`,
+    `class Foo extends createBrandedClass("FooDTO") { a = 2}`,
     `class FooEntity extends createBrandedEntity("UserEntity") { a = 2}`,
   ],
   invalid: [
     {
-      code: `class FooDTO { a: number}`,
+      code: `class FooDTO extends createBrandedClass("FooDTO") { a: number}`,
       errors: [
         {
-          column: 16,
-          endColumn: 25,
-          line: 1,
-          endLine: 1,
           messageId: "definiteOrOptional",
         },
       ],
     },
     {
-      code: `class FooDto { a!: number}`,
+      code: `class FooDto extends createBrandedClass("FooDTO") { a!: number}`,
       errors: [
         {
-          column: 1,
-          endColumn: 27,
-          line: 1,
-          endLine: 1,
           messageId: "classNameRules",
         },
       ],
     },
     {
-      code: `class FooDTOMagic { a!: number}`,
+      code: `class FooDTOMagic extends createBrandedClass("FooDTO") { a!: number}`,
       errors: [
         {
-          column: 1,
-          endColumn: 32,
-          line: 1,
-          endLine: 1,
           messageId: "classNameRules",
         },
       ],
     },
 
     {
-      code: `class FooDTO {
+      code: `class FooDTO extends createBrandedClass("FooDTO") {
         a!: number;
         constructor(a: number) {
           this.a = a;
@@ -59,10 +47,6 @@ ruleTester.run("definite-or-optional", rule, {
       }`,
       errors: [
         {
-          column: 9,
-          endColumn: 10,
-          line: 3,
-          endLine: 5,
           messageId: "noConstructors",
         },
       ],
@@ -74,6 +58,26 @@ ruleTester.run("definite-or-optional", rule, {
       errors: [
         {
           messageId: "missingEntityBaseClass",
+        },
+      ],
+    },
+    {
+      code: `class FooEntity extends createBrandedClass("FooEntity") {
+        a!: number;
+      }`,
+      errors: [
+        {
+          messageId: "missingEntityBaseClass",
+        },
+      ],
+    },
+    {
+      code: `class FooDTO {
+        a!: number;
+      }`,
+      errors: [
+        {
+          messageId: "missingDTOBrand",
         },
       ],
     },

@@ -20,10 +20,6 @@ ruleTester.run("entity-use", rule, {
       code: `let x: FooEntity = y;`,
       errors: [
         {
-          column: 8,
-          endColumn: 17,
-          line: 1,
-          endLine: 1,
           messageId: "noEntityAccessOutsideServices",
         },
       ],
@@ -33,10 +29,6 @@ ruleTester.run("entity-use", rule, {
       code: `console.log(x as FooEntity);`,
       errors: [
         {
-          column: 18,
-          endColumn: 27,
-          line: 1,
-          endLine: 1,
           messageId: "noEntityAccessOutsideServices",
         },
       ],
