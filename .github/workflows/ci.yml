@@ -58,6 +58,15 @@ jobs:
           npx tsc --noEmit --project grassroots-frontend
           npx tsc --noEmit --project grassroots-backend
 
+      - name: Migrate DB
+        run: cd grassroots-backend && npx mikro-orm migration:up
+
+      - name: Setup tbls
+        uses: k1low/setup-tbls@v1
+
+      - name: Run tbls to generate database document
+        run: tbls doc --rm-dist
+
       - name: Run ESLint
         run: npx eslint . --output-file eslint_report.json --format json --fix
         continue-on-error: true
