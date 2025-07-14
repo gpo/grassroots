@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { useE2ETestFixture } from "../testing/E2eSetup";
 import { UsersModule } from "./Users.module";
 import { createOrganizationTree } from "../testing/testHelpers/CreateOrganizationTree";
-import { Permission } from "../grassroots-shared/Permission";
+import { PermissionEnum } from "../grassroots-shared/Permission";
 import { fail } from "../grassroots-shared/util/Fail";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { fetchSuccessOrThrow } from "../grassroots-shared/util/FetchSuccessOrThrow";
@@ -35,7 +35,7 @@ describe("Users (e2e)", () => {
             {
               inherited: true,
               organizationId: nameToId.get("B") ?? fail(),
-              role: ROLES_BY_NAME.get("View Only") ?? fail(),
+              role: ROLES_BY_NAME.get("View Only")?.toDTO() ?? fail(),
             },
           ],
         },
@@ -53,7 +53,9 @@ describe("Users (e2e)", () => {
       }),
     );
 
-    expect(noAccessPermissions.permissions).toEqual([] satisfies Permission[]);
+    expect(noAccessPermissions.permissions).toEqual(
+      [] satisfies PermissionEnum[],
+    );
 
     const directPermission = fetchSuccessOrThrow(
       await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
@@ -67,8 +69,8 @@ describe("Users (e2e)", () => {
     );
 
     expect(directPermission.permissions).toEqual([
-      Permission.VIEW_CONTACTS,
-    ] satisfies Permission[]);
+      PermissionEnum.VIEW_CONTACTS,
+    ] satisfies PermissionEnum[]);
 
     const indirectPermission = fetchSuccessOrThrow(
       await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
@@ -82,7 +84,7 @@ describe("Users (e2e)", () => {
     );
 
     expect(indirectPermission.permissions).toEqual([
-      Permission.VIEW_CONTACTS,
-    ] satisfies Permission[]);
+      PermissionEnum.VIEW_CONTACTS,
+    ] satisfies PermissionEnum[]);
   });
 });

@@ -1,11 +1,25 @@
 import { IsEnum } from "class-validator";
-import { Permission, PermissionValue } from "./Permission";
 import { ApiProperty } from "@nestjs/swagger";
+import { applyDecorators } from "@nestjs/common";
+
+// This enum is only used for generating OpenAPI docs.
+// See PermissionsDecorator.
+enum PermissionEnum {
+  VIEW_CONTACTS = "VIEW_CONTACTS",
+  MANAGE_CONTACTS = "MANAGE_CONTACTS",
+  MANAGE_USERS = "MANAGE_USERS",
+}
+
+export type Permission = keyof typeof PermissionEnum;
+
+export function PermissionsDecorator(): PropertyDecorator {
+  return applyDecorators(
+    IsEnum(PermissionEnum),
+    ApiProperty({ enum: PermissionEnum, isArray: true }),
+  );
+}
 
 export class PermissionsDTO {
-  @IsEnum(Permission)
-  @ApiProperty({ enum: Permission, isArray: true })
-  // We use PermissionValue here instead of Permission, because it allows the values returned
-  // by the typescript OpenAPI wrapper to adhere to this type.
-  permissions!: PermissionValue[];
+  @PermissionsDecorator()
+  permissions!: Permission[];
 }

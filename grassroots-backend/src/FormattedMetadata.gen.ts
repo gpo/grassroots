@@ -10,9 +10,6 @@ export default async () => {
     ["./grassroots-shared/Organization.dto"]: await import(
       "./grassroots-shared/Organization.dto"
     ),
-    ["./grassroots-shared/Permission"]: await import(
-      "./grassroots-shared/Permission"
-    ),
     ["./grassroots-shared/Permission.dto"]: await import(
       "./grassroots-shared/Permission.dto"
     ),

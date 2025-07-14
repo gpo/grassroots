@@ -25,20 +25,16 @@ export type RoleName =
 
 const ROLES_ARRAY: RoleEntity[] = [
   { id: 1, name: "No Permissions", permissions: [] },
-  { id: 2, name: "View Only", permissions: [Permission.VIEW_CONTACTS] },
+  { id: 2, name: "View Only", permissions: ["VIEW_CONTACTS"] },
   {
     id: 3,
     name: "Contact Manager",
-    permissions: [Permission.VIEW_CONTACTS, Permission.MANAGE_CONTACTS],
+    permissions: ["VIEW_CONTACTS", "MANAGE_CONTACTS"],
   },
   {
     id: 4,
     name: "Admin",
-    permissions: [
-      Permission.VIEW_CONTACTS,
-      Permission.MANAGE_CONTACTS,
-      Permission.MANAGE_USERS,
-    ],
+    permissions: ["VIEW_CONTACTS", "MANAGE_CONTACTS", "MANAGE_USERS"],
   },
 ].map((x) => plainToInstance(RoleEntity, x));
 

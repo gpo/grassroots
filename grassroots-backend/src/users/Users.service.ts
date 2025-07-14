@@ -2,9 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { UserEntity } from "./User.entity";
 import { EntityManager, EntityRepository } from "@mikro-orm/core";
 import { UserDTO } from "../grassroots-shared/User.dto";
+import { Permission } from "../grassroots-shared/Permission";
 import { instanceToPlain } from "class-transformer";
 import { OrganizationEntity } from "../organizations/Organization.entity";
-import { Permission } from "../grassroots-shared/Permission";
 import { OrganizationRepository } from "../organizations/Organization.repo";
 import { UserRoleEntity } from "./UserRole.entity";
 
