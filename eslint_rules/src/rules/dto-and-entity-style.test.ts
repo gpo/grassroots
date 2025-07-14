@@ -10,6 +10,7 @@ ruleTester.run("definite-or-optional", rule, {
     `class FooDTO { a?: number}`,
     `class Foo { a: number}`,
     `class Foo { a = 2}`,
+    `class FooEntity extends createBrandedEntity("UserEntity") { a = 2}`,
   ],
   invalid: [
     {
@@ -63,6 +64,16 @@ ruleTester.run("definite-or-optional", rule, {
           line: 3,
           endLine: 5,
           messageId: "noConstructors",
+        },
+      ],
+    },
+    {
+      code: `class FooEntity {
+        a!: number;
+      }`,
+      errors: [
+        {
+          messageId: "missingEntityBaseClass",
         },
       ],
     },

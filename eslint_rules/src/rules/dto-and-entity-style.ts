@@ -3,7 +3,11 @@ import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 import { createRule } from "../utils.js";
 import { RuleContext, RuleListener } from "@typescript-eslint/utils/ts-eslint";
 
-type MessageIds = "definiteOrOptional" | "classNameRules" | "noConstructors";
+type MessageIds =
+  | "definiteOrOptional"
+  | "classNameRules"
+  | "noConstructors"
+  | "missingEntityBaseClass";
 type Context = Readonly<RuleContext<MessageIds, []>>;
 
 function handlePropertyDefinition(
@@ -37,6 +41,26 @@ function handleMethodDefinition(
   }
 }
 
+function verifyEntitySuperclass(
+  node: TSESTree.ClassDeclaration,
+  context: Context,
+): void {
+  const superClass = node.superClass;
+
+  if (superClass?.type === AST_NODE_TYPES.CallExpression) {
+    const callee = superClass.callee;
+    if (callee.type === AST_NODE_TYPES.Identifier) {
+      if (callee.name === "createBrandedEntity") {
+        // Looks good!
+        return;
+      }
+    }
+  }
+  context.report({
+    messageId: "missingEntityBaseClass",
+    node,
+  });
+}
 export const rule = createRule({
   create(context: Context): RuleListener {
     return {
@@ -49,6 +73,9 @@ export const rule = createRule({
         const isEntity = /entity/i.exec(name);
         if (!isDTO && !isEntity) {
           return;
+        }
+        if (isEntity) {
+          verifyEntitySuperclass(node, context);
         }
         // We need to match case sensitively, and DTO / Entity should be at the end of the class name.
         if (!/(DTO|Entity)$/.exec(name)) {
@@ -86,6 +113,7 @@ export const rule = createRule({
       noConstructors: `DTOs and Entities shouldn't have constructors. These constructors can be called
       after class-transformer has already populated some fields, resulting in confusing results. Create
       these objects via class-tranformer's plainToInstance`,
+      missingEntityBaseClass: `All entities should extend createBrandedEntity.`,
     },
     type: "suggestion",
     schema: [],
