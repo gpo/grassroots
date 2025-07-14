@@ -1,28 +1,32 @@
-import "reflect-metadata";
 import {
-  IsNotEmpty,
+  IsBoolean,
   IsNumber,
   IsOptional,
   IsString,
   Min,
   ValidateNested,
 } from "class-validator";
+import { RoleDTO } from "./Role.dto";
 import { Type } from "class-transformer";
-import { PermissionsDTO } from "./Permission.dto";
 
-export class RoleDTO {
+export class UserRoleDTO {
   @IsNumber()
-  @Min(0)
+  @Min(1)
   @IsOptional()
   id?: number;
 
   @IsString()
-  @IsNotEmpty()
   @IsOptional()
-  name?: string;
+  userId?: string;
 
-  @IsOptional()
+  @Type(() => RoleDTO)
   @ValidateNested()
-  @Type(() => PermissionsDTO)
-  permissions?: PermissionsDTO;
+  role!: RoleDTO;
+
+  @IsNumber()
+  @Min(1)
+  organizationId!: number;
+
+  @IsBoolean()
+  inherited!: boolean;
 }

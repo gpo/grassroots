@@ -1,6 +1,10 @@
-import { Controller, Get } from "@nestjs/common";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { Body, Controller, Get, Post, Query } from "@nestjs/common";
+import {
+  UserDTO,
+  UserPermissionsForOrgRequestDTO,
+} from "../grassroots-shared/User.dto";
 import { UsersService } from "../users/Users.service";
+import { PermissionsDTO } from "../grassroots-shared/Permission.dto";
 
 @Controller("users")
 export class UsersController {
@@ -9,5 +13,23 @@ export class UsersController {
   @Get()
   findAll(): Promise<UserDTO[]> {
     return this.usersService.findAll();
+  }
+
+  @Post("find-or-create")
+  async findOrCreate(@Body() user: UserDTO): Promise<UserDTO> {
+    return await this.usersService.findOrCreate(user);
+  }
+
+  @Get("user-permissions-for-org")
+  async getUserPermissionsForOrg(
+    @Query()
+    userPermissionsForOrgRequestDTO: UserPermissionsForOrgRequestDTO,
+  ): Promise<PermissionsDTO> {
+    return {
+      permissions: await this.usersService.getUserPermissionsForOrg(
+        userPermissionsForOrgRequestDTO.userId,
+        userPermissionsForOrgRequestDTO.organizationId,
+      ),
+    };
   }
 }

@@ -1,20 +1,41 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Collection,
+  Entity,
+  OneToMany,
+  PrimaryKey,
+  Property,
+} from "@mikro-orm/core";
 import { UserDTO } from "../grassroots-shared/User.dto";
-import { AssertPropsEqual } from "../grassroots-shared/util/AssertPropsEqual";
-import { PropsOf } from "../grassroots-shared/util/PropsOf";
+import { UserRoleEntity } from "./UserRole.entity";
 
 @Entity()
-export class UserEntity implements PropsOf<UserDTO> {
+export class UserEntity {
   @PrimaryKey()
   id!: string;
+
   @Property({ type: "json", nullable: true })
   emails?: string[];
+
   @Property({ nullable: true })
   firstName?: string;
+
   @Property({ nullable: true })
   lastName?: string;
+
   @Property({ nullable: true })
   displayName?: string;
-}
 
-export const check: AssertPropsEqual<UserDTO, UserEntity> = true;
+  @OneToMany(() => UserRoleEntity, (e) => e.user)
+  userRoles = new Collection<UserRoleEntity>(this);
+
+  toDTO(): UserDTO {
+    return {
+      id: this.id,
+      emails: this.emails,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      displayName: this.displayName,
+      userRoles: this.userRoles.map((x) => x.toDTO()),
+    };
+  }
+}

@@ -17,8 +17,8 @@ export const LoginStateContext = createContext<Promise<LoginState | undefined>>(
 // Each page load we're either logged in or we're not.
 export async function getLoginState(): Promise<LoginState | undefined> {
   const is_authenticated = await grassrootsAPI.GET("/auth/is_authenticated");
-
-  if (!is_authenticated.data?.user) {
+  const user = is_authenticated.data?.user;
+  if (!user) {
     return undefined;
   }
 
@@ -27,8 +27,10 @@ export async function getLoginState(): Promise<LoginState | undefined> {
     window.location.reload();
   };
 
+  // The complexity here is solely to map from permissinos being strings
+  // to permissions having the proper enum type.
   return {
-    user: is_authenticated.data.user,
+    user,
     logout,
   };
 }
