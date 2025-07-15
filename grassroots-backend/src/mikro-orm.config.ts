@@ -1,22 +1,35 @@
 /* eslint-disable check-file/filename-naming-convention */
-import { defineConfig, PostgreSqlDriver } from "@mikro-orm/postgresql";
+import { defineConfig, PostgreSqlDriver, Options } from "@mikro-orm/postgresql";
 import { UserEntity } from "./users/User.entity";
 import { ContactEntity } from "./contacts/entities/Contact.entity";
 import { OrganizationEntity } from "./organizations/Organization.entity";
 import * as dotenv from "dotenv";
-import { readFileSync, existsSync } from "fs";
+import { readFile, access } from "fs/promises";
 import { getEnvFilePaths } from "./GetEnvFilePaths";
 
 /**
- * Reads and parses a single .env file
- * Returns null if file cannot be read
+ * Checks if a file exists and is accessible
  */
-function readSingleEnvironmentFile(filePath: string): Record<string, string> {
+async function fileExists(filePath: string): Promise<boolean> {
   try {
-    const fileContent = readFileSync(filePath, "utf8");
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Reads and parses a single .env file
+ */
+async function readSingleEnvironmentFile(
+  filePath: string,
+): Promise<Record<string, string>> {
+  try {
+    const fileContent = await readFile(filePath, "utf8");
     return dotenv.parse(fileContent);
   } catch (error) {
-    // If file exists but can't be read/parsed
+    // If file exists but can't be read/parsed, that's a real problem
     const errorMessage = error instanceof Error ? error.message : String(error);
     throw new Error(
       `Failed to read environment file ${filePath}: ${errorMessage}`,
@@ -25,41 +38,58 @@ function readSingleEnvironmentFile(filePath: string): Record<string, string> {
 }
 
 /**
- * Loads environment variables from multiple .env files
+ * Loads environment variables from multiple .env files in parallel
  * Earlier files in the list take priority over later files
  */
-function loadAllEnvironmentVariables(): Record<string, string> {
+async function loadAllEnvironmentVariables(): Promise<Record<string, string>> {
   const environmentFilePaths = getEnvFilePaths();
-  let allEnvironmentVariables: Record<string, string> = {};
 
-  for (const currentFilePath of environmentFilePaths) {
-    if (!currentFilePath || !existsSync(currentFilePath)) {
-      continue; // Missing files are OK - just skip them
+  // Read all files in parallel using Promise.all
+  const filePromises = environmentFilePaths.map(async (filePath) => {
+    if (!filePath || !(await fileExists(filePath))) {
+      return null; // Missing files are OK - just skip them
     }
 
     // If file exists, it MUST be parseable - throw if not
-    const variablesFromThisFile = readSingleEnvironmentFile(currentFilePath);
+    const variables = await readSingleEnvironmentFile(filePath);
+    return { filePath, variables };
+  });
 
-    // Earlier files override later files
-    allEnvironmentVariables = {
-      ...variablesFromThisFile,
-      ...allEnvironmentVariables,
-    };
+  const fileResults = await Promise.all(filePromises);
+
+  let allEnvironmentVariables: Record<string, string> = {};
+
+  // Process results in order to maintain priority (earlier files override later files)
+  for (const result of fileResults) {
+    if (result?.variables) {
+      allEnvironmentVariables = {
+        ...result.variables,
+        ...allEnvironmentVariables,
+      };
+    }
   }
 
   return allEnvironmentVariables;
 }
 
-const environmentConfig = loadAllEnvironmentVariables();
+/**
+ * Creates the MikroORM configuration with async environment loading
+ */
+async function createMikroOrmConfig(): Promise<Options> {
+  const environmentConfig = await loadAllEnvironmentVariables();
 
-export default defineConfig({
-  metadataCache: { enabled: false },
-  driver: PostgreSqlDriver,
-  entities: [ContactEntity, UserEntity, OrganizationEntity],
-  host: environmentConfig.POSTGRES_HOST,
-  port: Number(environmentConfig.POSTGRES_PORT),
-  user: environmentConfig.POSTGRES_USER,
-  password: environmentConfig.POSTGRES_PASSWORD,
-  dbName: environmentConfig.POSTGRES_DATABASE,
-  debug: true,
-});
+  return defineConfig({
+    metadataCache: { enabled: false },
+    driver: PostgreSqlDriver,
+    entities: [ContactEntity, UserEntity, OrganizationEntity],
+    host: environmentConfig.POSTGRES_HOST,
+    port: Number(environmentConfig.POSTGRES_PORT),
+    user: environmentConfig.POSTGRES_USER,
+    password: environmentConfig.POSTGRES_PASSWORD,
+    dbName: environmentConfig.POSTGRES_DATABASE,
+    debug: true,
+  });
+}
+
+// Export the Promise - consumers will need to await it
+export default createMikroOrmConfig();
