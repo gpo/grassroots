@@ -55,6 +55,12 @@ export default async () => {
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
             },
+            ContactsDTO: {
+              contacts: {
+                required: true,
+                type: () => [t["./grassroots-shared/Contact.dto"].ContactDTO],
+              },
+            },
             CreateContactRequestDTO: {
               email: { required: true, type: () => String, format: "email" },
               firstName: { required: true, type: () => String },
@@ -107,12 +113,6 @@ export default async () => {
                 required: true,
                 type: () =>
                   t["./grassroots-shared/Paginated.dto"].PaginatedResponseDTO,
-              },
-            },
-            ContactsDTO: {
-              contacts: {
-                required: true,
-                type: () => [t["./grassroots-shared/Contact.dto"].ContactDTO],
               },
             },
           },
