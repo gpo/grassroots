@@ -11,8 +11,9 @@ import {
 } from "class-validator";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "./Paginated.dto";
 import "reflect-metadata";
+import { createDTOBase } from "./util/CreateDTOBase";
 
-export class ContactDTO {
+export class ContactDTO extends createDTOBase<"ContactDTO">() {
   @IsInt()
   @Min(1)
   id!: number;
@@ -30,7 +31,14 @@ export class ContactDTO {
   phoneNumber!: string;
 }
 
-export class CreateContactRequestDTO {
+export class ContactsDTO extends createDTOBase<"ContactsDTO">() {
+  @Type(() => ContactDTO)
+  @ValidateNested({ each: true })
+  @IsArray()
+  contacts!: ContactDTO[];
+}
+
+export class CreateContactRequestDTO extends createDTOBase<"CreateContactRequestDTO">() {
   @IsEmail()
   email!: string;
 
@@ -44,23 +52,23 @@ export class CreateContactRequestDTO {
   phoneNumber!: string;
 }
 
-export class CreateBulkContactRequestDTO {
+export class CreateBulkContactRequestDTO extends createDTOBase<"CreateBulkContactRequestDTO">() {
   @ValidateNested({ each: true })
   @Type(() => CreateContactRequestDTO)
   contacts!: CreateContactRequestDTO[];
 }
 
-export class CreateBulkContactResponseDTO {
+export class CreateBulkContactResponseDTO extends createDTOBase<"CreateBulkContactResponseDTO">() {
   ids!: number[];
 }
 
-export class GetContactByIDResponseDTO {
+export class GetContactByIDResponseDTO extends createDTOBase<"GetContactByIDResponseDTO">() {
   @ValidateNested()
   @IsOptional()
   contact!: ContactDTO | null;
 }
 
-export class ContactSearchRequestDTO {
+export class ContactSearchRequestDTO extends createDTOBase<"ContactSearchRequestDTO">() {
   @IsOptional()
   @Transform(({ value }: { value: string | undefined }) => {
     if (value === "" || value === undefined) {
@@ -83,7 +91,7 @@ export class ContactSearchRequestDTO {
   phoneNumber?: string;
 }
 
-export class PaginatedContactSearchRequestDTO {
+export class PaginatedContactSearchRequestDTO extends createDTOBase<"PaginatedContactSearchRequestDTO">() {
   @ValidateNested()
   @Type(() => ContactSearchRequestDTO)
   contact!: ContactSearchRequestDTO;
@@ -93,7 +101,7 @@ export class PaginatedContactSearchRequestDTO {
   paginated!: PaginatedRequestDTO;
 }
 
-export class PaginatedContactResponseDTO {
+export class PaginatedContactResponseDTO extends createDTOBase<"PaginatedContactResponseDTO">() {
   @ValidateNested({ each: true })
   @Type(() => ContactDTO)
   @IsArray()
@@ -104,12 +112,12 @@ export class PaginatedContactResponseDTO {
   paginated!: PaginatedResponseDTO;
 
   static empty(): PaginatedContactResponseDTO {
-    return {
+    return PaginatedContactResponseDTO.from({
       contacts: [],
-      paginated: {
+      paginated: PaginatedResponseDTO.from({
         rowsSkipped: 0,
         rowsTotal: 0,
-      },
-    };
+      }),
+    });
   }
 }

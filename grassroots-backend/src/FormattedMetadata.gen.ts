@@ -28,9 +28,6 @@ export default async () => {
     ["./grassroots-shared/Role.dto"]: await import(
       "./grassroots-shared/Role.dto"
     ),
-    ["./contacts/entities/Contact.entity"]: await import(
-      "./contacts/entities/Contact.entity"
-    ),
   };
   return {
     "@nestjs/swagger": {
@@ -112,6 +109,12 @@ export default async () => {
                   t["./grassroots-shared/Paginated.dto"].PaginatedResponseDTO,
               },
             },
+            ContactsDTO: {
+              contacts: {
+                required: true,
+                type: () => [t["./grassroots-shared/Contact.dto"].ContactDTO],
+              },
+            },
           },
         ],
         [
@@ -152,6 +155,12 @@ export default async () => {
               firstName: { required: false, type: () => String },
               lastName: { required: false, type: () => String },
               displayName: { required: false, type: () => String },
+            },
+            UsersDTO: {
+              users: {
+                required: true,
+                type: () => [t["./grassroots-shared/User.dto"].UserDTO],
+              },
             },
           },
         ],
@@ -224,7 +233,7 @@ export default async () => {
           import("./users/Users.controller"),
           {
             UsersController: {
-              findAll: { type: [t["./grassroots-shared/User.dto"].UserDTO] },
+              findAll: { type: t["./grassroots-shared/User.dto"].UsersDTO },
             },
           },
         ],

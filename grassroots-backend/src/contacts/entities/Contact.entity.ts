@@ -1,17 +1,13 @@
-import {
-  BaseEntity,
-  Entity,
-  PrimaryKey,
-  Property,
-  Unique,
-} from "@mikro-orm/core";
+import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
 import "reflect-metadata";
 import { ContactDTO } from "../../grassroots-shared/Contact.dto";
-import { PropsOf } from "../../grassroots-shared/util/PropsOf";
-import { AssertPropsEqual } from "../../grassroots-shared/util/AssertPropsEqual";
+import { createEntityBase } from "../../util/CreateEntityBase";
 
 @Entity()
-export class ContactEntity extends BaseEntity implements PropsOf<ContactDTO> {
+export class ContactEntity extends createEntityBase<
+  "ContactEntity",
+  ContactDTO
+>() {
   @PrimaryKey()
   id!: number;
 
@@ -27,6 +23,14 @@ export class ContactEntity extends BaseEntity implements PropsOf<ContactDTO> {
 
   @Property()
   phoneNumber!: string;
-}
 
-export const check: AssertPropsEqual<ContactEntity, ContactDTO> = true;
+  toDTO(): ContactDTO {
+    return ContactDTO.from({
+      id: this.id,
+      email: this.email,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      phoneNumber: this.phoneNumber,
+    });
+  }
+}

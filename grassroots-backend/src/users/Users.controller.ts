@@ -7,7 +7,9 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  findAll(): Promise<UsersDTO> {
-    return { users: this.usersService.findAll() };
+  async findAll(): Promise<UsersDTO> {
+    return UsersDTO.from({
+      users: await this.usersService.findAll(),
+    });
   }
 }

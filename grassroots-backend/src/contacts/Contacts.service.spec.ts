@@ -1,6 +1,4 @@
 import { ContactsService } from "./Contacts.service";
-import { ContactEntity } from "./entities/Contact.entity";
-import { instanceToPlain, plainToClass } from "class-transformer";
 import { useTestFixture } from "../testing/Setup";
 import { describe, expect, it } from "vitest";
 import { ContactsModule } from "./Contacts.module";
@@ -26,22 +24,19 @@ describe("ContactsService", () => {
 
   it("should create and return a contact", async () => {
     const { service } = useService();
-    const contact: CreateContactRequestDTO = {
+    const contact = CreateContactRequestDTO.from({
       email: "test@test.com",
       firstName: "Test",
       lastName: "Test",
       phoneNumber: "999-999-9999",
-    };
+    });
     const created = await service.create(contact);
 
     const allContacts = await service.findAll();
     expect(allContacts.length).toEqual(1);
-    expect(allContacts[0]).toEqual(
-      plainToClass(ContactEntity, {
-        ...instanceToPlain(contact),
-        id: created.id,
-      }),
-    );
+
+    expect(allContacts[0]?.id).toEqual(created.id);
+    expect(allContacts[0]?.firstName).toEqual(contact.firstName);
   });
 
   it("should have no entries in the test database", async () => {

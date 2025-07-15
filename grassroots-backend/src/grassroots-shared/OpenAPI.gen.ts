@@ -339,6 +339,9 @@ export interface components {
       id: string;
       lastName?: string;
     };
+    UsersDTO: {
+      users: components["schemas"]["UserDTO"][];
+    };
     ValidationErrorOutDTO: {
       error: string;
       message: string[];
@@ -868,7 +871,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["UserDTO"][];
+          "application/json": components["schemas"]["UsersDTO"];
         };
       };
       /** @description Validation failed */

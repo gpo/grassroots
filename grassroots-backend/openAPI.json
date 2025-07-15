@@ -270,6 +270,18 @@
         "required": ["id"],
         "type": "object"
       },
+      "UsersDTO": {
+        "properties": {
+          "users": {
+            "items": {
+              "$ref": "#/components/schemas/UserDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["users"],
+        "type": "object"
+      },
       "ValidationErrorOutDTO": {
         "properties": {
           "error": {
@@ -878,10 +890,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/UserDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/UsersDTO"
                 }
               }
             },
