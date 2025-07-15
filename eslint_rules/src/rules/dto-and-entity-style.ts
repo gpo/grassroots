@@ -8,7 +8,7 @@ type MessageIds =
   | "classNameRules"
   | "noConstructors"
   | "missingEntityBaseClass"
-  | "missingDTOBrand";
+  | "missingDTOBaseClass";
 type Context = Readonly<RuleContext<MessageIds, []>>;
 
 function handlePropertyDefinition(
@@ -62,7 +62,7 @@ function verifyEntitySuperclass(
   node: TSESTree.ClassDeclaration,
   context: Context,
 ): void {
-  if (getSuperclassCalleeName(node) === "createBrandedEntity") {
+  if (getSuperclassCalleeName(node) === "createEntityBase") {
     return;
   }
   context.report({
@@ -75,11 +75,11 @@ function verifyDTOSuperclass(
   node: TSESTree.ClassDeclaration,
   context: Context,
 ): void {
-  if (getSuperclassCalleeName(node) === "createBrandedClass") {
+  if (getSuperclassCalleeName(node) === "createDTOBase") {
     return;
   }
   context.report({
-    messageId: "missingDTOBrand",
+    messageId: "missingDTOBaseClass",
     node,
   });
 }
@@ -139,8 +139,8 @@ export const rule = createRule({
       noConstructors: `DTOs and Entities shouldn't have constructors. These constructors can be called
       after class-transformer has already populated some fields, resulting in confusing results. Create
       these objects via class-tranformer's plainToInstance`,
-      missingEntityBaseClass: `All entities should extend createBrandedEntity.`,
-      missingDTOBrand: `All DTOs should extend createBrandedClass`,
+      missingEntityBaseClass: `All entities should extend createEntityBase.`,
+      missingDTOBaseClass: `All DTOs should extend createDTOBase`,
     },
     type: "suggestion",
     schema: [],

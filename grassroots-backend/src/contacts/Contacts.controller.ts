@@ -28,7 +28,9 @@ export class ContactsController {
     const contacts = await this.contactsService.bulkCreate(
       createContactDtos.contacts,
     );
-    return { ids: contacts.map((x) => x.id) };
+    return CreateBulkContactResponseDTO.from({
+      ids: contacts.map((x) => x.id),
+    });
   }
 
   @Get()
@@ -45,8 +47,8 @@ export class ContactsController {
 
   @Get(":id")
   async findOne(@Param("id") id: number): Promise<GetContactByIDResponseDTO> {
-    return {
+    return GetContactByIDResponseDTO.from({
       contact: await this.contactsService.findOne(id),
-    };
+    });
   }
 }

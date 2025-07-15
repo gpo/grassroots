@@ -2,13 +2,15 @@ import { JSX } from "react";
 import { ContactRow } from "./ContactRow";
 import { PaginatedContactResponseDTO } from "../grassroots-shared/Contact.dto";
 
-type PaginatedContactsProps = PaginatedContactResponseDTO & {
+interface PaginatedContactsProps {
+  paginatedContactResponse: PaginatedContactResponseDTO;
   setRowsToSkip: React.Dispatch<React.SetStateAction<number>>;
   rowsPerPage: number;
-};
+}
 
 export function PaginatedContacts(props: PaginatedContactsProps): JSX.Element {
-  const { paginated, contacts, setRowsToSkip } = props;
+  const { paginatedContactResponse, setRowsToSkip } = props;
+  const { paginated, contacts } = paginatedContactResponse;
   const rows = contacts.map((x) => {
     return <ContactRow contact={x} key={x.id}></ContactRow>;
   });

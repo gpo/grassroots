@@ -1,10 +1,9 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
-import { createBrandedEntity } from "../util/CreateBrandedEntity";
+import { createEntityBase } from "../util/CreateEntityBase";
 import { UserDTO } from "../grassroots-shared/User.dto";
-import { plainToInstance } from "class-transformer";
 
 @Entity()
-export class UserEntity extends createBrandedEntity("UserEntity") {
+export class UserEntity extends createEntityBase<"UserEntity", UserDTO>() {
   @PrimaryKey()
   id!: string;
   @Property({ type: "json", nullable: true })
@@ -17,7 +16,7 @@ export class UserEntity extends createBrandedEntity("UserEntity") {
   displayName?: string;
 
   toDTO(): UserDTO {
-    return plainToInstance(UserDTO, {
+    return UserDTO.from({
       id: this.id,
       emails: this.emails,
       firstName: this.firstName,

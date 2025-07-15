@@ -2,8 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useState } from "react";
 import { useContactSearch } from "../hooks/useContactSearch";
 import { PaginatedContacts } from "../components/PaginatedContacts";
-import { ContactSearchRequestDTO } from "../grassroots-shared/Contact.dto";
+import {
+  ContactSearchRequestDTO,
+  PaginatedContactSearchRequestDTO,
+} from "../grassroots-shared/Contact.dto";
 import { cast } from "../grassroots-shared/util/Cast";
+import { PaginatedRequestDTO } from "../grassroots-shared/Paginated.dto";
 
 export const Route = createFileRoute("/SharedSearch")({
   component: SharedSearch,
@@ -20,17 +24,18 @@ function SharedSearch(): JSX.Element | null {
   const search = Route.useSearch();
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
-  const { data: results } = useContactSearch({
-    contact: search,
-    paginated: {
-      rowsToSkip,
-      rowsToTake: ROWS_PER_PAGE,
-    },
-  });
+  const { data: results } = useContactSearch(
+    PaginatedContactSearchRequestDTO.from({
+      contact: ContactSearchRequestDTO.from(search),
+      paginated: PaginatedRequestDTO.from({
+        rowsToSkip,
+        rowsToTake: ROWS_PER_PAGE,
+      }),
+    }),
+  );
   return results ? (
     <PaginatedContacts
-      contacts={results.contacts}
-      paginated={results.paginated}
+      paginatedContactResponse={results}
       setRowsToSkip={setRowsToSkip}
       rowsPerPage={ROWS_PER_PAGE}
     ></PaginatedContacts>

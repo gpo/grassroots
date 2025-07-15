@@ -5,10 +5,10 @@ import {
   IsString,
   ValidateNested,
 } from "class-validator";
-import { createBrandedClass } from "./util/CreateBrandedClass";
+import { createDTOBase } from "./util/CreateDTOBase";
 import { Type } from "class-transformer";
 
-export class UserDTO extends createBrandedClass("UserDTO") {
+export class UserDTO extends createDTOBase<"UserDTO">() {
   @IsString()
   id!: string;
 
@@ -29,7 +29,7 @@ export class UserDTO extends createBrandedClass("UserDTO") {
   displayName?: string;
 }
 
-export class UsersDTO extends createBrandedClass("UsersDTO") {
+export class UsersDTO extends createDTOBase<"UsersDTO">() {
   @ValidateNested({ each: true })
   @Type(() => UserDTO)
   @IsArray()

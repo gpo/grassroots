@@ -23,16 +23,26 @@ To avoid this, we introduce a compile time only "brand", used
 only to convince typescript that these types shouldn't be castable to one another.
 */
 
+import { plainToInstance } from "class-transformer";
+import { PropsOf } from "./PropsOf";
+
 const __brand: unique symbol = Symbol();
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
 export abstract class Branded<TBrand> {
   readonly [__brand]!: TBrand;
+
+  static from<TBrand, T extends Branded<TBrand>>(
+    // The this parameter must be named "this", and is magically populated with the class constructor.
+    this: new () => T,
+    props: PropsOf<T>,
+  ): T {
+    return plainToInstance(this, props);
+  }
 }
 
-// The parameter "brand", serves only to set the type of TBrand.
 // We don't explicitly type this function because it's super gnarly.
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type, @typescript-eslint/no-unused-vars
-export function createBrandedClass<TBrand extends string>(brand: TBrand) {
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+export function createDTOBase<TBrand extends string>() {
   return Branded<TBrand>;
 }

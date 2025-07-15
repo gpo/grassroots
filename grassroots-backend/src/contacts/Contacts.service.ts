@@ -8,6 +8,7 @@ import {
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto.js";
+import { PaginatedResponseDTO } from "../grassroots-shared/Paginated.dto.js";
 
 @Injectable()
 export class ContactsService {
@@ -19,17 +20,17 @@ export class ContactsService {
   async create(contact: CreateContactRequestDTO): Promise<ContactDTO> {
     const result = this.repo.create(contact);
     await this.entityManager.flush();
-    return result;
+    return ContactDTO.from(result);
   }
 
   async bulkCreate(contacts: CreateContactRequestDTO[]): Promise<ContactDTO[]> {
     const result = contacts.map((x) => this.repo.create(x));
     await this.entityManager.flush();
-    return result;
+    return result.map((x) => x.toDTO());
   }
 
   async findAll(): Promise<ContactDTO[]> {
-    return await this.repo.find({});
+    return (await this.repo.find({})).map((x) => x.toDTO());
   }
 
   async search({
@@ -55,16 +56,17 @@ export class ContactsService {
       limit: paginated.rowsToTake,
       offset: paginated.rowsToSkip,
     });
-    return {
-      contacts: result,
-      paginated: {
+    return PaginatedContactResponseDTO.from({
+      contacts: result.map((x) => x.toDTO()),
+      paginated: PaginatedResponseDTO.from({
         rowsSkipped: paginated.rowsToSkip,
         rowsTotal,
-      },
-    };
+      }),
+    });
   }
 
   async findOne(id: number): Promise<ContactDTO | null> {
-    return await this.repo.findOne({ id });
+    const result = await this.repo.findOne({ id });
+    return result ? ContactDTO.from(result) : null;
   }
 }

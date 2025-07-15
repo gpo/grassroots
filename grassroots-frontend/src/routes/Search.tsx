@@ -6,11 +6,12 @@ import { useContactSearch } from "../hooks/useContactSearch";
 import { TextField } from "../components/TextField";
 import { RoutedLink } from "../components/RoutedLink";
 import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
-import { plainToInstance } from "class-transformer";
 import {
   ContactSearchRequestDTO,
+  PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto";
+import { PaginatedRequestDTO } from "../grassroots-shared/Paginated.dto";
 
 export const Route = createFileRoute("/Search")({
   component: Search,
@@ -30,15 +31,19 @@ function Search(): JSX.Element {
 
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
-  const searchParams: PaginatedContactSearchRequestDTO = {
-    contact: plainToInstance(ContactSearchRequestDTO, form.watch()),
-    paginated: {
+  const searchParams = PaginatedContactSearchRequestDTO.from({
+    contact: ContactSearchRequestDTO.from(form.watch()),
+    paginated: PaginatedRequestDTO.from({
       rowsToSkip,
       rowsToTake: ROWS_PER_PAGE,
-    },
-  };
+    }),
+  });
 
-  const { data: results } = useContactSearch(searchParams);
+  const useContactSearchResults = useContactSearch(searchParams).data;
+
+  const results = useContactSearchResults
+    ? PaginatedContactResponseDTO.from(useContactSearchResults)
+    : undefined;
 
   return (
     <>
@@ -70,8 +75,7 @@ function Search(): JSX.Element {
 
       {results ? (
         <PaginatedContacts
-          contacts={results.contacts}
-          paginated={results.paginated}
+          paginatedContactResponse={results}
           setRowsToSkip={setRowsToSkip}
           rowsPerPage={ROWS_PER_PAGE}
         ></PaginatedContacts>

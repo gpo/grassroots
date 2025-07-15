@@ -1,9 +1,11 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import {
+  ContactDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto";
+import { PaginatedResponseDTO } from "../grassroots-shared/Paginated.dto";
 
 export function useContactSearch(
   searchParams: PaginatedContactSearchRequestDTO,
@@ -19,7 +21,13 @@ export function useContactSearch(
       const result = await grassrootsAPI.POST("/contacts/search", {
         body: searchParams,
       });
-      return result.data ?? PaginatedContactResponseDTO.empty();
+      if (result.data === undefined) {
+        return PaginatedContactResponseDTO.empty();
+      }
+      return PaginatedContactResponseDTO.from({
+        contacts: result.data.contacts.map((x) => ContactDTO.from(x)),
+        paginated: PaginatedResponseDTO.from(result.data.paginated),
+      });
     },
   });
 }
