@@ -33,6 +33,7 @@ export const parser: TSESLint.FlatConfig.Parser = {
 const recommended: Partial<Linter.RulesRecord> = {
   "grassroots/dto-and-entity-style": "error",
   "grassroots/entity-use": "error",
+  "grassroots/controller-routes-return-dtos": "error",
 };
 
 const flatBaseConfig = (
