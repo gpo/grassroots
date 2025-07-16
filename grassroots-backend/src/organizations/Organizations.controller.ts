@@ -2,9 +2,9 @@ import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import { OrganizationsService } from "./Organizations.service";
 import {
   CreateOrganizationRequestDTO,
-  CreateOrganizationRootRequestDTO,
+  CreateOrganizationNoParentRequestDTO,
   OrganizationDTO,
-  OrganizationListDTO,
+  OrganizationsDTO,
 } from "../grassroots-shared/Organization.dto";
 
 @Controller("organizations")
@@ -16,7 +16,7 @@ export class OrganizationsController {
     @Body() createOrganizationDTO: CreateOrganizationRequestDTO,
   ): Promise<OrganizationDTO> {
     const organization = await this.organizationsService.create(
-      createOrganizationDTO,
+      CreateOrganizationNoParentRequestDTO.from(createOrganizationDTO),
       createOrganizationDTO.parentID,
     );
     return organization.toDTO();
@@ -24,7 +24,7 @@ export class OrganizationsController {
 
   @Post("create-root")
   async createRoot(
-    @Body() createOrganizationDTO: CreateOrganizationRootRequestDTO,
+    @Body() createOrganizationDTO: CreateOrganizationNoParentRequestDTO,
   ): Promise<OrganizationDTO> {
     const organization = await this.organizationsService.create(
       createOrganizationDTO,
@@ -34,9 +34,11 @@ export class OrganizationsController {
   }
 
   @Get()
-  async findAll(): Promise<OrganizationListDTO> {
+  async findAll(): Promise<OrganizationsDTO> {
     const organizationEntities = await this.organizationsService.findAll();
-    return { organizations: organizationEntities.map((x) => x.toDTO()) };
+    return OrganizationsDTO.from({
+      organizations: organizationEntities.map((x) => x.toDTO()),
+    });
   }
 
   @Get(":id")
@@ -48,9 +50,11 @@ export class OrganizationsController {
   }
 
   @Get("ancestors-of/:id")
-  async getAncestors(@Param("id") id: number): Promise<OrganizationListDTO> {
+  async getAncestors(@Param("id") id: number): Promise<OrganizationsDTO> {
     const organizationEntities =
       await this.organizationsService.getAncestors(id);
-    return { organizations: organizationEntities.map((x) => x.toDTO()) };
+    return OrganizationsDTO.from({
+      organizations: organizationEntities.map((x) => x.toDTO()),
+    });
   }
 }
