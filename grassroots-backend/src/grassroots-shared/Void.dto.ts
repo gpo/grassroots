@@ -3,5 +3,4 @@
 
 import { createDTOBase } from "./util/CreateDTOBase";
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class VoidDTO extends createDTOBase<"VoidDTO">() {}

@@ -287,12 +287,12 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
+    CreateOrganizationNoParentRequestDTO: {
+      name: string;
+    };
     CreateOrganizationRequestDTO: {
       name: string;
       parentID: number;
-    };
-    CreateOrganizationRootRequestDTO: {
-      name: string;
     };
     GetContactByIDResponseDTO: {
       contact: components["schemas"]["ContactDTO"] | null;
@@ -308,7 +308,7 @@ export interface components {
       name: string;
       parentId?: number;
     };
-    OrganizationListDTO: {
+    OrganizationsDTO: {
       organizations: components["schemas"]["OrganizationDTO"][];
     };
     PaginatedContactResponseDTO: {
@@ -691,7 +691,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationListDTO"];
+          "application/json": components["schemas"]["OrganizationsDTO"];
         };
       };
       /** @description Validation failed */
@@ -753,7 +753,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationListDTO"];
+          "application/json": components["schemas"]["OrganizationsDTO"];
         };
       };
       /** @description Validation failed */
@@ -776,7 +776,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateOrganizationRootRequestDTO"];
+        "application/json": components["schemas"]["CreateOrganizationNoParentRequestDTO"];
       };
     };
     responses: {

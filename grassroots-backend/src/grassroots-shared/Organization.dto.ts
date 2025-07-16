@@ -24,13 +24,13 @@ export class OrganizationDTO extends createDTOBase<"OrganizationDTO">() {
   parentId?: number;
 }
 
-export class OrganizationListDTO extends createDTOBase<"OrganizationListDTO">() {
+export class OrganizationsDTO extends createDTOBase<"OrganizationsDTO">() {
   @ValidateNested({ each: true })
   @Type(() => OrganizationDTO)
   organizations!: OrganizationDTO[];
 }
 
-export class CreateOrganizationRootRequestDTO extends createDTOBase<"CreateOrganizationRootRequestDTO">() {
+export class CreateOrganizationNoParentRequestDTO extends createDTOBase<"CreateOrganizationRootRequestDTO">() {
   @IsNotEmpty()
   name!: string;
 }

@@ -122,7 +122,7 @@ export default async () => {
               name: { required: true, type: () => String },
               parentId: { required: false, type: () => Number, minimum: 0 },
             },
-            OrganizationListDTO: {
+            OrganizationsDTO: {
               organizations: {
                 required: true,
                 type: () => [
@@ -130,7 +130,7 @@ export default async () => {
                 ],
               },
             },
-            CreateOrganizationRootRequestDTO: {
+            CreateOrganizationNoParentRequestDTO: {
               name: { required: true, type: () => String },
             },
             CreateOrganizationRequestDTO: {
@@ -162,14 +162,6 @@ export default async () => {
           },
         ],
         [
-          import("./grassroots-shared/Permission.dto"),
-          {
-            PermissionsDTO: {
-              permissions: { required: true, type: () => [Object] },
-            },
-          },
-        ],
-        [
           import("./grassroots-shared/LoginState.dto"),
           {
             LoginStateDTO: {
@@ -184,6 +176,14 @@ export default async () => {
         [
           import("./grassroots-shared/Hello.dto"),
           { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
+        [
+          import("./grassroots-shared/Permission.dto"),
+          {
+            PermissionsDTO: {
+              permissions: { required: true, type: () => [Object] },
+            },
+          },
         ],
         [
           import("./grassroots-shared/Role.dto"),
@@ -266,14 +266,14 @@ export default async () => {
               },
               findAll: {
                 type: t["./grassroots-shared/Organization.dto"]
-                  .OrganizationListDTO,
+                  .OrganizationsDTO,
               },
               findById: {
                 type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
               getAncestors: {
                 type: t["./grassroots-shared/Organization.dto"]
-                  .OrganizationListDTO,
+                  .OrganizationsDTO,
               },
             },
           },
