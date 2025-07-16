@@ -81,6 +81,7 @@ export default tseslint.config(
         "error",
         {
           "grassroots-backend/src/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
+          "eslint_rules/src/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
           "grassroots-frontend/src/!(hooks|routes)/**/*.{jsx,tsx,js,ts}":
             "PASCAL_CASE",
           "grassroots-frontend/src/hooks/**/*.{jsx,tsx,js,ts}": "CAMEL_CASE",
