@@ -8,7 +8,6 @@ import { RoutedLink } from "../components/RoutedLink";
 import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
 import {
   ContactSearchRequestDTO,
-  PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto";
 
@@ -40,10 +39,6 @@ function Search(): JSX.Element {
 
   const useContactSearchResults = useContactSearch(searchParams).data;
 
-  const results = useContactSearchResults
-    ? PaginatedContactResponseDTO.from(useContactSearchResults)
-    : undefined;
-
   return (
     <>
       <FormProvider {...form}>
@@ -72,13 +67,11 @@ function Search(): JSX.Element {
         Share Link to Search
       </RoutedLink>
 
-      {results ? (
-        <PaginatedContacts
-          paginatedContactResponse={results}
-          setRowsToSkip={setRowsToSkip}
-          rowsPerPage={ROWS_PER_PAGE}
-        ></PaginatedContacts>
-      ) : null}
+      <PaginatedContacts
+        paginatedContactResponse={useContactSearchResults}
+        setRowsToSkip={setRowsToSkip}
+        rowsPerPage={ROWS_PER_PAGE}
+      ></PaginatedContacts>
     </>
   );
 }
