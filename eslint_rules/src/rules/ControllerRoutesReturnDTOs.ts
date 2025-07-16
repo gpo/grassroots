@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { createRule } from "../Utils.js";
+import { createRule, getTypeInfo } from "../Utils.js";
 import { RuleContext, RuleListener } from "@typescript-eslint/utils/ts-eslint";
 
 type MessageIds = "controllerRoutesReturnDTOs";
@@ -19,13 +19,18 @@ function handleMethodDefinition(
   if (!type) {
     return;
   }
-  // If a controller method returns a raw DTO, we're good.
+  // If a controller method returns a raw DTO, or a Promise containing a raw DTO, we're good.
   // Otherwise, fail.
-  if (type.type === AST_NODE_TYPES.TSTypeReference) {
-    const typeName = type.typeName;
-    if (typeName.type == AST_NODE_TYPES.Identifier) {
-      const typeNameString = typeName.name;
-      if (typeNameString.includes("DTO")) {
+  const typeInfo = getTypeInfo(type);
+  if (typeInfo?.name.endsWith("DTO") === true) {
+    return;
+  }
+  if (typeInfo?.name === "Promise") {
+    const typeParams = typeInfo.reference.typeArguments?.params;
+    const firstTypeParam = typeParams ? typeParams[0] : undefined;
+    if (firstTypeParam) {
+      const firstTypeParamInfo = getTypeInfo(firstTypeParam);
+      if (firstTypeParamInfo?.name.endsWith("DTO") === true) {
         return;
       }
     }

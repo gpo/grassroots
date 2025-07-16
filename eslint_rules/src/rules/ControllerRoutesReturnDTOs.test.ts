@@ -7,6 +7,7 @@ ruleTester.run("controller-routes-return-dtos", rule, {
   valid: [
     `class FooDTO { a():number { return 5;}}`,
     `class FooController { a():FooDTO { return x;}}`,
+    `class FooController { async a():Promise<FooDTO> { return await getX();}}`,
   ],
   invalid: [
     {
@@ -19,6 +20,18 @@ ruleTester.run("controller-routes-return-dtos", rule, {
     },
     {
       code: `class FooController { a(): FooDTO[] { return x;}}`,
+      errors: [
+        {
+          messageId: "controllerRoutesReturnDTOs",
+        },
+      ],
+    },
+    {
+      code: `class FooController {
+        async a():Promise<FooDTO[]> {
+          return await getX();
+        }
+      }`,
       errors: [
         {
           messageId: "controllerRoutesReturnDTOs",
