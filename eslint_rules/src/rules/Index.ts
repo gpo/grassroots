@@ -1,4 +1,3 @@
-/* eslint-disable check-file/no-index */
 import { rule as dtoAndEntityStyle } from "./DTOAndEntityStyle.js";
 import { rule as entityUse } from "./EntityUse.js";
 
