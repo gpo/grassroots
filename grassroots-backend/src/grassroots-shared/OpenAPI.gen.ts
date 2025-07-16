@@ -332,6 +332,9 @@ export interface components {
       name: string;
       permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
     };
+    RolesDTO: {
+      roles: components["schemas"]["RoleDTO"][];
+    };
     UserDTO: {
       displayName?: string;
       emails?: string[];
@@ -843,7 +846,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["RoleDTO"][];
+          "application/json": components["schemas"]["RolesDTO"];
         };
       };
       /** @description Validation failed */

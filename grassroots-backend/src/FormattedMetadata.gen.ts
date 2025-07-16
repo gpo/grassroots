@@ -13,6 +13,9 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
+    ["./grassroots-shared/Role.dto"]: await import(
+      "./grassroots-shared/Role.dto"
+    ),
     ["./grassroots-shared/LoginState.dto"]: await import(
       "./grassroots-shared/LoginState.dto"
     ),
@@ -21,9 +24,6 @@ export default async () => {
     ),
     ["./grassroots-shared/Hello.dto"]: await import(
       "./grassroots-shared/Hello.dto"
-    ),
-    ["./grassroots-shared/Role.dto"]: await import(
-      "./grassroots-shared/Role.dto"
     ),
   };
   return {
@@ -193,6 +193,12 @@ export default async () => {
               name: { required: true, type: () => String },
               permissions: { required: true, type: () => [Object] },
             },
+            RolesDTO: {
+              roles: {
+                required: true,
+                type: () => [t["./grassroots-shared/Role.dto"].RoleDTO],
+              },
+            },
           },
         ],
         [
@@ -292,7 +298,7 @@ export default async () => {
           import("./organizations/Roles.controller"),
           {
             RolesController: {
-              findAll: { type: [t["./grassroots-shared/Role.dto"].RoleDTO] },
+              findAll: { type: t["./grassroots-shared/Role.dto"].RolesDTO },
             },
           },
         ],
