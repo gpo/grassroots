@@ -26,6 +26,12 @@ only to convince typescript that these types shouldn't be castable to one anothe
 import { plainToInstance } from "class-transformer";
 import { PropsOf } from "./PropsOf";
 
+interface FetchResponse<T, E> {
+  data?: T;
+  error?: E;
+  response: Response;
+}
+
 const __brand: unique symbol = Symbol();
 
 // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
@@ -38,6 +44,19 @@ export abstract class Branded<TBrand> {
     props: PropsOf<T>,
   ): T {
     return plainToInstance(this, props);
+  }
+
+  static fromFetchOrThrow<TBrand, T extends Branded<TBrand>, E>(
+    this: new () => T,
+    fetchResult: FetchResponse<PropsOf<T>, E>,
+  ): T {
+    if (fetchResult.data !== undefined) {
+      return plainToInstance(this, fetchResult.data);
+    }
+    if (fetchResult.error === undefined) {
+      throw new Error("Fetch result has neither data nor an error");
+    }
+    throw new Error(JSON.stringify(fetchResult.error));
   }
 }
 
