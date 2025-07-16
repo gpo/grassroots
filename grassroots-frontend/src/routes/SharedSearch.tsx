@@ -19,11 +19,11 @@ export const Route = createFileRoute("/SharedSearch")({
 
 const ROWS_PER_PAGE = 10;
 
-function SharedSearch(): JSX.Element | null {
+function SharedSearch(): JSX.Element {
   const search = Route.useSearch();
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
-  const { data: results } = useContactSearch(
+  const { data: paginatedContactResponse } = useContactSearch(
     PaginatedContactSearchRequestDTO.from({
       contact: search,
       paginated: {
@@ -32,11 +32,11 @@ function SharedSearch(): JSX.Element | null {
       },
     }),
   );
-  return results ? (
+  return (
     <PaginatedContacts
-      paginatedContactResponse={results}
+      paginatedContactResponse={paginatedContactResponse}
       setRowsToSkip={setRowsToSkip}
       rowsPerPage={ROWS_PER_PAGE}
     ></PaginatedContacts>
-  ) : null;
+  );
 }
