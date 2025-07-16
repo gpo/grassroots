@@ -1,4 +1,3 @@
-/* eslint-disable check-file/no-index */
 // Based on https://github.com/darraghoriordan/eslint-plugin-nestjs-typed/blob/main/src/index.ts.
 
 import { fileURLToPath } from "url";
@@ -7,7 +6,7 @@ import { dirname, resolve } from "path";
 import { TSESLint } from "@typescript-eslint/utils";
 import * as parserBase from "@typescript-eslint/parser";
 import type { FlatConfig, Linter } from "@typescript-eslint/utils/ts-eslint";
-import rules from "./rules/index.js";
+import rules from "./rules/Index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
