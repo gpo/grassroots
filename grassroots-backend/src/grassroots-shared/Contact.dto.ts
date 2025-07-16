@@ -114,10 +114,10 @@ export class PaginatedContactResponseDTO extends createDTOBase<"PaginatedContact
   static empty(): PaginatedContactResponseDTO {
     return PaginatedContactResponseDTO.from({
       contacts: [],
-      paginated: PaginatedResponseDTO.from({
+      paginated: {
         rowsSkipped: 0,
         rowsTotal: 0,
-      }),
+      },
     });
   }
 }
