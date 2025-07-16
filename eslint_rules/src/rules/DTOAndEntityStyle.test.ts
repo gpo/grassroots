@@ -1,4 +1,4 @@
-import { createRuleTester } from "../test-utils.js";
+import { createRuleTester } from "../TestUtils.js";
 import { rule } from "./DTOAndEntityStyle.js";
 
 const ruleTester = createRuleTester();
