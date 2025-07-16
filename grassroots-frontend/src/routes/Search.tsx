@@ -11,7 +11,6 @@ import {
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto";
-import { PaginatedRequestDTO } from "../grassroots-shared/Paginated.dto";
 
 export const Route = createFileRoute("/Search")({
   component: Search,
@@ -32,11 +31,11 @@ function Search(): JSX.Element {
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
   const searchParams = PaginatedContactSearchRequestDTO.from({
-    contact: ContactSearchRequestDTO.from(form.watch()),
-    paginated: PaginatedRequestDTO.from({
+    contact: form.watch(),
+    paginated: {
       rowsToSkip,
       rowsToTake: ROWS_PER_PAGE,
-    }),
+    },
   });
 
   const useContactSearchResults = useContactSearch(searchParams).data;

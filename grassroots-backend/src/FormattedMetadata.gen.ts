@@ -13,9 +13,6 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
-    ["./grassroots-shared/Permission"]: await import(
-      "./grassroots-shared/Permission"
-    ),
     ["./grassroots-shared/LoginState.dto"]: await import(
       "./grassroots-shared/LoginState.dto"
     ),
@@ -165,6 +162,14 @@ export default async () => {
           },
         ],
         [
+          import("./grassroots-shared/Permission.dto"),
+          {
+            PermissionsDTO: {
+              permissions: { required: true, type: () => [Object] },
+            },
+          },
+        ],
+        [
           import("./grassroots-shared/LoginState.dto"),
           {
             LoginStateDTO: {
@@ -186,11 +191,7 @@ export default async () => {
             RoleDTO: {
               id: { required: true, type: () => Number, minimum: 0 },
               name: { required: true, type: () => String },
-              permissions: {
-                required: true,
-                enum: t["./grassroots-shared/Permission"].Permission,
-                isArray: true,
-              },
+              permissions: { required: true, type: () => [Object] },
             },
           },
         ],

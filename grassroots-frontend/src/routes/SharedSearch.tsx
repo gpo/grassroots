@@ -7,7 +7,6 @@ import {
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto";
 import { cast } from "../grassroots-shared/util/Cast";
-import { PaginatedRequestDTO } from "../grassroots-shared/Paginated.dto";
 
 export const Route = createFileRoute("/SharedSearch")({
   component: SharedSearch,
@@ -26,11 +25,11 @@ function SharedSearch(): JSX.Element | null {
 
   const { data: results } = useContactSearch(
     PaginatedContactSearchRequestDTO.from({
-      contact: ContactSearchRequestDTO.from(search),
-      paginated: PaginatedRequestDTO.from({
+      contact: search,
+      paginated: {
         rowsToSkip,
         rowsToTake: ROWS_PER_PAGE,
-      }),
+      },
     }),
   );
   return results ? (

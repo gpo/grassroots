@@ -8,7 +8,6 @@ import {
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto.js";
-import { PaginatedResponseDTO } from "../grassroots-shared/Paginated.dto.js";
 
 @Injectable()
 export class ContactsService {
@@ -58,10 +57,10 @@ export class ContactsService {
     });
     return PaginatedContactResponseDTO.from({
       contacts: result.map((x) => x.toDTO()),
-      paginated: PaginatedResponseDTO.from({
+      paginated: {
         rowsSkipped: paginated.rowsToSkip,
         rowsTotal,
-      }),
+      },
     });
   }
 

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX } from "react";
-import { UserDTO, UsersDTO } from "../grassroots-shared/User.dto";
+import { UsersDTO } from "../grassroots-shared/User.dto";
 import { useQuery } from "@tanstack/react-query";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import { UserRow } from "../components/UserRow";
@@ -15,7 +15,7 @@ function Users(): JSX.Element {
     queryFn: async () => {
       const result = await grassrootsAPI.GET("/users", {});
       return UsersDTO.from({
-        users: result.data ? result.data.users.map((x) => UserDTO.from(x)) : [],
+        users: result.data?.users ?? [],
       });
     },
   });

@@ -242,7 +242,7 @@
             "type": "array"
           }
         },
-        "required": ["id", "name", "permissions"],
+        "required": ["permissions", "id", "name"],
         "type": "object"
       },
       "UserDTO": {
