@@ -162,22 +162,6 @@ export default async () => {
           },
         ],
         [
-          import("./grassroots-shared/LoginState.dto"),
-          {
-            LoginStateDTO: {
-              user: {
-                required: false,
-                type: () => t["./grassroots-shared/User.dto"].UserDTO,
-              },
-            },
-          },
-        ],
-        [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
-        [
-          import("./grassroots-shared/Hello.dto"),
-          { HelloOutDTO: { message: { required: true, type: () => String } } },
-        ],
-        [
           import("./grassroots-shared/Permission.dto"),
           {
             PermissionsDTO: {
@@ -200,6 +184,22 @@ export default async () => {
               },
             },
           },
+        ],
+        [
+          import("./grassroots-shared/LoginState.dto"),
+          {
+            LoginStateDTO: {
+              user: {
+                required: false,
+                type: () => t["./grassroots-shared/User.dto"].UserDTO,
+              },
+            },
+          },
+        ],
+        [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
+        [
+          import("./grassroots-shared/Hello.dto"),
+          { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
         [
           import("./contacts/entities/ValidationError.dto"),
