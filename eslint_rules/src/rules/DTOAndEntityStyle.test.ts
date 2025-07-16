@@ -1,8 +1,4 @@
-import path from "node:path";
-import tseslint from "typescript-eslint";
 import { createRuleTester } from "../test-utils.js";
-import * as vitest from "vitest";
-
 import { rule } from "./DTOAndEntityStyle.js";
 
 const ruleTester = createRuleTester();
