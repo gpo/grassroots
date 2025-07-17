@@ -27,12 +27,18 @@ function handleMethodDefinition(
   }
   if (typeInfo?.name === "Promise") {
     const typeParams = typeInfo.reference.typeArguments?.params;
+    console.log("In promise", typeParams, typeInfo.reference.loc);
+
     const firstTypeParam = typeParams ? typeParams[0] : undefined;
+    console.log("First type param: ", firstTypeParam);
     if (firstTypeParam) {
       const firstTypeParamInfo = getTypeInfo(firstTypeParam);
+      console.log("first type param name: ", firstTypeParamInfo?.name);
       if (firstTypeParamInfo?.name.endsWith("DTO") === true) {
+        console.log("This is fine");
         return;
       }
+      console.log("THIS IS NOT FINE");
     }
   }
   context.report({
@@ -49,11 +55,10 @@ export const rule = createRule({
         if (name === undefined) {
           return;
         }
-        const isController = /Controller/i.exec(name);
+        const isController = /.*Controller/i.exec(name);
         if (!isController) {
           return;
         }
-
         for (const element of node.body.body) {
           switch (element.type) {
             case AST_NODE_TYPES.MethodDefinition:
