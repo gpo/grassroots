@@ -28,7 +28,7 @@ export class AuthController {
   login(@Query() redirect_path: string): VoidDTO {
     // The redirect path is used by the OAuth guard.
     void redirect_path;
-    return VoidDTO.from();
+    return VoidDTO.get();
   }
 
   @Get("google/callback")
@@ -38,7 +38,7 @@ export class AuthController {
   googleAuthRedirect(
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
-  ): void {
+  ): VoidDTO {
     const host = this.configService.get<string>("FRONTEND_HOST");
     if (host === undefined) {
       throw new Error("Missing env variable for FRONTEND_HOST");
@@ -59,6 +59,7 @@ export class AuthController {
       }
       response.redirect(redirectPath);
     });
+    return VoidDTO.get();
   }
 
   @Get("is_authenticated")

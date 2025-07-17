@@ -1,6 +1,11 @@
 // We need to return an object from every endpoint, or tanstack query complains.
 // We use this instead of returning void.
 
-import { createDTOBase } from "./util/CreateDTOBase";
+import { cast } from "./util/Cast";
 
-export class VoidDTO extends createDTOBase("Void") {}
+// eslint-disable-next-line @typescript-eslint/no-extraneous-class
+export class VoidDTO {
+  static get(): VoidDTO {
+    return cast(VoidDTO, {});
+  }
+}
