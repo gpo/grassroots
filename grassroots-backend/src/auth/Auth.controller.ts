@@ -25,9 +25,10 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   @PublicRoute()
   @ApiQuery({ name: "redirect_path", type: String })
-  login(@Query() redirect_path: string): void {
+  login(@Query() redirect_path: string): VoidDTO {
     // The redirect path is used by the OAuth guard.
     void redirect_path;
+    return VoidDTO.from();
   }
 
   @Get("google/callback")
