@@ -1,9 +1,12 @@
 #!/bin/bash
 set -e  # Exit immediately if a command exits with non-zero status
 
-#install pnpm and give it a path
-npm install -g pnpm --prefix ~/.local
-export PATH="$HOME/.local/bin:$PATH"
+if ! command -v pnpm &> /dev/null; then
+    npm install -g pnpm --prefix ~/.local
+    export PATH="$HOME/.local/bin:$PATH"
+    if ! command -v pnpm &> /dev/null; then
+    echo "Please rebuild docker"
+fi
 
 # Configure pnpm to use the mounted store volume (not the project directory)
 export PNPM_HOME="/root/.pnpm-store"
