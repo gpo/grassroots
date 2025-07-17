@@ -185,6 +185,7 @@ export default async () => {
             },
           },
         ],
+        [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
           import("./grassroots-shared/LoginState.dto"),
           {
@@ -196,7 +197,6 @@ export default async () => {
             },
           },
         ],
-        [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
           import("./grassroots-shared/Hello.dto"),
           { HelloOutDTO: { message: { required: true, type: () => String } } },
