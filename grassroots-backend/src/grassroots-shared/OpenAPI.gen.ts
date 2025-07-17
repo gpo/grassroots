@@ -429,7 +429,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["VoidDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -485,7 +487,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["VoidDTO"];
+        };
       };
       /** @description Validation failed */
       401: {

@@ -16,11 +16,11 @@ export default async () => {
     ["./grassroots-shared/Role.dto"]: await import(
       "./grassroots-shared/Role.dto"
     ),
-    ["./grassroots-shared/LoginState.dto"]: await import(
-      "./grassroots-shared/LoginState.dto"
-    ),
     ["./grassroots-shared/Void.dto"]: await import(
       "./grassroots-shared/Void.dto"
+    ),
+    ["./grassroots-shared/LoginState.dto"]: await import(
+      "./grassroots-shared/LoginState.dto"
     ),
     ["./grassroots-shared/Hello.dto"]: await import(
       "./grassroots-shared/Hello.dto"
@@ -248,8 +248,10 @@ export default async () => {
           import("./auth/Auth.controller"),
           {
             AuthController: {
-              login: {},
-              googleAuthRedirect: {},
+              login: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+              googleAuthRedirect: {
+                type: t["./grassroots-shared/Void.dto"].VoidDTO,
+              },
               isUserLoggedIn: {
                 type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
               },
