@@ -10,7 +10,7 @@ import {
 import "reflect-metadata";
 import { createDTOBase } from "./util/CreateDTOBase";
 
-export class OrganizationDTO extends createDTOBase<"OrganizationDTO">() {
+export class OrganizationDTO extends createDTOBase("Organization") {
   @IsNumber()
   @Min(0)
   id!: number;
@@ -24,18 +24,22 @@ export class OrganizationDTO extends createDTOBase<"OrganizationDTO">() {
   parentId?: number;
 }
 
-export class OrganizationsDTO extends createDTOBase<"OrganizationsDTO">() {
+export class OrganizationsDTO extends createDTOBase("Organizations") {
   @ValidateNested({ each: true })
   @Type(() => OrganizationDTO)
   organizations!: OrganizationDTO[];
 }
 
-export class CreateOrganizationNoParentRequestDTO extends createDTOBase<"CreateOrganizationRootRequestDTO">() {
+export class CreateOrganizationNoParentRequestDTO extends createDTOBase(
+  "CreateOrganizationRootRequest",
+) {
   @IsNotEmpty()
   name!: string;
 }
 
-export class CreateOrganizationRequestDTO extends createDTOBase<"CreateOrganizationRequestDTO">() {
+export class CreateOrganizationRequestDTO extends createDTOBase(
+  "CreateOrganizationRequest",
+) {
   @IsNotEmpty()
   name!: string;
 

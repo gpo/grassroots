@@ -1,15 +1,16 @@
 // Roughly, given a class, gives you an interface with its attributes.
 // Recursively does this with all included objects.
-// Excludes __brand,  making it easier to use this with branded types.
+
+// Exclude these keys which are used for internal bookkeeping.
+type ExcludedKeys = "__brand" | "__caslSubjectType__";
 
 export type PropsOf<T> = {
-  // Only include keys which are strings or numbers, excluding symbols like [__brand].
-  [K in keyof T as K extends string | number
-    ? // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-      T[K] extends Function
-      ? never // Exclude function values.
-      : K
-    : never /* Excluding symbols */]: undefined extends T[K] /* Checking for optional properties */
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  [K in keyof T as T[K] extends Function
+    ? never // Exclude function values.
+    : K extends ExcludedKeys
+      ? never
+      : K]: undefined extends T[K] /* Checking for optional properties */
     ? PropsValue<T[K]> | undefined /* Handle optional properties */
     : PropsValue<T[K]> /* Handle required properties */;
 };

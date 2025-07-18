@@ -3,7 +3,7 @@ import { Type } from "class-transformer";
 import { UserDTO } from "./User.dto";
 import { createDTOBase } from "./util/CreateDTOBase";
 
-export class LoginStateDTO extends createDTOBase<"LoginStateDTO">() {
+export class LoginStateDTO extends createDTOBase("LoginState") {
   @Type(() => UserDTO)
   @IsOptional()
   @ValidateNested()

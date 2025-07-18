@@ -3,4 +3,4 @@
 
 import { createDTOBase } from "./util/CreateDTOBase";
 
-export class VoidDTO extends createDTOBase<"VoidDTO">() {}
+export class VoidDTO extends createDTOBase("Void") {}

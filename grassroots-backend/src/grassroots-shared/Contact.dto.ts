@@ -13,7 +13,7 @@ import { PaginatedRequestDTO, PaginatedResponseDTO } from "./Paginated.dto";
 import "reflect-metadata";
 import { createDTOBase } from "./util/CreateDTOBase";
 
-export class ContactDTO extends createDTOBase<"ContactDTO">() {
+export class ContactDTO extends createDTOBase("Contact") {
   @IsInt()
   @Min(1)
   id!: number;
@@ -31,14 +31,16 @@ export class ContactDTO extends createDTOBase<"ContactDTO">() {
   phoneNumber!: string;
 }
 
-export class ContactsDTO extends createDTOBase<"ContactsDTO">() {
+export class ContactsDTO extends createDTOBase("Contacts") {
   @Type(() => ContactDTO)
   @ValidateNested({ each: true })
   @IsArray()
   contacts!: ContactDTO[];
 }
 
-export class CreateContactRequestDTO extends createDTOBase<"CreateContactRequestDTO">() {
+export class CreateContactRequestDTO extends createDTOBase(
+  "CreateContactRequest",
+) {
   @IsEmail()
   email!: string;
 
@@ -52,23 +54,31 @@ export class CreateContactRequestDTO extends createDTOBase<"CreateContactRequest
   phoneNumber!: string;
 }
 
-export class CreateBulkContactRequestDTO extends createDTOBase<"CreateBulkContactRequestDTO">() {
+export class CreateBulkContactRequestDTO extends createDTOBase(
+  "CreateBulkContactRequest",
+) {
   @ValidateNested({ each: true })
   @Type(() => CreateContactRequestDTO)
   contacts!: CreateContactRequestDTO[];
 }
 
-export class CreateBulkContactResponseDTO extends createDTOBase<"CreateBulkContactResponseDTO">() {
+export class CreateBulkContactResponseDTO extends createDTOBase(
+  "CreateBulkContactResponse",
+) {
   ids!: number[];
 }
 
-export class GetContactByIDResponseDTO extends createDTOBase<"GetContactByIDResponseDTO">() {
+export class GetContactByIDResponseDTO extends createDTOBase(
+  "GetContactByIDResponse",
+) {
   @ValidateNested()
   @IsOptional()
   contact!: ContactDTO | null;
 }
 
-export class ContactSearchRequestDTO extends createDTOBase<"ContactSearchRequestDTO">() {
+export class ContactSearchRequestDTO extends createDTOBase(
+  "ContactSearchRequest",
+) {
   @IsOptional()
   @Transform(({ value }: { value: string | undefined }) => {
     if (value === "" || value === undefined) {
@@ -91,7 +101,9 @@ export class ContactSearchRequestDTO extends createDTOBase<"ContactSearchRequest
   phoneNumber?: string;
 }
 
-export class PaginatedContactSearchRequestDTO extends createDTOBase<"PaginatedContactSearchRequestDTO">() {
+export class PaginatedContactSearchRequestDTO extends createDTOBase(
+  "PaginatedContactSearchRequest",
+) {
   @ValidateNested()
   @Type(() => ContactSearchRequestDTO)
   contact!: ContactSearchRequestDTO;
@@ -101,7 +113,9 @@ export class PaginatedContactSearchRequestDTO extends createDTOBase<"PaginatedCo
   paginated!: PaginatedRequestDTO;
 }
 
-export class PaginatedContactResponseDTO extends createDTOBase<"PaginatedContactResponseDTO">() {
+export class PaginatedContactResponseDTO extends createDTOBase(
+  "PaginatedContactResponse",
+) {
   @ValidateNested({ each: true })
   @Type(() => ContactDTO)
   @IsArray()

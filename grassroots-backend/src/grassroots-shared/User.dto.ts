@@ -8,7 +8,7 @@ import {
 import { createDTOBase } from "./util/CreateDTOBase";
 import { Type } from "class-transformer";
 
-export class UserDTO extends createDTOBase<"UserDTO">() {
+export class UserDTO extends createDTOBase("User") {
   @IsString()
   id!: string;
 
@@ -29,7 +29,7 @@ export class UserDTO extends createDTOBase<"UserDTO">() {
   displayName?: string;
 }
 
-export class UsersDTO extends createDTOBase<"UsersDTO">() {
+export class UsersDTO extends createDTOBase("Users") {
   @ValidateNested({ each: true })
   @Type(() => UserDTO)
   @IsArray()
