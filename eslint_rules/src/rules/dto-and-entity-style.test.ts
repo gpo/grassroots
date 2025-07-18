@@ -5,16 +5,16 @@ const ruleTester = createRuleTester();
 
 ruleTester.run("definite-or-optional", rule, {
   valid: [
-    `class FooDTO extends createDTOBase("FooDTO") { a!: number; b?: number}`,
-    `class FooDTO extends createDTOBase("FooDTO") { a!: number}`,
-    `class FooDTO extends createDTOBase("FooDTO") { a?: number}`,
-    `class Foo extends createDTOBase("FooDTO") { a: number}`,
-    `class Foo extends createDTOBase("FooDTO") { a = 2}`,
-    `class FooEntity extends createEntityBase("UserEntity") { a = 2}`,
+    `class FooDTO extends createDTOBase("Foo") { a!: number; b?: number}`,
+    `class FooDTO extends createDTOBase("Foo") { a!: number}`,
+    `class FooDTO extends createDTOBase("Foo") { a?: number}`,
+    `class Foo extends createDTOBase("Foo") { a: number}`,
+    `class Foo extends createDTOBase("Foo") { a = 2}`,
+    //`class FooEntity extends createEntityBase("UserEntity") { a = 2}`,
   ],
   invalid: [
     {
-      code: `class FooDTO extends createDTOBase("FooDTO") { a: number}`,
+      code: `class FooDTO extends createDTOBase("Foo") { a: number}`,
       errors: [
         {
           messageId: "definiteOrOptional",
@@ -22,7 +22,7 @@ ruleTester.run("definite-or-optional", rule, {
       ],
     },
     {
-      code: `class FooDto extends createDTOBase("FooDTO") { a!: number}`,
+      code: `class FooDto extends createDTOBase("Foo") { a!: number}`,
       errors: [
         {
           messageId: "classNameRules",
@@ -30,16 +30,15 @@ ruleTester.run("definite-or-optional", rule, {
       ],
     },
     {
-      code: `class FooDTOMagic extends createDTOBase("FooDTO") { a!: number}`,
+      code: `class FooDTOMagic extends createDTOBase("Foo") { a!: number}`,
       errors: [
-        {
-          messageId: "classNameRules",
-        },
+        { messageId: "classNameRules" },
+        { messageId: "invalidDTOBaseClass" },
       ],
     },
 
     {
-      code: `class FooDTO extends createDTOBase("FooDTO") {
+      code: `class FooDTO extends createDTOBase("Foo") {
         a!: number;
         constructor(a: number) {
           this.a = a;
@@ -51,7 +50,7 @@ ruleTester.run("definite-or-optional", rule, {
         },
       ],
     },
-    {
+    /*{
       code: `class FooEntity {
         a!: number;
       }`,
@@ -70,14 +69,24 @@ ruleTester.run("definite-or-optional", rule, {
           messageId: "missingEntityBaseClass",
         },
       ],
-    },
+    },*/
     {
       code: `class FooDTO {
         a!: number;
       }`,
       errors: [
         {
-          messageId: "missingDTOBaseClass",
+          messageId: "invalidDTOBaseClass",
+        },
+      ],
+    },
+    {
+      code: `class FooDTO extends createDTOBase("FooDTO"){
+        a!: number;
+      }`,
+      errors: [
+        {
+          messageId: "invalidDTOBaseClass",
         },
       ],
     },
