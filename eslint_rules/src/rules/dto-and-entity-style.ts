@@ -8,7 +8,7 @@ type MessageIds =
   | "classNameRules"
   | "noConstructors"
   | "missingEntityBaseClass"
-  | "missingDTOBaseClass";
+  | "invalidDTOBaseClass";
 type Context = Readonly<RuleContext<MessageIds, []>>;
 
 function handlePropertyDefinition(
@@ -42,22 +42,7 @@ function handleMethodDefinition(
   }
 }
 
-function getSuperclassCalleeName(
-  node: TSESTree.ClassDeclaration,
-): string | null {
-  const superClass = node.superClass;
-
-  if (superClass?.type !== AST_NODE_TYPES.CallExpression) {
-    return null;
-  }
-
-  const callee = superClass.callee;
-  if (callee.type !== AST_NODE_TYPES.Identifier) {
-    return null;
-  }
-  return callee.name;
-}
-
+/*
 function verifyEntitySuperclass(
   node: TSESTree.ClassDeclaration,
   context: Context,
@@ -69,19 +54,44 @@ function verifyEntitySuperclass(
     messageId: "missingEntityBaseClass",
     node,
   });
-}
+}*/
 
-function verifyDTOSuperclass(
+function isDTOSuperclassValid(
   node: TSESTree.ClassDeclaration,
-  context: Context,
-): void {
-  if (getSuperclassCalleeName(node) === "createDTOBase") {
-    return;
+  className: string,
+): boolean {
+  const superClass = node.superClass;
+
+  if (superClass?.type !== AST_NODE_TYPES.CallExpression) {
+    return false;
   }
-  context.report({
-    messageId: "missingDTOBaseClass",
-    node,
-  });
+
+  const callee = superClass.callee;
+  if (callee.type !== AST_NODE_TYPES.Identifier) {
+    return false;
+  }
+
+  if (callee.name !== "createDTOBase") {
+    return false;
+  }
+
+  const firstParam = superClass.arguments[0];
+
+  if (firstParam === undefined) {
+    return false;
+  }
+
+  if (firstParam.type !== AST_NODE_TYPES.Literal) {
+    return false;
+  }
+
+  console.log("first param", firstParam.value);
+  console.log("Class name sliced: ", className.slice(0, -3));
+  if (firstParam.value != className.slice(0, -3)) {
+    console.log("Failing classname comparison");
+    return false;
+  }
+  return true;
 }
 
 export const rule = createRule({
@@ -98,10 +108,15 @@ export const rule = createRule({
           return;
         }
         if (isEntity) {
-          verifyEntitySuperclass(node, context);
+          //verifyEntitySuperclass(node, context);
         }
         if (isDTO) {
-          verifyDTOSuperclass(node, context);
+          if (!isDTOSuperclassValid(node, name)) {
+            context.report({
+              messageId: "invalidDTOBaseClass",
+              node,
+            });
+          }
         }
         // We need to match case sensitively, and DTO / Entity should be at the end of the class name.
         if (!/(DTO|Entity)$/.exec(name)) {
@@ -140,7 +155,7 @@ export const rule = createRule({
       after class-transformer has already populated some fields, resulting in confusing results. Create
       these objects via class-tranformer's plainToInstance`,
       missingEntityBaseClass: `All entities should extend createEntityBase.`,
-      missingDTOBaseClass: `All DTOs should extend createDTOBase`,
+      invalidDTOBaseClass: `All DTOs should extend createDTOBase, with the string parameter of their class name, without the DTO suffix.`,
     },
     type: "suggestion",
     schema: [],
