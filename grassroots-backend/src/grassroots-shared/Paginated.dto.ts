@@ -1,7 +1,7 @@
 import { IsInt, Min } from "class-validator";
 import { createDTOBase } from "./util/CreateDTOBase";
 
-export class PaginatedRequestDTO extends createDTOBase<"PaginatedRequestDTO">() {
+export class PaginatedRequestDTO extends createDTOBase("PaginatedRequest") {
   @IsInt()
   @Min(0)
   rowsToSkip!: number;
@@ -10,7 +10,9 @@ export class PaginatedRequestDTO extends createDTOBase<"PaginatedRequestDTO">() 
   rowsToTake!: number;
 }
 
-export class PaginatedResponseDTO extends createDTOBase<"PaginatedResponseDTO">() {
+export class PaginatedResponseDTO extends createDTOBase(
+  "PaginatedResponseDTO",
+) {
   @IsInt()
   @Min(0)
   rowsSkipped!: number;

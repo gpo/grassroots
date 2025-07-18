@@ -3,7 +3,7 @@ import { Permission, PermissionsDecorator } from "./Permission.dto";
 import { IsNotEmpty, IsNumber, IsString, Min } from "class-validator";
 import { createDTOBase } from "./util/CreateDTOBase";
 
-export class RoleDTO extends createDTOBase<"RoleDTO">() {
+export class RoleDTO extends createDTOBase("Role") {
   @IsNumber()
   @Min(0)
   id!: number;

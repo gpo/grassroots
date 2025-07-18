@@ -1,18 +1,19 @@
 import { BaseEntity } from "@mikro-orm/core";
 
-// See CreateBrandedClass.ts for details on why branding is important.
-// This is equivalent to CreateBrandedClass, except that it also extends BaseEntity.
+// See CreateDTOBase.ts for details on why branding is important.
+// This is equivalent to CreateDTOBase, except that it also extends BaseEntity.
 
-const __brand: unique symbol = Symbol();
+export function createEntityBase<TDTO>() {
+  // This type is sufficiently gnarly that it's not worth typing.
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  return function <TBrand extends string>(brand: TBrand) {
+    abstract class Branded extends BaseEntity {
+      readonly __brand!: `${TBrand}Entity`;
+      // Used for CASL to identify object types.
+      readonly __caslSubjectType__ = brand;
+      abstract toDTO(): TDTO;
+    }
 
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-export abstract class Branded<TBrand, TDTO> extends BaseEntity {
-  readonly [__brand]!: TBrand;
-
-  abstract toDTO(): TDTO;
-}
-
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export function createEntityBase<TBrand extends string, TDTO>() {
-  return Branded<TBrand, TDTO>;
+    return Branded;
+  };
 }

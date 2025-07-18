@@ -20,7 +20,7 @@ export function PermissionsDecorator(): PropertyDecorator {
   );
 }
 
-export class PermissionsDTO extends createDTOBase<"PermissionsDTO">() {
+export class PermissionsDTO extends createDTOBase("Permissions") {
   @PermissionsDecorator()
   permissions!: Permission[];
 }
