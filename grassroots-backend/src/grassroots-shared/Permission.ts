@@ -18,6 +18,7 @@ export enum Permission {
 
 type Action = "read" | "edit";
 
+// TODO: improve this.
 type CommonProps<A, B> = {
   [K in keyof PropsOf<A> & keyof PropsOf<B>]: PropsOf<A>[K];
 };
