@@ -11,9 +11,9 @@ import { createEntityBase } from "../util/CreateEntityBase";
 
 @Entity()
 export class OrganizationEntity extends createEntityBase<
-  "OrganizationEntity",
+  "Organization",
   OrganizationDTO
->() {
+>("Organization") {
   @PrimaryKey({ autoincrement: true })
   id!: number;
 
