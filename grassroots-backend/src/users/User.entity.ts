@@ -3,7 +3,7 @@ import { createEntityBase } from "../util/CreateEntityBase";
 import { UserDTO } from "../grassroots-shared/User.dto";
 
 @Entity()
-export class UserEntity extends createEntityBase<UserDTO>()("User") {
+export class UserEntity extends createEntityBase<"User", UserDTO>("User") {
   @PrimaryKey()
   id!: string;
   @Property({ type: "json", nullable: true })

@@ -4,7 +4,7 @@ import { RoleDTO } from "../grassroots-shared/Role.dto";
 import { createEntityBase } from "../util/CreateEntityBase";
 import { plainToInstance } from "class-transformer";
 
-class RoleEntity extends createEntityBase<"RoleEntity", RoleDTO>() {
+class RoleEntity extends createEntityBase<"Role", RoleDTO>("Role") {
   id!: number;
   name!: string;
   permissions!: Permission[];

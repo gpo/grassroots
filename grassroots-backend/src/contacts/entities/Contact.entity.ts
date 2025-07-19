@@ -4,10 +4,9 @@ import { ContactDTO } from "../../grassroots-shared/Contact.dto";
 import { createEntityBase } from "../../util/CreateEntityBase";
 
 @Entity()
-export class ContactEntity extends createEntityBase<
-  "ContactEntity",
-  ContactDTO
->() {
+export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
+  "Contact",
+) {
   @PrimaryKey()
   id!: number;
 
