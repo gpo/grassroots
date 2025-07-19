@@ -1,5 +1,4 @@
 import {
-  BaseEntity,
   Collection,
   Entity,
   ManyToOne,
@@ -8,9 +7,13 @@ import {
   Property,
 } from "@mikro-orm/core";
 import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
+import { createEntityBase } from "../util/CreateEntityBase";
 
 @Entity()
-export class OrganizationEntity extends BaseEntity {
+export class OrganizationEntity extends createEntityBase<
+  "Organization",
+  OrganizationDTO
+>("Organization") {
   @PrimaryKey({ autoincrement: true })
   id!: number;
 
@@ -26,10 +29,10 @@ export class OrganizationEntity extends BaseEntity {
   children = new Collection<OrganizationEntity>(this);
 
   toDTO(): OrganizationDTO {
-    return {
+    return OrganizationDTO.from({
       id: this.id,
       name: this.name,
       parentId: this.parent?.id,
-    };
+    });
   }
 }

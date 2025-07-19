@@ -15,7 +15,11 @@
     "jsx": "react-jsx",
 
     "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": true,
+    "paths": {
+      "@nestjs/common": ["./src/NestCommonShim"],
+      "@nestjs/swagger": ["./src/NestCommonShim"]
+    }
   },
   "include": ["src", "grassroots-shared", "vite.config.ts"]
 }

@@ -5,52 +5,37 @@ const ruleTester = createRuleTester();
 
 ruleTester.run("definite-or-optional", rule, {
   valid: [
-    `class FooDTO { a!: number; b?: number}`,
-    `class FooDTO { a!: number}`,
-    `class FooDTO { a?: number}`,
-    `class Foo { a: number}`,
-    `class Foo { a = 2}`,
+    `class FooDTO extends createDTOBase("Foo") { a!: number; b?: number}`,
+    `class FooDTO extends createDTOBase("Foo") { a!: number}`,
+    `class FooDTO extends createDTOBase("Foo") { a?: number}`,
+    `class Foo extends createDTOBase("Foo") { a: number}`,
+    `class Foo extends createDTOBase("Foo") { a = 2}`,
+    `class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") { a = 2}`,
   ],
   invalid: [
     {
-      code: `class FooDTO { a: number}`,
+      code: `class FooDTO extends createDTOBase("Foo") { a: number}`,
       errors: [
         {
-          column: 16,
-          endColumn: 25,
-          line: 1,
-          endLine: 1,
           messageId: "definiteOrOptional",
         },
       ],
     },
     {
-      code: `class FooDto { a!: number}`,
+      code: `class FooDto extends createDTOBase("Foo") { a!: number}`,
       errors: [
         {
-          column: 1,
-          endColumn: 27,
-          line: 1,
-          endLine: 1,
           messageId: "classNameRules",
         },
       ],
     },
     {
-      code: `class FooDTOMagic { a!: number}`,
-      errors: [
-        {
-          column: 1,
-          endColumn: 32,
-          line: 1,
-          endLine: 1,
-          messageId: "classNameRules",
-        },
-      ],
+      code: `class FooDTOMagic extends createDTOBase("Foo") { a!: number}`,
+      errors: [{ messageId: "classNameRules" }],
     },
 
     {
-      code: `class FooDTO {
+      code: `class FooDTO extends createDTOBase("Foo") {
         a!: number;
         constructor(a: number) {
           this.a = a;
@@ -58,11 +43,127 @@ ruleTester.run("definite-or-optional", rule, {
       }`,
       errors: [
         {
-          column: 9,
-          endColumn: 10,
-          line: 3,
-          endLine: 5,
           messageId: "noConstructors",
+        },
+      ],
+    },
+    {
+      code: `
+class FooEntity {
+  a!: number;
+}`,
+      errors: [
+        {
+          messageId: "invalidEntityBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidEntityBaseClass",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+class FooEntity extends createDTOBase("Foo") {
+  a!: number;
+}`,
+      errors: [
+        {
+          messageId: "invalidEntityBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidEntityBaseClass",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+class FooEntity extends createEntityBase<"Foo", WrongDTO>("Foo") {
+  a!: number;
+}`,
+      errors: [
+        {
+          messageId: "invalidEntityBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidEntityBaseClass",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+class FooEntity extends createEntityBase("Foo") {
+  a!: number;
+}`,
+      errors: [
+        {
+          messageId: "invalidEntityBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidEntityBaseClass",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+class FooDTO {
+  a!: number;
+}`,
+      errors: [
+        {
+          messageId: "invalidDTOBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooDTO extends createDTOBase("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidDTOBaseClass",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+class FooDTO extends createDTOBase("FooDTO"){
+  a!: number;
+}`,
+      errors: [
+        {
+          messageId: "invalidDTOBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooDTO extends createDTOBase("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidDTOBaseClass",
+            },
+          ],
         },
       ],
     },

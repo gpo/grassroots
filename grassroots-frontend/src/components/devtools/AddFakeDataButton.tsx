@@ -12,12 +12,12 @@ function getRandomContact(): CreateContactRequestDTO {
     String(faker.number.int({ min: 200, max: 999 })) +
     "-" +
     String(faker.number.int({ min: 0, max: 9999 })).padStart(4, "0");
-  return {
+  return CreateContactRequestDTO.from({
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
     email: faker.internet.email(),
     phoneNumber,
-  };
+  });
 }
 
 export function AddFakeDataButton(): JSX.Element {

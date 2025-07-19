@@ -1,15 +1,9 @@
 import "reflect-metadata";
-import { Permission } from "./Permission";
-import {
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsString,
-  Min,
-  ValidateNested,
-} from "class-validator";
+import { Permission, PermissionsDecorator } from "./Permission.dto";
+import { IsNotEmpty, IsNumber, IsString, Min } from "class-validator";
+import { createDTOBase } from "./util/CreateDTOBase";
 
-export class RoleDTO {
+export class RoleDTO extends createDTOBase("Role") {
   @IsNumber()
   @Min(0)
   id!: number;
@@ -17,7 +11,7 @@ export class RoleDTO {
   @IsNotEmpty()
   name!: string;
 
-  @ValidateNested({ each: true })
-  @IsEnum(Permission)
+  // eslint-disable-next-line @darraghor/nestjs-typed/all-properties-are-whitelisted, @darraghor/nestjs-typed/all-properties-have-explicit-defined
+  @PermissionsDecorator()
   permissions!: Permission[];
 }
