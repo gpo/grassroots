@@ -10,9 +10,7 @@ export class PaginatedRequestDTO extends createDTOBase("PaginatedRequest") {
   rowsToTake!: number;
 }
 
-export class PaginatedResponseDTO extends createDTOBase(
-  "PaginatedResponseDTO",
-) {
+export class PaginatedResponseDTO extends createDTOBase("PaginatedResponse") {
   @IsInt()
   @Min(0)
   rowsSkipped!: number;

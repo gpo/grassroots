@@ -1,14 +1,19 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
 import { createRule } from "../utils.js";
-import { RuleContext, RuleListener } from "@typescript-eslint/utils/ts-eslint";
+import {
+  RuleContext,
+  RuleFix,
+  RuleListener,
+} from "@typescript-eslint/utils/ts-eslint";
 
 type MessageIds =
   | "definiteOrOptional"
   | "classNameRules"
   | "noConstructors"
   | "missingEntityBaseClass"
-  | "invalidDTOBaseClass";
+  | "invalidDTOBaseClass"
+  | "fixInvalidDTOBaseClass";
 type Context = Readonly<RuleContext<MessageIds, []>>;
 
 function handlePropertyDefinition(
@@ -56,67 +61,66 @@ function verifyEntitySuperclass(
   });
 }*/
 
-function isDTOSuperclassValid(
+interface SuperclassDetails {
+  valid: boolean;
+  desiredName: string;
+}
+
+function evaluateDTOSuperclass(
   node: TSESTree.ClassDeclaration,
   className: string,
-): boolean {
+): SuperclassDetails {
   const superClass = node.superClass;
+  const desiredName = className.slice(0, -3);
+
+  const ret = {
+    valid: false,
+    desiredName,
+  };
 
   if (superClass?.type !== AST_NODE_TYPES.CallExpression) {
-    return false;
+    return ret;
   }
 
   const callee = superClass.callee;
   if (callee.type !== AST_NODE_TYPES.Identifier) {
-    return false;
+    return ret;
   }
 
   if (callee.name !== "createDTOBase") {
-    return false;
+    return ret;
   }
 
   const firstParam = superClass.arguments[0];
 
   if (firstParam === undefined) {
-    return false;
+    return ret;
   }
 
   if (firstParam.type !== AST_NODE_TYPES.Literal) {
-    return false;
+    return ret;
   }
 
-  console.log("first param", firstParam.value);
-  console.log("Class name sliced: ", className.slice(0, -3));
-  if (firstParam.value != className.slice(0, -3)) {
-    console.log("Failing classname comparison");
-    return false;
+  if (firstParam.value != desiredName) {
+    return ret;
   }
-  return true;
+  ret.valid = true;
+  return ret;
 }
 
 export const rule = createRule({
   create(context: Context): RuleListener {
     return {
       ClassDeclaration(node: TSESTree.ClassDeclaration): undefined {
-        const name = node.id?.name;
-        if (name === undefined) {
+        const identifier = node.id;
+        if (identifier === null) {
           return;
         }
+        const name = identifier.name;
         const isDTO = /dto/i.exec(name);
         const isEntity = /entity/i.exec(name);
         if (!isDTO && !isEntity) {
           return;
-        }
-        if (isEntity) {
-          //verifyEntitySuperclass(node, context);
-        }
-        if (isDTO) {
-          if (!isDTOSuperclassValid(node, name)) {
-            context.report({
-              messageId: "invalidDTOBaseClass",
-              node,
-            });
-          }
         }
         // We need to match case sensitively, and DTO / Entity should be at the end of the class name.
         if (!/(DTO|Entity)$/.exec(name)) {
@@ -124,6 +128,35 @@ export const rule = createRule({
             messageId: "classNameRules",
             node,
           });
+          // Ideally we might process more issues at once, but future rules depend on heuristics around
+          // naming that don't hold at this point, so we just bail.
+          return;
+        }
+        if (isEntity) {
+          //verifyEntitySuperclass(node, context);
+        }
+        if (isDTO) {
+          const superClassDetails = evaluateDTOSuperclass(node, name);
+          if (!superClassDetails.valid) {
+            context.report({
+              messageId: "invalidDTOBaseClass",
+              node,
+              suggest: [
+                {
+                  messageId: "fixInvalidDTOBaseClass",
+                  data: { desiredName: superClassDetails.desiredName },
+                  fix: (fixer): RuleFix => {
+                    const classNameEnd = identifier.range[1];
+                    const bodyStart = node.body.range[0];
+                    return fixer.replaceTextRange(
+                      [classNameEnd, bodyStart],
+                      ` extends createDTOBase("${superClassDetails.desiredName}") `,
+                    );
+                  },
+                },
+              ],
+            });
+          }
         }
         for (const element of node.body.body) {
           switch (element.type) {
@@ -146,6 +179,7 @@ export const rule = createRule({
       recommended: true,
       requiresTypeChecking: true,
     },
+    hasSuggestions: true,
     messages: {
       definiteOrOptional: `Properties must be definite (with a ! suffix) or optional (with a ? suffix).
         Since these objects are constructed via class-transformer, they won't be initialized in the constructor.
@@ -156,6 +190,7 @@ export const rule = createRule({
       these objects via class-tranformer's plainToInstance`,
       missingEntityBaseClass: `All entities should extend createEntityBase.`,
       invalidDTOBaseClass: `All DTOs should extend createDTOBase, with the string parameter of their class name, without the DTO suffix.`,
+      fixInvalidDTOBaseClass: `Make this class extend createDTOBase("{{desiredName}}")`,
     },
     type: "suggestion",
     schema: [],

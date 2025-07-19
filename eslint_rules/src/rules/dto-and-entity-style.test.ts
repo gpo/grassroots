@@ -31,10 +31,7 @@ ruleTester.run("definite-or-optional", rule, {
     },
     {
       code: `class FooDTOMagic extends createDTOBase("Foo") { a!: number}`,
-      errors: [
-        { messageId: "classNameRules" },
-        { messageId: "invalidDTOBaseClass" },
-      ],
+      errors: [{ messageId: "classNameRules" }],
     },
 
     {
@@ -71,22 +68,42 @@ ruleTester.run("definite-or-optional", rule, {
       ],
     },*/
     {
-      code: `class FooDTO {
-        a!: number;
-      }`,
+      code: `
+class FooDTO {
+  a!: number;
+}`,
       errors: [
         {
           messageId: "invalidDTOBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooDTO extends createDTOBase("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidDTOBaseClass",
+            },
+          ],
         },
       ],
     },
     {
-      code: `class FooDTO extends createDTOBase("FooDTO"){
-        a!: number;
-      }`,
+      code: `
+class FooDTO extends createDTOBase("FooDTO"){
+  a!: number;
+}`,
       errors: [
         {
           messageId: "invalidDTOBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooDTO extends createDTOBase("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidDTOBaseClass",
+            },
+          ],
         },
       ],
     },

@@ -31,7 +31,7 @@ export class OrganizationsDTO extends createDTOBase("Organizations") {
 }
 
 export class CreateOrganizationNoParentRequestDTO extends createDTOBase(
-  "CreateOrganizationRootRequest",
+  "CreateOrganizationNoParentRequest",
 ) {
   @IsNotEmpty()
   name!: string;
