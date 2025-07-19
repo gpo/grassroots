@@ -10,7 +10,7 @@ ruleTester.run("definite-or-optional", rule, {
     `class FooDTO extends createDTOBase("Foo") { a?: number}`,
     `class Foo extends createDTOBase("Foo") { a: number}`,
     `class Foo extends createDTOBase("Foo") { a = 2}`,
-    //`class FooEntity extends createEntityBase("UserEntity") { a = 2}`,
+    `class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") { a = 2}`,
   ],
   invalid: [
     {
@@ -47,26 +47,86 @@ ruleTester.run("definite-or-optional", rule, {
         },
       ],
     },
-    /*{
-      code: `class FooEntity {
-        a!: number;
-      }`,
+    {
+      code: `
+class FooEntity {
+  a!: number;
+}`,
       errors: [
         {
-          messageId: "missingEntityBaseClass",
+          messageId: "invalidEntityBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidEntityBaseClass",
+            },
+          ],
         },
       ],
     },
     {
-      code: `class FooEntity extends createDTOBase("FooEntity") {
-        a!: number;
-      }`,
+      code: `
+class FooEntity extends createDTOBase("Foo") {
+  a!: number;
+}`,
       errors: [
         {
-          messageId: "missingEntityBaseClass",
+          messageId: "invalidEntityBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidEntityBaseClass",
+            },
+          ],
         },
       ],
-    },*/
+    },
+    {
+      code: `
+class FooEntity extends createEntityBase<"Foo", WrongDTO>("Foo") {
+  a!: number;
+}`,
+      errors: [
+        {
+          messageId: "invalidEntityBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidEntityBaseClass",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+class FooEntity extends createEntityBase("Foo") {
+  a!: number;
+}`,
+      errors: [
+        {
+          messageId: "invalidEntityBaseClass",
+          suggestions: [
+            {
+              output: `
+class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {
+  a!: number;
+}`,
+              messageId: "fixInvalidEntityBaseClass",
+            },
+          ],
+        },
+      ],
+    },
     {
       code: `
 class FooDTO {

@@ -11,7 +11,8 @@ type MessageIds =
   | "definiteOrOptional"
   | "classNameRules"
   | "noConstructors"
-  | "missingEntityBaseClass"
+  | "invalidEntityBaseClass"
+  | "fixInvalidEntityBaseClass"
   | "invalidDTOBaseClass"
   | "fixInvalidDTOBaseClass";
 type Context = Readonly<RuleContext<MessageIds, []>>;
@@ -47,65 +48,105 @@ function handleMethodDefinition(
   }
 }
 
-/*
-function verifyEntitySuperclass(
-  node: TSESTree.ClassDeclaration,
-  context: Context,
-): void {
-  if (getSuperclassCalleeName(node) === "createEntityBase") {
-    return;
-  }
-  context.report({
-    messageId: "missingEntityBaseClass",
-    node,
-  });
-}*/
-
-interface SuperclassDetails {
-  valid: boolean;
-  desiredName: string;
+interface EvaluateSuperclassOptions {
+  classDeclarationNode: TSESTree.ClassDeclaration;
+  classIdentifier: TSESTree.Identifier;
+  baseName: string;
+  desiredCalleeName: "createDTOBase" | "createEntityBase";
+  desiredGenericParams?: [string, string];
 }
 
-function evaluateDTOSuperclass(
-  node: TSESTree.ClassDeclaration,
-  className: string,
-): SuperclassDetails {
-  const superClass = node.superClass;
-  const desiredName = className.slice(0, -3);
-
-  const ret = {
-    valid: false,
-    desiredName,
-  };
+function isSuperclassValid(options: EvaluateSuperclassOptions): boolean {
+  const superClass = options.classDeclarationNode.superClass;
 
   if (superClass?.type !== AST_NODE_TYPES.CallExpression) {
-    return ret;
+    return false;
   }
 
   const callee = superClass.callee;
-  if (callee.type !== AST_NODE_TYPES.Identifier) {
-    return ret;
-  }
-
-  if (callee.name !== "createDTOBase") {
-    return ret;
+  if (
+    callee.type !== AST_NODE_TYPES.Identifier ||
+    callee.name !== options.desiredCalleeName
+  ) {
+    return false;
   }
 
   const firstParam = superClass.arguments[0];
 
-  if (firstParam === undefined) {
-    return ret;
+  if (
+    firstParam?.type !== AST_NODE_TYPES.Literal ||
+    firstParam.value != options.baseName
+  ) {
+    return false;
   }
 
-  if (firstParam.type !== AST_NODE_TYPES.Literal) {
-    return ret;
+  if (options.desiredGenericParams) {
+    const params = superClass.typeArguments?.params;
+    if (!params) {
+      return false;
+    }
+    if (options.desiredGenericParams.length != params.length) {
+      return false;
+    }
+    for (let i = 0; i < params.length; ++i) {
+      const param = params[i];
+      const targetGenericParam = options.desiredGenericParams[i];
+      let paramIsValid = false;
+      if (
+        param?.type === AST_NODE_TYPES.TSLiteralType &&
+        param.literal.type == AST_NODE_TYPES.Literal &&
+        param.literal.raw == targetGenericParam
+      ) {
+        paramIsValid = true;
+      } else if (param?.type === AST_NODE_TYPES.TSTypeReference) {
+        const typeName = param.typeName;
+        if ("name" in typeName && typeName.name == targetGenericParam) {
+          paramIsValid = true;
+        }
+      }
+      if (!paramIsValid) {
+        return false;
+      }
+    }
   }
 
-  if (firstParam.value != desiredName) {
-    return ret;
+  return true;
+}
+
+interface FixSuperclassOptions {
+  context: Context;
+  errorMessageId: MessageIds;
+  fixMessageId: MessageIds;
+}
+
+function evaluateAndFixSuperclass(
+  options: EvaluateSuperclassOptions,
+  fixOptions: FixSuperclassOptions,
+): void {
+  if (isSuperclassValid(options)) {
+    return;
   }
-  ret.valid = true;
-  return ret;
+  const genericParamsStr = options.desiredGenericParams
+    ? `<${options.desiredGenericParams.join(", ")}>`
+    : "";
+  fixOptions.context.report({
+    messageId: fixOptions.errorMessageId,
+    node: options.classIdentifier,
+    suggest: [
+      {
+        messageId: fixOptions.fixMessageId,
+        data: { baseName: options.baseName },
+        fix: (fixer): RuleFix => {
+          const classNameEnd = options.classIdentifier.range[1];
+          const bodyStart = options.classDeclarationNode.body.range[0];
+          return fixer.replaceTextRange(
+            [classNameEnd, bodyStart],
+            ` extends ${options.desiredCalleeName}${genericParamsStr}("${options.baseName}") `,
+          );
+        },
+      },
+    ],
+  });
 }
 
 export const rule = createRule({
@@ -132,31 +173,40 @@ export const rule = createRule({
           // naming that don't hold at this point, so we just bail.
           return;
         }
+        const baseName = identifier.name.slice(
+          0,
+          isDTO ? -"DTO".length : -"Entity".length,
+        );
         if (isEntity) {
-          //verifyEntitySuperclass(node, context);
+          evaluateAndFixSuperclass(
+            {
+              classDeclarationNode: node,
+              classIdentifier: identifier,
+              baseName,
+              desiredCalleeName: "createEntityBase",
+              desiredGenericParams: [`"${baseName}"`, baseName + "DTO"],
+            },
+            {
+              context,
+              errorMessageId: "invalidEntityBaseClass",
+              fixMessageId: "fixInvalidEntityBaseClass",
+            },
+          );
         }
         if (isDTO) {
-          const superClassDetails = evaluateDTOSuperclass(node, name);
-          if (!superClassDetails.valid) {
-            context.report({
-              messageId: "invalidDTOBaseClass",
-              node,
-              suggest: [
-                {
-                  messageId: "fixInvalidDTOBaseClass",
-                  data: { desiredName: superClassDetails.desiredName },
-                  fix: (fixer): RuleFix => {
-                    const classNameEnd = identifier.range[1];
-                    const bodyStart = node.body.range[0];
-                    return fixer.replaceTextRange(
-                      [classNameEnd, bodyStart],
-                      ` extends createDTOBase("${superClassDetails.desiredName}") `,
-                    );
-                  },
-                },
-              ],
-            });
-          }
+          evaluateAndFixSuperclass(
+            {
+              classDeclarationNode: node,
+              classIdentifier: identifier,
+              baseName,
+              desiredCalleeName: "createDTOBase",
+            },
+            {
+              context,
+              errorMessageId: "invalidDTOBaseClass",
+              fixMessageId: "fixInvalidDTOBaseClass",
+            },
+          );
         }
         for (const element of node.body.body) {
           switch (element.type) {
@@ -188,9 +238,10 @@ export const rule = createRule({
       noConstructors: `DTOs and Entities shouldn't have constructors. These constructors can be called
       after class-transformer has already populated some fields, resulting in confusing results. Create
       these objects via class-tranformer's plainToInstance`,
-      missingEntityBaseClass: `All entities should extend createEntityBase.`,
       invalidDTOBaseClass: `All DTOs should extend createDTOBase, with the string parameter of their class name, without the DTO suffix.`,
-      fixInvalidDTOBaseClass: `Make this class extend createDTOBase("{{desiredName}}")`,
+      fixInvalidDTOBaseClass: `Make this class extend createDTOBase("{{baseName}}")`,
+      invalidEntityBaseClass: `All Entities should extend createEntityBase, with the appropriate parameters.`,
+      fixInvalidEntityBaseClass: `Make this class extend createEntityBase<...>(... appropriate params)`,
     },
     type: "suggestion",
     schema: [],
