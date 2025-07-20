@@ -14,7 +14,7 @@
     "debug": "pnpm run build && node --inspect dist/Main",
     "test": "vitest watch",
     "test:ci": "vitest run",
-    "test:tstyche": "npx tstyche"
+    "test:tstyche": "pnpm exec tstyche"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.4.15",
