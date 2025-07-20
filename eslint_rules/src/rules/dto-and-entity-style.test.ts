@@ -1,27 +1,7 @@
-import path from "node:path";
-import tseslint from "typescript-eslint";
-import { RuleTester } from "@typescript-eslint/rule-tester";
-import * as vitest from "vitest";
-
 import { rule } from "./dto-and-entity-style.js";
+import { createRuleTester } from "../test-utils.js";
 
-RuleTester.afterAll = vitest.afterAll;
-RuleTester.it = vitest.it;
-RuleTester.itOnly = vitest.it.only;
-RuleTester.describe = vitest.describe;
-
-const ruleTester = new RuleTester({
-  languageOptions: {
-    parser: tseslint.parser,
-    parserOptions: {
-      projectService: {
-        allowDefaultProject: ["*.ts*"],
-        defaultProject: "tsconfig.json",
-      },
-      tsconfigRootDir: path.join(__dirname, "../.."),
-    },
-  },
-});
+const ruleTester = createRuleTester();
 
 ruleTester.run("definite-or-optional", rule, {
   valid: [
@@ -41,6 +21,48 @@ ruleTester.run("definite-or-optional", rule, {
           line: 1,
           endLine: 1,
           messageId: "definiteOrOptional",
+        },
+      ],
+    },
+    {
+      code: `class FooDto { a!: number}`,
+      errors: [
+        {
+          column: 1,
+          endColumn: 27,
+          line: 1,
+          endLine: 1,
+          messageId: "classNameRules",
+        },
+      ],
+    },
+    {
+      code: `class FooDTOMagic { a!: number}`,
+      errors: [
+        {
+          column: 1,
+          endColumn: 32,
+          line: 1,
+          endLine: 1,
+          messageId: "classNameRules",
+        },
+      ],
+    },
+
+    {
+      code: `class FooDTO {
+        a!: number;
+        constructor(a: number) {
+          this.a = a;
+        }
+      }`,
+      errors: [
+        {
+          column: 9,
+          endColumn: 10,
+          line: 3,
+          endLine: 5,
+          messageId: "noConstructors",
         },
       ],
     },
