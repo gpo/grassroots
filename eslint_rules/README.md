@@ -1,7 +1,7 @@
 # Grassroots eslint rules.
 
-Currently built manually via `npm run tsc`.
-e.g., from the root, run `npm run tsc --prefix eslint_rules && npx eslint .`.
+Currently built manually via `pnpm run tsc`.
+e.g., from the root, run `pnpm --filter eslint_rules run tsc && pnpm exec eslint .`.
 
 ## Rules
 
@@ -17,14 +17,14 @@ e.g., from the root, run `npm run tsc --prefix eslint_rules && npx eslint .`.
 
 ### Docs
 
-Run `npm run docs` to auto generate documentation.
+Run `pnpm run docs` to auto generate documentation.
 
 ### Testing
 
 This example uses [Vitest](https://vitest.dev):
 
 ```shell
-npm run test
+pnpm run test
 ```
 
 Note that files don't need to have been built to the `lib` directory to run tests.

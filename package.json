@@ -12,9 +12,9 @@
   },
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
-    "start": "concurrently \"pnpm run start --prefix grassroots-frontend\" \"pnpm run start --prefix grassroots-backend\"",
+    "start": "concurrently \"pnpm --filter grassroots-frontend run start \" \"pnpm --filter grassroots-backend run start\"",
     "prepare": "husky",
-    "test": "pnpm run test --prefix grassroots-frontend && pnpm run test --prefix grassroots-backend && pnpm run test --prefix eslint_rules",
+    "test": "pnpm --filter grassroots-frontend run test && pnpm --filter grassroots-backend run test && pnpm --filter eslint_rules run test",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "check": "pnpm exec tsc --noEmit --project grassroots-frontend && pnpm exec tsc --noEmit --project grassroots-backend && pnpm exec tsc --noEmit --project eslint_rules && pnpm exec eslint .",

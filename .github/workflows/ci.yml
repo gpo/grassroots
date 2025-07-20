@@ -32,12 +32,12 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run syncpack
         run: |
-          npx syncpack fix-mismatches
-          npm install
+          pnpm exec syncpack fix-mismatches
+          pnpm install
 
       - name: "Services: Start Test Services"
         uses: hoverkraft-tech/compose-action@v2.2.0
@@ -45,21 +45,21 @@ jobs:
           compose-file: "./docker/compose-ci.yaml"
 
       - name: Generate backend files
-        run: npm run gen-files-only --prefix grassroots-backend
+        run: pnpm --filter grassroots-backend run gen-files-only
 
       - name: Build backend
-        run: npm run build --prefix grassroots-backend
+        run: pnpm --filter grassroots-backend run build
 
       - name: Build frontend
-        run: npm run build:ci --prefix grassroots-frontend
+        run: pnpm --filter grassroots-frontend run build:ci
 
       - name: Run TypeScript Checks
         run: |
-          npx tsc --noEmit --project grassroots-frontend
-          npx tsc --noEmit --project grassroots-backend
+          pnpm exec tsc --noEmit --project grassroots-frontend
+          pnpm exec tsc --noEmit --project grassroots-backend
 
       - name: Migrate DB
-        run: cd grassroots-backend && npx mikro-orm migration:up
+        run: cd grassroots-backend && pnpm exec mikro-orm migration:up
 
       - name: Setup tbls
         uses: k1low/setup-tbls@v1
@@ -68,11 +68,11 @@ jobs:
         run: tbls doc --rm-dist
 
       - name: Run ESLint
-        run: npx eslint . --output-file eslint_report.json --format json --fix
+        run: pnpm exec eslint . --output-file eslint_report.json --format json --fix
         continue-on-error: true
 
       - name: Format code with Prettier
-        run: npx prettier --write .
+        run: pnpm exec prettier --write .
 
       - name: Push Changes
         id: auto-commit-action
@@ -104,14 +104,14 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
 
       - name: Run tstyche
-        run: npm run test:tstyche --prefix grassroots-backend
+        run: pnpm --filter grassroots-backend run test:tstyche
 
       - name: Check mikro-orm migration
         run: |
-          if ! cd grassroots-backend && npx mikro-orm migration:check 2>&1 | grep -q "No changes required, schema is up-to-date"; then
+          if ! cd grassroots-backend && pnpm exec mikro-orm migration:check 2>&1 | grep -q "No changes required, schema is up-to-date"; then
             exit 1
           fi
 
@@ -121,4 +121,4 @@ jobs:
           compose-file: "./docker/compose-ci.yaml"
 
       - name: Tests
-        run: npm run test:ci --prefix grassroots-backend
+        run: pnpm --filter grassroots-backend run test:ci
