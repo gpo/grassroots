@@ -9,8 +9,6 @@ import { SessionGuard } from "./Session.guard";
 
 import { MockSessionGuard } from "../testing/MockAuthGuard";
 
-console.log(process.env.NODE_ENV);
-
 @Module({
   providers: [
     GoogleOAuthStrategy,
