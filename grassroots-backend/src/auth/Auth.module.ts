@@ -10,8 +10,6 @@ import { OrganizationsModule } from "../organizations/Organizations.module.js";
 
 import { MockSessionGuard } from "../testing/MockAuthGuard";
 
-console.log(process.env.NODE_ENV);
-
 @Module({
   providers: [
     GoogleOAuthStrategy,
