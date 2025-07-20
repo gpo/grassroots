@@ -1,7 +1,14 @@
-import { After, AfterAll, Before, BeforeAll, Status, world } from '@cucumber/cucumber';
-import { chromium, Browser, Page } from 'playwright';
-import playwright from 'playwright';
-import { CustomWorld } from './world';
+import {
+  After,
+  AfterAll,
+  Before,
+  BeforeAll,
+  Status,
+  world,
+} from "@cucumber/cucumber";
+import { chromium, Browser, Page } from "playwright";
+import playwright from "playwright";
+import { CustomWorld } from "./world";
 
 export let browser: Browser;
 export let page: Page;
@@ -10,15 +17,12 @@ import process from "process";
 
 const options = {
   headless: false,
-  slowMo: 100
+  slowMo: 100,
 };
 
 BeforeAll(async function () {
-
   process.stdout.write("BEFORE ALL");
-  world.browser = await playwright['chromium'].launch(options);
-
-  
+  world.browser = await playwright["chromium"].launch(options);
 });
 
 AfterAll(async function () {
