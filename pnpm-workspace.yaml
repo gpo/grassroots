@@ -1,4 +1,10 @@
 packages:
-  - "grassroots-frontend"
-  - "grassroots-backend"
-  - "eslint_rules"
+  - grassroots-frontend
+  - grassroots-backend
+  - eslint_rules
+
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@scarf/scarf'
+  - '@swc/core'
+  - esbuild

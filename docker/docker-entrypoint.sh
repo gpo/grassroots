@@ -5,7 +5,8 @@ if ! command -v pnpm &> /dev/null; then
     npm install -g pnpm --prefix ~/.local
     export PATH="$HOME/.local/bin:$PATH"
     if ! command -v pnpm &> /dev/null; then
-    echo "Please rebuild docker"
+      echo "Please rebuild docker"
+    fi
 fi
 
 # Configure pnpm to use the mounted store volume (not the project directory)
@@ -31,7 +32,7 @@ install_deps_if_needed() {
 create_shared_symlink() {
     local source="$1"
     local destination="$2"
-    
+
     if [ -L "$destination" ] || [ -e "$destination" ]; then
         echo "Removing existing file/symlink"
         rm -rf "$destination"
