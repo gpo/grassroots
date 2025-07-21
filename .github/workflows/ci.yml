@@ -31,6 +31,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@latest
+        with:
+          version: latest
+
       - name: Install dependencies
         run: pnpm install
 
@@ -102,6 +107,11 @@ jobs:
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@latest
+        with:
+          version: latest
 
       - name: Install dependencies
         run: pnpm install
