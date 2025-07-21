@@ -2,7 +2,7 @@
 // Recursively does this with all included objects.
 
 // Exclude these keys which are used for internal bookkeeping.
-type ExcludedKeys = "__brand" | "__caslSubjectType__";
+type ExcludedKeys = "__DTOBrand" | "__entityBrand" | "__caslSubjectType";
 
 export type PropsOf<T> = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type

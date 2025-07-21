@@ -1,17 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { PropsOf } from "../grassroots-shared/util/PropsOf";
 
-const __brand: unique symbol = Symbol();
-
 class Branded<TBrand> {
-  readonly [__brand]!: TBrand;
+  readonly __DTOBrand!: "Foo";
   next?: Branded<TBrand>;
 }
 
 describe("propsOf", () => {
   it("should exclude brands", () => {
     const x: PropsOf<Branded<"foo">> = { next: undefined };
-    expect(x.next).toStrictEqual(undefined);
+    expect(x).toStrictEqual({ next: undefined });
   });
 
   it("should support nested types", () => {

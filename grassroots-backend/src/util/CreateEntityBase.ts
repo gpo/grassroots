@@ -1,4 +1,7 @@
-import { BaseEntity } from "@mikro-orm/core";
+import { BaseEntity, Opt, OptionalProps, Property } from "@mikro-orm/core";
+
+// Re-export OptionalProps to prevent issues with exporting class using private name.
+export { OptionalProps };
 
 // See CreateDTOBase.ts for details on why branding is important.
 // This is equivalent to CreateDTOBase, except that it also extends BaseEntity.
@@ -11,9 +14,13 @@ import { BaseEntity } from "@mikro-orm/core";
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createEntityBase<TBrand extends string, TDTO>(brand: TBrand) {
   abstract class Branded extends BaseEntity {
-    readonly __brand!: `${TBrand}Entity`;
+    @Property({ persist: false })
+    // We need different names for our branding types
+    // between entities or DTOs, or we get some type collicions.
+    readonly __entityBrand!: Opt<`${TBrand}Entity`>;
     // Used for CASL to identify object types.
-    readonly __caslSubjectType__ = brand;
+    @Property({ persist: false })
+    readonly __caslSubjectType: Opt<string> = brand;
     abstract toDTO(): TDTO;
   }
   return Branded;

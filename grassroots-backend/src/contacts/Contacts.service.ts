@@ -38,9 +38,13 @@ export class ContactsService {
   }: PaginatedContactSearchRequestDTO): Promise<PaginatedContactResponseDTO> {
     // If all fields are blank, instead of returning all results, we'll return no results.
     if (
-      Object.values(contact).every(
-        (el: unknown) => el === undefined || el === "",
-      )
+      [
+        contact.firstName,
+        contact.lastName,
+        contact.email,
+        contact.phoneNumber,
+        contact.id,
+      ].every((x) => x === undefined || x === "")
     ) {
       return PaginatedContactResponseDTO.empty();
     }
