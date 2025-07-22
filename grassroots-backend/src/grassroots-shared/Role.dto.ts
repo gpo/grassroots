@@ -24,7 +24,7 @@ export class RoleDTO extends createDTOBase("Role") {
   permissions!: Permission[];
 }
 
-export class RolesDTO extends createDTOBase<"RolesDTO">() {
+export class RolesDTO extends createDTOBase("Roles") {
   @ValidateNested({ each: true })
   @IsArray()
   @Type(() => RoleDTO)
