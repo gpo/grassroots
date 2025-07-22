@@ -1,6 +1,10 @@
-import { assert, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { useE2ETestFixture } from "../testing/E2eSetup";
+import {
+  OrganizationDTO,
+  OrganizationsDTO,
+} from "../grassroots-shared/Organization.dto";
 
 describe("Organizations (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -9,34 +13,34 @@ describe("Organizations (e2e)", () => {
 
   it("should create a tree", async () => {
     const f = getFixture();
-    const { data: a } = await f.grassrootsAPI.POST(
-      "/organizations/create-root",
-      {
+    const a = OrganizationDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/organizations/create-root", {
         body: {
           name: "A",
         },
-      },
+      }),
     );
-    assert(a !== undefined);
     expect(a.parentId).toEqual(undefined);
 
-    const { data: b } = await f.grassrootsAPI.POST("/organizations", {
-      body: {
-        name: "B",
-        parentID: a.id,
-      },
-    });
+    const b = OrganizationDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/organizations", {
+        body: {
+          name: "B",
+          parentID: a.id,
+        },
+      }),
+    );
 
-    assert(b !== undefined);
     expect(b.parentId).toEqual(a.id);
 
-    const { data: c } = await f.grassrootsAPI.POST("/organizations", {
-      body: {
-        name: "C",
-        parentID: b.id,
-      },
-    });
-    assert(c !== undefined);
+    const c = OrganizationDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/organizations", {
+        body: {
+          name: "C",
+          parentID: b.id,
+        },
+      }),
+    );
 
     await f.grassrootsAPI.POST("/organizations", {
       body: {
@@ -45,21 +49,20 @@ describe("Organizations (e2e)", () => {
       },
     });
 
-    const organizations = (await f.grassrootsAPI.GET("/organizations")).data
-      ?.organizations;
-    assert(organizations !== undefined);
-    expect(organizations.length).toEqual(4);
+    const organizations = OrganizationsDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.GET("/organizations"),
+    );
+    expect(organizations.organizations.length).toEqual(4);
 
-    const ancestors = (
+    const ancestors = OrganizationsDTO.fromFetchOrThrow(
       await f.grassrootsAPI.GET("/organizations/ancestors-of/{id}", {
         params: {
           path: {
             id: c.id,
           },
         },
-      })
-    ).data?.organizations;
-    assert(ancestors !== undefined);
-    expect(ancestors.map((x) => x.name)).toEqual(["B", "A"]);
+      }),
+    );
+    expect(ancestors.organizations.map((x) => x.name)).toEqual(["B", "A"]);
   });
 });

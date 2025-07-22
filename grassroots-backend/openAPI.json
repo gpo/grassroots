@@ -245,6 +245,18 @@
         "required": ["permissions", "id", "name"],
         "type": "object"
       },
+      "RolesDTO": {
+        "properties": {
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/RoleDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["roles"],
+        "type": "object"
+      },
       "UserDTO": {
         "properties": {
           "displayName": {
@@ -858,10 +870,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RoleDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/RolesDTO"
                 }
               }
             },
