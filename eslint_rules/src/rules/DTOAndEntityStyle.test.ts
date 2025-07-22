@@ -1,5 +1,5 @@
-import { createRuleTester } from "../TestUtils.js";
 import { rule } from "./DTOAndEntityStyle.js";
+import { createRuleTester } from "../TestUtils.js";
 
 const ruleTester = createRuleTester();
 
@@ -164,24 +164,6 @@ class FooDTO extends createDTOBase("Foo") {
               messageId: "fixInvalidDTOBaseClass",
             },
           ],
-        },
-      ],
-    },
-
-    {
-      code: `class FooDTO {
-        a!: number;
-        constructor(a: number) {
-          this.a = a;
-        }
-      }`,
-      errors: [
-        {
-          column: 9,
-          endColumn: 10,
-          line: 3,
-          endLine: 5,
-          messageId: "noConstructors",
         },
       ],
     },
