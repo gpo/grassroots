@@ -223,7 +223,7 @@ export default async () => {
                   .CreateBulkContactResponseDTO,
               },
               findAll: {
-                type: [t["./grassroots-shared/Contact.dto"].ContactDTO],
+                type: t["./grassroots-shared/Contact.dto"].ContactsDTO,
               },
               search: {
                 type: t["./grassroots-shared/Contact.dto"]

@@ -274,6 +274,9 @@ export interface components {
       lastName?: string;
       phoneNumber?: string;
     };
+    ContactsDTO: {
+      contacts: components["schemas"]["ContactDTO"][];
+    };
     CreateBulkContactRequestDTO: {
       contacts: components["schemas"]["CreateContactRequestDTO"][];
     };
@@ -544,7 +547,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactDTO"][];
+          "application/json": components["schemas"]["ContactsDTO"];
         };
       };
       /** @description Validation failed */

@@ -45,6 +45,18 @@
         },
         "type": "object"
       },
+      "ContactsDTO": {
+        "properties": {
+          "contacts": {
+            "items": {
+              "$ref": "#/components/schemas/ContactDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["contacts"],
+        "type": "object"
+      },
       "CreateBulkContactRequestDTO": {
         "properties": {
           "contacts": {
@@ -518,10 +530,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ContactDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/ContactsDTO"
                 }
               }
             },
