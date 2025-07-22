@@ -27,23 +27,13 @@ function handleMethodDefinition(
   }
   if (typeInfo?.name === "Promise") {
     const typeParams = typeInfo.reference.typeArguments?.params;
-    console.log(
-      "In promise",
-      typeParams,
-      typeInfo.reference.loc,
-      context.filename,
-    );
 
     const firstTypeParam = typeParams ? typeParams[0] : undefined;
-    console.log("First type param: ", firstTypeParam);
     if (firstTypeParam) {
       const firstTypeParamInfo = getTypeInfo(firstTypeParam);
-      console.log("first type param name: ", firstTypeParamInfo?.name);
       if (firstTypeParamInfo?.name.endsWith("DTO") === true) {
-        console.log("This is fine");
         return;
       }
-      console.log("THIS IS NOT FINE");
     }
   }
   context.report({

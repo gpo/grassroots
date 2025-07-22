@@ -2,9 +2,9 @@
 // We use this instead of returning void.
 
 import { cast } from "./util/Cast";
+import { createDTOBase } from "./util/CreateDTOBase";
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class VoidDTO {
+export class VoidDTO extends createDTOBase("Void") {
   static get(): VoidDTO {
     return cast(VoidDTO, {});
   }
