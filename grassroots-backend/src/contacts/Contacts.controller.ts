@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ContactsService } from "./Contacts.service";
 import {
   ContactDTO,
+  ContactsDTO,
   CreateBulkContactRequestDTO,
   CreateBulkContactResponseDTO,
   CreateContactRequestDTO,
@@ -34,8 +35,8 @@ export class ContactsController {
   }
 
   @Get()
-  findAll(): Promise<ContactDTO[]> {
-    return this.contactsService.findAll();
+  async findAll(): Promise<ContactsDTO> {
+    return ContactsDTO.from({ contacts: await this.contactsService.findAll() });
   }
 
   @Post("search")

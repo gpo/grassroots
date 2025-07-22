@@ -16,11 +16,11 @@ export default async () => {
     ["./grassroots-shared/Role.dto"]: await import(
       "./grassroots-shared/Role.dto"
     ),
-    ["./grassroots-shared/LoginState.dto"]: await import(
-      "./grassroots-shared/LoginState.dto"
-    ),
     ["./grassroots-shared/Void.dto"]: await import(
       "./grassroots-shared/Void.dto"
+    ),
+    ["./grassroots-shared/LoginState.dto"]: await import(
+      "./grassroots-shared/LoginState.dto"
     ),
     ["./grassroots-shared/Hello.dto"]: await import(
       "./grassroots-shared/Hello.dto"
@@ -185,6 +185,7 @@ export default async () => {
             },
           },
         ],
+        [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
           import("./grassroots-shared/LoginState.dto"),
           {
@@ -196,7 +197,6 @@ export default async () => {
             },
           },
         ],
-        [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
         [
           import("./grassroots-shared/Hello.dto"),
           { HelloOutDTO: { message: { required: true, type: () => String } } },
@@ -223,7 +223,7 @@ export default async () => {
                   .CreateBulkContactResponseDTO,
               },
               findAll: {
-                type: [t["./grassroots-shared/Contact.dto"].ContactDTO],
+                type: t["./grassroots-shared/Contact.dto"].ContactsDTO,
               },
               search: {
                 type: t["./grassroots-shared/Contact.dto"]
@@ -248,8 +248,10 @@ export default async () => {
           import("./auth/Auth.controller"),
           {
             AuthController: {
-              login: {},
-              googleAuthRedirect: {},
+              login: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+              googleAuthRedirect: {
+                type: t["./grassroots-shared/Void.dto"].VoidDTO,
+              },
               isUserLoggedIn: {
                 type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
               },

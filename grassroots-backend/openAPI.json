@@ -45,6 +45,18 @@
         },
         "type": "object"
       },
+      "ContactsDTO": {
+        "properties": {
+          "contacts": {
+            "items": {
+              "$ref": "#/components/schemas/ContactDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["contacts"],
+        "type": "object"
+      },
       "CreateBulkContactRequestDTO": {
         "properties": {
           "contacts": {
@@ -390,6 +402,13 @@
         "parameters": [],
         "responses": {
           "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidDTO"
+                }
+              }
+            },
             "description": ""
           },
           "401": {
@@ -450,6 +469,13 @@
         ],
         "responses": {
           "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidDTO"
+                }
+              }
+            },
             "description": ""
           },
           "401": {
@@ -504,10 +530,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ContactDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/ContactsDTO"
                 }
               }
             },
