@@ -1,3 +1,4 @@
+import { OrganizationDTO } from "../../grassroots-shared/Organization.dto";
 import { E2ETestFixture } from "../E2eSetup";
 
 // Creating these trees manually is pretty painful, and makes it harder to understand the
@@ -34,28 +35,23 @@ export async function createOrganizationTree(
 
   // First we make the current node, then we recurse on the children.
   if (parentID === undefined) {
-    const { data: root, error } = await f.grassrootsAPI.POST(
-      "/organizations/create-root",
-      {
+    const root = OrganizationDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/organizations/create-root", {
         body: {
           name: currentNode.name,
         },
-      },
+      }),
     );
-    if (root == undefined) {
-      throw new Error("Failed to create tree root " + String(error.message));
-    }
     currentNodeId = root.id;
   } else {
-    const { data: node } = await f.grassrootsAPI.POST("/organizations", {
-      body: {
-        name: currentNode.name,
-        parentID,
-      },
-    });
-    if (node == undefined) {
-      throw new Error("Failed to create tree node");
-    }
+    const node = OrganizationDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/organizations", {
+        body: {
+          name: currentNode.name,
+          parentID,
+        },
+      }),
+    );
     currentNodeId = node.id;
   }
 
