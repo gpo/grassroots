@@ -8,7 +8,7 @@ import pluginRouter from "@tanstack/eslint-plugin-router";
 import checkFile from "eslint-plugin-check-file";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import eslintNestJs from "@darraghor/eslint-plugin-nestjs-typed";
-import * as GrassrootsEslintRules from "./eslint_rules/lib/index.js";
+import * as GrassrootsEslintRules from "./eslint_rules/lib/Index.js";
 import reactRefresh from "eslint-plugin-react-refresh";
 import vitest from "@vitest/eslint-plugin";
 
@@ -81,6 +81,7 @@ export default tseslint.config(
         "error",
         {
           "grassroots-backend/src/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
+          "eslint_rules/src/**/*.{jsx,tsx,js,ts}": "PASCAL_CASE",
           "grassroots-frontend/src/!(hooks|routes)/**/*.{jsx,tsx,js,ts}":
             "PASCAL_CASE",
           "grassroots-frontend/src/hooks/**/*.{jsx,tsx,js,ts}": "CAMEL_CASE",

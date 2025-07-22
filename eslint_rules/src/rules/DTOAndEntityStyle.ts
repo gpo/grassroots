@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { createRule } from "../utils.js";
+import { createRule } from "../Utils.js";
 import {
   RuleContext,
   RuleFix,

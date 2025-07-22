@@ -1,5 +1,5 @@
-import { rule } from "./dto-and-entity-style.js";
-import { createRuleTester } from "../test-utils.js";
+import { rule } from "./DTOAndEntityStyle.js";
+import { createRuleTester } from "../TestUtils.js";
 
 const ruleTester = createRuleTester();
 
