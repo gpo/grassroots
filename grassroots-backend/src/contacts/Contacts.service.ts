@@ -19,17 +19,17 @@ export class ContactsService {
   async create(contact: CreateContactRequestDTO): Promise<ContactDTO> {
     const result = this.repo.create(contact);
     await this.entityManager.flush();
-    return result;
+    return ContactDTO.from(result);
   }
 
   async bulkCreate(contacts: CreateContactRequestDTO[]): Promise<ContactDTO[]> {
     const result = contacts.map((x) => this.repo.create(x));
     await this.entityManager.flush();
-    return result;
+    return result.map((x) => x.toDTO());
   }
 
   async findAll(): Promise<ContactDTO[]> {
-    return await this.repo.find({});
+    return (await this.repo.find({})).map((x) => x.toDTO());
   }
 
   async search({
@@ -38,9 +38,13 @@ export class ContactsService {
   }: PaginatedContactSearchRequestDTO): Promise<PaginatedContactResponseDTO> {
     // If all fields are blank, instead of returning all results, we'll return no results.
     if (
-      Object.values(contact).every(
-        (el: unknown) => el === undefined || el === "",
-      )
+      [
+        contact.firstName,
+        contact.lastName,
+        contact.email,
+        contact.phoneNumber,
+        contact.id,
+      ].every((x) => x === undefined || x === "")
     ) {
       return PaginatedContactResponseDTO.empty();
     }
@@ -55,16 +59,17 @@ export class ContactsService {
       limit: paginated.rowsToTake,
       offset: paginated.rowsToSkip,
     });
-    return {
-      contacts: result,
+    return PaginatedContactResponseDTO.from({
+      contacts: result.map((x) => x.toDTO()),
       paginated: {
         rowsSkipped: paginated.rowsToSkip,
         rowsTotal,
       },
-    };
+    });
   }
 
   async findOne(id: number): Promise<ContactDTO | null> {
-    return await this.repo.findOne({ id });
+    const result = await this.repo.findOne({ id });
+    return result ? ContactDTO.from(result) : null;
   }
 }

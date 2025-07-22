@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { OrganizationEntity } from "./Organization.entity";
-import { CreateOrganizationRootRequestDTO } from "../grassroots-shared/Organization.dto";
+import { CreateOrganizationNoParentRequestDTO } from "../grassroots-shared/Organization.dto";
 import { EntityManager, EntityRepository, Loaded } from "@mikro-orm/core";
 
 @Injectable()
@@ -12,7 +12,7 @@ export class OrganizationsService {
   }
 
   async create(
-    organization: CreateOrganizationRootRequestDTO,
+    organization: CreateOrganizationNoParentRequestDTO,
     parentID: number | null,
   ): Promise<OrganizationEntity> {
     const newOrganization = this.repo.create(organization);

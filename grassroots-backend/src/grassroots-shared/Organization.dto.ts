@@ -8,8 +8,9 @@ import {
   ValidateNested,
 } from "class-validator";
 import "reflect-metadata";
+import { createDTOBase } from "./util/CreateDTOBase";
 
-export class OrganizationDTO {
+export class OrganizationDTO extends createDTOBase("Organization") {
   @IsNumber()
   @Min(0)
   id!: number;
@@ -23,18 +24,22 @@ export class OrganizationDTO {
   parentId?: number;
 }
 
-export class OrganizationListDTO {
+export class OrganizationsDTO extends createDTOBase("Organizations") {
   @ValidateNested({ each: true })
   @Type(() => OrganizationDTO)
   organizations!: OrganizationDTO[];
 }
 
-export class CreateOrganizationRootRequestDTO {
+export class CreateOrganizationNoParentRequestDTO extends createDTOBase(
+  "CreateOrganizationNoParentRequest",
+) {
   @IsNotEmpty()
   name!: string;
 }
 
-export class CreateOrganizationRequestDTO {
+export class CreateOrganizationRequestDTO extends createDTOBase(
+  "CreateOrganizationRequest",
+) {
   @IsNotEmpty()
   name!: string;
 

@@ -13,9 +13,6 @@ export default async () => {
     ["./grassroots-shared/User.dto"]: await import(
       "./grassroots-shared/User.dto"
     ),
-    ["./grassroots-shared/Permission"]: await import(
-      "./grassroots-shared/Permission"
-    ),
     ["./grassroots-shared/LoginState.dto"]: await import(
       "./grassroots-shared/LoginState.dto"
     ),
@@ -54,6 +51,12 @@ export default async () => {
               firstName: { required: true, type: () => String },
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
+            },
+            ContactsDTO: {
+              contacts: {
+                required: true,
+                type: () => [t["./grassroots-shared/Contact.dto"].ContactDTO],
+              },
             },
             CreateContactRequestDTO: {
               email: { required: true, type: () => String, format: "email" },
@@ -119,7 +122,7 @@ export default async () => {
               name: { required: true, type: () => String },
               parentId: { required: false, type: () => Number, minimum: 0 },
             },
-            OrganizationListDTO: {
+            OrganizationsDTO: {
               organizations: {
                 required: true,
                 type: () => [
@@ -127,7 +130,7 @@ export default async () => {
                 ],
               },
             },
-            CreateOrganizationRootRequestDTO: {
+            CreateOrganizationNoParentRequestDTO: {
               name: { required: true, type: () => String },
             },
             CreateOrganizationRequestDTO: {
@@ -150,6 +153,12 @@ export default async () => {
               lastName: { required: false, type: () => String },
               displayName: { required: false, type: () => String },
             },
+            UsersDTO: {
+              users: {
+                required: true,
+                type: () => [t["./grassroots-shared/User.dto"].UserDTO],
+              },
+            },
           },
         ],
         [
@@ -169,16 +178,20 @@ export default async () => {
           { HelloOutDTO: { message: { required: true, type: () => String } } },
         ],
         [
+          import("./grassroots-shared/Permission.dto"),
+          {
+            PermissionsDTO: {
+              permissions: { required: true, type: () => [Object] },
+            },
+          },
+        ],
+        [
           import("./grassroots-shared/Role.dto"),
           {
             RoleDTO: {
               id: { required: true, type: () => Number, minimum: 0 },
               name: { required: true, type: () => String },
-              permissions: {
-                required: true,
-                enum: t["./grassroots-shared/Permission"].Permission,
-                isArray: true,
-              },
+              permissions: { required: true, type: () => [Object] },
             },
           },
         ],
@@ -221,7 +234,7 @@ export default async () => {
           import("./users/Users.controller"),
           {
             UsersController: {
-              findAll: { type: [t["./grassroots-shared/User.dto"].UserDTO] },
+              findAll: { type: t["./grassroots-shared/User.dto"].UsersDTO },
             },
           },
         ],
@@ -253,14 +266,14 @@ export default async () => {
               },
               findAll: {
                 type: t["./grassroots-shared/Organization.dto"]
-                  .OrganizationListDTO,
+                  .OrganizationsDTO,
               },
               findById: {
                 type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
               getAncestors: {
                 type: t["./grassroots-shared/Organization.dto"]
-                  .OrganizationListDTO,
+                  .OrganizationsDTO,
               },
             },
           },

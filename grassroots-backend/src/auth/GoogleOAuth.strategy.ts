@@ -51,13 +51,15 @@ export class GoogleOAuthStrategy extends PassportStrategy(
     const id = profile.id;
     let user: UserDTO | undefined = undefined;
     try {
-      user = await this.userService.findOrCreate({
-        id,
-        emails: profile.emails?.map((v) => v.value) ?? [],
-        displayName: profile.displayName,
-        firstName: profile.name?.givenName,
-        lastName: profile.name?.familyName,
-      });
+      user = await this.userService.findOrCreate(
+        UserDTO.from({
+          id,
+          emails: profile.emails?.map((v) => v.value) ?? [],
+          displayName: profile.displayName,
+          firstName: profile.name?.givenName,
+          lastName: profile.name?.familyName,
+        }),
+      );
       done(null, user);
     } catch (err) {
       let typedErr: undefined | Error = undefined;

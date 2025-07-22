@@ -45,7 +45,7 @@ export class AuthController {
     if (!req.user) {
       throw new Error("No user found for login.");
     }
-    // The session doesn't container the redirect path by the time req.login is called,
+    // The session doesn't contain the redirect path by the time req.login is called,
     // so make sure to stash it here.
     const redirectPath = req.session.redirect_path ?? host;
     // To prevent a redirect path accidentally being used multiple times, clear this
@@ -63,7 +63,7 @@ export class AuthController {
   @Get("is_authenticated")
   @PublicRoute()
   isUserLoggedIn(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return { user: req.user };
+    return LoginStateDTO.from({ user: req.user });
   }
 
   // This is an example of using user info, to enable a test.
@@ -72,7 +72,7 @@ export class AuthController {
   // Not sure why UseGuards breaks the OpenAPI plugin.
   @ApiResponse({ status: 200, type: LoginStateDTO })
   example(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return { user: req.user };
+    return LoginStateDTO.from({ user: req.user });
   }
 
   @Post("logout")
@@ -82,7 +82,7 @@ export class AuthController {
         if (err !== undefined) {
           reject(err);
         } else {
-          resolve({});
+          resolve(VoidDTO.from({}));
         }
       });
     });
