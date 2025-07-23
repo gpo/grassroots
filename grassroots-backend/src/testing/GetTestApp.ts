@@ -8,7 +8,7 @@ import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
 import { MockSessionGuard } from "./MockAuthGuard";
 import { SessionGuard } from "../auth/Session.guard";
-import mikroORMConfig from "./../mikro-orm.config";
+import createMikroORMConfig from "./../mikro-orm.config";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -25,6 +25,10 @@ export async function getTestApp(
   if (app) {
     return { app };
   }
+
+  // Get the config to extract entities
+  const mikroORMConfigData = await createMikroORMConfig();
+
   let builder = Test.createTestingModule({
     imports: [
       MikroOrmModule.forRootAsync({
@@ -38,7 +42,7 @@ export async function getTestApp(
             user: config.get<string>("POSTGRES_USER"),
             password: config.get<string>("POSTGRES_PASSWORD"),
             dbName: config.get<string>("POSTGRES_DATABASE"),
-            entities: mikroORMConfig.entities,
+            entities: mikroORMConfigData.entities,
             // Allows global transaction management, used for our rollback based testing strategy.
             allowGlobalContext: true,
           };

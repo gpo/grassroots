@@ -24,5 +24,4 @@ async function createMikroOrmConfig(): Promise<Options> {
   });
 }
 
-// Export the Promise - consumers will need to await it
-export default createMikroOrmConfig();
+export default createMikroOrmConfig; // Function, not Promise

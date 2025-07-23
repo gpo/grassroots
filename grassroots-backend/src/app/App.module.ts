@@ -14,7 +14,7 @@ import {
 } from "@mikro-orm/postgresql";
 import expressSession from "express-session";
 import passport from "passport";
-import mikroORMConfigPromise from "../mikro-orm.config";
+import createMikroOrmConfig from "../mikro-orm.config";
 import connectPgSimple from "connect-pg-simple";
 import { Pool } from "pg";
 import { notNull } from "../grassroots-shared/util/NotNull";
@@ -34,7 +34,7 @@ export async function listenAndConfigureApp(
   if (SESSION_SECRET === undefined) {
     throw new Error("Missing SESSION_SECRET environment variable.");
   }
-  const mikroORMConfig = await mikroORMConfigPromise;
+  const mikroORMConfig = await createMikroOrmConfig();
   const pool = new Pool({
     user: notNull(mikroORMConfig.user, "postgres user is null"),
     host: mikroORMConfig.host,
@@ -104,7 +104,7 @@ export async function listenAndConfigureApp(
     MikroOrmModule.forRootAsync({
       driver: PostgreSqlDriver,
       useFactory: async (): Promise<MikroOrmModuleOptions> => {
-        return await mikroORMConfigPromise;
+        return await createMikroOrmConfig();
       },
     }),
     ContactsModule,
