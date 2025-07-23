@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Param } from "@nestjs/common";
 import { ContactsService } from "./Contacts.service";
 import {
   ContactDTO,
+  ContactsDTO,
   CreateBulkContactRequestDTO,
   CreateBulkContactResponseDTO,
   CreateContactRequestDTO,
@@ -28,12 +29,14 @@ export class ContactsController {
     const contacts = await this.contactsService.bulkCreate(
       createContactDtos.contacts,
     );
-    return { ids: contacts.map((x) => x.id) };
+    return CreateBulkContactResponseDTO.from({
+      ids: contacts.map((x) => x.id),
+    });
   }
 
   @Get()
-  findAll(): Promise<ContactDTO[]> {
-    return this.contactsService.findAll();
+  async findAll(): Promise<ContactsDTO> {
+    return ContactsDTO.from({ contacts: await this.contactsService.findAll() });
   }
 
   @Post("search")
@@ -45,8 +48,8 @@ export class ContactsController {
 
   @Get(":id")
   async findOne(@Param("id") id: number): Promise<GetContactByIDResponseDTO> {
-    return {
+    return GetContactByIDResponseDTO.from({
       contact: await this.contactsService.findOne(id),
-    };
+    });
   }
 }

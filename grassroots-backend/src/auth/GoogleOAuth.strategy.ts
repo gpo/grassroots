@@ -9,7 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "../users/Users.service";
 import OpenIDConnectStrategy from "passport-openidconnect";
-import { UserEntity } from "../users/User.entity";
+import { UserDTO } from "../grassroots-shared/User.dto";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
 
@@ -49,15 +49,17 @@ export class GoogleOAuthStrategy extends PassportStrategy(
     done: VerifyCallback,
   ): Promise<void> => {
     const id = profile.id;
-    let user: UserEntity | undefined = undefined;
+    let user: UserDTO | undefined = undefined;
     try {
-      user = await this.userService.findOrCreate({
-        id,
-        emails: profile.emails?.map((v) => v.value) ?? [],
-        displayName: profile.displayName,
-        firstName: profile.name?.givenName,
-        lastName: profile.name?.familyName,
-      });
+      user = await this.userService.findOrCreate(
+        UserDTO.from({
+          id,
+          emails: profile.emails?.map((v) => v.value) ?? [],
+          displayName: profile.displayName,
+          firstName: profile.name?.givenName,
+          lastName: profile.name?.familyName,
+        }),
+      );
       done(null, user);
     } catch (err) {
       let typedErr: undefined | Error = undefined;

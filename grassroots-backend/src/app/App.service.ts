@@ -4,6 +4,6 @@ import { HelloOutDTO } from "../grassroots-shared/Hello.dto";
 @Injectable()
 export class AppService {
   getHello(): HelloOutDTO {
-    return { message: "Hello World!" };
+    return HelloOutDTO.from({ message: "Hello World!" });
   }
 }

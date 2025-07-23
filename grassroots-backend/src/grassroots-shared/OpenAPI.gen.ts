@@ -274,6 +274,9 @@ export interface components {
       lastName?: string;
       phoneNumber?: string;
     };
+    ContactsDTO: {
+      contacts: components["schemas"]["ContactDTO"][];
+    };
     CreateBulkContactRequestDTO: {
       contacts: components["schemas"]["CreateContactRequestDTO"][];
     };
@@ -287,12 +290,12 @@ export interface components {
       lastName: string;
       phoneNumber: string;
     };
+    CreateOrganizationNoParentRequestDTO: {
+      name: string;
+    };
     CreateOrganizationRequestDTO: {
       name: string;
       parentID: number;
-    };
-    CreateOrganizationRootRequestDTO: {
-      name: string;
     };
     GetContactByIDResponseDTO: {
       contact: components["schemas"]["ContactDTO"] | null;
@@ -308,7 +311,7 @@ export interface components {
       name: string;
       parentId?: number;
     };
-    OrganizationListDTO: {
+    OrganizationsDTO: {
       organizations: components["schemas"]["OrganizationDTO"][];
     };
     PaginatedContactResponseDTO: {
@@ -332,12 +335,18 @@ export interface components {
       name: string;
       permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
     };
+    RolesDTO: {
+      roles: components["schemas"]["RoleDTO"][];
+    };
     UserDTO: {
       displayName?: string;
       emails?: string[];
       firstName?: string;
       id: string;
       lastName?: string;
+    };
+    UsersDTO: {
+      users: components["schemas"]["UserDTO"][];
     };
     ValidationErrorOutDTO: {
       error: string;
@@ -423,7 +432,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["VoidDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -479,7 +490,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["VoidDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -534,7 +547,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["ContactDTO"][];
+          "application/json": components["schemas"]["ContactsDTO"];
         };
       };
       /** @description Validation failed */
@@ -688,7 +701,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationListDTO"];
+          "application/json": components["schemas"]["OrganizationsDTO"];
         };
       };
       /** @description Validation failed */
@@ -750,7 +763,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["OrganizationListDTO"];
+          "application/json": components["schemas"]["OrganizationsDTO"];
         };
       };
       /** @description Validation failed */
@@ -773,7 +786,7 @@ export interface operations {
     };
     requestBody: {
       content: {
-        "application/json": components["schemas"]["CreateOrganizationRootRequestDTO"];
+        "application/json": components["schemas"]["CreateOrganizationNoParentRequestDTO"];
       };
     };
     responses: {
@@ -840,7 +853,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["RoleDTO"][];
+          "application/json": components["schemas"]["RolesDTO"];
         };
       };
       /** @description Validation failed */
@@ -868,7 +881,7 @@ export interface operations {
           [name: string]: unknown;
         };
         content: {
-          "application/json": components["schemas"]["UserDTO"][];
+          "application/json": components["schemas"]["UsersDTO"];
         };
       };
       /** @description Validation failed */

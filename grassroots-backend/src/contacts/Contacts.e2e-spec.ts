@@ -103,7 +103,7 @@ describe("ContactsController (e2e)", () => {
     expect(searchResponse.status).toBe(201);
     expect(data?.contacts.length).toBe(1);
     expect(data?.contacts[0]?.email).toBe("foo@foo.com");
-    expect(data?.paginated).toEqual({
+    expect(data?.paginated).toMatchObject({
       rowsSkipped: 0,
       rowsTotal: 1,
     });

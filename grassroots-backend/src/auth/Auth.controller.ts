@@ -25,9 +25,10 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   @PublicRoute()
   @ApiQuery({ name: "redirect_path", type: String })
-  login(@Query() redirect_path: string): void {
+  login(@Query() redirect_path: string): VoidDTO {
     // The redirect path is used by the OAuth guard.
     void redirect_path;
+    return VoidDTO.get();
   }
 
   @Get("google/callback")
@@ -37,7 +38,7 @@ export class AuthController {
   googleAuthRedirect(
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
-  ): void {
+  ): VoidDTO {
     const host = this.configService.get<string>("FRONTEND_HOST");
     if (host === undefined) {
       throw new Error("Missing env variable for FRONTEND_HOST");
@@ -45,7 +46,7 @@ export class AuthController {
     if (!req.user) {
       throw new Error("No user found for login.");
     }
-    // The session doesn't container the redirect path by the time req.login is called,
+    // The session doesn't contain the redirect path by the time req.login is called,
     // so make sure to stash it here.
     const redirectPath = req.session.redirect_path ?? host;
     // To prevent a redirect path accidentally being used multiple times, clear this
@@ -58,12 +59,13 @@ export class AuthController {
       }
       response.redirect(redirectPath);
     });
+    return VoidDTO.get();
   }
 
   @Get("is_authenticated")
   @PublicRoute()
   isUserLoggedIn(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return { user: req.user };
+    return LoginStateDTO.from({ user: req.user });
   }
 
   // This is an example of using user info, to enable a test.
@@ -72,7 +74,7 @@ export class AuthController {
   // Not sure why UseGuards breaks the OpenAPI plugin.
   @ApiResponse({ status: 200, type: LoginStateDTO })
   example(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return { user: req.user };
+    return LoginStateDTO.from({ user: req.user });
   }
 
   @Post("logout")
@@ -82,7 +84,7 @@ export class AuthController {
         if (err !== undefined) {
           reject(err);
         } else {
-          resolve({});
+          resolve(VoidDTO.from({}));
         }
       });
     });

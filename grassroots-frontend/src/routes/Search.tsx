@@ -6,7 +6,6 @@ import { useContactSearch } from "../hooks/useContactSearch";
 import { TextField } from "../components/TextField";
 import { RoutedLink } from "../components/RoutedLink";
 import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
-import { plainToInstance } from "class-transformer";
 import {
   ContactSearchRequestDTO,
   PaginatedContactSearchRequestDTO,
@@ -30,15 +29,15 @@ function Search(): JSX.Element {
 
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
-  const searchParams: PaginatedContactSearchRequestDTO = {
-    contact: plainToInstance(ContactSearchRequestDTO, form.watch()),
+  const searchParams = PaginatedContactSearchRequestDTO.from({
+    contact: form.watch(),
     paginated: {
       rowsToSkip,
       rowsToTake: ROWS_PER_PAGE,
     },
-  };
+  });
 
-  const { data: results } = useContactSearch(searchParams);
+  const useContactSearchResults = useContactSearch(searchParams).data;
 
   return (
     <>
@@ -68,14 +67,11 @@ function Search(): JSX.Element {
         Share Link to Search
       </RoutedLink>
 
-      {results ? (
-        <PaginatedContacts
-          contacts={results.contacts}
-          paginated={results.paginated}
-          setRowsToSkip={setRowsToSkip}
-          rowsPerPage={ROWS_PER_PAGE}
-        ></PaginatedContacts>
-      ) : null}
+      <PaginatedContacts
+        paginatedContactResponse={useContactSearchResults}
+        setRowsToSkip={setRowsToSkip}
+        rowsPerPage={ROWS_PER_PAGE}
+      ></PaginatedContacts>
     </>
   );
 }

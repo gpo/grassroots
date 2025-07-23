@@ -45,6 +45,18 @@
         },
         "type": "object"
       },
+      "ContactsDTO": {
+        "properties": {
+          "contacts": {
+            "items": {
+              "$ref": "#/components/schemas/ContactDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["contacts"],
+        "type": "object"
+      },
       "CreateBulkContactRequestDTO": {
         "properties": {
           "contacts": {
@@ -88,6 +100,15 @@
         "required": ["email", "firstName", "lastName", "phoneNumber"],
         "type": "object"
       },
+      "CreateOrganizationNoParentRequestDTO": {
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        },
+        "required": ["name"],
+        "type": "object"
+      },
       "CreateOrganizationRequestDTO": {
         "properties": {
           "name": {
@@ -99,15 +120,6 @@
           }
         },
         "required": ["name", "parentID"],
-        "type": "object"
-      },
-      "CreateOrganizationRootRequestDTO": {
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": ["name"],
         "type": "object"
       },
       "GetContactByIDResponseDTO": {
@@ -158,7 +170,7 @@
         "required": ["id", "name"],
         "type": "object"
       },
-      "OrganizationListDTO": {
+      "OrganizationsDTO": {
         "properties": {
           "organizations": {
             "items": {
@@ -242,7 +254,19 @@
             "type": "array"
           }
         },
-        "required": ["id", "name", "permissions"],
+        "required": ["permissions", "id", "name"],
+        "type": "object"
+      },
+      "RolesDTO": {
+        "properties": {
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/RoleDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["roles"],
         "type": "object"
       },
       "UserDTO": {
@@ -268,6 +292,18 @@
           }
         },
         "required": ["id"],
+        "type": "object"
+      },
+      "UsersDTO": {
+        "properties": {
+          "users": {
+            "items": {
+              "$ref": "#/components/schemas/UserDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["users"],
         "type": "object"
       },
       "ValidationErrorOutDTO": {
@@ -366,6 +402,13 @@
         "parameters": [],
         "responses": {
           "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidDTO"
+                }
+              }
+            },
             "description": ""
           },
           "401": {
@@ -426,6 +469,13 @@
         ],
         "responses": {
           "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidDTO"
+                }
+              }
+            },
             "description": ""
           },
           "401": {
@@ -480,10 +530,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/ContactDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/ContactsDTO"
                 }
               }
             },
@@ -665,7 +712,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationListDTO"
+                  "$ref": "#/components/schemas/OrganizationsDTO"
                 }
               }
             },
@@ -740,7 +787,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/OrganizationListDTO"
+                  "$ref": "#/components/schemas/OrganizationsDTO"
                 }
               }
             },
@@ -768,7 +815,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateOrganizationRootRequestDTO"
+                "$ref": "#/components/schemas/CreateOrganizationNoParentRequestDTO"
               }
             }
           },
@@ -846,10 +893,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/RoleDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/RolesDTO"
                 }
               }
             },
@@ -878,10 +922,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/UserDTO"
-                  },
-                  "type": "array"
+                  "$ref": "#/components/schemas/UsersDTO"
                 }
               }
             },
