@@ -2,9 +2,10 @@ packages:
   - grassroots-frontend
   - grassroots-backend
   - eslint_rules
+  - shared
 
 onlyBuiltDependencies:
-  - '@nestjs/core'
-  - '@scarf/scarf'
-  - '@swc/core'
+  - "@nestjs/core"
+  - "@scarf/scarf"
+  - "@swc/core"
   - esbuild
