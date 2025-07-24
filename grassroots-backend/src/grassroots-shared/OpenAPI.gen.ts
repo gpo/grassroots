@@ -339,7 +339,6 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     OrganizationDTO: {
-      __brand: Record<string, never>;
       id: number;
       name: string;
       parentId?: number;
@@ -363,6 +362,9 @@ export interface components {
       rowsSkipped: number;
       rowsTotal: number;
     };
+    PermissionsDTO: {
+      permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
+    };
     RoleDTO: {
       id: number;
       name: string;
@@ -377,6 +379,14 @@ export interface components {
       firstName?: string;
       id: string;
       lastName?: string;
+      userRoles?: components["schemas"]["UserRoleDTO"][];
+    };
+    UserRoleDTO: {
+      id?: number;
+      inherited: boolean;
+      organizationId: number;
+      role: components["schemas"]["RoleDTO"];
+      userId?: string;
     };
     UsersDTO: {
       users: components["schemas"]["UserDTO"][];

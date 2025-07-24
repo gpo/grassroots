@@ -22,7 +22,10 @@ export class UsersService {
       this.entityManager.getRepository<UserRoleEntity>(UserRoleEntity);
   }
   async findOrCreate(user: UserDTO): Promise<UserDTO> {
-    const existing = await this.repo.findOne({ id: user.id });
+    const existing = await this.repo.findOne(
+      { id: user.id },
+      { populate: ["userRoles"] },
+    );
     if (existing !== null) {
       return existing.toDTO();
     }
@@ -49,7 +52,10 @@ export class UsersService {
   }
 
   async findOneById(id: string): Promise<UserDTO | null> {
-    return (await this.repo.findOne({ id }))?.toDTO() ?? null;
+    return (
+      (await this.repo.findOne({ id }, { populate: ["userRoles"] }))?.toDTO() ??
+      null
+    );
   }
 
   async findAll(): Promise<UserDTO[]> {

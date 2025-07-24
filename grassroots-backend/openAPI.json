@@ -155,9 +155,6 @@
       },
       "OrganizationDTO": {
         "properties": {
-          "__brand": {
-            "type": "object"
-          },
           "id": {
             "minimum": 1,
             "type": "number"
@@ -256,7 +253,7 @@
       "RoleDTO": {
         "properties": {
           "id": {
-            "minimum": 0,
+            "minimum": 1,
             "type": "number"
           },
           "name": {
@@ -305,9 +302,38 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "userRoles": {
+            "items": {
+              "$ref": "#/components/schemas/UserRoleDTO"
+            },
+            "type": "array"
           }
         },
         "required": ["id"],
+        "type": "object"
+      },
+      "UserRoleDTO": {
+        "properties": {
+          "id": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "organizationId": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleDTO"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": ["role", "organizationId", "inherited"],
         "type": "object"
       },
       "UsersDTO": {
