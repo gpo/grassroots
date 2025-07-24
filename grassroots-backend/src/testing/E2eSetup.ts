@@ -16,7 +16,7 @@ type E2ETestFixtureProps = TestFixtureProps & {
   grassrootsAPIRaw: GrassRootsAPIRaw;
 };
 
-class E2ETestFixture extends TestFixture {
+export class E2ETestFixture extends TestFixture {
   grassrootsAPI: Client<paths>;
   // grassrootsAPI parses the response as JSON. This uses the strongly typed paths from grassrootsAPI,
   // but just provides a thin wrapper over normal fetch.
