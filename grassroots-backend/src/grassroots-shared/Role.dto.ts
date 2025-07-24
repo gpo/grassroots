@@ -13,8 +13,9 @@ import { Type } from "class-transformer";
 
 export class RoleDTO extends createDTOBase("Role") {
   @IsNumber()
-  @Min(0)
+  @Min(1)
   id!: number;
+
   @IsString()
   @IsNotEmpty()
   name!: string;

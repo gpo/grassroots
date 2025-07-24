@@ -1,6 +1,13 @@
-import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Collection,
+  Entity,
+  OneToMany,
+  PrimaryKey,
+  Property,
+} from "@mikro-orm/core";
 import { createEntityBase } from "../util/CreateEntityBase";
 import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserRoleEntity, UserRoleEntity } from "./UserRole.entity";
 
 @Entity()
 export class UserEntity extends createEntityBase<"User", UserDTO>("User") {
@@ -15,6 +22,9 @@ export class UserEntity extends createEntityBase<"User", UserDTO>("User") {
   @Property({ nullable: true })
   displayName?: string;
 
+  @OneToMany(() => UserRoleEntity, (e) => e.user)
+  userRoles = new Collection<UserRoleEntity>(this);
+
   toDTO(): UserDTO {
     return UserDTO.from({
       id: this.id,
@@ -22,6 +32,7 @@ export class UserEntity extends createEntityBase<"User", UserDTO>("User") {
       firstName: this.firstName,
       lastName: this.lastName,
       displayName: this.displayName,
+      userRoles: this.userRoles.map((x) => x.toDTO()),
     });
   }
 }

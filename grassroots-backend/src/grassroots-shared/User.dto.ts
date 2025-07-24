@@ -1,12 +1,15 @@
 import {
   IsArray,
   IsEmail,
+  IsNumber,
   IsOptional,
   IsString,
+  Min,
   ValidateNested,
 } from "class-validator";
 import { createDTOBase } from "./util/CreateDTOBase";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
+import { UserRoleDTO } from "./UserRole.dto";
 
 export class UserDTO extends createDTOBase("User") {
   @IsString()
@@ -27,6 +30,25 @@ export class UserDTO extends createDTOBase("User") {
   @IsString()
   @IsOptional()
   displayName?: string;
+
+  @ValidateNested({ each: true })
+  @IsOptional()
+  @Type(() => UserRoleDTO)
+  userRoles?: UserRoleDTO[];
+}
+
+export class UserPermissionsForOrgRequestDTO extends createDTOBase(
+  "UserPermissionsForOrgRequest",
+) {
+  @IsString()
+  userId!: string;
+
+  @IsNumber()
+  @Min(1)
+  @Transform(({ value }: { value: string }) => {
+    return Number(value);
+  })
+  organizationId!: number;
 }
 
 export class UsersDTO extends createDTOBase("Users") {
