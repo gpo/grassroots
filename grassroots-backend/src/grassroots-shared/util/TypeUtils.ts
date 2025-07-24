@@ -2,12 +2,12 @@
 type Assert<A extends true> = A;
 type AssertNot<A extends false> = A;
 
-type Func = (...args: any[]) => any;
+export type Func = (...args: any[]) => any;
 
 // IsAssignableTo<A, B> means that an object of type A can be treated as an object of type B.
 // Using [A] extends [B] prevents union distrubution and union simplification.
 // See below for examples where this is required!
-type IsAssignableTo<A, B> = [A] extends [B] ? true : false;
+export type IsAssignableTo<A, B> = [A] extends [B] ? true : false;
 
 function TestAndJustifyIsAssignableTo(): void {
   // Justify `[A] extends [B]` over `A extends B`.
@@ -52,18 +52,18 @@ function TestAndJustifyIsAssignableTo(): void {
   type TestArrayIsAssignableToObject = Assert<IsAssignableTo<number[], object>>;
 }
 
-type If<A extends boolean, TVAL, FVAL> = A extends true ? TVAL : FVAL;
+export type If<A extends boolean, TVAL, FVAL> = A extends true ? TVAL : FVAL;
 
 function TestIf(): void {
   type TestTrueIsTrue = Assert<If<true, true, false>>;
   type TestFalseIsFalse = Assert<If<false, false, true>>;
 }
 
-type And<A extends boolean, B extends boolean> = If<A, B, false>;
+export type And<A extends boolean, B extends boolean> = If<A, B, false>;
 
-type Not<A extends boolean> = If<A, false, true>;
+export type Not<A extends boolean> = If<A, false, true>;
 
-type Equals<A, B> = And<IsAssignableTo<A, B>, IsAssignableTo<B, A>>;
+export type Equals<A, B> = And<IsAssignableTo<A, B>, IsAssignableTo<B, A>>;
 
 function TestEquals(): void {
   type TestEqualsForVaryingOptionality = AssertNot<
@@ -106,7 +106,7 @@ function TestIsArray(): void {
 }
 
 type ExcludedKeys = "__DTOBrand" | "__entityBrand" | "__caslSubjectType";
-type PropsOf<A> = {
+export type PropsOf<A> = {
   [k in keyof A as If<
     // Exclude functions.
     Equals<A[k], Func>,
@@ -188,7 +188,7 @@ function TestPropsOf(): void {
   >;
 }
 
-type CommonProps<A, B> = {
+export type CommonProps<A, B> = {
   [k in keyof A & keyof B as If<IsAssignableTo<A[k], B[k]>, k, never>]: A[k];
 };
 
