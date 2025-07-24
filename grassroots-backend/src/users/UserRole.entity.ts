@@ -10,9 +10,12 @@ import { UserEntity } from "./User.entity";
 import { RoleEntity, ROLES } from "../organizations/Roles.service";
 import { OrganizationEntity } from "../organizations/Organization.entity";
 import { UserRoleDTO } from "../grassroots-shared/UserRole.dto";
+import { createEntityBase } from "../util/CreateEntityBase";
 
 @Entity()
-export class UserRoleEntity {
+export class UserRoleEntity extends createEntityBase<"UserRole", UserRoleDTO>(
+  "UserRole",
+) {
   // We don't need to be given a role to create a UserRoleEntity, since it's currently
   // just computed from _roleId.
   [OptionalProps]?: "role";
@@ -42,12 +45,12 @@ export class UserRoleEntity {
   inherited!: boolean;
 
   toDTO(): UserRoleDTO {
-    return {
+    return UserRoleDTO.from({
       id: this.id,
       userId: this.user.id,
       role: this.role.toDTO(),
       organizationId: this.organization.id,
       inherited: this.inherited,
-    };
+    });
   }
 }

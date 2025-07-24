@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 import { useE2ETestFixture } from "../testing/E2eSetup";
 import { UsersModule } from "./Users.module";
 import { createOrganizationTree } from "../testing/testHelpers/CreateOrganizationTree";
-import { Permission } from "../grassroots-shared/Permission.dto";
+import {
+  Permission,
+  PermissionsDTO,
+} from "../grassroots-shared/Permission.dto";
 import { fail } from "../grassroots-shared/util/Fail";
 import { OrganizationsModule } from "../organizations/Organizations.module";
-import { fetchSuccessOrThrow } from "../grassroots-shared/util/FetchSuccessOrThrow";
 import { ROLES_BY_NAME } from "../organizations/Roles.service";
+import { UserDTO } from "../grassroots-shared/User.dto";
 
 describe("Users (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -23,7 +26,7 @@ describe("Users (e2e)", () => {
       ],
     });
 
-    const user = fetchSuccessOrThrow(
+    const user = UserDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/users/find-or-create", {
         body: {
           displayName: "A",
@@ -42,7 +45,7 @@ describe("Users (e2e)", () => {
       }),
     );
 
-    const noAccessPermissions = fetchSuccessOrThrow(
+    const noAccessPermissions = PermissionsDTO.fromFetchOrThrow(
       await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
         params: {
           query: {
@@ -55,7 +58,7 @@ describe("Users (e2e)", () => {
 
     expect(noAccessPermissions.permissions).toEqual([]);
 
-    const directPermission = fetchSuccessOrThrow(
+    const directPermission = PermissionsDTO.fromFetchOrThrow(
       await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
         params: {
           query: {
@@ -70,7 +73,7 @@ describe("Users (e2e)", () => {
       "VIEW_CONTACTS",
     ] satisfies Permission[]);
 
-    const indirectPermission = fetchSuccessOrThrow(
+    const indirectPermission = PermissionsDTO.fromFetchOrThrow(
       await f.grassrootsAPI.GET("/users/user-permissions-for-org", {
         params: {
           query: {
