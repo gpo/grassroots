@@ -1,6 +1,7 @@
-```mermaid
-graph TD
-  RootTestModule-->PassportModule
-RootTestModule-->ContactsModule
-ContactsModule-->MikroOrmModule
-```
+
+  ```mermaid
+  graph TD
+    RootTestModule-->PassportModule
+  RootTestModule-->ContactsModule
+  ContactsModule-->MikroOrmModule
+  ```

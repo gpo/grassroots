@@ -9,7 +9,8 @@ type Context = Readonly<RuleContext<MessageIds, []>>;
 function checkEntityFilename(node: TSESTree.Node, context: Context): void {
   if (
     !context.filename.includes("service") &&
-    !context.filename.includes("entity")
+    !context.filename.includes("entity") &&
+    !context.filename.includes("repo")
   ) {
     context.report({
       messageId: "noEntityAccessOutsideServices",

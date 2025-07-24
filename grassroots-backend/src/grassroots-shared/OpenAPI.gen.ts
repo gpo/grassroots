@@ -255,6 +255,38 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/users/find-or-create": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["UsersController_findOrCreate"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
+  "/users/user-permissions-for-org": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get: operations["UsersController_getUserPermissionsForOrg"];
+    put?: never;
+    post?: never;
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -307,6 +339,7 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     OrganizationDTO: {
+      __brand: Record<string, never>;
       id: number;
       name: string;
       parentId?: number;
@@ -882,6 +915,69 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["UsersDTO"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  UsersController_findOrCreate: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["UserDTO"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["UserDTO"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  UsersController_getUserPermissionsForOrg: {
+    parameters: {
+      query: {
+        userId: string;
+        organizationId: number;
+      };
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody?: never;
+    responses: {
+      200: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["PermissionsDTO"];
         };
       };
       /** @description Validation failed */

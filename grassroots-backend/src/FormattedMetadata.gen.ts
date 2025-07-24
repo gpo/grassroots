@@ -118,7 +118,8 @@ export default async () => {
           import("./grassroots-shared/Organization.dto"),
           {
             OrganizationDTO: {
-              id: { required: true, type: () => Number, minimum: 0 },
+              __brand: { required: true, type: () => Object },
+              id: { required: true, type: () => Number, minimum: 1 },
               name: { required: true, type: () => String },
               parentId: { required: false, type: () => Number, minimum: 0 },
             },
@@ -136,6 +137,43 @@ export default async () => {
             CreateOrganizationRequestDTO: {
               name: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
+            },
+          },
+        ],
+        [
+          import("./grassroots-shared/Permission.dto"),
+          {
+            PermissionsDTO: {
+              permissions: { required: true, type: () => [Object] },
+            },
+          },
+        ],
+        [
+          import("./grassroots-shared/Role.dto"),
+          {
+            RoleDTO: {
+              id: { required: false, type: () => Number, minimum: 0 },
+              name: { required: false, type: () => String },
+              permissions: { required: false, type: () => [Object] },
+            },
+          },
+        ],
+        [
+          import("./grassroots-shared/UserRole.dto"),
+          {
+            UserRoleDTO: {
+              id: { required: false, type: () => Number, minimum: 1 },
+              userId: { required: false, type: () => String },
+              role: {
+                required: true,
+                type: () => t["./grassroots-shared/Role.dto"].RoleDTO,
+              },
+              organizationId: {
+                required: true,
+                type: () => Number,
+                minimum: 1,
+              },
+              inherited: { required: true, type: () => Boolean },
             },
           },
         ],
@@ -169,6 +207,8 @@ export default async () => {
             },
           },
         ],
+<<<<<<< Updated upstream
+=======
         [
           import("./grassroots-shared/Role.dto"),
           {
@@ -211,6 +251,7 @@ export default async () => {
             },
           },
         ],
+>>>>>>> Stashed changes
       ],
       controllers: [
         [
