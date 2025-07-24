@@ -7,7 +7,7 @@ import {
 } from "@mikro-orm/core";
 import { createEntityBase } from "../util/CreateEntityBase";
 import { UserDTO } from "../grassroots-shared/User.dto";
-import { UserRoleEntity, UserRoleEntity } from "./UserRole.entity";
+import { UserRoleEntity } from "./UserRole.entity";
 
 @Entity()
 export class UserEntity extends createEntityBase<"User", UserDTO>("User") {
