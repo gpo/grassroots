@@ -15,7 +15,7 @@ export type Permission = keyof typeof PermissionEnum;
 
 export function PermissionsDecorator(): PropertyDecorator {
   return applyDecorators(
-    IsEnum(PermissionEnum),
+    IsEnum(PermissionEnum, { each: true }),
     ApiProperty({ enum: PermissionEnum, isArray: true }),
   );
 }
