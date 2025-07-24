@@ -16,6 +16,8 @@ function TestAndJustifyIsAssignableTo(): void {
   // These two examples look identical, but "union distribution" only happens when parameter
   // substitution occurs. Union distribution causes the second case to evaluate as:
   // distribute("a" | "b" extends "a") => "a" extends "a" | "b" extends "a" => true | false.
+
+  // This works! False is correct here, as "a" | "b" can't be assigned to "a".
   type TestExtensionWithoutUnionDistribution = AssertNot<
     "a" | "b" extends "a" ? true : false
   >;
@@ -27,6 +29,7 @@ function TestAndJustifyIsAssignableTo(): void {
   // These two examples look identical, but "union simplification" only happens when parameter
   // substitution occurs. Union simplification causes the second case to evaluate as:
   // simplify(never | 1 extends never) => simplify(never | 1) extends never => 1 extends never => false;
+  // This is correct, as never is assignable to never | 1.
   type TestNeverExtensionWithoutUnionSimplification = Assert<
     // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
     never extends never | 1 ? true : false
