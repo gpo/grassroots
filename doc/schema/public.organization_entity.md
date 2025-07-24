@@ -4,11 +4,11 @@
 
 ## Columns
 
-| Name      | Type         | Default                                         | Nullable | Children                                                    | Parents                                                     | Comment |
-| --------- | ------------ | ----------------------------------------------- | -------- | ----------------------------------------------------------- | ----------------------------------------------------------- | ------- |
-| id        | integer      | nextval('organization_entity_id_seq'::regclass) | false    | [public.organization_entity](public.organization_entity.md) |                                                             |         |
-| name      | varchar(255) |                                                 | false    |                                                             |                                                             |         |
-| parent_id | integer      |                                                 | true     |                                                             | [public.organization_entity](public.organization_entity.md) |         |
+| Name      | Type         | Default                                         | Nullable | Children                                                                                                          | Parents                                                     | Comment |
+| --------- | ------------ | ----------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------- |
+| id        | integer      | nextval('organization_entity_id_seq'::regclass) | false    | [public.organization_entity](public.organization_entity.md) [public.user_role_entity](public.user_role_entity.md) |                                                             |         |
+| name      | varchar(255) |                                                 | false    |                                                                                                                   |                                                             |         |
+| parent_id | integer      |                                                 | true     |                                                                                                                   | [public.organization_entity](public.organization_entity.md) |         |
 
 ## Constraints
 
@@ -29,11 +29,19 @@
 erDiagram
 
 "public.organization_entity" }o--o| "public.organization_entity" : ""
+"public.user_role_entity" }o--|| "public.organization_entity" : ""
 
 "public.organization_entity" {
   integer id
   varchar_255_ name
   integer parent_id FK
+}
+"public.user_role_entity" {
+  integer id
+  varchar_255_ user_id FK
+  integer _role_id
+  integer organization_id FK
+  boolean inherited
 }
 ```
 

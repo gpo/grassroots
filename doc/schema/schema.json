@@ -155,6 +155,58 @@
           "columns": ["email"]
         }
       ]
+    },
+    {
+      "name": "public.user_role_entity",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default": "nextval('user_role_entity_id_seq'::regclass)"
+        },
+        { "name": "user_id", "type": "varchar(255)", "nullable": false },
+        { "name": "_role_id", "type": "integer", "nullable": false },
+        { "name": "organization_id", "type": "integer", "nullable": false },
+        { "name": "inherited", "type": "boolean", "nullable": false }
+      ],
+      "indexes": [
+        {
+          "name": "user_role_entity_pkey",
+          "def": "CREATE UNIQUE INDEX user_role_entity_pkey ON public.user_role_entity USING btree (id)",
+          "table": "public.user_role_entity",
+          "columns": ["id"]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "user_role_entity_user_id_foreign",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (user_id) REFERENCES user_entity(id) ON UPDATE CASCADE",
+          "table": "public.user_role_entity",
+          "referenced_table": "user_entity",
+          "columns": ["user_id"],
+          "referenced_columns": ["id"]
+        },
+        {
+          "name": "user_role_entity_organization_id_foreign",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE",
+          "table": "public.user_role_entity",
+          "referenced_table": "organization_entity",
+          "columns": ["organization_id"],
+          "referenced_columns": ["id"]
+        },
+        {
+          "name": "user_role_entity_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.user_role_entity",
+          "referenced_table": "",
+          "columns": ["id"]
+        }
+      ]
     }
   ],
   "relations": [
@@ -166,6 +218,24 @@
       "parent_columns": ["id"],
       "parent_cardinality": "zero_or_one",
       "def": "FOREIGN KEY (parent_id) REFERENCES organization_entity(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "table": "public.user_role_entity",
+      "columns": ["user_id"],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.user_entity",
+      "parent_columns": ["id"],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (user_id) REFERENCES user_entity(id) ON UPDATE CASCADE"
+    },
+    {
+      "table": "public.user_role_entity",
+      "columns": ["organization_id"],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.organization_entity",
+      "parent_columns": ["id"],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE"
     }
   ],
   "driver": {
