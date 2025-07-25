@@ -6,6 +6,7 @@ import {
 } from "@casl/ability";
 import { UserEntity } from "../users/User.entity";
 import { ContactEntity } from "../contacts/entities/Contact.entity";
+import { CommonProps } from "./util/TypeUtils";
 
 export enum Permission {
   VIEW_CONTACTS = "VIEW_CONTACTS",
@@ -22,7 +23,10 @@ type SubjectConstructors = (typeof SUBJECTS)[number];
 
 // CommonProps is stripping out the subject type right now...
 type CASLSubjects = {
-  [SubjectConstructor in SubjectConstructors as SubjectConstructor["__caslSubjectTypeStatic"]]: SubjectConstructor["__CommonPropsWithDTO"];
+  [SubjectConstructor in SubjectConstructors as SubjectConstructor["__caslSubjectTypeStatic"]]: CommonProps<
+    InstanceType<SubjectConstructor>,
+    ReturnType<InstanceType<SubjectConstructor>["toDTO"]>
+  > & { __caslSubjectType: SubjectConstructor["__caslSubjectTypeStatic"] };
 };
 
 type CASLSubjectUnion = CASLSubjects[keyof CASLSubjects];
@@ -30,20 +34,6 @@ type CASLSubjectUnion = CASLSubjects[keyof CASLSubjects];
 // MongoAbility needs to know both about the string types (keyof CASLSubjects) and the object structure (CASLSubjects).
 // It maps from strings to object types via `detectSubjectType` below.
 type AppAbility = MongoAbility<[Action, keyof CASLSubjects | CASLSubjectUnion]>;
-
-export function defineAbility(): AppAbility {
-  const { can, cannot, build } = new AbilityBuilder<AppAbility>(
-    createMongoAbility,
-  );
-  void cannot;
-
-  can("read", "User", { emails: { $exists: true } });
-  can("read", "User", { id: { $eq: "5" } });
-
-  return build({
-    detectSubjectType: (obj: CASLSubjectUnion) => obj.__caslSubjectType,
-  });
-}
 
 // CASL uses "can" both to define abilities and query them.
 // Note that this is the method for querying.
@@ -57,12 +47,14 @@ export function can(
 }
 
 export function permissionsToCaslAbilities(
+  user: CASLSubjects["User"],
   permissions: Set<keyof typeof Permission>,
 ): AppAbility {
   const { can, cannot, build } = new AbilityBuilder<AppAbility>(
     createMongoAbility,
   );
   void cannot;
+  can("read", "User", { id: user.id });
 
   const PERMISSIONS_TO_CASL_RULES: Record<keyof typeof Permission, () => void> =
     {

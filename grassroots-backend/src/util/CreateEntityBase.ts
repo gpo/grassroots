@@ -1,5 +1,4 @@
 import { BaseEntity, Opt, OptionalProps, Property } from "@mikro-orm/core";
-import { CommonProps } from "../grassroots-shared/util/PropsOf";
 
 // Re-export OptionalProps to prevent issues with exporting class using private name.
 export { OptionalProps };
@@ -24,9 +23,6 @@ export function createEntityBase<TBrand extends string, TDTO>(brand: TBrand) {
     @Property({ persist: false })
     readonly __caslSubjectType: Opt<TBrand> = brand;
     static readonly __caslSubjectTypeStatic: TBrand;
-    static readonly __CommonPropsWithDTO: CommonProps<Branded, TDTO> & {
-      __caslSubjectType: TBrand;
-    };
     abstract toDTO(): TDTO;
   }
   return Branded;
