@@ -15,10 +15,21 @@ export enum Permission {
 
 type Action = "read" | "edit";
 
-interface CASLSubjects {
+// eslint-disable-next-line grassroots/entity-use
+type CASLSubjects = [UserEntity, ContactEntity];
+
+type CASLSubjectsDict = {
+  [k in keyof CASLSubjects as If<
+    Extends<k, number>,
+    k,
+    never
+  >]: CASLSubjects[k];
+};
+
+/*
   User: typeof UserEntity.__CommonPropsWithDTO__;
   Contact: typeof ContactEntity.__CommonPropsWithDTO__;
-}
+}*/
 
 // This creates a union type of all CASLSubjects, and adds the __caslSubjectType__ property
 // which is used in the ability builder to determine subject type.
