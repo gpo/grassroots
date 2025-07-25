@@ -12,6 +12,7 @@ import {
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "./Paginated.dto";
 import "reflect-metadata";
 import { createDTOBase } from "./util/CreateDTOBase";
+import { OrganizationDTO } from "./Organization.dto";
 
 export class ContactDTO extends createDTOBase("Contact") {
   @IsInt()
@@ -26,6 +27,11 @@ export class ContactDTO extends createDTOBase("Contact") {
 
   @IsNotEmpty()
   lastName!: string;
+
+  @IsNotEmpty()
+  @Type(() => OrganizationDTO)
+  @ValidateNested()
+  organization!: OrganizationDTO;
 
   @IsPhoneNumber("CA")
   phoneNumber!: string;
