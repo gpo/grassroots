@@ -227,25 +227,6 @@ export type CommonProps<A, B, AProps = PropsOf<A>, BProps = PropsOf<B>> = {
     : never]: AProps[k];
 };
 
-type Foo = CommonProps<
-  {
-    a: number;
-    firstOnly: string;
-    notMatching: string;
-    optionalInAOnly?: string;
-    optionalInBoth?: string[];
-    excluded(): () => void;
-  },
-  {
-    a: number;
-    secondOnly: string;
-    notMatching: number;
-    optionalInAOnly: string;
-    optionalInBoth?: string[];
-    excluded(): () => void;
-  }
->;
-
 type TestCommonProps = Assert<
   Equals<
     { a: number; optionalInBoth?: string },
