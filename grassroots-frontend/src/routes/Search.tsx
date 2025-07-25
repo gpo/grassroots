@@ -8,6 +8,7 @@ import { RoutedLink } from "../components/RoutedLink";
 import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver";
 import {
   ContactSearchRequestDTO,
+  PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto";
 
@@ -37,7 +38,9 @@ function Search(): JSX.Element {
     },
   });
 
-  const useContactSearchResults = useContactSearch(searchParams).data;
+  const useContactSearchResults =
+    useContactSearch(searchParams).data ?? PaginatedContactResponseDTO.empty();
+  console.log(useContactSearchResults);
 
   return (
     <>

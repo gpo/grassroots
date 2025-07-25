@@ -1,4 +1,4 @@
-import { DefinedUseQueryResult, useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import {
   PaginatedContactResponseDTO,
@@ -7,12 +7,11 @@ import {
 
 export function useContactSearch(
   searchParams: PaginatedContactSearchRequestDTO,
-): DefinedUseQueryResult<PaginatedContactResponseDTO> {
+): UseQueryResult<PaginatedContactResponseDTO> {
   return useQuery<PaginatedContactResponseDTO>({
     queryKey: ["contacts", searchParams],
     staleTime: 60 * 1000,
     retry: 1,
-    initialData: PaginatedContactResponseDTO.empty(),
     // If the user hits the next button, keep showing the prior data until new data is ready.
     placeholderData: (priorData) =>
       priorData ?? PaginatedContactResponseDTO.empty(),
