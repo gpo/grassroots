@@ -22,8 +22,11 @@ export function createEntityBase<TBrand extends string, TDTO>(brand: TBrand) {
     // Used for CASL to identify object types.
 
     @Property({ persist: false })
-    readonly __caslSubjectType: Opt<string> = brand;
-    static readonly __CommonPropsWithDTO__: CommonProps<Branded, TDTO>;
+    readonly __caslSubjectType: Opt<TBrand> = brand;
+    static readonly __caslSubjectTypeStatic: TBrand;
+    static readonly __CommonPropsWithDTO: CommonProps<Branded, TDTO> & {
+      __caslSubjectType: TBrand;
+    };
     abstract toDTO(): TDTO;
   }
   return Branded;

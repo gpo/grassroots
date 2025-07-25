@@ -15,30 +15,20 @@ export enum Permission {
 
 type Action = "read" | "edit";
 
-// eslint-disable-next-line grassroots/entity-use
-type CASLSubjects = [UserEntity, ContactEntity];
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const SUBJECTS = [UserEntity, ContactEntity] as const;
 
-type CASLSubjectsDict = {
-  [k in keyof CASLSubjects as If<
-    Extends<k, number>,
-    k,
-    never
-  >]: CASLSubjects[k];
+type SubjectConstructors = (typeof SUBJECTS)[number];
+
+// CommonProps is stripping out the subject type right now...
+type CASLSubjects = {
+  [SubjectConstructor in SubjectConstructors as SubjectConstructor["__caslSubjectTypeStatic"]]: SubjectConstructor["__CommonPropsWithDTO"];
 };
 
-/*
-  User: typeof UserEntity.__CommonPropsWithDTO__;
-  Contact: typeof ContactEntity.__CommonPropsWithDTO__;
-}*/
-
-// This creates a union type of all CASLSubjects, and adds the __caslSubjectType__ property
-// which is used in the ability builder to determine subject type.
-type CASLSubjectUnion = {
-  [K in keyof CASLSubjects]: CASLSubjects[K] & { __caslSubjectType__: K };
-}[keyof CASLSubjects];
+type CASLSubjectUnion = CASLSubjects[keyof CASLSubjects];
 
 // MongoAbility needs to know both about the string types (keyof CASLSubjects) and the object structure (CASLSubjects).
-// It's a bit fuzzy to me how it does this from a union of these types, but it works!
+// It maps from strings to object types via `detectSubjectType` below.
 type AppAbility = MongoAbility<[Action, keyof CASLSubjects | CASLSubjectUnion]>;
 
 export function defineAbility(): AppAbility {
@@ -51,7 +41,7 @@ export function defineAbility(): AppAbility {
   can("read", "User", { id: { $eq: "5" } });
 
   return build({
-    detectSubjectType: (obj: CASLSubjectUnion) => obj.__caslSubjectType__,
+    detectSubjectType: (obj: CASLSubjectUnion) => obj.__caslSubjectType,
   });
 }
 
@@ -77,8 +67,7 @@ export function permissionsToCaslAbilities(
   const PERMISSIONS_TO_CASL_RULES: Record<keyof typeof Permission, () => void> =
     {
       VIEW_CONTACTS: () => {
-        can("read", "User", { id: { $exists: true } });
-        can("read", "User", { id: "0" });
+        can("read", "Contact");
       },
       MANAGE_CONTACTS: () => {
         can("edit", "Contact");
@@ -93,6 +82,6 @@ export function permissionsToCaslAbilities(
   }
 
   return build({
-    detectSubjectType: (obj: CASLSubjectUnion) => obj.__caslSubjectType__,
+    detectSubjectType: (obj: CASLSubjectUnion) => obj.__caslSubjectType,
   });
 }
