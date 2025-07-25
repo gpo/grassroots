@@ -221,22 +221,41 @@ function TestPropsOf(): void {
 }
 
 export type CommonProps<A, B, AProps = PropsOf<A>, BProps = PropsOf<B>> = {
-  [k in keyof AProps & keyof BProps as If<
-    IsAssignableTo<AProps[k], BProps[k]>,
-    k,
-    never
-  >]: AProps[k];
+  // We can't iterate AProps & BProps, as that loses optionality.
+  [k in keyof AProps as k extends keyof BProps
+    ? If<IsAssignableTo<AProps[k], BProps[k]>, k, never>
+    : never]: AProps[k];
 };
+
+type Foo = CommonProps<
+  {
+    a: number;
+    firstOnly: string;
+    notMatching: string;
+    optionalInAOnly?: string;
+    optionalInBoth?: string[];
+    excluded(): () => void;
+  },
+  {
+    a: number;
+    secondOnly: string;
+    notMatching: number;
+    optionalInAOnly: string;
+    optionalInBoth?: string[];
+    excluded(): () => void;
+  }
+>;
 
 type TestCommonProps = Assert<
   Equals<
-    { a: number },
+    { a: number; optionalInBoth?: string },
     CommonProps<
       {
         a: number;
         firstOnly: string;
         notMatching: string;
         optionalInAOnly?: string;
+        optionalInBoth?: string;
         excluded(): () => void;
       },
       {
@@ -244,6 +263,7 @@ type TestCommonProps = Assert<
         secondOnly: string;
         notMatching: number;
         optionalInAOnly: string;
+        optionalInBoth?: string;
         excluded(): () => void;
       }
     >
