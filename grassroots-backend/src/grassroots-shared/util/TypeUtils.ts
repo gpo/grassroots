@@ -106,30 +106,40 @@ function TestIsArray(): void {
 }
 
 type ExcludedKeys = "__DTOBrand" | "__entityBrand" | "__caslSubjectType";
-export type PropsOf<A> = {
-  [k in keyof A as If<
-    // Exclude functions.
-    Equals<A[k], Func>,
-    never,
-    // Exclude excluded keys
-    If<IsAssignableTo<k, ExcludedKeys>, never, k>
-  >]: ValueToValueProps<A[k]>;
+
+type ExcludeProps<A, Exclude> = {
+  [k in keyof A as If<Equals<A[k], Exclude>, never, k>]: A[k];
 };
 
-type ValueToValueProps<A> =
-  // If it's an array, recurse.
-  // We need to check for arrays before objects, as arrays are objects.
-  If<
-    IsArray<A>,
-    PropsOf<GetArrayItemType<A>>[],
-    // If it's an object, recurse.
+export type PropsOf<Undistributed> = Undistributed extends infer A extends
+  Undistributed
+  ? {
+      [k in keyof A as If<
+        // Exclude functions.
+        Equals<A[k], Func>,
+        never,
+        // Exclude excluded keys
+        If<IsAssignableTo<k, ExcludedKeys>, never, k>
+      >]: ValueToValueProps<A[k]>;
+    }
+  : never;
+
+type ValueToValueProps<Undistributed> = Undistributed extends infer A extends
+  Undistributed
+  ? // If it's an array, recurse.
+    // We need to check for arrays before objects, as arrays are objects.
     If<
-      IsAssignableTo<A, object>,
-      PropsOf<A>,
-      // Otherwise, it's a primitive, leave it alone.
-      A
+      IsArray<A>,
+      PropsOf<GetArrayItemType<A>>[],
+      // If it's an object, recurse.
+      If<
+        IsAssignableTo<A, object>,
+        PropsOf<A>,
+        // Otherwise, it's a primitive, leave it alone.
+        A
+      >
     >
-  >;
+  : never;
 
 function TestPropsOf(): void {
   class WrapperWithMethod<T> {
@@ -174,22 +184,45 @@ function TestPropsOf(): void {
     >
   >;
 
-  class WithArrays {
-    numbers!: number[];
-    objs!: { x: string }[];
-  }
-
   type TestNestedArrays = Assert<
-    Equals<PropsOf<WithArrays>, { numbers: number[]; objs: { x: string }[] }>
+    Equals<
+      {
+        numbers: number[];
+        objs: { x: string }[];
+      },
+      { numbers: number[]; objs: { x: string }[] }
+    >
   >;
 
   type TestExcludedKeys = Assert<
     Equals<PropsOf<{ __DTOBrand: 2; a: 1 }>, { a: 1 }>
   >;
+
+  type TestNestedExcludedKeys = Assert<
+    Equals<
+      PropsOf<{ x: { __DTOBrand: 2; a: 1 } | undefined }>,
+      { x: { a: 1 } | undefined }
+    >
+  >;
+
+  type TestUnionedExcludedKeys = Assert<
+    Equals<
+      PropsOf<{ x: { __DTOBrand: 2; a: 1 } | undefined } | undefined>,
+      { x: { a: 1 } | undefined } | undefined
+    >
+  >;
+
+  type TestArrayExcludedKeys = Assert<
+    Equals<PropsOf<{ x: { __DTOBrand: 2; a: 1 }[] }>, { x: { a: 1 }[] }>
+  >;
 }
 
-export type CommonProps<A, B> = {
-  [k in keyof A & keyof B as If<IsAssignableTo<A[k], B[k]>, k, never>]: A[k];
+export type CommonProps<A, B, AProps = PropsOf<A>, BProps = PropsOf<B>> = {
+  [k in keyof AProps & keyof BProps as If<
+    IsAssignableTo<AProps[k], BProps[k]>,
+    k,
+    never
+  >]: AProps[k];
 };
 
 type TestCommonProps = Assert<
@@ -201,12 +234,14 @@ type TestCommonProps = Assert<
         firstOnly: string;
         notMatching: string;
         optionalInAOnly?: string;
+        excluded(): () => void;
       },
       {
         a: number;
         secondOnly: string;
         notMatching: number;
         optionalInAOnly: string;
+        excluded(): () => void;
       }
     >
   >
