@@ -111,6 +111,9 @@ type ExcludeProps<A, Exclude> = {
   [k in keyof A as If<Equals<A[k], Exclude>, never, k>]: A[k];
 };
 
+// We need to make sure that any type union is "distributed".
+// That means PropsOf<a | b> = PropsOf<a> | PropsOf<b>.
+// The "X extends infer A extends X" is a handy way to force distribution.
 export type PropsOf<Undistributed> = Undistributed extends infer A extends
   Undistributed
   ? {
