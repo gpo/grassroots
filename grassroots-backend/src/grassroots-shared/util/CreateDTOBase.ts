@@ -24,7 +24,7 @@ only to convince typescript that these types shouldn't be castable to one anothe
 */
 
 import { plainToInstance } from "class-transformer";
-import { PropsOf } from "./PropsOf";
+import { PropsOf } from "./TypeUtils";
 
 export interface FetchResponse<T, E> {
   data?: T;
