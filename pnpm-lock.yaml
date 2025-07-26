@@ -98,6 +98,9 @@ importers:
 
   grassroots-backend:
     dependencies:
+      "@grassroots/shared":
+        specifier: workspace:*
+        version: link:../packages/shared
       "@mikro-orm/core":
         specifier: ^6.4.15
         version: 6.4.16
@@ -261,6 +264,9 @@ importers:
       "@faker-js/faker":
         specifier: ^9.9.0
         version: 9.9.0
+      "@grassroots/shared":
+        specifier: workspace:*
+        version: link:../packages/shared
       "@mantine/core":
         specifier: ^7.17.4
         version: 7.17.8(@mantine/hooks@7.17.8(react@19.1.0))(@types/react@19.1.8)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -334,6 +340,19 @@ importers:
       vite:
         specifier: ^6.3.5
         version: 6.3.5(@types/node@22.16.3)(sugarss@5.0.0(postcss@8.5.6))(terser@5.43.1)(tsx@4.20.3)(yaml@2.7.1)
+
+  packages/shared:
+    dependencies:
+      class-transformer:
+        specifier: ^0.5.1
+        version: 0.5.1
+      class-validator:
+        specifier: ^0.14.1
+        version: 0.14.2
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.8.3
 
 packages:
   "@ampproject/remapping@2.3.0":

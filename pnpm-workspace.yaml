@@ -2,7 +2,7 @@ packages:
   - grassroots-frontend
   - grassroots-backend
   - eslint_rules
-  - shared
+  - packages/*
 
 onlyBuiltDependencies:
   - "@nestjs/core"

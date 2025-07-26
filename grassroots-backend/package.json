@@ -41,7 +41,8 @@
     "pg": "^8.15.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "tstyche": "^3.5.0"
+    "tstyche": "^3.5.0",
+    "@grassroots/shared": "workspace:*"
   },
   "devDependencies": {
     "@mikro-orm/cli": "^6.4.15",
