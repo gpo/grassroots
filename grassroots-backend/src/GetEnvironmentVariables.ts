@@ -3,10 +3,12 @@ import * as dotenv from "dotenv";
 
 // Earlier files take priority.
 function getEnvFilePaths(): string[] {
-  if (process.env.GITHUB_ACTIONS == "true") {
+  if (process.env.GITHUB_ACTIONS === "true") {
+    console.log("GITHUB_ACTIONS:", process.env.GITHUB_ACTIONS);
+    console.log("process.env:", JSON.stringify(process.env, null, 2));
     return ["../.env.test.ci", "../.env.test"];
   }
-  if (process.env.MODE == "test") {
+  if (process.env.MODE === "test") {
     return ["../.env.test"];
   }
   return ["../.env.development.local", "../.env.development"];
@@ -31,8 +33,14 @@ async function readSingleEnvironmentFile(
   filePath: string,
 ): Promise<Record<string, string>> {
   try {
+    console.log(`Reading file: ${filePath}`);
     const fileContent = await readFile(filePath, "utf8");
-    return dotenv.parse(fileContent);
+    const parsedEnv = dotenv.parse(fileContent);
+    console.log(
+      `Parsed env file ${filePath}:`,
+      JSON.stringify(parsedEnv, null, 2),
+    );
+    return parsedEnv;
   } catch (error) {
     // If file exists but can't be read/parsed, that's a real problem
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -43,7 +51,7 @@ async function readSingleEnvironmentFile(
 }
 
 // Cache environment variables.
-let envVariables: Record<string, string> | undefined = {};
+let envVariables: Record<string, string> | undefined = undefined;
 
 /**
  * Loads environment variables from multiple .env files in parallel
@@ -55,11 +63,14 @@ export async function getEnvironmentVariables(): Promise<
   if (envVariables) {
     return envVariables;
   }
+
   const environmentFilePaths = getEnvFilePaths();
+  console.log("Environment file paths:", environmentFilePaths);
 
   // Read all files in parallel using Promise.all
   const filePromises = environmentFilePaths.map(async (filePath) => {
     if (!filePath || !(await fileExists(filePath))) {
+      console.log(`File does not exist: ${filePath}`);
       return null; // Missing files are OK - just skip them
     }
 
@@ -79,9 +90,14 @@ export async function getEnvironmentVariables(): Promise<
         ...result.variables,
         ...allEnvironmentVariables,
       };
+      console.log(
+        `Applied variables from ${result.filePath}:`,
+        Object.keys(result.variables),
+      );
     }
   }
 
   envVariables = allEnvironmentVariables;
+  console.log("Final envVariables:", JSON.stringify(envVariables, null, 2));
   return allEnvironmentVariables;
 }
