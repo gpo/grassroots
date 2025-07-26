@@ -7,22 +7,13 @@ import { AuthController } from "./Auth.controller";
 import { APP_GUARD } from "@nestjs/core";
 import { SessionGuard } from "./Session.guard";
 
-import { MockSessionGuard } from "../testing/MockAuthGuard";
-
 @Module({
   providers: [
     GoogleOAuthStrategy,
     // This pattern of providing this and then using useExisting is a bit weird, but required for
     // overriding the DefaultAuthGuard in tests.
     // https://stackoverflow.com/a/78448040
-    {
-      provide: SessionGuard,
-      useClass:
-        process.env.NODE_ENV === "development"
-          ? MockSessionGuard
-          : SessionGuard,
-    },
-    // SessionGuard,
+    SessionGuard,
     {
       provide: APP_GUARD,
       useExisting: SessionGuard,
