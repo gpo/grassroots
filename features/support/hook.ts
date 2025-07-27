@@ -16,7 +16,7 @@ export let page: Page;
 import process from "process";
 
 const options = {
-  headless: false,
+  headless: true,
   slowMo: 100,
 };
 

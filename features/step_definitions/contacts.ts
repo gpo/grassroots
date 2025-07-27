@@ -4,7 +4,7 @@ import { chromium, Locator } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 const options = {
-  headless: false,
+  headless: true,
   slowMo: 100,
 };
 
