@@ -15,7 +15,7 @@
     "start": "concurrently \"npm run start --prefix grassroots-frontend\" \"npm run start --prefix grassroots-backend\"",
     "prepare": "husky",
     "test": "npm run test --prefix grassroots-frontend && npm run test --prefix grassroots-backend && npm run test --prefix eslint_rules",
-    "test:bdd": "tsc && cucumber-js --require ./dist/step_definitions/ --tags \"not @unimplemented\"",
+    "test:bdd": "tsc -p features && cucumber-js --require ./features/dist/step_definitions/ --tags \"not @unimplemented\"",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "check": "npx tsc --noEmit --project grassroots-frontend && npx tsc --noEmit --project grassroots-backend && npx tsc --noEmit --project eslint_rules && npx eslint .",
