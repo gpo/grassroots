@@ -8,7 +8,7 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import { createDTOBase } from "./src/util/CreateDTOBase";
+import { createDTOBase } from "./util/CreateDTOBase";
 import { Type } from "class-transformer";
 
 export class RoleDTO extends createDTOBase("Role") {

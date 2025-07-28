@@ -1,7 +1,7 @@
 import { IsEnum } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { applyDecorators } from "@nestjs/common";
-import { createDTOBase } from "./src/util/CreateDTOBase";
+import { createDTOBase } from "./util/CreateDTOBase";
 
 // This enum is only used for generating OpenAPI docs.
 // See PermissionsDecorator.
