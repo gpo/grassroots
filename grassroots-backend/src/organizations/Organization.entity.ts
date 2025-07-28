@@ -6,7 +6,7 @@ import {
   PrimaryKey,
   Property,
 } from "@mikro-orm/core";
-import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
+import { OrganizationDTO } from "@grassroots/shared";
 import { createEntityBase } from "../util/CreateEntityBase";
 
 @Entity()

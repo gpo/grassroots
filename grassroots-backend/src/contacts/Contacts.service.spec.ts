@@ -2,7 +2,7 @@ import { ContactsService } from "./Contacts.service";
 import { useTestFixture } from "../testing/Setup";
 import { describe, expect, it } from "vitest";
 import { ContactsModule } from "./Contacts.module";
-import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto";
+import { CreateContactRequestDTO } from "@grassroots/shared";
 
 describe("ContactsService", () => {
   const getFixture = useTestFixture({

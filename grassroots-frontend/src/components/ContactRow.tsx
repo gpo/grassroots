@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { ContactDTO } from "../grassroots-shared/Contact.dto";
+import { ContactDTO } from "@grassroots/shared";
 
 interface ContactRowProps {
   contact: ContactDTO;

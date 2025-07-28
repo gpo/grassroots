@@ -54,7 +54,7 @@ docker compose up
 cd docker
 docker compose exec grassroots_dev bash
 cd grassroots-frontend
-npm run start
+pnpm run start
 ```
 
 ## 6. In another terminal, set up and run the backend application in the same `grassroots_dev` Docker container
@@ -63,8 +63,8 @@ npm run start
 cd docker
 docker compose exec grassroots_dev bash
 cd grassroots-backend
-npx mikro-orm migration:up
-npm run start
+pnpm exec mikro-orm migration:up
+pnpm run start
 ```
 
 ## 7. Install the SSL certificate
@@ -86,11 +86,11 @@ On Chrome, you can add the cert via chrome://certificate-manager/.
 To migrate:
 
 ```sh
-npx mikro-orm migration:up
+pnpm exec mikro-orm migration:up
 ```
 
 To create a migration to the current Entity schemas.
 
 ```sh
-npx mikro-orm migration:create
+pnpm exec mikro-orm migration:create
 ```

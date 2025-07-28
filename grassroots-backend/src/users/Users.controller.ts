@@ -1,5 +1,5 @@
 import { Controller, Get } from "@nestjs/common";
-import { UsersDTO } from "../grassroots-shared/User.dto";
+import { UsersDTO } from "@grassroots/shared";
 import { UsersService } from "../users/Users.service";
 
 @Controller("users")

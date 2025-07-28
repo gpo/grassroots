@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { OrganizationEntity } from "./Organization.entity";
-import { CreateOrganizationNoParentRequestDTO } from "../grassroots-shared/Organization.dto";
+import { CreateOrganizationNoParentRequestDTO } from "@grassroots/shared";
 import { EntityManager, EntityRepository, Loaded } from "@mikro-orm/core";
 
 @Injectable()

@@ -9,7 +9,7 @@ import { transformingClassValidatorResolver } from "../TransformingClassValidato
 import {
   ContactSearchRequestDTO,
   PaginatedContactSearchRequestDTO,
-} from "../grassroots-shared/Contact.dto";
+} from "@grassroots/shared";
 
 export const Route = createFileRoute("/Search")({
   component: Search,

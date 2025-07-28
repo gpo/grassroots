@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PropsOf } from "../grassroots-shared/util/PropsOf";
+import { PropsOf } from "@grassroots/shared";
 
 class Branded<TBrand> {
   readonly __DTOBrand!: "Foo";

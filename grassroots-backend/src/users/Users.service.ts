@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { UserEntity } from "./User.entity";
 import { EntityManager, EntityRepository } from "@mikro-orm/core";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "@grassroots/shared";
 
 @Injectable()
 export class UsersService {

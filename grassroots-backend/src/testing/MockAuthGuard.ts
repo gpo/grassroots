@@ -1,6 +1,6 @@
 import { Injectable, CanActivate, ExecutionContext } from "@nestjs/common";
 import { GrassrootsRequest } from "../types/GrassrootsRequest";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "@grassroots/shared";
 
 export const MOCK_AUTH_GUARD_USER = UserDTO.from({
   id: "testid",
