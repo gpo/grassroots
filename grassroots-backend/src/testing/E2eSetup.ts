@@ -1,6 +1,6 @@
 import createClient, { Client } from "openapi-fetch";
 import { listenAndConfigureApp } from "../app/App.module";
-import { paths } from "../grassroots-shared/OpenAPI.gen";
+import { paths } from "@grassroots/shared";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 import { TestFixture, TestFixtureProps } from "./Setup";

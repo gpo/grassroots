@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
 import "reflect-metadata";
-import { ContactDTO } from "../../grassroots-shared/Contact.dto";
+import { ContactDTO } from "@grassroots/shared";
 import { createEntityBase } from "../../util/CreateEntityBase";
 
 @Entity()

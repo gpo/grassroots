@@ -10,8 +10,7 @@ import {
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { ConfigService } from "@nestjs/config";
-import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
-import { VoidDTO } from "../grassroots-shared/Void.dto";
+import { LoginStateDTO, VoidDTO } from "@grassroots/shared";
 import { ApiProperty, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";

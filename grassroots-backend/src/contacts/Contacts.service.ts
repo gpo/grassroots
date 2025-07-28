@@ -7,7 +7,7 @@ import {
   CreateContactRequestDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
-} from "../grassroots-shared/Contact.dto.js";
+} from "@grassroots/shared";
 
 @Injectable()
 export class ContactsService {

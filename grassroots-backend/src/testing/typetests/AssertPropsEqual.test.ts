@@ -1,5 +1,5 @@
 import { expect } from "tstyche";
-import { AssertPropsEqual } from "../../grassroots-shared/util/AssertPropsEqual";
+import { AssertPropsEqual } from "@grassroots/shared";
 import { describe, it } from "vitest";
 
 describe("assertPropsEqual", () => {

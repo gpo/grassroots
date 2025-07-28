@@ -1,4 +1,4 @@
 import { Request } from "express";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "@grassroots/shared";
 
 export type GrassrootsRequest = Request & UserDTO;

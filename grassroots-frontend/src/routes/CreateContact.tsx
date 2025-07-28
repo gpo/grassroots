@@ -6,7 +6,7 @@ import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { TextField } from "../components/TextField";
-import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto";
+import { CreateContactRequestDTO } from "@grassroots/shared";
 
 export const Route = createFileRoute("/CreateContact")({
   component: CreateContact,

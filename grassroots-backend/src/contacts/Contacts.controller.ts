@@ -9,7 +9,7 @@ import {
   GetContactByIDResponseDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
-} from "../grassroots-shared/Contact.dto";
+} from "@grassroots/shared";
 
 @Controller("contacts")
 export class ContactsController {

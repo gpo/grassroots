@@ -1,6 +1,6 @@
 import { Entity, PrimaryKey, Property } from "@mikro-orm/core";
 import { createEntityBase } from "../util/CreateEntityBase";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "@grassroots/shared";
 
 @Entity()
 export class UserEntity extends createEntityBase<"User", UserDTO>("User") {

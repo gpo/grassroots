@@ -5,7 +5,7 @@ import {
   CreateOrganizationNoParentRequestDTO,
   OrganizationDTO,
   OrganizationsDTO,
-} from "../grassroots-shared/Organization.dto";
+} from "@grassroots/shared";
 
 @Controller("organizations")
 export class OrganizationsController {

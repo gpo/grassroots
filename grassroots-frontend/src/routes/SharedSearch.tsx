@@ -5,8 +5,8 @@ import { PaginatedContacts } from "../components/PaginatedContacts";
 import {
   ContactSearchRequestDTO,
   PaginatedContactSearchRequestDTO,
-} from "../grassroots-shared/Contact.dto";
-import { cast } from "../grassroots-shared/util/Cast";
+  cast,
+} from "@grassroots/shared";
 
 export const Route = createFileRoute("/SharedSearch")({
   component: SharedSearch,
