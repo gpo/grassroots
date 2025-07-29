@@ -1,3 +1,4 @@
+/* eslint-disable grassroots/controller-routes-return-dtos */
 import {
   Controller,
   Request,
@@ -9,18 +10,27 @@ import {
 } from "@nestjs/common";
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
-import { ConfigService } from "@nestjs/config";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
 import { VoidDTO } from "../grassroots-shared/Void.dto";
 import { ApiProperty, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";
+import { getEnvironmentVariables } from "../GetEnvironmentVariables";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private configService: ConfigService) {}
+  private environmentVariables: Record<string, string> | undefined;
+
+  constructor() {
+    void this.loadEnvironmentVariables();
+  }
+
+  private async loadEnvironmentVariables(): Promise<void> {
+    this.environmentVariables = await getEnvironmentVariables();
+  }
 
   // The frontend can redirect here to trigger login.
+
   @Get("login")
   @UseGuards(OAuthGuard)
   @PublicRoute()
@@ -35,11 +45,13 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   @PublicRoute()
   @ApiProperty()
-  googleAuthRedirect(
+  async googleAuthRedirect(
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
-  ): VoidDTO {
-    const host = this.configService.get<string>("FRONTEND_HOST");
+  ): Promise<VoidDTO> {
+    this.environmentVariables ??= await getEnvironmentVariables();
+
+    const host = this.environmentVariables.FRONTEND_HOST;
     if (host === undefined) {
       throw new Error("Missing env variable for FRONTEND_HOST");
     }
