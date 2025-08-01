@@ -1,27 +1,49 @@
-import { describe, expect, it } from "vitest";
-import { readFile } from "fs/promises";
+import { beforeAll, describe, expect, it } from "vitest";
+import { writeFile, readFile } from "fs/promises";
 import { ContactsModule } from "./Contacts.module";
 import { useE2ETestFixture } from "../testing/E2eSetup";
 import { graphDependencies } from "../util/GraphDependencies";
-import { writeFormatted } from "../util/FormattingWriter";
-
-const TEST_CONTACT = {
-  email: "test@test.com",
-  firstName: "Test",
-  lastName: "Test",
-  phoneNumber: "226-999-9999",
-};
+import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto";
+import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
+import { OrganizationsModule } from "../organizations/Organizations.module";
+import { PropsOf } from "../grassroots-shared/util/PropsOf";
 
 describe("ContactsController (e2e)", () => {
   const getFixture = useE2ETestFixture({
-    imports: [ContactsModule],
+    imports: [ContactsModule, OrganizationsModule],
+  });
+
+  // Created in beforeAll
+  let rootOrganization!: OrganizationDTO;
+
+  // Created in beforeAll
+  let testContact: PropsOf<CreateContactRequestDTO>;
+
+  beforeAll(async () => {
+    const f = getFixture();
+
+    rootOrganization = OrganizationDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/organizations/create-root", {
+        body: {
+          name: "Root organization",
+        },
+      }),
+    );
+
+    testContact = CreateContactRequestDTO.from({
+      email: "test@test.com",
+      firstName: "Test",
+      lastName: "Test",
+      phoneNumber: "226-999-9999",
+      organizationId: rootOrganization.id,
+    });
   });
 
   it("generates dependency graph", async () => {
     const f = getFixture();
     const PATH = "../docs/DependencyGraphForTest.md";
 
-    await writeFormatted({ filePath: PATH, text: graphDependencies(f.app) });
+    await writeFile(PATH, graphDependencies(f.app));
     const written = await readFile(PATH, "utf8");
 
     expect(written.length).toBeGreaterThan(0);
@@ -30,7 +52,7 @@ describe("ContactsController (e2e)", () => {
   it("creates a contact", async () => {
     const f = getFixture();
     const { data, response } = await f.grassrootsAPI.POST("/contacts", {
-      body: TEST_CONTACT,
+      body: testContact,
     });
 
     expect(response.status).toBe(201);
@@ -44,9 +66,9 @@ describe("ContactsController (e2e)", () => {
       {
         body: {
           contacts: [
-            TEST_CONTACT,
-            { ...TEST_CONTACT, email: "foo@bar.com" },
-            { ...TEST_CONTACT, email: "foo2@bar.com" },
+            testContact,
+            { ...testContact, email: "foo@bar.com" },
+            { ...testContact, email: "foo2@bar.com" },
           ],
         },
       },
@@ -61,7 +83,7 @@ describe("ContactsController (e2e)", () => {
     const f = getFixture();
     const result = await f.grassrootsAPI.POST("/contacts", {
       body: {
-        ...TEST_CONTACT,
+        ...testContact,
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         email: 0 as unknown as string,
       },
@@ -72,20 +94,26 @@ describe("ContactsController (e2e)", () => {
 
   it("returns search results", async () => {
     const f = getFixture();
-    let { response } = await f.grassrootsAPI.POST("/contacts", {
-      body: TEST_CONTACT,
-    });
+    const { response: response1, error } = await f.grassrootsAPI.POST(
+      "/contacts",
+      {
+        body: testContact,
+      },
+    );
 
-    expect(response.status).toBe(201);
+    expect(
+      response1.status,
+      JSON.stringify(error) + JSON.stringify(response1),
+    ).toBe(201);
 
-    ({ response } = await f.grassrootsAPI.POST("/contacts", {
+    const { response: response2 } = await f.grassrootsAPI.POST("/contacts", {
       body: {
-        ...TEST_CONTACT,
+        ...testContact,
         email: "foo@foo.com",
       },
-    }));
+    });
 
-    expect(response.status).toBe(201);
+    expect(response2.status).toBe(201);
 
     const { data, response: searchResponse } = await f.grassrootsAPI.POST(
       "/contacts/search",
@@ -114,7 +142,7 @@ describe("ContactsController (e2e)", () => {
     const f = getFixture();
 
     const { response } = await f.grassrootsAPI.POST("/contacts", {
-      body: TEST_CONTACT,
+      body: testContact,
     });
 
     expect(response.status).toBe(201);

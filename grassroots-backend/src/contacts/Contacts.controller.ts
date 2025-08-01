@@ -19,6 +19,7 @@ export class ContactsController {
   async create(
     @Body() createContactDto: CreateContactRequestDTO,
   ): Promise<ContactDTO> {
+    console.log("CREATING CONTACT");
     return this.contactsService.create(createContactDto);
   }
 
