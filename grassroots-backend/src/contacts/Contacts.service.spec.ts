@@ -33,14 +33,12 @@ describe("ContactsService", () => {
   it("should create and return a contact", async () => {
     const { service, organizationsService } = useService();
 
-    console.error("A");
     const organization = await organizationsService.create(
       CreateOrganizationNoParentRequestDTO.from({
         name: "root",
       }),
       null,
     );
-    console.error("B");
     const contact = CreateContactRequestDTO.from({
       email: "test@test.com",
       firstName: "Test",
@@ -48,9 +46,7 @@ describe("ContactsService", () => {
       phoneNumber: "999-999-9999",
       organizationId: organization.id,
     });
-    console.error("C");
     const created = await service.create(contact);
-    console.error("D");
 
     const allContacts = await service.findAll();
     expect(allContacts.length).toEqual(1);

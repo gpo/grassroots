@@ -4,7 +4,7 @@ import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 import { TestFixture, TestFixtureProps } from "./Setup";
-import { EntityManager } from "@mikro-orm/core";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 type GrassRootsAPIRaw = (
   path: keyof paths,
@@ -30,9 +30,13 @@ export class E2ETestFixture extends TestFixture {
   }
 }
 
+type E2ETestSpecificDependencies = TestSpecificDependencies & {
+  injectCommonTestData?: (fixture: E2ETestFixture) => Promise<void>;
+};
+
 // Inspired by https://mattburke.dev/using-test-hooks-for-shared-fixtures/
 export function useE2ETestFixture(
-  dependencies: TestSpecificDependencies,
+  dependencies: E2ETestSpecificDependencies,
 ): () => E2ETestFixture {
   let fixture: E2ETestFixture | undefined;
 
@@ -47,9 +51,19 @@ export function useE2ETestFixture(
       return fetch(baseUrl + path, options);
     };
     fixture = new E2ETestFixture({ app, grassrootsAPI, grassrootsAPIRaw });
+
+    // Within each test, we begin and rollback a transaction.
+    // For any setup work across all tests, we create and rollback an outer transaction.
+    await fixture.entityManager.begin();
+    fixture.entityManager = fixture.entityManager.fork();
+
+    if (dependencies.injectCommonTestData) {
+      await dependencies.injectCommonTestData(fixture);
+    }
   });
 
   afterAll(async () => {
+    await fixture?.entityManager.rollback();
     await fixture?.orm.close();
     await fixture?.app.close();
   });

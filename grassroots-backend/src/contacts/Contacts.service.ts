@@ -14,8 +14,7 @@ import {
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto.js";
 import { OrganizationEntity } from "../organizations/Organization.entity.js";
-import { instanceToPlain } from "class-transformer";
-import { PropsOf } from "../grassroots-shared/util/PropsOf.js";
+import { PropsOf } from "../grassroots-shared/util/TypeUtils.js";
 
 function createContactRequestDTOToRequiredEntityData(
   contact: CreateContactRequestDTO,
@@ -51,7 +50,7 @@ export class ContactsService {
       ),
     );
     await this.entityManager.flush();
-    return ContactDTO.from(result);
+    return result.toDTO();
   }
 
   async bulkCreate(contacts: CreateContactRequestDTO[]): Promise<ContactDTO[]> {

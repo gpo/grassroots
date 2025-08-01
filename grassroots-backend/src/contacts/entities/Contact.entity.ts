@@ -3,6 +3,7 @@ import {
   ManyToOne,
   PrimaryKey,
   Property,
+  Rel,
   Unique,
 } from "@mikro-orm/core";
 import "reflect-metadata";
@@ -31,7 +32,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   phoneNumber!: string;
 
   @ManyToOne(() => OrganizationEntity)
-  organization!: OrganizationEntity;
+  organization!: Rel<OrganizationEntity>;
 
   toDTO(): ContactDTO {
     return ContactDTO.from({
@@ -40,7 +41,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       firstName: this.firstName,
       lastName: this.lastName,
       phoneNumber: this.phoneNumber,
-      organization: this.organization,
+      organization: this.organization.toDTO(),
     });
   }
 }
