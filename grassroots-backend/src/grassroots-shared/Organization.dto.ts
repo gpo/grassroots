@@ -1,4 +1,3 @@
-import { Type } from "class-transformer";
 import {
   IsInt,
   IsNotEmpty,
@@ -9,10 +8,12 @@ import {
 } from "class-validator";
 import "reflect-metadata";
 import { createDTOBase } from "./util/CreateDTOBase";
+import { Type } from "class-transformer";
 
 export class OrganizationDTO extends createDTOBase("Organization") {
   @IsNumber()
-  @Min(0)
+  @Min(1)
+  @Type(() => Number)
   id!: number;
 
   @IsNotEmpty()

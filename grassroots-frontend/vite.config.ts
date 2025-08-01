@@ -21,8 +21,8 @@ export default defineConfig({
   // tsconfig.json is more standard, and required for editor support.
   resolve: {
     alias: {
-      "nestjs/common": path.resolve(__dirname, "./src/NestCommonShim"),
-      "nestjs/swagger": path.resolve(__dirname, "./src/NestCommonShim"),
+      "@nestjs/common": path.resolve(__dirname, "./src/NestCommonShim"),
+      "@nestjs/swagger": path.resolve(__dirname, "./src/NestCommonShim"),
     },
   },
 });

@@ -28,7 +28,17 @@ export async function listenAndConfigureApp(
   desiredPort: number,
 ): Promise<{ port: number }> {
   app.useGlobalPipes(
-    new ValidationPipe({ transform: true, forbidUnknownValues: true }),
+    new ValidationPipe({
+      transform: true,
+      forbidUnknownValues: true,
+      // TODO: Consider turning off debugging in production - investigate security and performance concerns.
+      // https://github.com/gpo/grassroots/issues/177
+      enableDebugMessages: true,
+      validationError: {
+        target: true,
+        value: true,
+      },
+    }),
   );
   const config = app.get<ConfigService>(ConfigService);
   const SESSION_SECRET = config.get<string>("SESSION_SECRET");

@@ -8,6 +8,7 @@
 | [public.user_entity](public.user_entity.md)                   | 5       |         | BASE TABLE |
 | [public.organization_entity](public.organization_entity.md)   | 3       |         | BASE TABLE |
 | [public.contact_entity](public.contact_entity.md)             | 5       |         | BASE TABLE |
+| [public.user_role_entity](public.user_role_entity.md)         | 5       |         | BASE TABLE |
 
 ## Relations
 
@@ -15,6 +16,8 @@
 erDiagram
 
 "public.organization_entity" }o--o| "public.organization_entity" : ""
+"public.user_role_entity" }o--|| "public.user_entity" : ""
+"public.user_role_entity" }o--|| "public.organization_entity" : ""
 
 "public.mikro_orm_migrations" {
   integer id
@@ -39,6 +42,13 @@ erDiagram
   varchar_255_ first_name
   varchar_255_ last_name
   varchar_255_ phone_number
+}
+"public.user_role_entity" {
+  integer id
+  varchar_255_ user_id FK
+  integer _role_id
+  integer organization_id FK
+  boolean inherited
 }
 ```
 
