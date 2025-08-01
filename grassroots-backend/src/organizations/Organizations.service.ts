@@ -38,10 +38,8 @@ export class OrganizationsService {
     return await this.repo.find({});
   }
 
-  async findOneById(
-    organization: Partial<OrganizationEntity>,
-  ): Promise<Loaded<OrganizationEntity>> {
-    return await this.repo.findOneOrFail(organization);
+  async findOneById(id: number): Promise<Loaded<OrganizationEntity>> {
+    return await this.repo.findOneOrFail({ id });
   }
 
   async getAncestors(organizationID: number): Promise<OrganizationsDTO> {

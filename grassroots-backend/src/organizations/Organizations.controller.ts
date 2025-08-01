@@ -43,9 +43,7 @@ export class OrganizationsController {
 
   @Get(":id")
   async findById(@Param("id") id: number): Promise<OrganizationDTO> {
-    const organizationEntity = await this.organizationsService.findOneById({
-      id: id,
-    });
+    const organizationEntity = await this.organizationsService.findOneById(id);
     return organizationEntity.toDTO();
   }
 

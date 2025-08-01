@@ -31,6 +31,8 @@ export async function listenAndConfigureApp(
     new ValidationPipe({
       transform: true,
       forbidUnknownValues: true,
+      // TODO: Consider turning off debugging in production - investigate security and performance concerns.
+      // https://github.com/gpo/grassroots/issues/177
       enableDebugMessages: true,
       validationError: {
         target: true,

@@ -3,3 +3,4 @@
 **/openAPI.json linguist-generated=true
 grassroots-backend/src/migrations/.snapshot-grassroots.json linguist-generated=true
 *.sh text eol=lf
+doc/schema/* linguist-generated=true
