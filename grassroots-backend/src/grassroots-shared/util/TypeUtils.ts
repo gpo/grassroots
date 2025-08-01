@@ -1,4 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars */
+/* This file contains inline tests and justifications, as there's a lot of subtle decisions,
+   and this makes the file a bit easier to understand. In general, we prefer to have
+   tests in separate files, but due to the nature of this logic, we make an exception here. */
+
 type Assert<A extends true> = A;
 type AssertNot<A extends false> = A;
 
@@ -106,10 +110,6 @@ function TestIsArray(): void {
 }
 
 type ExcludedKeys = "__DTOBrand" | "__entityBrand" | "__caslSubjectType";
-
-type ExcludeProps<A, Exclude> = {
-  [k in keyof A as If<Equals<A[k], Exclude>, never, k>]: A[k];
-};
 
 // We need to make sure that any type union is "distributed".
 // That means PropsOf<a | b> = PropsOf<a> | PropsOf<b>.
