@@ -10,9 +10,6 @@ export default async () => {
     ["./grassroots-shared/Paginated.dto"]: await import(
       "./grassroots-shared/Paginated.dto"
     ),
-    ["./grassroots-shared/Organization.dto"]: await import(
-      "./grassroots-shared/Organization.dto"
-    ),
     ["./grassroots-shared/Role.dto"]: await import(
       "./grassroots-shared/Role.dto"
     ),
@@ -42,7 +39,7 @@ export default async () => {
           import("./grassroots-shared/Organization.dto"),
           {
             OrganizationDTO: {
-              id: { required: true, type: () => Number, minimum: 0 },
+              id: { required: true, type: () => Number, minimum: 1 },
               name: { required: true, type: () => String },
               parentId: { required: false, type: () => Number, minimum: 0 },
             },
@@ -155,31 +152,6 @@ export default async () => {
                 type: () =>
                   t["./grassroots-shared/Paginated.dto"].PaginatedResponseDTO,
               },
-            },
-          },
-        ],
-        [
-          import("./grassroots-shared/Organization.dto"),
-          {
-            OrganizationDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              name: { required: true, type: () => String },
-              parentId: { required: false, type: () => Number, minimum: 0 },
-            },
-            OrganizationsDTO: {
-              organizations: {
-                required: true,
-                type: () => [
-                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
-                ],
-              },
-            },
-            CreateOrganizationNoParentRequestDTO: {
-              name: { required: true, type: () => String },
-            },
-            CreateOrganizationRequestDTO: {
-              name: { required: true, type: () => String },
-              parentID: { required: true, type: () => Number, minimum: 1 },
             },
           },
         ],

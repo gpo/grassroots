@@ -1,7 +1,8 @@
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
-import { EntityManager, MikroORM } from "@mikro-orm/core";
+import { MikroORM } from "@mikro-orm/core";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 export interface TestFixtureProps {
   app: NestExpressApplication;

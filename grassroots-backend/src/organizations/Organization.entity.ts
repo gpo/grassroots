@@ -1,6 +1,7 @@
 import {
   Collection,
   Entity,
+  EntityRepositoryType,
   ManyToOne,
   OneToMany,
   PrimaryKey,
@@ -9,12 +10,15 @@ import {
 import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
 import { createEntityBase } from "../util/CreateEntityBase";
 import { ContactEntity } from "../contacts/entities/Contact.entity";
+import { OrganizationRepository } from "./Organization.repo";
 
-@Entity()
+@Entity({ repository: () => OrganizationRepository })
 export class OrganizationEntity extends createEntityBase<
   "Organization",
   OrganizationDTO
 >("Organization") {
+  [EntityRepositoryType]?: OrganizationRepository;
+
   @PrimaryKey({ autoincrement: true })
   id!: number;
 
@@ -30,7 +34,7 @@ export class OrganizationEntity extends createEntityBase<
   children = new Collection<OrganizationEntity>(this);
 
   @OneToMany(() => ContactEntity, (contact) => contact.organization)
-  contacts = new Collection<ContactEntity>(this);
+  contacts = new Collection<typeof ContactEntity>(this);
 
   toDTO(): OrganizationDTO {
     return OrganizationDTO.from({
