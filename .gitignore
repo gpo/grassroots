@@ -2,7 +2,6 @@ node_modules
 grassroots-backend/dist
 grassroots-backend/src/metadata.ts
 grassroots-frontend/dist
-grassroots-frontend/src/**/*.js
 grassroots-frontend/vite.config.js
 .env.development.local
 .env.test.local

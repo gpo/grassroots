@@ -58,6 +58,10 @@ export class CreateContactRequestDTO extends createDTOBase(
 
   @IsPhoneNumber("CA")
   phoneNumber!: string;
+
+  @IsInt()
+  @Min(1)
+  organizationId!: number;
 }
 
 export class CreateBulkContactRequestDTO extends createDTOBase(

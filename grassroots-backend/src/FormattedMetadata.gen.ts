@@ -1,6 +1,9 @@
 /* eslint-disable */
 export default async () => {
   const t = {
+    ["./grassroots-shared/Organization.dto"]: await import(
+      "./grassroots-shared/Organization.dto"
+    ),
     ["./grassroots-shared/Contact.dto"]: await import(
       "./grassroots-shared/Contact.dto"
     ),
@@ -36,6 +39,31 @@ export default async () => {
     "@nestjs/swagger": {
       models: [
         [
+          import("./grassroots-shared/Organization.dto"),
+          {
+            OrganizationDTO: {
+              id: { required: true, type: () => Number, minimum: 0 },
+              name: { required: true, type: () => String },
+              parentId: { required: false, type: () => Number, minimum: 0 },
+            },
+            OrganizationsDTO: {
+              organizations: {
+                required: true,
+                type: () => [
+                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                ],
+              },
+            },
+            CreateOrganizationNoParentRequestDTO: {
+              name: { required: true, type: () => String },
+            },
+            CreateOrganizationRequestDTO: {
+              name: { required: true, type: () => String },
+              parentID: { required: true, type: () => Number, minimum: 1 },
+            },
+          },
+        ],
+        [
           import("./grassroots-shared/Paginated.dto"),
           {
             PaginatedRequestDTO: {
@@ -56,6 +84,11 @@ export default async () => {
               email: { required: true, type: () => String, format: "email" },
               firstName: { required: true, type: () => String },
               lastName: { required: true, type: () => String },
+              organization: {
+                required: true,
+                type: () =>
+                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+              },
               phoneNumber: { required: true, type: () => String },
             },
             ContactsDTO: {
@@ -69,6 +102,11 @@ export default async () => {
               firstName: { required: true, type: () => String },
               lastName: { required: true, type: () => String },
               phoneNumber: { required: true, type: () => String },
+              organizationId: {
+                required: true,
+                type: () => Number,
+                minimum: 1,
+              },
             },
             CreateBulkContactRequestDTO: {
               contacts: {
