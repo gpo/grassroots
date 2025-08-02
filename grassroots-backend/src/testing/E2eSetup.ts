@@ -38,7 +38,8 @@ type E2ETestSpecificDependencies = TestSpecificDependencies & {
 export function useE2ETestFixture(
   dependencies: E2ETestSpecificDependencies,
 ): () => E2ETestFixture {
-  let fixture: E2ETestFixture | undefined;
+  // Initialized in beforeAll.
+  let fixture!: E2ETestFixture;
 
   beforeAll(async () => {
     const { app } = await getTestApp(dependencies);
@@ -54,8 +55,7 @@ export function useE2ETestFixture(
 
     // Within each test, we begin and rollback a transaction.
     // For any setup work across all tests, we create and rollback an outer transaction.
-    await fixture.entityManager.begin();
-    fixture.entityManager = fixture.entityManager.fork();
+    await fixture.outerEntityManager.begin();
 
     if (dependencies.injectCommonTestData) {
       await dependencies.injectCommonTestData(fixture);
@@ -63,23 +63,21 @@ export function useE2ETestFixture(
   });
 
   afterAll(async () => {
-    await fixture?.entityManager.rollback();
-    await fixture?.orm.close();
-    await fixture?.app.close();
+    await fixture.outerEntityManager.rollback();
+    await fixture.orm.close();
+    await fixture.app.close();
   });
 
   beforeEach(async () => {
-    await fixture?.entityManager.begin();
+    fixture.entityManager = fixture.outerEntityManager.fork();
+    await fixture.entityManager.begin();
   });
 
   afterEach(async () => {
-    await fixture?.entityManager.rollback();
+    await fixture.entityManager.rollback();
   });
 
   return () => {
-    if (fixture === undefined) {
-      throw new Error("Failed to initialize fixture");
-    }
     return fixture;
   };
 }
