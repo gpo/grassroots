@@ -1,7 +1,8 @@
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
-import { EntityManager, MikroORM, RequestContext } from "@mikro-orm/core";
+import { MikroORM } from "@mikro-orm/core";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 export interface TestFixtureProps {
   app: NestExpressApplication;
@@ -9,16 +10,13 @@ export interface TestFixtureProps {
 
 export class TestFixture {
   app: NestExpressApplication;
-  // Used for an outer transaction across all tests.
-  outerEntityManager: EntityManager;
-  // Initialized in beforeEach.
-  entityManager!: EntityManager;
+  entityManager: EntityManager;
   orm: MikroORM;
 
   constructor(props: TestFixtureProps) {
     this.app = props.app;
+    this.entityManager = this.app.get<EntityManager>(EntityManager);
     this.orm = this.app.get<MikroORM>(MikroORM);
-    this.outerEntityManager = this.orm.em.fork();
   }
 }
 
@@ -26,40 +24,33 @@ export class TestFixture {
 export function useTestFixture(
   dependencies: TestSpecificDependencies,
 ): () => TestFixture {
-  // Assigned in beforeEach.
-  let fixture!: TestFixture;
+  let fixture: TestFixture | undefined;
 
   beforeAll(async () => {
     const { app } = await getTestApp(dependencies);
     fixture = new TestFixture({
       app,
     });
-    // TODO: eliminate duplication with E2ESetup.
-    await fixture.outerEntityManager.begin();
   });
 
   afterAll(async () => {
-    await fixture.outerEntityManager.rollback();
-    fixture.outerEntityManager.clear();
-    await fixture.orm.close();
-    await fixture.app.close();
+    await fixture?.orm.close();
+    await fixture?.app.close();
   });
 
   beforeEach(async () => {
-    fixture.entityManager = fixture.orm.em.fork();
-    //await fixture.entityManager.begin();
-
-    await RequestContext.create(fixture.entityManager, async () => {
-      await fixture.entityManager.begin();
-    });
+    await fixture?.entityManager.begin();
   });
 
   afterEach(async () => {
-    await fixture.entityManager.rollback();
-    fixture.entityManager.clear();
+    await fixture?.entityManager.rollback();
+    fixture?.entityManager.clear();
   });
 
   return () => {
+    if (fixture === undefined) {
+      throw new Error("Failed to initialize fixture");
+    }
     return fixture;
   };
 }

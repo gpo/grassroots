@@ -4,6 +4,7 @@ import { grassrootsAPI } from "../../GrassRootsAPI";
 import { CreateContactRequestDTO } from "../../grassroots-shared/Contact.dto";
 import { faker } from "@faker-js/faker";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { TEMPORARY_FAKE_ORGANIZATION_ID } from "../../grassroots-shared/Organization.dto";
 
 function getRandomContact(): CreateContactRequestDTO {
   // Generating valid phone numbers is tough, so we restrict the possible values.
@@ -17,6 +18,7 @@ function getRandomContact(): CreateContactRequestDTO {
     lastName: faker.person.lastName(),
     email: faker.internet.email(),
     phoneNumber,
+    organizationId: TEMPORARY_FAKE_ORGANIZATION_ID,
   });
 }
 

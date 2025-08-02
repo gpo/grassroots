@@ -102,7 +102,7 @@ export default async () => {
               organizationId: {
                 required: true,
                 type: () => Number,
-                minimum: 1,
+                minimum: -1,
               },
             },
             CreateBulkContactRequestDTO: {

@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { writeFile, readFile } from "fs/promises";
 import { ContactsModule } from "./Contacts.module";
 import { useE2ETestFixture } from "../testing/E2eSetup";
@@ -9,33 +9,16 @@ import { OrganizationsModule } from "../organizations/Organizations.module";
 import { PropsOf } from "../grassroots-shared/util/TypeUtils";
 
 describe("ContactsController (e2e)", () => {
-  // Created in fixture setup.
+  // Created in beforeEach.
   let rootOrganization!: OrganizationDTO;
 
-  // Created in fixture setup.
+  // Created in beforeEach.
   let testContact: PropsOf<CreateContactRequestDTO>;
   const getFixture = useE2ETestFixture({
     imports: [ContactsModule, OrganizationsModule],
-    injectCommonTestData: async (f) => {
-      rootOrganization = OrganizationDTO.fromFetchOrThrow(
-        await f.grassrootsAPI.POST("/organizations/create-root", {
-          body: {
-            name: "Root organization",
-          },
-        }),
-      );
-
-      testContact = CreateContactRequestDTO.from({
-        email: "test@test.com",
-        firstName: "Test",
-        lastName: "Test",
-        phoneNumber: "226-999-9999",
-        organizationId: rootOrganization.id,
-      });
-    },
   });
 
-  /*beforeAll(async () => {
+  beforeEach(async () => {
     const f = getFixture();
     rootOrganization = OrganizationDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/organizations/create-root", {
@@ -52,7 +35,7 @@ describe("ContactsController (e2e)", () => {
       phoneNumber: "226-999-9999",
       organizationId: rootOrganization.id,
     });
-  });*/
+  });
 
   it("generates dependency graph", async () => {
     const f = getFixture();

@@ -25,8 +25,6 @@ describe("Organizations (e2e)", () => {
       await f.grassrootsAPI.GET("/organizations"),
     );
 
-    console.log(JSON.stringify(organizations.organizations, null, 2));
-
     expect(organizations.organizations.length).toEqual(5);
 
     const ancestors = OrganizationsDTO.fromFetchOrThrow(
