@@ -47,8 +47,7 @@ export function createDTOBase<TBrand extends string>(brand: TBrand) {
       this: new () => T,
       props: PropsOf<T>,
     ): T {
-      const result = plainToInstance(this, props);
-      return result;
+      return plainToInstance(this, props);
     }
 
     static fromFetchOrThrow<T extends Branded, E>(
