@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { writeFile, readFile } from "fs/promises";
 import { ContactsModule } from "./Contacts.module";
 import { useE2ETestFixture } from "../testing/E2eSetup";
