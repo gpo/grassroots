@@ -15,6 +15,7 @@ import {
 } from "../grassroots-shared/Contact.dto.js";
 import { OrganizationEntity } from "../organizations/Organization.entity.js";
 import { PropsOf } from "../grassroots-shared/util/TypeUtils.js";
+import { TEMPORARY_FAKE_ORGANIZATION_ID } from "../grassroots-shared/Organization.dto.js";
 
 function createContactRequestDTOToRequiredEntityData(
   contact: CreateContactRequestDTO,
@@ -36,10 +37,25 @@ export class ContactsService {
   }
 
   async create(contact: CreateContactRequestDTO): Promise<ContactDTO> {
-    const organization = this.entityManager.getReference(
-      OrganizationEntity,
-      contact.organizationId,
-    );
+    let organization: OrganizationEntity | null;
+    if (contact.organizationId == TEMPORARY_FAKE_ORGANIZATION_ID) {
+      // Just use the first organization.
+      organization = await this.entityManager.findOne(OrganizationEntity, {
+        id: 1,
+      });
+      organization ??= this.entityManager.create(OrganizationEntity, {
+        name: "Fake root organization",
+      });
+      // We need to flush here to make sure the organization gets an id before
+      // we reference the ID in the contact.
+      await this.entityManager.flush();
+    } else {
+      organization = this.entityManager.getReference(
+        OrganizationEntity,
+        contact.organizationId,
+      );
+    }
+
     const plainContact: PropsOf<CreateContactRequestDTO> = contact;
     const result = this.repo.create(
       createContactRequestDTOToRequiredEntityData(

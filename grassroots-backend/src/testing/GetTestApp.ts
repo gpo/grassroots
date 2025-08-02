@@ -3,12 +3,12 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Type } from "@nestjs/common";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
-import { EntityManager, PostgreSqlDriver } from "@mikro-orm/postgresql";
+import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
+import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
 import { MockSessionGuard } from "./MockAuthGuard";
 import { SessionGuard } from "../auth/Session.guard";
 import mikroORMConfig from "./../mikro-orm.config";
-import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -17,14 +17,11 @@ export interface TestSpecificDependencies {
   overrideAuthGuard?: boolean;
 }
 
-interface GetTestAppResult {
-  app: NestExpressApplication;
-  outerEntityManager: EntityManager;
-}
-
 export async function getTestApp(
   dependencies: TestSpecificDependencies,
-): Promise<GetTestAppResult> {
+): Promise<{
+  app: NestExpressApplication;
+}> {
   if (app) {
     return { app };
   }
@@ -52,9 +49,7 @@ export async function getTestApp(
       ...(dependencies.imports ?? []),
     ],
   });
-
   builder = overrideEntityManagerForTest(builder);
-
   if (dependencies.overrideAuthGuard === true) {
     builder = builder.overrideProvider(SessionGuard).useClass(MockSessionGuard);
   }
