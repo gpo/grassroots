@@ -1,7 +1,15 @@
-import { Entity, PrimaryKey, Property, Unique } from "@mikro-orm/core";
+import {
+  Entity,
+  ManyToOne,
+  PrimaryKey,
+  Property,
+  Rel,
+  Unique,
+} from "@mikro-orm/core";
 import "reflect-metadata";
 import { ContactDTO } from "../../grassroots-shared/Contact.dto";
 import { createEntityBase } from "../../util/CreateEntityBase";
+import { OrganizationEntity } from "../../organizations/Organization.entity";
 
 @Entity()
 export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
@@ -23,6 +31,9 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   @Property()
   phoneNumber!: string;
 
+  @ManyToOne(() => OrganizationEntity)
+  organization!: Rel<OrganizationEntity>;
+
   toDTO(): ContactDTO {
     return ContactDTO.from({
       id: this.id,
@@ -30,6 +41,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       firstName: this.firstName,
       lastName: this.lastName,
       phoneNumber: this.phoneNumber,
+      organization: this.organization.toDTO(),
     });
   }
 }

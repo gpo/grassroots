@@ -121,7 +121,8 @@
         { "name": "email", "type": "varchar(255)", "nullable": false },
         { "name": "first_name", "type": "varchar(255)", "nullable": false },
         { "name": "last_name", "type": "varchar(255)", "nullable": false },
-        { "name": "phone_number", "type": "varchar(255)", "nullable": false }
+        { "name": "phone_number", "type": "varchar(255)", "nullable": false },
+        { "name": "organization_id", "type": "integer", "nullable": false }
       ],
       "indexes": [
         {
@@ -138,6 +139,15 @@
         }
       ],
       "constraints": [
+        {
+          "name": "contact_entity_organization_id_foreign",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE",
+          "table": "public.contact_entity",
+          "referenced_table": "organization_entity",
+          "columns": ["organization_id"],
+          "referenced_columns": ["id"]
+        },
         {
           "name": "contact_entity_pkey",
           "type": "PRIMARY KEY",
@@ -218,6 +228,15 @@
       "parent_columns": ["id"],
       "parent_cardinality": "zero_or_one",
       "def": "FOREIGN KEY (parent_id) REFERENCES organization_entity(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "table": "public.contact_entity",
+      "columns": ["organization_id"],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.organization_entity",
+      "parent_columns": ["id"],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE"
     },
     {
       "table": "public.user_role_entity",
