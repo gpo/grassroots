@@ -31,7 +31,6 @@ describe("ContactsController with dummy org (e2e)", () => {
       body: testContact,
     });
 
-    console.log(response.statusText);
     expect(response.status).toBe(201);
     expect(data?.email).toBe("test@test.com");
   });
