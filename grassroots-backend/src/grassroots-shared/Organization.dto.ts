@@ -10,8 +10,8 @@ import "reflect-metadata";
 import { createDTOBase } from "./util/CreateDTOBase";
 import { Type } from "class-transformer";
 
-// Until we fully support organizations in the frontend, we just use -1 to mean "make"
-// sure there's an organization for this contact.
+// Until we fully support organizations in the frontend, we just use -1 to mean "make
+// sure there's an organization for this contact."
 export const TEMPORARY_FAKE_ORGANIZATION_ID = -1;
 
 export class OrganizationDTO extends createDTOBase("Organization") {
