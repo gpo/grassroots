@@ -2,14 +2,7 @@ import { Given, Then, When, After } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/world";
 import { chromium, Locator } from "@playwright/test";
 import { expect } from "@playwright/test";
-import dotenvFlow from "dotenv-flow";
-import { getEnvFilePaths } from "../../grassroots-backend/src/GetEnvFilePaths";
 import { clearContacts } from "../../grassroots-backend/src/testing/DatabaseUtils";
-
-// Load environment variables
-dotenvFlow.config({
-  files: getEnvFilePaths().reverse(),
-});
 
 const options = {
   headless: false,
@@ -28,14 +21,8 @@ Given("I am logged in", { timeout: 20000 }, async function (this: CustomWorld) {
   await this.page.goto("https://grassroots.org");
   await this.page.click('a:has-text("Login")');
 
-  const GOOGLE_EMAIL: string =
-    (process.env.GOOGLE_EMAIL?.length ?? 0) > 0
-      ? process.env.GOOGLE_EMAIL
-      : "admin+fillmein@google.com";
-  const GOOGLE_PASSWORD: string =
-    (process.env.GOOGLE_PASSWORD?.length ?? 0) > 0
-      ? process.env.GOOGLE_PASSWORD
-      : "password";
+  const GOOGLE_EMAIL: string = process.env.GOOGLE_EMAIL ?? "admin+fillmein@google.com";
+  const GOOGLE_PASSWORD: string = process.env.GOOGLE_PASSWORD ?? "password";
 
   // 2. Wait for navigation to Google (or popup appears)
   await this.page.waitForURL(/accounts\.google\.com/);
