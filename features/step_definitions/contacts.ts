@@ -2,9 +2,14 @@ import { Given, Then, When, After } from "@cucumber/cucumber";
 import { CustomWorld } from "../support/world";
 import { chromium, Locator } from "@playwright/test";
 import { expect } from "@playwright/test";
+import dotenvFlow from "dotenv-flow";
+import { getEnvFilePaths } from "../../grassroots-backend/src/GetEnvFilePaths";
+import { clearContacts } from "../../grassroots-backend/src/testing/DatabaseUtils";
 
-// import mikroORMConfig from "../../grassroots-backend/src/mikro-orm.config";
-// import { MikroORM } from "@mikro-orm/core";
+// Load environment variables
+dotenvFlow.config({
+  files: getEnvFilePaths().reverse(),
+});
 
 const options = {
   headless: false,
@@ -54,10 +59,7 @@ Given("I am logged in", { timeout: 20000 }, async function (this: CustomWorld) {
 });
 
 Given("there are no existing contacts", async function (this: CustomWorld) {
-  // const orm = await MikroORM.init(mikroORMConfig);
-  // const generator = orm.getSchemaGenerator();
-  // await generator.clearDatabase();
-  // await orm.close();
+  await clearContacts();
 });
 
 When("I visit the contact creation page", async function (this: CustomWorld) {
