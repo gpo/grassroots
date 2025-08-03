@@ -4,13 +4,13 @@
 
 ## Columns
 
-| Name         | Type         | Default | Nullable | Children | Parents | Comment |
-| ------------ | ------------ | ------- | -------- | -------- | ------- | ------- |
-| id           | varchar(255) |         | false    |          |         |         |
-| first_name   | varchar(255) |         | true     |          |         |         |
-| last_name    | varchar(255) |         | true     |          |         |         |
-| display_name | varchar(255) |         | true     |          |         |         |
-| emails       | jsonb        |         | true     |          |         |         |
+| Name         | Type         | Default | Nullable | Children                                              | Parents | Comment |
+| ------------ | ------------ | ------- | -------- | ----------------------------------------------------- | ------- | ------- |
+| id           | varchar(255) |         | false    | [public.user_role_entity](public.user_role_entity.md) |         |         |
+| first_name   | varchar(255) |         | true     |                                                       |         |         |
+| last_name    | varchar(255) |         | true     |                                                       |         |         |
+| display_name | varchar(255) |         | true     |                                                       |         |         |
+| emails       | jsonb        |         | true     |                                                       |         |         |
 
 ## Constraints
 
@@ -29,6 +29,7 @@
 ```mermaid
 erDiagram
 
+"public.user_role_entity" }o--|| "public.user_entity" : ""
 
 "public.user_entity" {
   varchar_255_ id
@@ -36,6 +37,13 @@ erDiagram
   varchar_255_ last_name
   varchar_255_ display_name
   jsonb emails
+}
+"public.user_role_entity" {
+  integer id
+  varchar_255_ user_id FK
+  integer _role_id
+  integer organization_id FK
+  boolean inherited
 }
 ```
 

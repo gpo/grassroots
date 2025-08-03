@@ -156,7 +156,7 @@
       "OrganizationDTO": {
         "properties": {
           "id": {
-            "minimum": 0,
+            "minimum": 1,
             "type": "number"
           },
           "name": {
@@ -237,10 +237,23 @@
         "required": ["rowsSkipped", "rowsTotal"],
         "type": "object"
       },
+      "PermissionsDTO": {
+        "properties": {
+          "permissions": {
+            "items": {
+              "enum": ["VIEW_CONTACTS", "MANAGE_CONTACTS", "MANAGE_USERS"],
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["permissions"],
+        "type": "object"
+      },
       "RoleDTO": {
         "properties": {
           "id": {
-            "minimum": 0,
+            "minimum": 1,
             "type": "number"
           },
           "name": {
@@ -289,9 +302,38 @@
           },
           "lastName": {
             "type": "string"
+          },
+          "userRoles": {
+            "items": {
+              "$ref": "#/components/schemas/UserRoleDTO"
+            },
+            "type": "array"
           }
         },
         "required": ["id"],
+        "type": "object"
+      },
+      "UserRoleDTO": {
+        "properties": {
+          "id": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "inherited": {
+            "type": "boolean"
+          },
+          "organizationId": {
+            "minimum": 1,
+            "type": "number"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleDTO"
+          },
+          "userId": {
+            "type": "string"
+          }
+        },
+        "required": ["role", "organizationId", "inherited"],
         "type": "object"
       },
       "UsersDTO": {
@@ -923,6 +965,92 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/UsersDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Users"]
+      }
+    },
+    "/users/find-or-create": {
+      "post": {
+        "operationId": "UsersController_findOrCreate",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Users"]
+      }
+    },
+    "/users/user-permissions-for-org": {
+      "get": {
+        "operationId": "UsersController_getUserPermissionsForOrg",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "userId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "organizationId",
+            "required": true,
+            "schema": {
+              "minimum": 1,
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PermissionsDTO"
                 }
               }
             },

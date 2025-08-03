@@ -24,7 +24,7 @@ only to convince typescript that these types shouldn't be castable to one anothe
 */
 
 import { plainToInstance } from "class-transformer";
-import { PropsOf } from "./PropsOf";
+import { PropsOf } from "./TypeUtils";
 
 export interface FetchResponse<T, E> {
   data?: T;
@@ -54,14 +54,19 @@ export function createDTOBase<TBrand extends string>(brand: TBrand) {
       this: new () => T,
       fetchResult: FetchResponse<PropsOf<T>, E>,
     ): T {
-      if (!fetchResult.response.ok) {
-        throw new Error(fetchResult.response.statusText);
+      if (fetchResult.response.ok) {
+        return plainToInstance(this, fetchResult.data);
       }
-      if (fetchResult.error !== undefined) {
-        throw new Error(JSON.stringify(fetchResult.error));
-      }
-
-      return plainToInstance(this, fetchResult.data);
+      throw new Error(
+        JSON.stringify(
+          {
+            statusText: fetchResult.response.statusText,
+            body: fetchResult.error,
+          },
+          null,
+          2,
+        ),
+      );
     }
   }
   return Branded;

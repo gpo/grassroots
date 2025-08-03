@@ -1,6 +1,6 @@
 import { Test } from "@nestjs/testing";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { Type, ValidationPipe } from "@nestjs/common";
+import { Type } from "@nestjs/common";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
@@ -62,8 +62,5 @@ export async function getTestApp(
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
 
-  app.useGlobalPipes(
-    new ValidationPipe({ transform: true, forbidUnknownValues: true }),
-  );
   return { app };
 }
