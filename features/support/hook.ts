@@ -1,40 +1,23 @@
-import {
-  After,
-  AfterAll,
-  Before,
-  BeforeAll,
-  Status,
-  world,
-} from "@cucumber/cucumber";
-import { chromium, Browser, Page } from "playwright";
-import playwright from "playwright";
-import { CustomWorld } from "./world";
+import { Browser, Page } from "playwright";
 
 export let browser: Browser;
 export let page: Page;
 
-import process from "process";
+// BeforeAll(async function (this: CustomWorld) {
+//   process.stdout.write("BEFORE ALL");
+//   this.browser = await playwright.chromium.launch(options);
+// });
 
-const options = {
-  headless: true,
-  slowMo: 100,
-};
+// AfterAll(async function (this: CustomWorld) {
+//   if (this.browser) {
+//     await this.browser.close();
+//   }
+// });
 
-BeforeAll(async function () {
-  process.stdout.write("BEFORE ALL");
-  world.browser = await playwright.chromium.launch(options);
-});
-
-AfterAll(async function () {
-  if (world.browser) {
-    await world.browser.close();
-  }
-});
-
-Before(async function () {
-  world.context = await world.browser.newContext();
-  world.page = await world.context.newPage();
-});
+// Before(async function (this: CustomWorld) {
+//   this.context = await world.browser.newContext();
+//   this.page = await world.context.newPage();
+// });
 
 // After(async function (this: CustomWorld) {
 //   console.log('after pass...');

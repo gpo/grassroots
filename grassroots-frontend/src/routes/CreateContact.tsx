@@ -53,7 +53,7 @@ function CreateContact(): JSX.Element {
 
   return (
     <FormProvider {...form}>
-      {successMessage && (
+      {(successMessage?.length ?? 0) > 0 && (
         <div
           style={{
             backgroundColor: "#d4edda",
