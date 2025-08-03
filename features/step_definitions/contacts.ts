@@ -28,8 +28,8 @@ Given("I am logged in", { timeout: 20000 }, async function (this: CustomWorld) {
   await this.page.goto("https://grassroots.org");
   await this.page.click('a:has-text("Login")');
 
-  const GOOGLE_EMAIL = process.env.GOOGLE_EMAIL || "admin+fillmein@google.com";
-  const GOOGLE_PASSWORD = process.env.GOOGLE_PASSWORD || "password";
+  const GOOGLE_EMAIL: string = (process.env.GOOGLE_EMAIL?.length ?? 0) > 0 ? process.env.GOOGLE_EMAIL : "admin+fillmein@google.com";
+  const GOOGLE_PASSWORD: string = (process.env.GOOGLE_PASSWORD?.length ?? 0) > 0 ? process.env.GOOGLE_PASSWORD : "password";
 
   // 2. Wait for navigation to Google (or popup appears)
   await this.page.waitForURL(/accounts\.google\.com/);
