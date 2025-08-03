@@ -1,7 +1,6 @@
 ```mermaid
 graph TD
-  AppModule-->ConfigModule
-AppModule-->ContactsModule
+  AppModule-->ContactsModule
 ContactsModule-->MikroOrmModule
 AppModule-->AuthModule
 AuthModule-->UsersModule
