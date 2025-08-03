@@ -44,7 +44,9 @@ function CreateContact(): JSX.Element {
       await mutateAsync(data);
       form.reset();
       setSuccessMessage("Contact created successfully!");
-      setTimeout(() => setSuccessMessage(null), 3000);
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
     },
     [],
   );
@@ -52,14 +54,16 @@ function CreateContact(): JSX.Element {
   return (
     <FormProvider {...form}>
       {successMessage && (
-        <div style={{ 
-          backgroundColor: '#d4edda', 
-          color: '#155724', 
-          padding: '10px', 
-          marginBottom: '20px', 
-          border: '1px solid #c3e6cb',
-          borderRadius: '4px'
-        }}>
+        <div
+          style={{
+            backgroundColor: "#d4edda",
+            color: "#155724",
+            padding: "10px",
+            marginBottom: "20px",
+            border: "1px solid #c3e6cb",
+            borderRadius: "4px",
+          }}
+        >
           {successMessage}
         </div>
       )}

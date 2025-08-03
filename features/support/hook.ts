@@ -22,7 +22,7 @@ const options = {
 
 BeforeAll(async function () {
   process.stdout.write("BEFORE ALL");
-  world.browser = await playwright["chromium"].launch(options);
+  world.browser = await playwright.chromium.launch(options);
 });
 
 AfterAll(async function () {
