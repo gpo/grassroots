@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { writeFile, readFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import { ContactsModule } from "./Contacts.module";
 import { useE2ETestFixture } from "../testing/E2eSetup";
 import { graphDependencies } from "../util/GraphDependencies";
+import { writeFormatted } from "../util/FormattingWriter";
 
 const TEST_CONTACT = {
   email: "test@test.com",
@@ -20,7 +21,7 @@ describe("ContactsController (e2e)", () => {
     const f = getFixture();
     const PATH = "../docs/DependencyGraphForTest.md";
 
-    await writeFile(PATH, graphDependencies(f.app));
+    await writeFormatted({ filePath: PATH, text: graphDependencies(f.app) });
     const written = await readFile(PATH, "utf8");
 
     expect(written.length).toBeGreaterThan(0);
