@@ -84,8 +84,10 @@ export class AuthController {
   }
 
   @Get("is_authenticated")
+  @PublicRoute()
+  @ApiResponse({ status: 200, type: LoginStateDTO })
   isUserLoggedIn(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return LoginStateDTO.from({ user: req.user });
+    return LoginStateDTO.from({ user: req.user ?? undefined });
   }
 
   // This is an example of using user info, to enable a test.
