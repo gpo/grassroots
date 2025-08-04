@@ -122,3 +122,6 @@ jobs:
 
       - name: Tests
         run: npm run test:ci --prefix grassroots-backend
+
+      - name: BDD
+        run: npm run test:bdd
