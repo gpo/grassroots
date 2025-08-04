@@ -125,3 +125,6 @@ jobs:
 
       - name: Tests
         run: cd grassroots-backend && pnpm run test:ci
+
+      - name: BDD
+        run: npm run test:bdd
