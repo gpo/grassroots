@@ -104,7 +104,10 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install --prefix grassroots-backend
+          npm install --prefix grassroots-frontend
 
       - name: Run tstyche
         run: npm run test:tstyche --prefix grassroots-backend
