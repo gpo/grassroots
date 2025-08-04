@@ -11,7 +11,7 @@ import {
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
-import { VoidDTO } from "../grassroots-shared/Void.dto";
+import { VoidDTO } from "../grassroots-shared/Void.dto"; // Add this import
 import { ApiTags, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";
@@ -70,6 +70,12 @@ export class AuthController {
     req.session.redirect_path = undefined;
 
     await new Promise<void>((resolve, reject) => {
+      // Type guard to ensure req.user is UserDTO
+      if (!req.user || typeof req.user !== "object") {
+        reject(new Error("Invalid user object"));
+        return;
+      }
+
       req.login(req.user, (err: unknown) => {
         if (err !== undefined) {
           reject(err instanceof Error ? err : new Error("Login failed"));
