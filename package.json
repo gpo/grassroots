@@ -25,6 +25,8 @@
   "devDependencies": {
     "@cucumber/cucumber": "^11.3.0",
     "@darraghor/eslint-plugin-nestjs-typed": "^6.4.14",
+    "@mikro-orm/core": "^6.4.15",
+    "@mikro-orm/postgresql": "^6.4.15",
     "@eslint/compat": "^1.2.8",
     "@eslint/js": "^9.25.1",
     "@playwright/test": "1.51.1",
