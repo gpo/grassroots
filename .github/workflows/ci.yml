@@ -126,5 +126,8 @@ jobs:
       - name: Tests
         run: npm run test:ci --prefix grassroots-backend
 
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium
+
       - name: BDD
         run: npm run test:bdd
