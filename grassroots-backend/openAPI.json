@@ -435,7 +435,7 @@
             "description": "Validation failed"
           }
         },
-        "tags": ["Auth"]
+        "tags": ["auth"]
       }
     },
     "/auth/google/callback": {
@@ -464,7 +464,7 @@
             "description": "Validation failed"
           }
         },
-        "tags": ["Auth"]
+        "tags": ["auth"]
       }
     },
     "/auth/is_authenticated": {
@@ -493,7 +493,7 @@
             "description": "Validation failed"
           }
         },
-        "tags": ["Auth"]
+        "tags": ["auth"]
       }
     },
     "/auth/login": {
@@ -531,7 +531,7 @@
             "description": "Validation failed"
           }
         },
-        "tags": ["Auth"]
+        "tags": ["auth"]
       }
     },
     "/auth/logout": {
@@ -539,7 +539,7 @@
         "operationId": "AuthController_logout",
         "parameters": [],
         "responses": {
-          "201": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -560,7 +560,7 @@
             "description": "Validation failed"
           }
         },
-        "tags": ["Auth"]
+        "tags": ["auth"]
       }
     },
     "/contacts": {

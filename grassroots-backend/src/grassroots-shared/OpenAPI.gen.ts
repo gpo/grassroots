@@ -557,7 +557,7 @@ export interface operations {
     };
     requestBody?: never;
     responses: {
-      201: {
+      200: {
         headers: {
           [name: string]: unknown;
         };
