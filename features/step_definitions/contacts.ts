@@ -5,7 +5,7 @@ import { expect } from "@playwright/test";
 import { clearContacts } from "../../grassroots-backend/src/testing/DatabaseUtils";
 
 const options = {
-  headless: false,
+  headless: true,
   slowMo: 100,
   args: ["--disable-blink-features=AutomationControlled"],
 };
