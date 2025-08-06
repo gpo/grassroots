@@ -17,11 +17,21 @@
           "lastName": {
             "type": "string"
           },
+          "organization": {
+            "$ref": "#/components/schemas/OrganizationDTO"
+          },
           "phoneNumber": {
             "type": "string"
           }
         },
-        "required": ["id", "email", "firstName", "lastName", "phoneNumber"],
+        "required": [
+          "id",
+          "email",
+          "firstName",
+          "lastName",
+          "organization",
+          "phoneNumber"
+        ],
         "type": "object"
       },
       "ContactSearchRequestDTO": {
@@ -93,11 +103,21 @@
           "lastName": {
             "type": "string"
           },
+          "organizationId": {
+            "minimum": -1,
+            "type": "number"
+          },
           "phoneNumber": {
             "type": "string"
           }
         },
-        "required": ["email", "firstName", "lastName", "phoneNumber"],
+        "required": [
+          "email",
+          "firstName",
+          "lastName",
+          "phoneNumber",
+          "organizationId"
+        ],
         "type": "object"
       },
       "CreateOrganizationNoParentRequestDTO": {

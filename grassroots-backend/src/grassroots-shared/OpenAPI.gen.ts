@@ -297,6 +297,7 @@ export interface components {
       firstName: string;
       id: number;
       lastName: string;
+      organization: components["schemas"]["OrganizationDTO"];
       phoneNumber: string;
     };
     ContactSearchRequestDTO: {
@@ -320,6 +321,7 @@ export interface components {
       email: string;
       firstName: string;
       lastName: string;
+      organizationId: number;
       phoneNumber: string;
     };
     CreateOrganizationNoParentRequestDTO: {

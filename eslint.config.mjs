@@ -96,6 +96,8 @@ export default tseslint.config(
       "@darraghor/nestjs-typed/api-method-should-specify-api-response": "off",
       // This is currently reporting a bunch of false positives.
       "@darraghor/nestjs-typed/injectable-should-be-provided": "off",
+      // Allow an error message.
+      "vitest/valid-expect": ["error", { maxArgs: 2 }],
     },
     settings: {
       vitest: {

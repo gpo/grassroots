@@ -1,6 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { ContactEntity } from "./entities/Contact.entity.js";
-import { EntityManager, EntityRepository, FilterQuery } from "@mikro-orm/core";
+import {
+  EntityManager,
+  EntityRepository,
+  FilterQuery,
+  RequiredEntityData,
+} from "@mikro-orm/core";
 import { LikeOrUndefined } from "../util/LikeOrUndefined";
 import {
   ContactDTO,
@@ -8,6 +13,21 @@ import {
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto.js";
+import { OrganizationEntity } from "../organizations/Organization.entity.js";
+import { PropsOf } from "../grassroots-shared/util/TypeUtils.js";
+import { TEMPORARY_FAKE_ORGANIZATION_ID } from "../grassroots-shared/Organization.dto.js";
+
+function createContactRequestDTOToRequiredEntityData(
+  contact: CreateContactRequestDTO,
+): RequiredEntityData<ContactEntity> {
+  return {
+    email: contact.email,
+    firstName: contact.firstName,
+    lastName: contact.lastName,
+    phoneNumber: contact.phoneNumber,
+    organization: contact.organizationId,
+  };
+}
 
 @Injectable()
 export class ContactsService {
@@ -17,13 +37,42 @@ export class ContactsService {
   }
 
   async create(contact: CreateContactRequestDTO): Promise<ContactDTO> {
-    const result = this.repo.create(contact);
+    let organization: OrganizationEntity | null;
+    if (contact.organizationId == TEMPORARY_FAKE_ORGANIZATION_ID) {
+      // Just use the first organization.
+      organization = await this.entityManager.findOne(OrganizationEntity, {
+        id: 1,
+      });
+      organization ??= this.entityManager.create(OrganizationEntity, {
+        name: "Fake root organization",
+      });
+      // We need to flush here to make sure the organization gets an id before
+      // we reference the ID in the contact.
+      await this.entityManager.flush();
+    } else {
+      organization = this.entityManager.getReference(
+        OrganizationEntity,
+        contact.organizationId,
+      );
+    }
+
+    const plainContact: PropsOf<CreateContactRequestDTO> = contact;
+    const result = this.repo.create(
+      createContactRequestDTOToRequiredEntityData(
+        CreateContactRequestDTO.from({
+          ...plainContact,
+          organizationId: organization.id,
+        }),
+      ),
+    );
     await this.entityManager.flush();
-    return ContactDTO.from(result);
+    return result.toDTO();
   }
 
   async bulkCreate(contacts: CreateContactRequestDTO[]): Promise<ContactDTO[]> {
-    const result = contacts.map((x) => this.repo.create(x));
+    const result = contacts.map((x) =>
+      this.repo.create(createContactRequestDTOToRequiredEntityData(x)),
+    );
     await this.entityManager.flush();
     return result.map((x) => x.toDTO());
   }

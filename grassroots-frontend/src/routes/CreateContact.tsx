@@ -7,6 +7,7 @@ import { grassrootsAPI } from "../GrassRootsAPI";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { TextField } from "../components/TextField";
 import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto";
+import { TEMPORARY_FAKE_ORGANIZATION_ID } from "../grassroots-shared/Organization.dto";
 
 export const Route = createFileRoute("/CreateContact")({
   component: CreateContact,
@@ -68,6 +69,11 @@ function CreateContact(): JSX.Element {
           defaultValue=""
           label="Phone Number"
           name="phoneNumber"
+        ></TextFieldMakeContact>
+        <TextFieldMakeContact
+          defaultValue={TEMPORARY_FAKE_ORGANIZATION_ID}
+          label="Organization ID (Temporary)"
+          name="organizationId"
         ></TextFieldMakeContact>
         <input type="submit" />
       </form>
