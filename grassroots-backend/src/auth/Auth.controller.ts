@@ -1,4 +1,3 @@
-/* eslint-disable grassroots/controller-routes-return-dtos */
 import {
   Controller,
   Request,
@@ -11,50 +10,36 @@ import {
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
-import { VoidDTO } from "../grassroots-shared/Void.dto"; // Add this import
-import { ApiTags, ApiQuery, ApiResponse } from "@nestjs/swagger";
+import { VoidDTO } from "../grassroots-shared/Void.dto";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";
 import { getEnvironmentVariables } from "../GetEnvironmentVariables";
 
 @Controller("auth")
-@ApiTags("auth")
 export class AuthController {
-  private environmentVariables: Record<string, string> | undefined;
-
-  constructor() {
-    void this.loadEnvironmentVariables();
-  }
-
-  private async loadEnvironmentVariables(): Promise<void> {
-    this.environmentVariables = await getEnvironmentVariables();
-  }
+  // Removed caching as Tim suggested - getEnvironmentVariables() already has cache
 
   // The frontend can redirect here to trigger login.
   @Get("login")
   @UseGuards(OAuthGuard)
   @PublicRoute()
-  @ApiQuery({ name: "redirect_path", type: String })
-  @ApiResponse({ status: 200, type: VoidDTO })
-  async login(@Query("redirect_path") redirectPath: string): Promise<VoidDTO> {
+  login(@Query("redirect_path") redirectPath: string): VoidDTO {
     // The redirect path is used by the OAuth guard.
     void redirectPath;
-    // Add await to satisfy the lint rule
-    await Promise.resolve();
     return VoidDTO.get();
   }
 
   @Get("google/callback")
   @UseGuards(OAuthGuard)
   @PublicRoute()
-  @ApiResponse({ status: 200, type: VoidDTO })
   async googleAuthRedirect(
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
   ): Promise<VoidDTO> {
-    this.environmentVariables ??= await getEnvironmentVariables();
+    // Call getEnvironmentVariables directly each time (no caching)
+    const environmentVariables = await getEnvironmentVariables();
 
-    const host = this.environmentVariables.FRONTEND_HOST;
+    const host = environmentVariables.FRONTEND_HOST;
     if (host === undefined) {
       throw new Error("Missing env variable for FRONTEND_HOST");
     }
@@ -63,19 +48,12 @@ export class AuthController {
     }
 
     // The session doesn't contain the redirect path by the time req.login is called,
-    // so make sure to stash it here.
     const redirectPath = req.session.redirect_path ?? host;
     // To prevent a redirect path accidentally being used multiple times, clear this
     // as soon as it's read.
     req.session.redirect_path = undefined;
 
     await new Promise<void>((resolve, reject) => {
-      // Type guard to ensure req.user is UserDTO
-      if (!req.user || typeof req.user !== "object") {
-        reject(new Error("Invalid user object"));
-        return;
-      }
-
       req.login(req.user, (err: unknown) => {
         if (err !== undefined) {
           reject(err instanceof Error ? err : new Error("Login failed"));
@@ -91,7 +69,6 @@ export class AuthController {
 
   @Get("is_authenticated")
   @PublicRoute()
-  @ApiResponse({ status: 200, type: LoginStateDTO })
   isUserLoggedIn(@Request() req: GrassrootsRequest): LoginStateDTO {
     return LoginStateDTO.from({ user: req.user ?? undefined });
   }
@@ -100,13 +77,11 @@ export class AuthController {
   // TODO: remove this once we have real routes using user info.
   @Get("example_route_using_user")
   // Not sure why UseGuards breaks the OpenAPI plugin.
-  @ApiResponse({ status: 200, type: LoginStateDTO })
   example(@Request() req: GrassrootsRequest): LoginStateDTO {
     return LoginStateDTO.from({ user: req.user });
   }
 
   @Post("logout")
-  @ApiResponse({ status: 200, type: VoidDTO })
   async logout(@Request() req: GrassrootsRequest): Promise<VoidDTO> {
     return new Promise((resolve, reject) => {
       req.logout((err: unknown) => {
