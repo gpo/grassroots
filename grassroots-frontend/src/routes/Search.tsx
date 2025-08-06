@@ -40,7 +40,6 @@ function Search(): JSX.Element {
 
   const useContactSearchResults =
     useContactSearch(searchParams).data ?? PaginatedContactResponseDTO.empty();
-  console.log(useContactSearchResults);
 
   return (
     <>
