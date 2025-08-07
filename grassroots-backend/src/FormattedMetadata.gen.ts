@@ -51,15 +51,15 @@ export default async () => {
                 ],
               },
             },
+            OrganizationReferenceDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
+            },
             CreateOrganizationNoParentRequestDTO: {
               name: { required: true, type: () => String },
             },
             CreateOrganizationRequestDTO: {
               name: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
-            },
-            OrganizationReferenceDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
             },
           },
         ],
