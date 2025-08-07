@@ -13,3 +13,15 @@ export function applyDecorators(...args: unknown[]): DecoratorResult {
   void args;
   return noop;
 }
+
+export class HttpException extends Error {
+  constructor(
+    response: string | Record<string, unknown>,
+    status: number,
+    options?: unknown,
+  ) {
+    super(JSON.stringify(response));
+    void status;
+    void options;
+  }
+}

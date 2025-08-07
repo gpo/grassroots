@@ -41,7 +41,7 @@ export default async () => {
             OrganizationDTO: {
               id: { required: true, type: () => Number, minimum: 1 },
               name: { required: true, type: () => String },
-              parentId: { required: false, type: () => Number, minimum: 0 },
+              parentId: { required: false, type: () => Number, minimum: 1 },
             },
             OrganizationsDTO: {
               organizations: {
@@ -50,6 +50,9 @@ export default async () => {
                   t["./grassroots-shared/Organization.dto"].OrganizationDTO,
                 ],
               },
+            },
+            OrganizationReferenceDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
             },
             CreateOrganizationNoParentRequestDTO: {
               name: { required: true, type: () => String },
@@ -310,6 +313,10 @@ export default async () => {
                 type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
               },
               logout: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+              setActiveOrg: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+              getActiveOrg: {
+                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+              },
             },
           },
         ],

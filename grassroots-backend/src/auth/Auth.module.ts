@@ -6,6 +6,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AuthController } from "./Auth.controller";
 import { APP_GUARD } from "@nestjs/core";
 import { SessionGuard } from "./Session.guard";
+import { OrganizationsModule } from "../organizations/Organizations.module";
 
 @Module({
   providers: [
@@ -19,7 +20,12 @@ import { SessionGuard } from "./Session.guard";
       useExisting: SessionGuard,
     },
   ],
-  imports: [UsersModule, PassportModuleImport(), ConfigModule],
+  imports: [
+    UsersModule,
+    OrganizationsModule,
+    PassportModuleImport(),
+    ConfigModule,
+  ],
   exports: [],
   controllers: [AuthController],
 })

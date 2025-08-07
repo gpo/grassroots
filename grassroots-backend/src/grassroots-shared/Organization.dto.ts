@@ -25,7 +25,7 @@ export class OrganizationDTO extends createDTOBase("Organization") {
 
   @IsOptional()
   @IsNumber()
-  @Min(0)
+  @Min(1)
   parentId?: number;
 }
 
@@ -33,6 +33,15 @@ export class OrganizationsDTO extends createDTOBase("Organizations") {
   @ValidateNested({ each: true })
   @Type(() => OrganizationDTO)
   organizations!: OrganizationDTO[];
+}
+
+export class OrganizationReferenceDTO extends createDTOBase(
+  "OrganizationReference",
+) {
+  @IsOptional()
+  @IsNumber()
+  @Min(1)
+  id!: number;
 }
 
 export class CreateOrganizationNoParentRequestDTO extends createDTOBase(

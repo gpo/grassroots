@@ -1,10 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { OrganizationEntity } from "./Organization.entity";
 import {
   CreateOrganizationNoParentRequestDTO,
+  OrganizationDTO,
   OrganizationsDTO,
 } from "../grassroots-shared/Organization.dto";
-import { EntityManager, Loaded } from "@mikro-orm/core";
+import { EntityManager } from "@mikro-orm/core";
 import { OrganizationRepository } from "./Organization.repo";
 
 @Injectable()
@@ -34,12 +35,19 @@ export class OrganizationsService {
     return newOrganization;
   }
 
-  async findAll(): Promise<Loaded<OrganizationEntity[]>> {
-    return await this.repo.find({});
+  async findAll(): Promise<OrganizationsDTO> {
+    return OrganizationsDTO.from({
+      organizations: (await this.repo.find({})).map((x) => x.toDTO()),
+    });
   }
 
-  async findOneById(id: number): Promise<Loaded<OrganizationEntity>> {
-    return await this.repo.findOneOrFail({ id });
+  async findOneById(id: number): Promise<OrganizationDTO> {
+    const org = await this.repo.findOne({ id });
+    if (org === null) {
+      throw new NotFoundException("Organization not found");
+    }
+
+    return org.toDTO();
   }
 
   async getAncestors(organizationID: number): Promise<OrganizationsDTO> {

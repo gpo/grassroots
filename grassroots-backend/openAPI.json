@@ -183,11 +183,21 @@
             "type": "string"
           },
           "parentId": {
-            "minimum": 0,
+            "minimum": 1,
             "type": "number"
           }
         },
         "required": ["id", "name"],
+        "type": "object"
+      },
+      "OrganizationReferenceDTO": {
+        "properties": {
+          "id": {
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": ["id"],
         "type": "object"
       },
       "OrganizationsDTO": {
@@ -429,6 +439,35 @@
         "tags": ["App"]
       }
     },
+    "/auth/active-org": {
+      "get": {
+        "operationId": "AuthController_getActiveOrg",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrganizationDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Auth"]
+      }
+    },
     "/auth/example_route_using_user": {
       "get": {
         "operationId": "AuthController_example",
@@ -558,6 +597,45 @@
       "post": {
         "operationId": "AuthController_logout",
         "parameters": [],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoidDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["Auth"]
+      }
+    },
+    "/auth/set-active-org": {
+      "post": {
+        "operationId": "AuthController_setActiveOrg",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OrganizationReferenceDTO"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "201": {
             "content": {

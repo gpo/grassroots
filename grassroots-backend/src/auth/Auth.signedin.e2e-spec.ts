@@ -4,6 +4,9 @@ import { AuthModule } from "./Auth.module";
 import { UsersModule } from "../users/Users.module";
 import { MOCK_AUTH_GUARD_USER } from "../testing/MockAuthGuard";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
+import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
+import { createOrganizationTree } from "../testing/testHelpers/CreateOrganizationTree";
+import { fail } from "../grassroots-shared/util/Fail";
 
 describe("AuthController (e2e) while signed in", () => {
   const getFixture = useE2ETestFixture({
@@ -18,5 +21,32 @@ describe("AuthController (e2e) while signed in", () => {
     );
 
     expect(response.user?.id).toBe(MOCK_AUTH_GUARD_USER.id);
+  });
+
+  it("Allows setting the active organization", async () => {
+    const f = getFixture();
+
+    const { nameToId } = await createOrganizationTree(f, {
+      name: "root",
+    });
+    const rootOrganizationId =
+      nameToId.get("root") ?? fail("Missing root organization.");
+
+    const beforeSet = await f.grassrootsAPI.GET("/auth/active-org");
+    expect(beforeSet.response.status).toBe(404);
+
+    const { response } = await f.grassrootsAPI.POST("/auth/set-active-org", {
+      body: { id: rootOrganizationId },
+    });
+
+    const afterSetOrganization = OrganizationDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.GET("/auth/active-org", {
+        headers: {
+          Cookie: response.headers.getSetCookie(),
+        },
+      }),
+    );
+
+    expect(afterSetOrganization.id).toBe(rootOrganizationId);
   });
 });
