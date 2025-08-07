@@ -330,6 +330,7 @@ export interface components {
       id: number;
       lastName: string;
       organization: components["schemas"]["OrganizationDTO"];
+      organizationId: number;
       phoneNumber: string;
     };
     ContactSearchRequestDTO: {

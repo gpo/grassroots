@@ -1,6 +1,7 @@
 import {
   Entity,
   ManyToOne,
+  OptionalProps,
   PrimaryKey,
   Property,
   Rel,
@@ -15,6 +16,8 @@ import { OrganizationEntity } from "../../organizations/Organization.entity";
 export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   "Contact",
 ) {
+  [OptionalProps]?: "organizationId";
+
   @PrimaryKey()
   id!: number;
 
@@ -31,8 +34,12 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   @Property()
   phoneNumber!: string;
 
-  @ManyToOne(() => OrganizationEntity)
+  @ManyToOne(() => OrganizationEntity, { joinColumn: "organizationId" })
   organization!: Rel<OrganizationEntity>;
+
+  get organizationId(): number {
+    return this.organization.id;
+  }
 
   toDTO(): ContactDTO {
     return ContactDTO.from({
@@ -42,6 +49,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       lastName: this.lastName,
       phoneNumber: this.phoneNumber,
       organization: this.organization.toDTO(),
+      organizationId: this.organizationId,
     });
   }
 }
