@@ -6,6 +6,7 @@ ContactsModule-->MikroOrmModule
 AppModule-->AuthModule
 AuthModule-->UsersModule
 UsersModule-->MikroOrmModule
+AuthModule-->OrganizationsModule
 AuthModule-->PassportModule
 AuthModule-->ConfigModule
 AppModule-->PassportModule

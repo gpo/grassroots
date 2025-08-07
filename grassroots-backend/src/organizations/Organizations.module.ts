@@ -7,6 +7,7 @@ import { RolesController } from "./Roles.controller";
 @Module({
   providers: [OrganizationsService, RolesService],
   controllers: [OrganizationsController, RolesController],
+  exports: [OrganizationsService],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class OrganizationsModule {}

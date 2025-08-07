@@ -6,6 +6,8 @@ import {
   Post,
   UseGuards,
   Query,
+  Body,
+  Session,
 } from "@nestjs/common";
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
@@ -15,10 +17,19 @@ import { VoidDTO } from "../grassroots-shared/Void.dto";
 import { ApiProperty, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";
+import { SessionData } from "express-session";
+import {
+  OrganizationDTO,
+  OrganizationReferenceDTO,
+} from "../grassroots-shared/Organization.dto";
+import { OrganizationsService } from "../organizations/Organizations.service";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly organizationService: OrganizationsService,
+  ) {}
 
   // The frontend can redirect here to trigger login.
   @Get("login")
@@ -88,5 +99,21 @@ export class AuthController {
         }
       });
     });
+  }
+
+  @Post("set-active-org")
+  setActiveOrg(
+    @Body() organizationReference: OrganizationReferenceDTO,
+    @Session() session: SessionData,
+  ): VoidDTO {
+    session.activeOrganizationId = organizationReference.id;
+    return VoidDTO.from({});
+  }
+
+  @Get("active-org")
+  async getActiveOrg(
+    @Session() session: SessionData,
+  ): Promise<OrganizationDTO> {
+    return this.organizationService.findOneById(session.activeOrganizationId);
   }
 }

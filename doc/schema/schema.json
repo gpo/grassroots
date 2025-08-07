@@ -343,6 +343,7 @@
     },
     {
       "table": "public.contact_entity",
+<<<<<<< ours
       "columns": [
         "organization_id"
       ],
@@ -351,6 +352,16 @@
       "parent_columns": [
         "id"
       ],
+=======
+      "columns": [
+        "organization_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.organization_entity",
+      "parent_columns": [
+        "id"
+      ],
+>>>>>>> theirs
       "parent_cardinality": "exactly_one",
       "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE"
     },
@@ -386,10 +397,17 @@
     "database_version": "PostgreSQL 17.5 (Debian 17.5-1.pgdg120+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 12.2.0-14) 12.2.0, 64-bit",
     "meta": {
       "current_schema": "public",
+<<<<<<< ours
       "search_paths": [
         "test",
         "public"
       ],
+=======
+      "search_paths": [
+        "test",
+        "public"
+      ],
+>>>>>>> theirs
       "dict": {
         "Functions": "Stored procedures and functions"
       }
