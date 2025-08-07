@@ -19,8 +19,10 @@ export function createEntityBase<TBrand extends string, TDTO>(brand: TBrand) {
     // between entities or DTOs, or we get some type collicions.
     readonly __entityBrand!: Opt<`${TBrand}Entity`>;
     // Used for CASL to identify object types.
+
     @Property({ persist: false })
-    readonly __caslSubjectType: Opt<string> = brand;
+    readonly __caslSubjectType: Opt<TBrand> = brand;
+    static readonly __caslSubjectTypeStatic: TBrand = brand;
     abstract toDTO(): TDTO;
   }
   return Branded;

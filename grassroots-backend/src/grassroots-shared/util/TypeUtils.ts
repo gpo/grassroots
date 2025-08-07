@@ -223,7 +223,7 @@ function TestPropsOf(): void {
 export type CommonProps<A, B, AProps = PropsOf<A>, BProps = PropsOf<B>> = {
   // We can't iterate AProps & BProps, as that loses optionality.
   [k in keyof AProps as k extends keyof BProps
-    ? If<IsAssignableTo<AProps[k], BProps[k]>, k, never>
+    ? If<Equals<AProps[k], BProps[k]>, k, never>
     : never]: AProps[k];
 };
 
@@ -235,6 +235,8 @@ type TestCommonProps = Assert<
         a: number;
         firstOnly: string;
         notMatching: string;
+        nestedNotMatching: { x: string };
+        nestedPartialMatch: { y: number; x: string };
         optionalInAOnly?: string;
         optionalInBoth?: string;
         excluded(): () => void;
@@ -243,6 +245,8 @@ type TestCommonProps = Assert<
         a: number;
         secondOnly: string;
         notMatching: number;
+        nestedNotMatching: { y: number };
+        nestedPartialMatch: { y: number };
         optionalInAOnly: string;
         optionalInBoth?: string;
         excluded(): () => void;

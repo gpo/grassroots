@@ -41,7 +41,7 @@ export function createDTOBase<TBrand extends string>(brand: TBrand) {
     // between entities or DTOs, or we get some type collicions.
     readonly __DTOBrand!: `${TBrand}DTO`;
     // Used for CASL to identify object types.
-    readonly __caslSubjectType: string = brand;
+    readonly __caslSubjectType: TBrand = brand;
 
     static from<T extends Branded>(
       // The this parameter must be named "this", and is magically populated with the class constructor.

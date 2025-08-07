@@ -4,7 +4,6 @@ import { useContactSearch } from "../hooks/useContactSearch";
 import { PaginatedContacts } from "../components/PaginatedContacts";
 import {
   ContactSearchRequestDTO,
-  PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
 } from "../grassroots-shared/Contact.dto";
 import { cast } from "../grassroots-shared/util/Cast";
@@ -24,7 +23,7 @@ function SharedSearch(): JSX.Element {
   const search = Route.useSearch();
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
-  let { data: paginatedContactResponse } = useContactSearch(
+  const { data: paginatedContactResponse } = useContactSearch(
     PaginatedContactSearchRequestDTO.from({
       contact: search,
       paginated: {
@@ -33,8 +32,6 @@ function SharedSearch(): JSX.Element {
       },
     }),
   );
-  paginatedContactResponse =
-    paginatedContactResponse ?? PaginatedContactResponseDTO.empty();
   return (
     <PaginatedContacts
       paginatedContactResponse={paginatedContactResponse}
