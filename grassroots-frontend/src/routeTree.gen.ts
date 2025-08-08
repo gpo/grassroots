@@ -8,90 +8,38 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as UsersRouteImport } from './routes/Users'
+import { Route as SharedSearchRouteImport } from './routes/SharedSearch'
+import { Route as SearchRouteImport } from './routes/Search'
+import { Route as CreateContactRouteImport } from './routes/CreateContact'
+import { Route as IndexRouteImport } from './routes/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as UsersImport } from './routes/Users'
-import { Route as SharedSearchImport } from './routes/SharedSearch'
-import { Route as SearchImport } from './routes/Search'
-import { Route as CreateContactImport } from './routes/CreateContact'
-import { Route as IndexImport } from './routes/index'
-
-// Create/Update Routes
-
-const UsersRoute = UsersImport.update({
+const UsersRoute = UsersRouteImport.update({
   id: '/Users',
   path: '/Users',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const SharedSearchRoute = SharedSearchImport.update({
+const SharedSearchRoute = SharedSearchRouteImport.update({
   id: '/SharedSearch',
   path: '/SharedSearch',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const SearchRoute = SearchImport.update({
+const SearchRoute = SearchRouteImport.update({
   id: '/Search',
   path: '/Search',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const CreateContactRoute = CreateContactImport.update({
+const CreateContactRoute = CreateContactRouteImport.update({
   id: '/CreateContact',
   path: '/CreateContact',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/CreateContact': {
-      id: '/CreateContact'
-      path: '/CreateContact'
-      fullPath: '/CreateContact'
-      preLoaderRoute: typeof CreateContactImport
-      parentRoute: typeof rootRoute
-    }
-    '/Search': {
-      id: '/Search'
-      path: '/Search'
-      fullPath: '/Search'
-      preLoaderRoute: typeof SearchImport
-      parentRoute: typeof rootRoute
-    }
-    '/SharedSearch': {
-      id: '/SharedSearch'
-      path: '/SharedSearch'
-      fullPath: '/SharedSearch'
-      preLoaderRoute: typeof SharedSearchImport
-      parentRoute: typeof rootRoute
-    }
-    '/Users': {
-      id: '/Users'
-      path: '/Users'
-      fullPath: '/Users'
-      preLoaderRoute: typeof UsersImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -100,7 +48,6 @@ export interface FileRoutesByFullPath {
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
@@ -108,16 +55,14 @@ export interface FileRoutesByTo {
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths: '/' | '/CreateContact' | '/Search' | '/SharedSearch' | '/Users'
@@ -132,13 +77,52 @@ export interface FileRouteTypes {
     | '/Users'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateContactRoute: typeof CreateContactRoute
   SearchRoute: typeof SearchRoute
   SharedSearchRoute: typeof SharedSearchRoute
   UsersRoute: typeof UsersRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/Users': {
+      id: '/Users'
+      path: '/Users'
+      fullPath: '/Users'
+      preLoaderRoute: typeof UsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/SharedSearch': {
+      id: '/SharedSearch'
+      path: '/SharedSearch'
+      fullPath: '/SharedSearch'
+      preLoaderRoute: typeof SharedSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/Search': {
+      id: '/Search'
+      path: '/Search'
+      fullPath: '/Search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/CreateContact': {
+      id: '/CreateContact'
+      path: '/CreateContact'
+      fullPath: '/CreateContact'
+      preLoaderRoute: typeof CreateContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -148,39 +132,6 @@ const rootRouteChildren: RootRouteChildren = {
   SharedSearchRoute: SharedSearchRoute,
   UsersRoute: UsersRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/CreateContact",
-        "/Search",
-        "/SharedSearch",
-        "/Users"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/CreateContact": {
-      "filePath": "CreateContact.tsx"
-    },
-    "/Search": {
-      "filePath": "Search.tsx"
-    },
-    "/SharedSearch": {
-      "filePath": "SharedSearch.tsx"
-    },
-    "/Users": {
-      "filePath": "Users.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

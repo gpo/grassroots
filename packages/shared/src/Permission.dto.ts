@@ -1,4 +1,4 @@
-import { IsEnum } from "class-validator";
+import { IsEnum, IsArray } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { applyDecorators } from "@nestjs/common";
 import { createDTOBase } from "./util/CreateDTOBase";
@@ -21,6 +21,7 @@ export function PermissionsDecorator(): PropertyDecorator {
 }
 
 export class PermissionsDTO extends createDTOBase("Permissions") {
-  @PermissionsDecorator()
+  @IsEnum(PermissionEnum)
+  @IsArray()
   permissions!: Permission[];
 }

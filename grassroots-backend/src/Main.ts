@@ -18,7 +18,7 @@ import { graphDependencies } from "./util/GraphDependencies";
 import { writeFormatted } from "./util/FormattingWriter";
 
 const openAPISchemaPath = "./openAPI.json";
-const openAPITSSchemaPath = "./src/grassroots-shared/OpenAPI.gen.ts";
+const openAPITSSchemaPath = "@grassroots/shared/src/OpenAPI.gen.ts";
 
 async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
   performance.mark("writeOpenAPI");

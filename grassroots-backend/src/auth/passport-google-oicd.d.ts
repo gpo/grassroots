@@ -3,17 +3,13 @@
 module "passport-google-oidc" {
   import type {
     OpenIDConnectStrategy,
-    VerifyFunction,
-    VerifyCallback,
-    Profile,
+    VerifyFunction as PassportVerifyFunction,
+    VerifyCallback as PassportVerifyCallback,
+    Profile as PassportProfile,
   } from "passport-openidconnect";
 
-  export const Strategy: OpenIDConnectStrategy;
-  export type VerifyFunction = (
-    issuer: string,
-    profile: Profile,
-    done: VerifyCallback,
-  ) => void;
-  export type VerifyCallback = VerifyCallback;
-  export type Profile = Profile;
+  export const Strategy: typeof OpenIDConnectStrategy;
+  export type VerifyFunction = PassportVerifyFunction;
+  export type VerifyCallback = PassportVerifyCallback;
+  export type Profile = PassportProfile;
 }
