@@ -1,7 +1,8 @@
-import mikroORMConfig from "../mikro-orm.config";
+import createMikroORMConfig from "../mikro-orm.config";
 import { MikroORM } from "@mikro-orm/core";
 
 export default async function setup(): Promise<void> {
+  const mikroORMConfig = await createMikroORMConfig();
   const orm = await MikroORM.init(mikroORMConfig);
   const generator = orm.getSchemaGenerator();
   await generator.dropSchema();
