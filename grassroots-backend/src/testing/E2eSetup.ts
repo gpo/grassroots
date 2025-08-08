@@ -4,7 +4,7 @@ import { paths } from "../grassroots-shared/OpenAPI.gen";
 import { getTestApp, TestSpecificDependencies } from "./GetTestApp";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
 import { TestFixture, TestFixtureProps } from "./Setup";
-import { EntityManager } from "@mikro-orm/core";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 type GrassRootsAPIRaw = (
   path: keyof paths,

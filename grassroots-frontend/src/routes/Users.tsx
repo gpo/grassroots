@@ -12,11 +12,10 @@ export const Route = createFileRoute("/Users")({
 function Users(): JSX.Element {
   const { data: users } = useQuery<UsersDTO>({
     queryKey: ["users"],
-    initialData: UsersDTO.from({ users: [] }),
     queryFn: async () => {
       const result = await grassrootsAPI.GET("/users", {});
       return UsersDTO.fromFetchOrThrow(result);
     },
   });
-  return <div>{users.users.map((x) => UserRow({ user: x }))}</div>;
+  return <div>{(users?.users ?? []).map((x) => UserRow({ user: x }))}</div>;
 }

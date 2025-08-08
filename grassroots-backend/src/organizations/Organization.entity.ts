@@ -9,8 +9,8 @@ import {
 } from "@mikro-orm/core";
 import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
 import { createEntityBase } from "../util/CreateEntityBase";
+import { ContactEntity } from "../contacts/entities/Contact.entity";
 import { OrganizationRepository } from "./Organization.repo";
-import { UserRoleEntity } from "../users/UserRole.entity";
 
 @Entity({ repository: () => OrganizationRepository })
 export class OrganizationEntity extends createEntityBase<
@@ -33,8 +33,8 @@ export class OrganizationEntity extends createEntityBase<
   @OneToMany(() => OrganizationEntity, (organization) => organization.parent)
   children = new Collection<OrganizationEntity>(this);
 
-  @OneToMany(() => UserRoleEntity, (userRole) => userRole.organization)
-  userRoles = new Collection<UserRoleEntity>(this);
+  @OneToMany(() => ContactEntity, (contact) => contact.organization)
+  contacts = new Collection<typeof ContactEntity>(this);
 
   toDTO(): OrganizationDTO {
     return OrganizationDTO.from({
