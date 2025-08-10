@@ -3,7 +3,6 @@ import {
   can,
   buildCASLSubject,
   permissionsToCaslAbilities,
-  getAccessRules,
   AppAbility,
 } from "../grassroots-shared/Permission";
 import { UserDTO } from "../grassroots-shared/User.dto";
@@ -13,6 +12,7 @@ import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity";
 import { OrganizationEntity } from "../organizations/Organization.entity";
 import { AbilityBuilder, createMongoAbility } from "@casl/ability";
+import { getAccessRules } from "../auth/CASLIntegration";
 
 const ORG_WITH_PERMISSIONS_ID = 10;
 

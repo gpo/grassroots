@@ -2,14 +2,10 @@ import {
   AbilityBuilder,
   createMongoAbility,
   MongoAbility,
-  MongoQuery,
   subject,
 } from "@casl/ability";
-import { UserEntity } from "../users/User.entity";
-import { ContactEntity } from "../contacts/entities/Contact.entity";
-import { CommonProps } from "./util/TypeUtils";
-import { AbilityQuery, rulesToQuery } from "@casl/ability/extra";
-import { FilterQuery } from "@mikro-orm/core";
+
+import { CASLSubjects } from "@shared/CASLSubjects";
 
 export enum Permission {
   VIEW_CONTACTS = "VIEW_CONTACTS",
@@ -17,20 +13,7 @@ export enum Permission {
   MANAGE_USERS = "MANAGE_USERS",
 }
 
-type Action = "read" | "edit";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SUBJECTS = [UserEntity, ContactEntity] as const;
-
-type SubjectConstructors = (typeof SUBJECTS)[number];
-
-// CommonProps is stripping out the subject type right now...
-export type CASLSubjects = {
-  [SubjectConstructor in SubjectConstructors as SubjectConstructor["__caslSubjectTypeStatic"]]: CommonProps<
-    InstanceType<SubjectConstructor>,
-    ReturnType<InstanceType<SubjectConstructor>["toDTO"]>
-  > & { __caslSubjectType: SubjectConstructor["__caslSubjectTypeStatic"] };
-};
+export type CASLAction = "read" | "edit";
 
 export function buildCASLSubject<K extends keyof CASLSubjects>(
   k: K,
@@ -41,7 +24,7 @@ export function buildCASLSubject<K extends keyof CASLSubjects>(
   return {
     ...x,
     __caslSubjectType: k,
-  } as CASLSubjects[K];
+  } as unknown as CASLSubjects[K];
 }
 
 type CASLSubjectUnion = CASLSubjects[keyof CASLSubjects];
@@ -50,92 +33,18 @@ type CASLSubjectUnion = CASLSubjects[keyof CASLSubjects];
 // It maps from strings to object types via `detectSubjectType` below.
 // TODO: don't export once we have better tests.
 export type AppAbility = MongoAbility<
-  [Action, keyof CASLSubjects | CASLSubjectUnion]
+  [CASLAction, keyof CASLSubjects | CASLSubjectUnion]
 >;
 
 // CASL uses "can" both to define abilities and query them.
 // Note that this is the method for querying.
 export function can(
   ability: AppAbility,
-  action: Action,
+  action: CASLAction,
   type: keyof CASLSubjects,
   object: CASLSubjectUnion,
 ): boolean {
   return ability.can(action, subject(type, object));
-}
-
-// We need this strongly typed, so this is copied from MikroORM's QueryOperator.
-const OPERATORS = [
-  "$and",
-  "$or",
-  "$eq",
-  "$ne",
-  "$in",
-  "$nin",
-  "$not",
-  "$none",
-  "$some",
-  "$every",
-  "$gt",
-  "$gte",
-  "$lt",
-  "$lte",
-  "$like",
-  "$re",
-  "$ilike",
-  "$fulltext",
-  "$overlap",
-  "$contains",
-  "$contained",
-  "$exists",
-  "$hasKey",
-  "$hasKeys",
-  "$hasSomeKeys",
-] as const;
-
-const OPERATORS_SET = new Set<string>(OPERATORS);
-
-// Based on https://casl.js.org/v4/en/advanced/ability-to-database-query.
-// This is mostly a silly cast currently. As we run into failure cases,
-// we'll need to handle them appropriately.
-function mapOperators<T>(query: AbilityQuery<MongoQuery>): FilterQuery<T> {
-  JSON.parse(JSON.stringify(query), function keyToSymbol<
-    TValue,
-  >(key: string, value: TValue): TValue {
-    if (key.startsWith("$")) {
-      if (!OPERATORS_SET.has(key)) {
-        throw new Error(`Invalid operator in CASL rule: ${key}`);
-      }
-    }
-
-    return value;
-  });
-
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  return query as FilterQuery<T>;
-}
-
-// Returns null if access is never appropriate.
-export function getAccessRules<
-  T extends {
-    new (...args: unknown[]): unknown;
-    __caslSubjectTypeStatic: keyof CASLSubjects;
-  },
-  TInstance = InstanceType<T>,
->(ability: AppAbility, action: Action, type: T): FilterQuery<TInstance> | null {
-  const query: AbilityQuery<MongoQuery> | null = rulesToQuery<
-    AppAbility,
-    MongoQuery
-  >(ability, action, type.__caslSubjectTypeStatic, (rule) => {
-    if (rule.conditions === undefined) {
-      throw new Error("CASL rule with null conditions");
-    }
-    return rule.inverted ? { $not: rule.conditions } : rule.conditions;
-  });
-  if (query === null) {
-    return null;
-  }
-  return mapOperators<TInstance>(query);
 }
 
 export function permissionsToCaslAbilities(
