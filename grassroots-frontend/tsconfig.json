@@ -18,8 +18,12 @@
     "experimentalDecorators": true,
     "paths": {
       "@nestjs/common": ["./src/NestCommonShim"],
-      "@nestjs/swagger": ["./src/NestCommonShim"]
+      "@nestjs/swagger": ["./src/NestCommonShim"],
+      "@shared/CASLSubjects": [
+        "./src/grassroots-shared/CASLSubjects/CASLSubjects.frontend.ts"
+      ]
     }
   },
-  "include": ["src", "grassroots-shared", "vite.config.ts"]
+  "include": ["src", "grassroots-shared", "vite.config.ts"],
+  "exclude": ["src/grassroots-shared/CASLSubjects/CASLSubjects.backend.ts"]
 }

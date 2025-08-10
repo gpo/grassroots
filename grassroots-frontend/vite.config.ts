@@ -23,6 +23,10 @@ export default defineConfig({
     alias: {
       "@nestjs/common": path.resolve(__dirname, "./src/NestCommonShim"),
       "@nestjs/swagger": path.resolve(__dirname, "./src/NestCommonShim"),
+      "@shared/CASLSubjects": path.resolve(
+        __dirname,
+        "./src/grassroots-shared/CASLSubjects/CASLSubjects.frontend.ts",
+      ),
     },
   },
 });

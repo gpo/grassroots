@@ -7,6 +7,7 @@ import {
 } from "../grassroots-shared/Organization.dto";
 import { EntityManager } from "@mikro-orm/core";
 import { OrganizationRepository } from "./Organization.repo";
+import { asProps } from "../grassroots-shared/util/AsProps";
 
 @Injectable()
 export class OrganizationsService {
@@ -20,7 +21,7 @@ export class OrganizationsService {
     organization: CreateOrganizationNoParentRequestDTO,
     parentID: number | null,
   ): Promise<OrganizationEntity> {
-    const newOrganization = this.repo.create(organization);
+    const newOrganization = this.repo.create(asProps(organization));
 
     if (parentID != null) {
       const parent = await this.repo.findOne({
