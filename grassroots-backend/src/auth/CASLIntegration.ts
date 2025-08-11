@@ -1,8 +1,9 @@
 import { MongoQuery } from "@casl/ability";
 import { AbilityQuery, rulesToQuery } from "@casl/ability/extra";
 import { FilterQuery } from "@mikro-orm/core";
-import { AppAbility, CASLAction } from "../grassroots-shared/Permission";
 import { CASLSubjects } from "@shared/CASLSubjects";
+import { AppAbility } from "src/grassroots-shared/CASL/CASLInfra";
+import { CASLAction } from "src/grassroots-shared/Permission";
 
 // Pulled from MikroORM's GroupOperator / QueryOperator, which are enums, and we can't easily extract a list of their keys.
 const OPERATORS = [
@@ -39,7 +40,7 @@ const OPERATORS_SET = new Set<string>(OPERATORS);
 // This is mostly a silly cast currently. As we run into failure cases,
 // we'll need to handle them appropriately.
 function mapOperators<T>(query: AbilityQuery<MongoQuery>): FilterQuery<T> {
-  JSON.parse(JSON.stringify(query), function keyToSymbol<
+  JSON.parse(JSON.stringify(query), function validateKey<
     TValue,
   >(key: string, value: TValue): TValue {
     if (key.startsWith("$")) {
