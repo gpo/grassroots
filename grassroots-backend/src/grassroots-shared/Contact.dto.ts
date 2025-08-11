@@ -33,6 +33,10 @@ export class ContactDTO extends createDTOBase("Contact") {
   @ValidateNested()
   organization!: OrganizationDTO;
 
+  @IsInt()
+  @Min(1)
+  organizationId!: number;
+
   @IsPhoneNumber("CA")
   phoneNumber!: string;
 }

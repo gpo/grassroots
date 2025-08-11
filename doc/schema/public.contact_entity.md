@@ -4,22 +4,22 @@
 
 ## Columns
 
-| Name            | Type         | Default                                    | Nullable | Children | Parents                                                     | Comment |
-| --------------- | ------------ | ------------------------------------------ | -------- | -------- | ----------------------------------------------------------- | ------- |
-| id              | integer      | nextval('contact_entity_id_seq'::regclass) | false    |          |                                                             |         |
-| email           | varchar(255) |                                            | false    |          |                                                             |         |
-| first_name      | varchar(255) |                                            | false    |          |                                                             |         |
-| last_name       | varchar(255) |                                            | false    |          |                                                             |         |
-| phone_number    | varchar(255) |                                            | false    |          |                                                             |         |
-| organization_id | integer      |                                            | false    |          | [public.organization_entity](public.organization_entity.md) |         |
+| Name           | Type         | Default                                    | Nullable | Children | Parents                                                     | Comment |
+| -------------- | ------------ | ------------------------------------------ | -------- | -------- | ----------------------------------------------------------- | ------- |
+| id             | integer      | nextval('contact_entity_id_seq'::regclass) | false    |          |                                                             |         |
+| email          | varchar(255) |                                            | false    |          |                                                             |         |
+| first_name     | varchar(255) |                                            | false    |          |                                                             |         |
+| last_name      | varchar(255) |                                            | false    |          |                                                             |         |
+| phone_number   | varchar(255) |                                            | false    |          |                                                             |         |
+| organizationId | integer      |                                            | false    |          | [public.organization_entity](public.organization_entity.md) |         |
 
 ## Constraints
 
-| Name                                   | Type        | Definition                                                                         |
-| -------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
-| contact_entity_organization_id_foreign | FOREIGN KEY | FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE |
-| contact_entity_pkey                    | PRIMARY KEY | PRIMARY KEY (id)                                                                   |
-| contact_entity_email_unique            | UNIQUE      | UNIQUE (email)                                                                     |
+| Name                                  | Type        | Definition                                                                          |
+| ------------------------------------- | ----------- | ----------------------------------------------------------------------------------- |
+| contact_entity_organizationId_foreign | FOREIGN KEY | FOREIGN KEY ("organizationId") REFERENCES organization_entity(id) ON UPDATE CASCADE |
+| contact_entity_pkey                   | PRIMARY KEY | PRIMARY KEY (id)                                                                    |
+| contact_entity_email_unique           | UNIQUE      | UNIQUE (email)                                                                      |
 
 ## Indexes
 
@@ -41,7 +41,7 @@ erDiagram
   varchar_255_ first_name
   varchar_255_ last_name
   varchar_255_ phone_number
-  integer organization_id FK
+  integer organizationId FK
 }
 "public.organization_entity" {
   integer id

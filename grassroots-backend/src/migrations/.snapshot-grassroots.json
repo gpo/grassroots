@@ -118,8 +118,8 @@
           "length": 255,
           "mappedType": "string"
         },
-        "organization_id": {
-          "name": "organization_id",
+        "organizationId": {
+          "name": "organizationId",
           "type": "int",
           "unsigned": false,
           "autoincrement": false,
@@ -154,10 +154,10 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "contact_entity_organization_id_foreign": {
-          "constraintName": "contact_entity_organization_id_foreign",
+        "contact_entity_organizationId_foreign": {
+          "constraintName": "contact_entity_organizationId_foreign",
           "columnNames": [
-            "organization_id"
+            "organizationId"
           ],
           "localTableName": "public.contact_entity",
           "referencedColumnNames": [
