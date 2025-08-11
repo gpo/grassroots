@@ -12,6 +12,7 @@
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
+    "baseUrl": "./",
     "paths": {
       "@shared/CASLSubjects": [
         "./src/grassroots-shared/CASLSubjects/CASLSubjects.backend.ts"
