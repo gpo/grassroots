@@ -171,7 +171,7 @@
           "nullable": false
         },
         {
-          "name": "organization_id",
+          "name": "organizationId",
           "type": "integer",
           "nullable": false
         }
@@ -192,12 +192,12 @@
       ],
       "constraints": [
         {
-          "name": "contact_entity_organization_id_foreign",
+          "name": "contact_entity_organizationId_foreign",
           "type": "FOREIGN KEY",
-          "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE",
+          "def": "FOREIGN KEY (\"organizationId\") REFERENCES organization_entity(id) ON UPDATE CASCADE",
           "table": "public.contact_entity",
           "referenced_table": "organization_entity",
-          "columns": ["organization_id"],
+          "columns": ["organizationId"],
           "referenced_columns": ["id"]
         },
         {
@@ -299,12 +299,12 @@
     },
     {
       "table": "public.contact_entity",
-      "columns": ["organization_id"],
+      "columns": ["organizationId"],
       "cardinality": "zero_or_more",
       "parent_table": "public.organization_entity",
       "parent_columns": ["id"],
       "parent_cardinality": "exactly_one",
-      "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE"
+      "def": "FOREIGN KEY (\"organizationId\") REFERENCES organization_entity(id) ON UPDATE CASCADE"
     },
     {
       "table": "public.user_role_entity",
