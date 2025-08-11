@@ -20,10 +20,10 @@
       "@nestjs/common": ["./src/NestCommonShim"],
       "@nestjs/swagger": ["./src/NestCommonShim"],
       "@shared/CASLSubjects": [
-        "./src/grassroots-shared/CASLSubjects/CASLSubjects.frontend.ts"
+        "./src/grassroots-shared/CASL/CASLSubjects.frontend.ts"
       ]
     }
   },
   "include": ["src", "grassroots-shared", "vite.config.ts"],
-  "exclude": ["src/grassroots-shared/CASLSubjects/CASLSubjects.backend.ts"]
+  "exclude": ["src/grassroots-shared/CASL/CASLSubjects.backend.ts"]
 }

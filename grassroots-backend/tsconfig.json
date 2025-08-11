@@ -15,7 +15,7 @@
     "baseUrl": "./",
     "paths": {
       "@shared/CASLSubjects": [
-        "./src/grassroots-shared/CASLSubjects/CASLSubjects.backend.ts"
+        "./src/grassroots-shared/CASL/CASLSubjects.backend.ts"
       ]
     }
   },
