@@ -18,7 +18,6 @@ import { getEnvironmentVariables } from "../GetEnvironmentVariables";
 
 @Controller("auth")
 export class AuthController {
-  // The frontend can redirect here to trigger login.
   @Get("login")
   @UseGuards(OAuthGuard)
   @PublicRoute()
@@ -49,25 +48,21 @@ export class AuthController {
       throw new Error("No user found for login.");
     }
 
+    const user = req.user;
+
     // The session doesn't contain the redirect path by the time req.login is called,
     const redirectPath = req.session.redirect_path ?? host;
-    // To prevent a redirect path accidentally being used multiple times, clear this
-    // as soon as it's read.
+
     req.session.redirect_path = undefined;
 
     await new Promise<void>((resolve, reject) => {
-      // req.user is guaranteed to be defined here due to the check above
-      req.login(req.user, (err: unknown) => {
+      req.login(user, (err: unknown) => {
         if (err !== undefined) {
           reject(
             err instanceof Error
               ? err
               : new Error(
-                  err === null
-                    ? "null"
-                    : typeof err === "object"
-                      ? JSON.stringify(err)
-                      : String(err),
+                  typeof err === "string" ? err : "Unknown error occurred",
                 ),
           );
           return;
@@ -95,11 +90,7 @@ export class AuthController {
             err instanceof Error
               ? err
               : new Error(
-                  err === null
-                    ? "null"
-                    : typeof err === "object"
-                      ? JSON.stringify(err)
-                      : String(err),
+                  typeof err === "string" ? err : "Unknown error occurred",
                 ),
           );
           return;
