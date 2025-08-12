@@ -1,4 +1,4 @@
-import "@mantine/core/styles.css";
+"@mantine/core/styles.css";
 
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 
@@ -58,7 +58,12 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
     const loginState = await context.loginState;
     if (!loginState) {
-      navigateToBackendRoute("/auth/login", { redirect_path: location.href });
+      // Correctly construct the URL with the query parameter before navigating.
+      // The original function call was passing a second argument which is not expected.
+      const redirectUrl = `/auth/login?redirect_path=${encodeURIComponent(
+        location.href,
+      )}`;
+      navigateToBackendRoute("/auth/login", { redirect_path: redirectUrl });
     }
   },
 });
