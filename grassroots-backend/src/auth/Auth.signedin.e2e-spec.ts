@@ -14,7 +14,7 @@ describe("AuthController (e2e) while signed in", () => {
   it("Provides info on a logged in user", async () => {
     const f = getFixture();
     const response = LoginStateDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.GET("/auth/example_route_using_user"),
+      await f.grassrootsAPI.GET("/auth/is_authenticated"),
     );
 
     expect(response.user?.id).toBe(MOCK_AUTH_GUARD_USER.id);

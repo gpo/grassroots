@@ -49,11 +49,15 @@ export async function listenAndConfigureApp(
     user: notNull(mikroORMConfig.user, "postgres user is null"),
     host: mikroORMConfig.host,
     database: mikroORMConfig.dbName,
-    password: notNull(
-      process.env.POSTGRES_PASSWORD,
-      "postgres password is null",
+    password: String(
+      notNull(mikroORMConfig.password, "postgres password is null"),
     ),
     port: mikroORMConfig.port,
+    // Add SSL settings to match MikroORM config
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? { rejectUnauthorized: false }
+        : false,
   });
   const PgStore = connectPgSimple(expressSession);
   app.use(

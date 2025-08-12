@@ -26,10 +26,8 @@ export async function getTestApp(
     return { app };
   }
 
-  // Get the config to extract entities
   const mikroORMConfigData = await createMikroORMConfig();
 
-  // Load environment variables using your function
   const envVars = await getEnvironmentVariables();
 
   let builder = Test.createTestingModule({

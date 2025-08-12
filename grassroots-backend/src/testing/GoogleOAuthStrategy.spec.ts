@@ -17,7 +17,12 @@ describe("GoogleOAuthStrategy", () => {
     const usersService = fixture.app.get<UsersService>(UsersService);
 
     return {
-      strategy: new GoogleOAuthStrategy(usersService),
+      strategy: new GoogleOAuthStrategy(
+        usersService,
+        "test-client-id",
+        "test-client-secret",
+        "/auth/google/callback",
+      ),
       usersService,
     };
   }
@@ -25,10 +30,6 @@ describe("GoogleOAuthStrategy", () => {
   it("should create a user", async () => {
     const FAKE_ID = "testID";
     const { strategy, usersService } = useContext();
-
-    // Initialize the strategy (this will load environment variables)
-    await strategy.onModuleInit();
-
     const before = await usersService.findOneById(FAKE_ID);
     expect(before).toBe(null);
 

@@ -7,6 +7,7 @@ import {
   UseGuards,
   Query,
 } from "@nestjs/common";
+import { ApiQuery, ApiProperty } from "@nestjs/swagger";
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
@@ -17,12 +18,11 @@ import { getEnvironmentVariables } from "../GetEnvironmentVariables";
 
 @Controller("auth")
 export class AuthController {
-  // Removed caching as Tim suggested - getEnvironmentVariables() already has cache
-
   // The frontend can redirect here to trigger login.
   @Get("login")
   @UseGuards(OAuthGuard)
   @PublicRoute()
+  @ApiQuery({ name: "redirect_path", type: String, required: false })
   login(@Query("redirect_path") redirectPath: string): VoidDTO {
     // The redirect path is used by the OAuth guard.
     void redirectPath;
@@ -32,17 +32,19 @@ export class AuthController {
   @Get("google/callback")
   @UseGuards(OAuthGuard)
   @PublicRoute()
+  @ApiProperty()
   async googleAuthRedirect(
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
   ): Promise<VoidDTO> {
-    // Call getEnvironmentVariables directly each time (no caching)
     const environmentVariables = await getEnvironmentVariables();
 
     const host = environmentVariables.FRONTEND_HOST;
     if (host === undefined) {
       throw new Error("Missing env variable for FRONTEND_HOST");
     }
+
+    // Check if user exists before using it
     if (req.user === undefined) {
       throw new Error("No user found for login.");
     }
@@ -54,9 +56,20 @@ export class AuthController {
     req.session.redirect_path = undefined;
 
     await new Promise<void>((resolve, reject) => {
+      // req.user is guaranteed to be defined here due to the check above
       req.login(req.user, (err: unknown) => {
         if (err !== undefined) {
-          reject(err instanceof Error ? err : new Error("Login failed"));
+          reject(
+            err instanceof Error
+              ? err
+              : new Error(
+                  err === null
+                    ? "null"
+                    : typeof err === "object"
+                      ? JSON.stringify(err)
+                      : String(err),
+                ),
+          );
           return;
         }
         resolve();
@@ -73,20 +86,22 @@ export class AuthController {
     return LoginStateDTO.from({ user: req.user ?? undefined });
   }
 
-  // This is an example of using user info, to enable a test.
-  // TODO: remove this once we have real routes using user info.
-  @Get("example_route_using_user")
-  // Not sure why UseGuards breaks the OpenAPI plugin.
-  example(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return LoginStateDTO.from({ user: req.user });
-  }
-
   @Post("logout")
   async logout(@Request() req: GrassrootsRequest): Promise<VoidDTO> {
     return new Promise((resolve, reject) => {
       req.logout((err: unknown) => {
         if (err !== undefined) {
-          reject(err instanceof Error ? err : new Error("Logout failed"));
+          reject(
+            err instanceof Error
+              ? err
+              : new Error(
+                  err === null
+                    ? "null"
+                    : typeof err === "object"
+                      ? JSON.stringify(err)
+                      : String(err),
+                ),
+          );
           return;
         }
         resolve(VoidDTO.get());

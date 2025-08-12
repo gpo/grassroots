@@ -7,9 +7,7 @@ import {
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "../users/Users.service";
-import OpenIDConnectStrategy from "passport-openidconnect";
 import { UserDTO } from "../grassroots-shared/User.dto";
-import { getEnvironmentVariables } from "../GetEnvironmentVariables";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
 
@@ -18,38 +16,18 @@ export class GoogleOAuthStrategy extends PassportStrategy(
   GoogleStrategy,
   DEFAULT_PASSPORT_STRATEGY_NAME,
 ) {
-  constructor(private userService: UsersService) {
+  constructor(
+    private userService: UsersService,
+    clientId: string,
+    clientSecret: string,
+    callbackURL: string,
+  ) {
     super({
-      clientID: "temp",
-      clientSecret: "temp",
-      callbackURL: "temp",
+      clientID: clientId,
+      clientSecret: clientSecret,
+      callbackURL: callbackURL,
       scope: ["email", "profile"],
-    } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
-  }
-
-  async onModuleInit(): Promise<void> {
-    const envVars = await getEnvironmentVariables();
-
-    const clientID = envVars.GOOGLE_CLIENT_ID;
-    if (clientID === undefined) {
-      throw new Error("Missing environment variable GOOGLE_CLIENT_ID");
-    }
-    const clientSecret = envVars.GOOGLE_CLIENT_SECRET;
-    if (clientSecret === undefined) {
-      throw new Error("Missing environment variable GOOGLE_CLIENT_SECRET");
-    }
-    const callbackURL = envVars.GOOGLE_AUTH_CALLBACK_URL;
-    if (callbackURL === undefined) {
-      throw new Error("Missing environment variable GOOGLE_AUTH_CALLBACK_URL");
-    }
-
-    // We need to access private properties - disable ESLint for these lines
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-    (this as any)._oauth2._clientId = clientID;
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-    (this as any)._oauth2._clientSecret = clientSecret;
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-    (this as any)._callbackURL = callbackURL;
+    });
   }
 
   validate: VerifyFunction = async (
