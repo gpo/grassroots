@@ -20,6 +20,14 @@ type PathsWithGetMap = {
           ? Q
           : never;
       };
+} & {
+  // Add an explicit entry for /auth/login as it doesn't appear in paths.
+  "/auth/login": {
+    path: "/auth/login";
+    query: {
+      redirect_path: string;
+    };
+  };
 };
 
 type QueryRecord = Record<string, string>;

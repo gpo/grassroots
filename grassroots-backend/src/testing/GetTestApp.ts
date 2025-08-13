@@ -1,5 +1,4 @@
 import { Test } from "@nestjs/testing";
-import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Type } from "@nestjs/common";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
@@ -8,7 +7,8 @@ import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
 import { MockSessionGuard } from "./MockAuthGuard";
 import { SessionGuard } from "../auth/Session.guard";
-import mikroORMConfig from "./../mikro-orm.config";
+import createMikroORMConfig from "./../mikro-orm.config";
+import { getEnvironmentVariables } from "../GetEnvironmentVariables";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -25,25 +25,28 @@ export async function getTestApp(
   if (app) {
     return { app };
   }
+
+  const mikroORMConfigData = await createMikroORMConfig();
+
+  const envVars = await getEnvironmentVariables();
+
   let builder = Test.createTestingModule({
     imports: [
       MikroOrmModule.forRootAsync({
-        imports: [ConfigModule],
         driver: PostgreSqlDriver,
-        useFactory: (config: ConfigService): MikroOrmModuleOptions => {
+        useFactory: (): MikroOrmModuleOptions => {
           return {
             driver: PostgreSqlDriver,
-            host: config.get<string>("POSTGRES_HOST"),
-            port: config.get<number>("POSTGRES_PORT"),
-            user: config.get<string>("POSTGRES_USER"),
-            password: config.get<string>("POSTGRES_PASSWORD"),
-            dbName: config.get<string>("POSTGRES_DATABASE"),
-            entities: mikroORMConfig.entities,
+            host: envVars.POSTGRES_HOST,
+            port: Number(envVars.POSTGRES_PORT),
+            user: envVars.POSTGRES_USER,
+            password: envVars.POSTGRES_PASSWORD,
+            dbName: envVars.POSTGRES_DATABASE,
+            entities: mikroORMConfigData.entities,
             // Allows global transaction management, used for our rollback based testing strategy.
             allowGlobalContext: true,
           };
         },
-        inject: [ConfigService],
       }),
       PassportModuleImport(),
       ...(dependencies.imports ?? []),

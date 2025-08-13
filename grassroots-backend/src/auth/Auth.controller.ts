@@ -7,27 +7,24 @@ import {
   UseGuards,
   Query,
 } from "@nestjs/common";
+import { ApiQuery, ApiProperty } from "@nestjs/swagger";
 import { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest";
-import { ConfigService } from "@nestjs/config";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
 import { VoidDTO } from "../grassroots-shared/Void.dto";
-import { ApiProperty, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator";
 import { OAuthGuard } from "./OAuth.guard";
+import { getEnvironmentVariables } from "../GetEnvironmentVariables";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private configService: ConfigService) {}
-
-  // The frontend can redirect here to trigger login.
   @Get("login")
   @UseGuards(OAuthGuard)
   @PublicRoute()
-  @ApiQuery({ name: "redirect_path", type: String })
-  login(@Query() redirect_path: string): VoidDTO {
+  @ApiQuery({ name: "redirect_path", type: String, required: false })
+  login(@Query("redirect_path") redirectPath: string): VoidDTO {
     // The redirect path is used by the OAuth guard.
-    void redirect_path;
+    void redirectPath;
     return VoidDTO.get();
   }
 
@@ -35,57 +32,70 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   @PublicRoute()
   @ApiProperty()
-  googleAuthRedirect(
+  async googleAuthRedirect(
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
-  ): VoidDTO {
-    const host = this.configService.get<string>("FRONTEND_HOST");
+  ): Promise<VoidDTO> {
+    const environmentVariables = await getEnvironmentVariables();
+
+    const host = environmentVariables.FRONTEND_HOST;
     if (host === undefined) {
       throw new Error("Missing env variable for FRONTEND_HOST");
     }
-    if (!req.user) {
+
+    // Check if user exists before using it
+    if (req.user === undefined) {
       throw new Error("No user found for login.");
     }
+
+    const user = req.user;
+
     // The session doesn't contain the redirect path by the time req.login is called,
-    // so make sure to stash it here.
     const redirectPath = req.session.redirect_path ?? host;
-    // To prevent a redirect path accidentally being used multiple times, clear this
-    // as soon as it's read.
+
     req.session.redirect_path = undefined;
 
-    req.login(req.user, (err) => {
-      if (err !== undefined) {
-        throw err;
-      }
-      response.redirect(redirectPath);
+    await new Promise<void>((resolve, reject) => {
+      req.login(user, (err: unknown) => {
+        if (err !== undefined) {
+          reject(
+            err instanceof Error
+              ? err
+              : new Error(
+                  typeof err === "string" ? err : "Unknown error occurred",
+                ),
+          );
+          return;
+        }
+        resolve();
+      });
     });
+
+    response.redirect(redirectPath);
     return VoidDTO.get();
   }
 
   @Get("is_authenticated")
   @PublicRoute()
   isUserLoggedIn(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return LoginStateDTO.from({ user: req.user });
-  }
-
-  // This is an example of using user info, to enable a test.
-  // TODO: remove this once we have real routes using user info.
-  @Get("example_route_using_user")
-  // Not sure why UseGuards breaks the OpenAPI plugin.
-  @ApiResponse({ status: 200, type: LoginStateDTO })
-  example(@Request() req: GrassrootsRequest): LoginStateDTO {
-    return LoginStateDTO.from({ user: req.user });
+    return LoginStateDTO.from({ user: req.user ?? undefined });
   }
 
   @Post("logout")
   async logout(@Request() req: GrassrootsRequest): Promise<VoidDTO> {
     return new Promise((resolve, reject) => {
-      req.logout((err: Error | undefined) => {
+      req.logout((err: unknown) => {
         if (err !== undefined) {
-          reject(err);
-        } else {
-          resolve(VoidDTO.from({}));
+          reject(
+            err instanceof Error
+              ? err
+              : new Error(
+                  typeof err === "string" ? err : "Unknown error occurred",
+                ),
+          );
+          return;
         }
+        resolve(VoidDTO.get());
       });
     });
   }
