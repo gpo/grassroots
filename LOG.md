@@ -45,7 +45,7 @@ npm create vite@latest # typescript + SWC
 
 ```sh
 cd grassroots-backend
-npx nest generate resource contacts # Rest, generate entry points.
+pnpm exec nest generate resource contacts # Rest, generate entry points.
 ```
 
 # Bootstrapping Nest

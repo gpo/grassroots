@@ -24,6 +24,8 @@ RUN deluser node --remove-home \
 
 COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
+RUN npm install -g pnpm
+
 # We need to make these before we mount them to make sure the permissions are correct.
 RUN mkdir node_modules && \
     mkdir -p grassroots-frontend/node_modules && \
