@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { useE2ETestFixture } from "../testing/E2eSetup";
-import { RolesDTO } from "../grassroots-shared/Role.dto";
+import { RolesDTO } from "grassroots-shared/Role.dto";
 
 describe("Roles (e2e)", () => {
   const getFixture = useE2ETestFixture({

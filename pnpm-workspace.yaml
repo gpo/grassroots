@@ -1,3 +1,9 @@
+packages:
+  - grassroots-backend
+  - grassroots-frontend
+  - eslint_rules
+  - grassroots-shared
+
 ignoredBuiltDependencies:
   - esbuild
   - "@nestjs/core"

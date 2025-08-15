@@ -8,7 +8,7 @@ import {
   Unique,
 } from "@mikro-orm/core";
 import "reflect-metadata";
-import { ContactDTO } from "../../grassroots-shared/Contact.dto";
+import { ContactDTO } from "../grassroots-shared/Contact.dto";
 import { createEntityBase } from "../../util/CreateEntityBase";
 import { OrganizationEntity } from "../../organizations/Organization.entity";
 

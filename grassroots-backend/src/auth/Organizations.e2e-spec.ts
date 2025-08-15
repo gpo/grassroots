@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { useE2ETestFixture } from "../testing/E2eSetup";
-import { OrganizationsDTO } from "../grassroots-shared/Organization.dto";
+import { OrganizationsDTO } from "grassroots-shared/Organization.dto";
 import { createOrganizationTree } from "../testing/testHelpers/CreateOrganizationTree";
 import { fail } from "assert";
 

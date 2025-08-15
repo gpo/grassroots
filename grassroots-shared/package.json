@@ -1,0 +1,28 @@
+{
+  "name": "grassroots-shared",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "generate-metadata": "tsc --noEmit && swc . --out-dir dist"
+  },
+  "keywords": [],
+  "private": true,
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "@casl/ability": "^6.7.3",
+    "@nestjs/cli": "^11.0.10",
+    "@nestjs/common": "^11.1.6",
+    "@nestjs/swagger": "^11.2.0",
+    "@types/node": "^24.3.0",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.2",
+    "reflect-metadata": "^0.2.2"
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.6.0",
+    "@swc/core": "^1.13.3",
+    "typescript": "^5.9.2"
+  }
+}

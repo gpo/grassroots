@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "grassroots-shared/User.dto";
 import mikroORMConfig from "../mikro-orm.config";
 import { MikroORM } from "@mikro-orm/core";
-import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
+import { OrganizationDTO } from "grassroots-shared/Organization.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity";
 import { OrganizationEntity } from "../organizations/Organization.entity";
 import { AbilityBuilder, createMongoAbility } from "@casl/ability";

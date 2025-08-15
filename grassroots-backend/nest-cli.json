@@ -6,14 +6,6 @@
   "compilerOptions": {
     "deleteOutDir": true,
     "builder": "swc",
-    "typeCheck": true,
-    "plugins": [
-      {
-        "name": "@nestjs/swagger",
-        "options": {
-          "dtoFileNameSuffix": [".dto.ts"]
-        }
-      }
-    ]
+    "typeCheck": true
   }
 }

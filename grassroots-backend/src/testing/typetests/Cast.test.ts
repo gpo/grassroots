@@ -2,7 +2,7 @@
 // We make type assertions that the eslint rule doesn't catch.
 
 import * as tstyche from "tstyche";
-import { cast } from "../../grassroots-shared/util/Cast";
+import { cast } from "../grassroots-shared/util/Cast";
 import { IsNumber, Min } from "class-validator";
 import { describe, it } from "vitest";
 

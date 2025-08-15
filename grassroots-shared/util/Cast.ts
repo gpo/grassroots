@@ -1,6 +1,6 @@
 import { ClassConstructor, plainToInstance } from "class-transformer";
 import { validateSync } from "class-validator";
-import { PropsOf } from "../../grassroots-shared/util/TypeUtils";
+import { PropsOf } from "./TypeUtils";
 
 export function cast<T extends object>(
   cls: ClassConstructor<T>,
