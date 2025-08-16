@@ -1,5 +1,5 @@
-import { rule } from "./EntityUse.js";
-import { createRuleTester } from "../TestUtils.js";
+import { rule } from "./EntityUse";
+import { createRuleTester } from "../TestUtils";
 
 const ruleTester = createRuleTester();
 

@@ -12,10 +12,10 @@ import {
   CreateContactRequestDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
-} from "grassroots-shared/Contact.dto.js";
-import { OrganizationEntity } from "../organizations/Organization.entity.js";
-import { PropsOf } from "grassroots-shared/util/TypeUtils.js";
-import { TEMPORARY_FAKE_ORGANIZATION_ID } from "grassroots-shared/Organization.dto.js";
+} from "grassroots-shared/Contact.dto";
+import { OrganizationEntity } from "../organizations/Organization.entity";
+import { PropsOf } from "grassroots-shared/util/TypeUtils";
+import { TEMPORARY_FAKE_ORGANIZATION_ID } from "grassroots-shared/Organization.dto";
 
 function createContactRequestDTOToRequiredEntityData(
   contact: CreateContactRequestDTO,

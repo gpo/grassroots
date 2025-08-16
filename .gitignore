@@ -3,6 +3,7 @@ grassroots-backend/dist
 grassroots-backend/src/metadata.ts
 grassroots-frontend/dist
 grassroots-frontend/vite.config.js
+grassroots-shared/dist
 .env.development.local
 .env.test.local
 .env.local

@@ -1,1 +1,5 @@
-Run tsc in eslint_rules at some point on setup.
+- Run tsc in eslint_rules at some point on setup.
+- Deal with:
+  - `WARN 'node_modules' is present. Lockfile only installation will make it out-of-date`
+  - I think this is slowing things way down.
+  - Might have to do with when node_modules folders are bound (or not)

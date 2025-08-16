@@ -1,6 +1,6 @@
 import { AST_NODE_TYPES, TSESTree } from "@typescript-eslint/utils";
 
-import { createRule, getTypeInfo } from "../Utils.js";
+import { createRule, getTypeInfo } from "../Utils";
 import { RuleContext, RuleListener } from "@typescript-eslint/utils/ts-eslint";
 
 type MessageIds = "controllerRoutesReturnDTOs";
