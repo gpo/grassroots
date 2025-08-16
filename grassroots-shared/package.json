@@ -2,14 +2,21 @@
   "name": "grassroots-shared",
   "version": "1.0.0",
   "description": "",
+  "exports": {
+    "./*": {
+      "types": "./src/*.d.ts",
+      "default": "./src/*.js"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "generate-metadata": "tsc --noEmit && swc . --out-dir dist"
+    "build": "tsc --noEmit && swc --strip-leading-paths src --out-dir dist && node dist/GenerateMetadata.js"
   },
   "keywords": [],
   "private": true,
   "license": "UNLICENSED",
   "packageManager": "pnpm@10.11.0",
+  "type": "module",
   "dependencies": {
     "@casl/ability": "^6.7.3",
     "@nestjs/cli": "^11.0.10",

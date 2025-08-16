@@ -1,6 +1,6 @@
-import { ContactEntity } from "../../contacts/entities/Contact.entity";
-import { UserEntity } from "../../users/User.entity";
-import { CommonProps } from "../util/TypeUtils";
+import { CommonProps } from "grassroots-shared/util/TypeUtils";
+import { ContactEntity } from "src/contacts/entities/Contact.entity";
+import { UserEntity } from "src/users/User.entity";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SUBJECTS = [UserEntity, ContactEntity] as const;
@@ -14,3 +14,9 @@ export type CASLSubjects = {
     ReturnType<InstanceType<SubjectConstructor>["toDTO"]>
   > & { __caslSubjectType: SubjectConstructor["__caslSubjectTypeStatic"] };
 };
+
+declare module "grassroots-shared" {
+  interface CASLSubjectWrapper {
+    caslSubjects: CASLSubjects;
+  }
+}

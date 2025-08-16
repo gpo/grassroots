@@ -8,6 +8,8 @@
     "noUncheckedIndexedAccess": true,
     "noUncheckedSideEffectImports": true,
     "noUnusedLocals": false, // replaced by eslint no-unused-vars
-    "noUnusedParameters": false // replaced by eslint no-unused-vars
+    "noUnusedParameters": false, // replaced by eslint no-unused-vars
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   }
 }

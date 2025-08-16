@@ -6,7 +6,7 @@ import { instanceToPlain } from "class-transformer";
 import { OrganizationEntity } from "../organizations/Organization.entity";
 import { OrganizationRepository } from "../organizations/Organization.repo";
 import { UserRoleEntity } from "./UserRole.entity";
-import { Permission } from "grassroots-shared/Permission.dto";
+import { Permission } from "grassroots-shared/src/Permission.dto";
 
 @Injectable()
 export class UsersService {

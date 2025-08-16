@@ -4,8 +4,6 @@
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
     "sourceMap": true,
@@ -14,9 +12,8 @@
     "skipLibCheck": true,
     "baseUrl": "./",
     "paths": {
-      "@shared/CASLSubjects": [
-        "./src/grassroots-shared/CASL/CASLSubjects.backend.ts"
-      ]
+      // Required for module augmentation.
+      "grassroots-shared": ["../grassroots-shared/"]
     }
   },
   "exclude": ["src/testing/typetests/**"]

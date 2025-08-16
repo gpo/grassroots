@@ -1,6 +1,23 @@
-import { CASLSubjects } from "@shared/CASLSubjects";
 import { MongoAbility, subject } from "@casl/ability";
-import { CASLAction } from "../Permission";
+import { CASLAction } from "./Permission.js";
+import { UserDTO } from "./User.dto.js";
+import { ContactDTO } from "./Contact.dto.js";
+import { PropsOf } from "./util/TypeUtils.js";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const SUBJECTS = [UserDTO, ContactDTO] as const;
+
+export interface CASLSubjectWrapper {
+  // The backend augments this type declaration to enforce that only properties present in both DTOs and entities,
+  // are available.
+  caslSubjects: {
+    [T in (typeof SUBJECTS)[number] as T["__caslSubjectTypeStatic"]]: PropsOf<
+      InstanceType<T>
+    > & { __caslSubjectType: T["__caslSubjectTypeStatic"] };
+  };
+}
+
+export type CASLSubjects = CASLSubjectWrapper["caslSubjects"];
 
 export type CASLSubjectUnion = CASLSubjects[keyof CASLSubjects];
 

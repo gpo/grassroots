@@ -3,7 +3,7 @@ import { useE2ETestFixture } from "../testing/E2eSetup";
 import { UsersModule } from "./Users.module";
 import { createOrganizationTree } from "../testing/testHelpers/CreateOrganizationTree";
 import { Permission, PermissionsDTO } from "grassroots-shared/Permission.dto";
-import { fail } from "grassroots-shared/util/Fail";
+import { fail } from "grassroots-shared/src/util/Fail";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { ROLES_BY_NAME } from "../organizations/Roles.service";
 import { UserDTO } from "grassroots-shared/User.dto";

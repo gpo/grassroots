@@ -7,7 +7,7 @@ import {
   ValidateNested,
 } from "class-validator";
 import "reflect-metadata";
-import { createDTOBase } from "./util/CreateDTOBase";
+import { createDTOBase } from "./util/CreateDTOBase.js";
 import { Type } from "class-transformer";
 
 // Until we fully support organizations in the frontend, we just use -1 to mean "make
