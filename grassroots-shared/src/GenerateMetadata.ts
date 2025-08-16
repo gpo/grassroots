@@ -1,6 +1,11 @@
 import { PluginMetadataGenerator } from "@nestjs/cli/lib/compiler/plugins/plugin-metadata-generator.js";
 import { ReadonlyVisitor } from "@nestjs/swagger/dist/plugin/index.js";
 import { readFile, writeFile } from "fs/promises";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const METADATA_TMP_DIR = "/tmp/";
 const METADATA_TMP_FILENAME = "metadata.withbadpaths.ts";

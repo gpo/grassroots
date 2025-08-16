@@ -5,5 +5,5 @@
       "decorators": true
     }
   },
-  "module": { "type": "commonjs" }
+  "module": { "type": "nodenext" }
 }

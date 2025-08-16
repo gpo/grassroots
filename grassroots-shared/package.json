@@ -10,8 +10,7 @@
   "private": true,
   "license": "UNLICENSED",
   "packageManager": "pnpm@10.11.0",
-  "main": "dist/Index.js",
-  "types": "dist/Index.d.ts",
+  "type": "module",
   "exports": {
     "./*": {
       "require": "./dist/*.js",

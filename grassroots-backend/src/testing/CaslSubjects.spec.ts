@@ -7,9 +7,8 @@ import { ContactEntity } from "../contacts/entities/Contact.entity";
 import { OrganizationEntity } from "../organizations/Organization.entity";
 import { AbilityBuilder, createMongoAbility } from "@casl/ability";
 import { getAccessRules } from "../auth/CASLIntegration";
-import { CASLSubjects } from "@shared/CASLSubjects";
-import { permissionsToCaslAbilities } from "src/grassroots-shared/Permission";
-import { AppAbility, can } from "src/grassroots-shared/CASL/CASLInfra";
+import { permissionsToCaslAbilities } from "grassroots-shared/Permission";
+import { AppAbility, can, CASLSubjects } from "grassroots-shared/CASLInfra";
 
 const ORG_WITH_PERMISSIONS_ID = 10;
 

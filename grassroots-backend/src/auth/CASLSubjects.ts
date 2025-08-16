@@ -15,7 +15,9 @@ export type CASLSubjects = {
   > & { __caslSubjectType: SubjectConstructor["__caslSubjectTypeStatic"] };
 };
 
-declare module "grassroots-shared" {
+import _ from "grassroots-shared/CASLInfra";
+
+declare module "grassroots-shared/CASLInfra" {
   interface CASLSubjectWrapper {
     caslSubjects: CASLSubjects;
   }

@@ -1,4 +1,4 @@
-import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
+import { OrganizationDTO } from "grassroots-shared/Organization.dto";
 import { E2ETestFixture } from "../E2eSetup";
 
 // Creating these trees manually is pretty painful, and makes it harder to understand the

@@ -7,7 +7,7 @@ import {
 } from "grassroots-shared/Organization.dto";
 import { EntityManager } from "@mikro-orm/core";
 import { OrganizationRepository } from "./Organization.repo";
-import { PropsOf } from "src/grassroots-shared/util/TypeUtils";
+import { PropsOf } from "grassroots-shared/util/TypeUtils";
 
 @Injectable()
 export class OrganizationsService {

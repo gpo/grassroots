@@ -2,16 +2,18 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "commonjs",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
     "sourceMap": true,
-    "outDir": "./dist",
+    "outDir": "dist",
     "incremental": true,
     "skipLibCheck": true,
-    "baseUrl": "./src",
-    "rootDir": "./src"
-  }
+    "rootDir": "src"
+  },
+  "include": ["src"],
+  "exclude": ["src/metadata.ts", "dist"]
 }

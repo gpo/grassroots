@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Post, Query } from "@nestjs/common";
-import {
-  UserDTO,
-  UserPermissionsForOrgRequestDTO,
-  UsersDTO,
-} from "grassroots-shared";
 import { UsersService } from "../users/Users.service";
 import { PermissionsDTO } from "grassroots-shared/Permission.dto";
+import {
+  UsersDTO,
+  UserDTO,
+  UserPermissionsForOrgRequestDTO,
+} from "grassroots-shared/User.dto";
 
 @Controller("users")
 export class UsersController {
