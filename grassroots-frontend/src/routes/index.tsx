@@ -1,7 +1,11 @@
 /* eslint-disable check-file/no-index */
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useContext, useState } from "react";
-import { LoginState, LoginStateContext } from "../context/LoginStateContext";
+import {
+  LoginState,
+  LoginStateContext,
+  getLoginUrl,
+} from "../context/LoginStateContext";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -20,6 +24,7 @@ function Index(): JSX.Element {
     .catch((e: unknown) => {
       throw e;
     });
+
   return (
     <>
       <h1>Temporary auth tools</h1>
@@ -33,7 +38,7 @@ function Index(): JSX.Element {
             Logout {loginState.user.displayName ?? ""}
           </button>
         ) : (
-          <a href="http://grassroots.org/api/auth/login">Login</a>
+          <a href={getLoginUrl()}>Login</a>
         )}
       </p>
       <p>TODO</p>
