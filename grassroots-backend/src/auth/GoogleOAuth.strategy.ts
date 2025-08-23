@@ -5,10 +5,8 @@ import {
   Profile,
 } from "passport-google-oidc";
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "../users/Users.service";
-import OpenIDConnectStrategy from "passport-openidconnect";
 import { UserDTO } from "../grassroots-shared/User.dto";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
@@ -19,30 +17,19 @@ export class GoogleOAuthStrategy extends PassportStrategy(
   DEFAULT_PASSPORT_STRATEGY_NAME,
 ) {
   constructor(
-    private config: ConfigService,
     private userService: UsersService,
+    clientId: string,
+    clientSecret: string,
+    callbackURL: string,
   ) {
-    const clientID = config.get<string>("GOOGLE_CLIENT_ID");
-    if (clientID === undefined) {
-      throw new Error("Missing environment variable GOOGLE_CLIENT_ID");
-    }
-    const clientSecret = config.get<string>("GOOGLE_CLIENT_SECRET");
-    if (clientSecret === undefined) {
-      throw new Error("Missing environment variable GOOGLE_CLIENT_SECRET");
-    }
-    const callbackURL = config.get<string>("GOOGLE_AUTH_CALLBACK_URL");
-    if (callbackURL === undefined) {
-      throw new Error("Missing environment variable GOOGLE_AUTH_CALLBACK_URL");
-    }
     super({
-      clientID,
-      clientSecret,
-      callbackURL,
+      clientID: clientId,
+      clientSecret: clientSecret,
+      callbackURL: callbackURL,
       scope: ["email", "profile"],
-    } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
+    });
   }
 
-  // TODO: eventually we shouldn't let anyone with a Google account login.
   validate: VerifyFunction = async (
     issuer: string,
     profile: Profile,

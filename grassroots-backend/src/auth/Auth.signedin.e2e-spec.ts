@@ -13,10 +13,27 @@ describe("AuthController (e2e) while signed in", () => {
 
   it("Provides info on a logged in user", async () => {
     const f = getFixture();
+
+    // Test the is_authenticated endpoint instead of login
     const response = LoginStateDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.GET("/auth/example_route_using_user"),
+      await f.grassrootsAPIRaw("/auth/is_authenticated", {
+        method: "GET",
+      }),
     );
 
     expect(response.user?.id).toBe(MOCK_AUTH_GUARD_USER.id);
+  });
+
+  it("Login endpoint accepts redirect_path parameter", async () => {
+    const f = getFixture();
+
+    // Test that login endpoint accepts the redirect_path (returns VoidDTO)
+    const response = await f.grassrootsAPIRaw("/auth/login", {
+      method: "GET",
+      query: { redirect_path: "http://grassroots.org/test-redirect" },
+    });
+
+    // Should return 200 OK (will redirect to OAuth in real scenario)
+    expect(response.status).toBe(200);
   });
 });
