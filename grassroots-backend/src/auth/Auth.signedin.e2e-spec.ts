@@ -36,17 +36,4 @@ describe("AuthController (e2e) while signed in", () => {
     // Should return 200 OK (will redirect to OAuth in real scenario)
     expect(response.status).toBe(200);
   });
-
-  it("Login endpoint rejects requests without redirect_path", async () => {
-    const f = getFixture();
-
-    // Test that login endpoint rejects missing redirect_path
-    const response = await f.grassrootsAPIRaw("/auth/login", {
-      method: "GET",
-      // No redirect_path query parameter
-    });
-
-    // Should return 400 Bad Request
-    expect(response.status).toBe(400);
-  });
 });

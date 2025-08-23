@@ -23,9 +23,15 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   @PublicRoute()
   @ApiQuery({ name: "redirect_path", type: String, required: true })
-  async login(@Query("redirect_path") redirectPath: string): Promise<VoidDTO> {
+  async login(
+    @Query("redirect_path") redirectPath: string | undefined,
+  ): Promise<VoidDTO> {
     // Validate that redirect_path is provided
-    if (!redirectPath || redirectPath.trim() === "") {
+    if (
+      redirectPath === undefined ||
+      redirectPath === "" ||
+      redirectPath.trim() === ""
+    ) {
       throw new BadRequestException("redirect_path parameter is required");
     }
 
@@ -41,7 +47,7 @@ export class AuthController {
     const environmentVariables = await getEnvironmentVariables();
     const allowedHost = environmentVariables.FRONTEND_HOST;
 
-    if (allowedHost.trim() === "") {
+    if (allowedHost === undefined || allowedHost.trim() === "") {
       throw new Error("Missing env variable for FRONTEND_HOST");
     }
 
@@ -90,7 +96,7 @@ export class AuthController {
     // The session doesn't contain the redirect path by the time req.login is called,
     // If no redirect_path in session, this means login was called without it (which should now be blocked)
     const redirectPath = req.session.redirect_path;
-    if (redirectPath.trim() === "") {
+    if (redirectPath === undefined || redirectPath.trim() === "") {
       throw new BadRequestException(
         "Invalid login flow: missing redirect_path",
       );
