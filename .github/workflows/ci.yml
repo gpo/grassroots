@@ -131,3 +131,6 @@ jobs:
 
       - name: BDD
         run: npm run test:bdd
+        env:
+          BASE_URL: http://localhost:5173
+          API_URL: http://localhost:3000
