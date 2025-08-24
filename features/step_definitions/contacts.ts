@@ -14,6 +14,9 @@ const options = {
   ],
 };
 
+// Configuration for different environments
+const BASE_URL = process.env.BASE_URL ?? "https://grassroots.org";
+
 Given("I am logged in", { timeout: 30000 }, async function (this: CustomWorld) {
   console.log("Starting 'Given I am logged in' step...");
 
@@ -33,8 +36,8 @@ Given("I am logged in", { timeout: 30000 }, async function (this: CustomWorld) {
     console.log("Page created successfully");
 
     // Real Google OAuth flow for local testing
-    console.log("Navigating to https://grassroots.org...");
-    await this.page.goto("https://grassroots.org", {
+    console.log(`Navigating to ${BASE_URL}...`);
+    await this.page.goto(BASE_URL, {
       waitUntil: "networkidle",
       timeout: 10000,
     });
@@ -82,7 +85,7 @@ Given("there are no existing contacts", async function (this: CustomWorld) {
 });
 
 When("I visit the contact creation page", async function (this: CustomWorld) {
-  await this.page?.goto("https://grassroots.org/CreateContact");
+  await this.page?.goto(`${BASE_URL}/CreateContact`);
 });
 
 When(
