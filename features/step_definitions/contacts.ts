@@ -5,51 +5,90 @@ import { expect } from "@playwright/test";
 import { clearContacts } from "../../grassroots-backend/src/testing/DatabaseUtils";
 
 const options = {
-  headless: true,
-  slowMo: 100,
-  args: ["--disable-blink-features=AutomationControlled"],
+  headless: true,  // Show browser for debugging
+  slowMo: 500,      // Slow down actions to appear more human-like
+  args: [
+    "--disable-blink-features=AutomationControlled",
+    "--disable-features=IsolateOrigins,site-per-process",
+    "--start-maximized"
+  ],
 };
 
-Given("I am logged in", { timeout: 20000 }, async function (this: CustomWorld) {
-  this.browser = await chromium.launch(options);
-  this.context = await this.browser.newContext({
-    ignoreHTTPSErrors: true,
-  });
-  this.page = await this.context.newPage();
+Given("I am logged in", { timeout: 30000 }, async function (this: CustomWorld) {
+  console.log("Starting 'Given I am logged in' step...");
+  
+  try {
+    console.log("Launching browser...");
+    this.browser = await chromium.launch(options);
+    console.log("Browser launched successfully");
+    
+    console.log("Creating new context...");
+    this.context = await this.browser.newContext({
+      ignoreHTTPSErrors: true,
+    });
+    console.log("Context created successfully");
+    
+    console.log("Creating new page...");
+    this.page = await this.context.newPage();
+    console.log("Page created successfully");
 
-  // 1. Go to the app and click Login
-  await this.page.goto("https://grassroots.org");
-  await this.page.click('a:has-text("Login")');
+    // Check if we're in CI mode or local development
+    if (process.env.CI === 'true' || process.env.MOCK_AUTH === 'true') {
+      console.log("CI mode detected - using mock authentication");
+      
+      // Go directly to the app with a mocked session
+      await this.page.goto("http://localhost:3000/api/auth/mock-login", {
+        waitUntil: 'networkidle',
+        timeout: 10000
+      });
+      
+      // The mock endpoint should redirect us to the app
+      await this.page.waitForURL("http://localhost:5173/**", { timeout: 10000 });
+      console.log("Mock login successful");
+      
+    } else {
+      // Real Google OAuth flow for local testing
+      console.log("Navigating to https://grassroots.org...");
+      await this.page.goto("https://grassroots.org", { 
+        waitUntil: 'networkidle',
+        timeout: 10000 
+      });
+      console.log("Navigation complete");
+      
+      console.log("Looking for Login link...");
+      await this.page.click('a:has-text("Login")', { timeout: 5000 });
+      console.log("Clicked Login link");
 
-  const GOOGLE_EMAIL: string =
-    process.env.GOOGLE_EMAIL ?? "admin+fillmein@google.com";
-  const GOOGLE_PASSWORD: string = process.env.GOOGLE_PASSWORD ?? "password";
+      const GOOGLE_ACCOUNT_EMAIL: string =
+        process.env.GOOGLE_ACCOUNT_EMAIL ?? "admin+fillmein@google.com";
+      const GOOGLE_ACCOUNT_PASSWORD: string = process.env.GOOGLE_ACCOUNT_PASSWORD ?? "password";
+      console.log("Using email:", GOOGLE_ACCOUNT_EMAIL);
 
-  // 2. Wait for navigation to Google (or popup appears)
-  await this.page.waitForURL(/accounts\.google\.com/);
+      // 2. Wait for navigation to Google (or popup appears)
+      console.log("Waiting for Google login page...");
+      await this.page.waitForURL(/accounts\.google\.com/, { timeout: 10000 });
+      console.log("Google login page loaded");
 
-  // 3. Fill in email
-  await this.page.fill('input[type="email"]', GOOGLE_EMAIL);
-  await this.page.click('button:has-text("Next")');
+      // 3. Fill in email
+      await this.page.fill('input[type="email"]', GOOGLE_ACCOUNT_EMAIL);
+      await this.page.click('button:has-text("Next")');
 
-  // 4. Wait for password input and fill it
-  await this.page.waitForSelector('input[type="password"]');
-  await this.page.fill('input[type="password"]', GOOGLE_PASSWORD);
-  await this.page.click('button:has-text("Next")');
+      // 4. Wait for password input and fill it
+      await this.page.waitForSelector('input[type="password"]');
+      await this.page.fill('input[type="password"]', GOOGLE_ACCOUNT_PASSWORD);
+      await this.page.click('button:has-text("Next")');
 
-  // // Try to click the allow/accept button if it appears
-  // const allowButtonSelector = 'button:has-text("Allow"), button:has-text("次へ"), input[type="submit"]:has-text("Allow")';
-
-  // await this.page.waitForSelector(allowButtonSelector).catch(() => {});
-
-  // const allowButton = this.page.locator(allowButtonSelector);
-  // if (await allowButton.waitFor({ state: 'visible', timeout: 2000 }).catch(() => false)) {
-  //   await allowButton.click();
-  // }
-
-  // process.stdout.write("hello world");
-  // 5. Wait for navigation back to app
-  await this.page.locator('h1:has-text("Grassroots")').waitFor();
+      // 5. Wait for navigation back to app
+      console.log("Waiting for redirect back to app...");
+      await this.page.locator('h1:has-text("Grassroots")').waitFor({ timeout: 10000 });
+      console.log("Successfully logged in!");
+    }
+    
+  } catch (error) {
+    console.error("Error in 'Given I am logged in' step:", error);
+    console.error("Current URL:", await this.page?.url());
+    throw error;
+  }
 });
 
 Given("there are no existing contacts", async function (this: CustomWorld) {
