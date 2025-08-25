@@ -12,3 +12,15 @@ services:
       # Last file wins.
       - ../.env.test
       - ../.env.test.ci
+
+  grassroots_dev:
+    container_name: grassroots_dev
+    build: ".."
+    volumes:
+      - ../:/app
+      - /app/node_modules
+      - /app/grassroots-frontend/node_modules
+      - /app/grassroots-backend/node_modules
+    ports:
+      - "5173:5173"
+      - "3000:3000"
