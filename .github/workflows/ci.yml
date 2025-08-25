@@ -122,6 +122,7 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
           compose-file: "./docker/compose-ci.yaml"
+          services-log-level: "debug"
 
       - name: Tests
         run: npm run test:ci --prefix grassroots-backend
@@ -130,7 +131,33 @@ jobs:
         run: npx playwright install chromium
 
       - name: BDD
+        id: bdd
         run: npm run test:bdd
         env:
           BASE_URL: http://localhost:5173
           API_URL: http://localhost:3000
+        # continue-on-error: true
+
+      # - name: Upload BDD Test Screenshots
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: bdd-test-screenshots
+      #     path: test-results/screenshots/
+      #     if-no-files-found: ignore
+      #     retention-days: 7
+
+      # - name: Upload Cucumber Report
+      #   if: always()
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: cucumber-report
+      #     path: |
+      #       cucumber-report.html
+      #       cucumber-report.json
+      #     if-no-files-found: ignore
+      #     retention-days: 7
+
+      - name: Check BDD Test Results
+        if: steps.bdd.outcome == 'failure'
+        run: exit 1
