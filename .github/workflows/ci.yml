@@ -122,7 +122,6 @@ jobs:
         uses: hoverkraft-tech/compose-action@v2.2.0
         with:
           compose-file: "./docker/compose-ci.yaml"
-          services-log-level: "debug"
 
       - name: Tests
         run: cd grassroots-backend && pnpm run test:ci
@@ -130,11 +129,16 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install chromium
 
+      - name: Add hosts entry for grassroots.org
+        run: |
+          echo "127.0.0.1 grassroots.org" | sudo tee -a /etc/hosts
+          echo "Added grassroots.org to hosts file"
+
       - name: BDD
         id: bdd
         run: npm run test:bdd
         env:
-          BASE_URL: http://localhost:5173
+          BASE_URL: http://grassroots.org
           API_URL: http://localhost:3000
         # continue-on-error: true
 

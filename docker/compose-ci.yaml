@@ -13,14 +13,47 @@ services:
       - ../.env.test
       - ../.env.test.ci
 
-  grassroots_dev:
-    container_name: grassroots_dev
-    build: ".."
-    volumes:
-      - ../:/app
-      - /app/node_modules
-      - /app/grassroots-frontend/node_modules
-      - /app/grassroots-backend/node_modules
+  backend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.backend
+    environment:
+      POSTGRES_HOST: test_db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DATABASE: grassroots_test
+      SESSION_SECRET: test_session_secret
+      GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID_DUMMY_FOR_TEST
+      GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET_DUMMY_FOR_TEST
+      GOOGLE_AUTH_CALLBACK_URL: http://localhost:5173/api/auth/google/callback
+      FRONTEND_HOST: http://localhost:5173
+    ports:
+      - "3000:3000"
+    depends_on:
+      - test_db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    command: >
+      sh -c "
+        cd /app/grassroots-backend &&
+        npm install && 
+        npx mikro-orm migration:up &&
+        npm run start:prod
+      "
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.frontend
+    environment:
+      - VITE_API_URL=http://backend:3000
+      - VITE_BACKEND_HOST=http://localhost:3000/api
     ports:
       - "5173:5173"
-      - "3000:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
