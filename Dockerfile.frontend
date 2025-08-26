@@ -1,0 +1,20 @@
+FROM node:20
+
+WORKDIR /app
+
+# Copy remaining source code
+COPY . .
+
+# Install dependencies (skip postinstall at root level)
+RUN npm install
+RUN cd grassroots-frontend
+RUN npm install
+RUN npm run postinstall
+
+# Build the frontend
+WORKDIR /app/grassroots-frontend
+RUN npm run build
+
+EXPOSE 5173
+
+CMD ["npm", "run", "start"]

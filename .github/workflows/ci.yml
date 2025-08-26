@@ -104,7 +104,10 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install dependencies
-        run: npm install
+        run: |
+          npm install
+          npm install --prefix grassroots-backend
+          npm install --prefix grassroots-frontend
 
       - name: Run tstyche
         run: npm run test:tstyche --prefix grassroots-backend
@@ -122,3 +125,43 @@ jobs:
 
       - name: Tests
         run: npm run test:ci --prefix grassroots-backend
+
+      - name: Install Playwright Browsers
+        run: npx playwright install chromium
+
+      - name: Add hosts entry for grassroots.org
+        run: |
+          echo "127.0.0.1 grassroots.org" | sudo tee -a /etc/hosts
+          echo "Added grassroots.org to hosts file"
+
+      - name: BDD
+        id: bdd
+        run: npm run test:bdd
+        env:
+          BASE_URL: http://grassroots.org
+          API_URL: http://localhost:3000
+        continue-on-error: true
+
+      - name: Upload BDD Test Screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bdd-test-screenshots
+          path: test-results/screenshots/
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload Cucumber Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cucumber-report
+          path: |
+            cucumber-report.html
+            cucumber-report.json
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Check BDD Test Results
+        if: steps.bdd.outcome == 'failure'
+        run: exit 1

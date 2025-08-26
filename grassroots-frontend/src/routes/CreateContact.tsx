@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { JSX, useCallback } from "react";
+import { JSX, useCallback, useState } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
@@ -16,6 +16,8 @@ export const Route = createFileRoute("/CreateContact")({
 const TextFieldMakeContact = TextField<CreateContactRequestDTO>;
 
 function CreateContact(): JSX.Element {
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
   const form = useForm<CreateContactRequestDTO>({
     resolver: classValidatorResolver(CreateContactRequestDTO),
     mode: "onBlur",
@@ -42,12 +44,30 @@ function CreateContact(): JSX.Element {
     async (data) => {
       await mutateAsync(data);
       form.reset();
+      setSuccessMessage("Contact created successfully!");
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
     },
     [],
   );
 
   return (
     <FormProvider {...form}>
+      {(successMessage?.length ?? 0) > 0 && (
+        <div
+          style={{
+            backgroundColor: "#d4edda",
+            color: "#155724",
+            padding: "10px",
+            marginBottom: "20px",
+            border: "1px solid #c3e6cb",
+            borderRadius: "4px",
+          }}
+        >
+          {successMessage}
+        </div>
+      )}
       {/* This little typescript dance is required to make eslint happy.  */}
       <form onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}>
         <TextFieldMakeContact
