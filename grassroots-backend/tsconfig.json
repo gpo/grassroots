@@ -6,16 +6,12 @@
     "declaration": true,
     "removeComments": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
-    "baseUrl": "./",
-    "paths": {
-      // Required for module augmentation.
-      "grassroots-shared": ["../grassroots-shared/"]
-    }
+    "baseUrl": "./"
   },
+  "include": ["src"],
   "exclude": ["src/testing/typetests/**"]
 }

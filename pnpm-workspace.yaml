@@ -3,6 +3,7 @@ packages:
   - grassroots-frontend
   - eslint_rules
   - grassroots-shared
+  - casl-subjects
 
 ignoredBuiltDependencies:
   - esbuild

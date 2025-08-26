@@ -1,0 +1,19 @@
+{
+  "name": "casl-subjects",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "gen": "tsc && node --enable-source-maps dist/GenerateSubjects.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "ts-morph": "^26.0.0",
+    "typescript": "^5.9.2"
+  }
+}

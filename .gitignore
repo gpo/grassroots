@@ -4,6 +4,8 @@ grassroots-backend/src/metadata.ts
 grassroots-frontend/dist
 grassroots-frontend/vite.config.js
 grassroots-shared/dist
+casl-subjects/gen
+casl-subjects/dist
 .env.development.local
 .env.test.local
 .env.local
