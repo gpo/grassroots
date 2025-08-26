@@ -57,3 +57,13 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+
+  caddy:
+    container_name: caddy
+    volumes:
+      - ./data/caddy:/data
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    image: caddy
+    ports:
+      - "80:80"
+      - "443:443"
