@@ -1,11 +1,10 @@
 import { MongoAbility, Subject, subject } from "@casl/ability";
 import { CASLAction } from "./Permission.js";
-import { UserDTO } from "./User.dto.js";
 import { ContactDTO } from "./Contact.dto.js";
 import { PropsOf } from "./util/TypeUtils.js";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SUBJECTS = [UserDTO, ContactDTO] as const;
+const SUBJECTS = [UserSubject, ContactDTO] as const;
 type SubjectsListExtends = readonly {
   __caslSubjectTypeStatic: string;
   new (...args: any): Record<any, any>;

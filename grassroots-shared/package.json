@@ -25,7 +25,8 @@
     "@types/node": "^24.3.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "casl-subjects": "workspace:*"
   },
   "devDependencies": {
     "@swc/cli": "^0.6.0",

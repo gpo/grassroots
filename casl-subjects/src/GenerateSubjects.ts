@@ -30,8 +30,14 @@ function intersectProps(
 
   return entityProps.filter((p) => {
     const dto = dtoPropNameToProp.get(p.name);
-    if (!dto) return false;
+    if (!dto) {
+      console.log("No prop named: ", p.name);
+      return false;
+    }
 
+    if (p.type !== dto.type) {
+      console.log(p.name + ": " + p.type + " <> " + dto.type);
+    }
     // Must have exactly the same type to be included.
     return p.type === dto.type;
   });
@@ -123,7 +129,7 @@ async function main() {
     const dtoClass = dtoIndex.get(baseName + DTO_SUFFIX);
 
     const outPath = path.join("casl-subjects", "gen", `${baseName}Subject.ts`);
-    console.log("Making outpath " + outPath);
+    console.log("\n" + baseName);
     const outSourceFile = thisProject.createSourceFile(outPath, "", {
       overwrite: true,
     });
@@ -137,7 +143,7 @@ async function main() {
     }
 
     outSourceFile.addInterface({
-      name: `${baseName}Props`,
+      name: `${baseName}Subject`,
       isExported: true,
       properties: intersectProps(entityProps, dtoProps),
     });
