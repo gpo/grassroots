@@ -2,6 +2,7 @@ import { MongoAbility, Subject, subject } from "@casl/ability";
 import { CASLAction } from "./Permission.js";
 import { ContactDTO } from "./Contact.dto.js";
 import { PropsOf } from "./util/TypeUtils.js";
+import { UserSubject } from "casl-subjects/UserSubject";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const SUBJECTS = [UserSubject, ContactDTO] as const;

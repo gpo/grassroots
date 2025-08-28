@@ -2,10 +2,18 @@
   "name": "casl-subjects",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "exports": {
+    "./*": {
+      "require": "./dist/*.js",
+      "types": "./dist/*.d.ts"
+    }
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "gen": "tsc && node --enable-source-maps dist/GenerateSubjects.js"
+    "gen-only": "tsc && node --enable-source-maps dist/GenerateSubjects.js",
+    "build-only": "tsc --emitDeclarationOnly -p tsconfig-generated.json && swc --strip-leading-paths gen --out-dir dist-gen",
+    "gen": "pnpm run gen-only && pnpm run build-only"
   },
   "keywords": [],
   "author": "",

@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "./gen",
+    "outDir": "./dist-gen",
+    "moduleResolution": "nodenext",
+    "module": "NodeNext",
+    "composite": true
+  },
+  "include": ["gen"],
+  "exclude": ["src"]
+}

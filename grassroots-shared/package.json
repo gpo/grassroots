@@ -11,6 +11,7 @@
   "license": "UNLICENSED",
   "packageManager": "pnpm@10.11.0",
   "type": "module",
+  "composite": true,
   "exports": {
     "./*": {
       "require": "./dist/*.js",

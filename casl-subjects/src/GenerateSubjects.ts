@@ -51,9 +51,9 @@ function intersectProps(
       let equal = p.type === dto.type;
       let propToUse = p;
 
+      // Check if the only difference is whether undefined is included.
+      // If so, consider them equal.
       if (!equal) {
-        // Check if the only difference is whether undefined is included.
-        // If so, consider them equal.
         const entityUnionMembers = getUnionMembers(p.type);
         const dtoUnionMembers = getUnionMembers(dto.type);
         entityUnionMembers.delete("undefined");
@@ -64,21 +64,11 @@ function intersectProps(
 
         equal = setsEqual(entityUnionMembers, dtoUnionMembers);
       }
-
-      if (!equal) {
-        console.log(
-          p.name + ": " + p.type.getText() + " <> " + dto.type.getText(),
-        );
-        return undefined;
-      }
       return propToUse;
     })
     .filter((x) => x !== undefined);
 
   return intersected.map((x) => {
-    if (x.convertToArray) {
-      console.log("Converting to array: ", x.type.getText());
-    }
     return {
       name: x.name,
       hasQuestionToken: x.hasQuestionToken,
@@ -159,7 +149,7 @@ async function main() {
   });
 
   const thisProject = new Project({
-    tsConfigFilePath: "casl-subjects/tsconfig.json",
+    tsConfigFilePath: "casl-subjects/tsconfig-generated.json",
   });
 
   const entityIndex = getClassIndex(

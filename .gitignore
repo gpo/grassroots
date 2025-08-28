@@ -6,6 +6,8 @@ grassroots-frontend/vite.config.js
 grassroots-shared/dist
 casl-subjects/gen
 casl-subjects/dist
+casl-subjects/dist-gen
+
 .env.development.local
 .env.test.local
 .env.local
