@@ -5,6 +5,7 @@ import {
   PropertyDeclaration,
   type PropertySignatureStructure,
   type OptionalKind,
+  Type,
 } from "ts-morph";
 
 class ClassIndex extends Map<string, ClassDeclaration> {}
@@ -22,35 +23,84 @@ const WRAPPER_TYPES = new Set([
   "Rel",
 ]);
 
+function getUnionMembers(type: Type): Set<string> {
+  const members = type.getUnionTypes();
+  const parts = members.length > 0 ? members : [type];
+
+  return new Set(parts.map((t) => t.getText()));
+}
+
+function setsEqual<T>(a: Set<T>, b: Set<T>) {
+  return a.size === b.size && [...a].every((x) => b.has(x));
+}
+
 function intersectProps(
-  entityProps: OptionalKind<PropertySignatureStructure>[],
-  dtoProps: OptionalKind<PropertySignatureStructure>[],
+  entityProps: NormalizedProperty[],
+  dtoProps: NormalizedProperty[],
 ): OptionalKind<PropertySignatureStructure>[] {
   const dtoPropNameToProp = new Map(dtoProps.map((p) => [p.name, p]));
 
-  return entityProps.filter((p) => {
-    const dto = dtoPropNameToProp.get(p.name);
-    if (!dto) {
-      console.log("No prop named: ", p.name);
-      return false;
-    }
+  const intersected = entityProps
+    .map((p) => {
+      const dto = dtoPropNameToProp.get(p.name);
+      if (!dto) {
+        console.log("No prop named: ", p.name);
+        return undefined;
+      }
 
-    if (p.type !== dto.type) {
-      console.log(p.name + ": " + p.type + " <> " + dto.type);
+      let equal = p.type === dto.type;
+      let propToUse = p;
+
+      if (!equal) {
+        // Check if the only difference is whether undefined is included.
+        // If so, consider them equal.
+        const entityUnionMembers = getUnionMembers(p.type);
+        const dtoUnionMembers = getUnionMembers(dto.type);
+        entityUnionMembers.delete("undefined");
+        // If it's the dto type that includes the undefined, we want to use it.
+        if (dtoUnionMembers.delete("undefined")) {
+          propToUse = dto;
+        }
+
+        equal = setsEqual(entityUnionMembers, dtoUnionMembers);
+      }
+
+      if (!equal) {
+        console.log(
+          p.name + ": " + p.type.getText() + " <> " + dto.type.getText(),
+        );
+        return undefined;
+      }
+      return propToUse;
+    })
+    .filter((x) => x !== undefined);
+
+  return intersected.map((x) => {
+    if (x.convertToArray) {
+      console.log("Converting to array: ", x.type.getText());
     }
-    // Must have exactly the same type to be included.
-    return p.type === dto.type;
+    return {
+      name: x.name,
+      hasQuestionToken: x.hasQuestionToken,
+      type: x.convertToArray ? `(${x.type.getText()})[]` : x.type.getText(),
+    };
   });
 }
 
-function normalizeProperty(
-  prop: PropertyDeclaration,
-): OptionalKind<PropertySignatureStructure> {
+interface NormalizedProperty {
+  name: string;
+  type: Type;
+  hasQuestionToken: boolean;
+  convertToArray: boolean;
+}
+
+function normalizeProperty(prop: PropertyDeclaration): NormalizedProperty {
   const type = prop.getType();
-  const originalProp: OptionalKind<PropertySignatureStructure> = {
+  const originalProp: NormalizedProperty = {
     name: prop.getName(),
-    type: type.getText(),
+    type,
     hasQuestionToken: prop.hasQuestionToken(),
+    convertToArray: false,
   };
 
   const symbol = type.getSymbol();
@@ -70,15 +120,10 @@ function normalizeProperty(
     throw new Error("Missing inner type for wrapper type.");
   }
 
-  const typeWithAnyArrayWrapperApplied = ARRAY_WRAPPER_TYPE.has(
-    symbol.getName(),
-  )
-    ? `(${innerType.getText()})[]`
-    : innerType.getText();
-
   return {
     ...originalProp,
-    type: typeWithAnyArrayWrapperApplied,
+    type: innerType,
+    convertToArray: ARRAY_WRAPPER_TYPE.has(symbol.getName()),
   };
 }
 
