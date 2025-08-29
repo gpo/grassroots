@@ -10,6 +10,7 @@ import { getAccessRules } from "../auth/CASLIntegration";
 import { permissionsToCaslAbilities } from "grassroots-shared/Permission";
 import { AppAbility, can } from "grassroots-shared/CASLInfra";
 import type { CASLSubjects } from "grassroots-shared/CASLInfra";
+import { ContactSubject } from "casl-subjects/ContactSubject";
 
 const ORG_WITH_PERMISSIONS_ID = 10;
 
@@ -18,20 +19,8 @@ const ORGANIZATION = OrganizationDTO.from({
   name: "Test",
 });
 
-export function buildCASLSubject<K extends keyof CASLSubjects>(
-  k: K,
-  x: Omit<CASLSubjects[K], "__caslSubjectType">,
-): CASLSubjects[K] {
-  // Type inference isn't quite clever enough here.
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  return {
-    ...x,
-    __caslSubjectType: k,
-  } as unknown as CASLSubjects[K];
-}
-
 describe("permissionsToCaslAbilities", () => {
-  const contact = buildCASLSubject("Contact", {
+  const contact = new ContactSubject({
     id: 1,
     email: "a@a.com",
     firstName: "d",

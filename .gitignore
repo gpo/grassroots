@@ -7,6 +7,7 @@ grassroots-shared/dist
 casl-subjects/gen
 casl-subjects/dist
 casl-subjects/dist-gen
+**.tsbuildinfo
 
 .env.development.local
 .env.test.local

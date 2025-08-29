@@ -6,6 +6,7 @@ import {
   type PropertySignatureStructure,
   type OptionalKind,
   Type,
+  PropertyDeclarationStructure,
 } from "ts-morph";
 
 class ClassIndex extends Map<string, ClassDeclaration> {}
@@ -37,7 +38,7 @@ function setsEqual<T>(a: Set<T>, b: Set<T>) {
 function intersectProps(
   entityProps: NormalizedProperty[],
   dtoProps: NormalizedProperty[],
-): OptionalKind<PropertySignatureStructure>[] {
+): OptionalKind<PropertyDeclarationStructure>[] {
   const dtoPropNameToProp = new Map(dtoProps.map((p) => [p.name, p]));
 
   const intersected = entityProps
@@ -64,6 +65,9 @@ function intersectProps(
 
         equal = setsEqual(entityUnionMembers, dtoUnionMembers);
       }
+      if (!equal) {
+        return undefined;
+      }
       return propToUse;
     })
     .filter((x) => x !== undefined);
@@ -72,6 +76,7 @@ function intersectProps(
     return {
       name: x.name,
       hasQuestionToken: x.hasQuestionToken,
+      hasExclamationToken: !x.hasQuestionToken,
       type: x.convertToArray ? `(${x.type.getText()})[]` : x.type.getText(),
     };
   });
@@ -177,10 +182,37 @@ async function main() {
       throw new Error(`Missing DTO for Entity ${name}`);
     }
 
-    outSourceFile.addInterface({
+    const props = intersectProps(entityProps, dtoProps);
+
+    const newClass = outSourceFile.addClass({
       name: `${baseName}Subject`,
       isExported: true,
-      properties: intersectProps(entityProps, dtoProps),
+      properties: props,
+    });
+
+    newClass.addProperty({
+      name: "__caslSubjectType",
+      isReadonly: true,
+      type: `"${baseName}"`,
+      initializer: `"${baseName}"`,
+    });
+
+    newClass.addProperty({
+      isStatic: true,
+      isReadonly: true,
+      name: "__caslSubjectTypeStatic",
+      type: `"${baseName}"`,
+      initializer: `"${baseName}"`,
+    });
+
+    newClass.addConstructor({
+      parameters: [
+        {
+          name: "init",
+          type: `{ ${props.map((p) => `${p.name}${p.hasQuestionToken ? "?" : ""}: ${p.type}`).join("; ")} }`,
+        },
+      ],
+      statements: props.map((p) => `this.${p.name} = init.${p.name};`),
     });
 
     await outSourceFile.save();

@@ -5,5 +5,6 @@
       "decorators": true
     }
   },
-  "module": { "type": "nodenext" }
+  "module": { "type": "nodenext" },
+  "exclude": ["src/metadata.ts"]
 }

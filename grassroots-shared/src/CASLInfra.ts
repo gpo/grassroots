@@ -1,54 +1,35 @@
 import { MongoAbility, Subject, subject } from "@casl/ability";
 import { CASLAction } from "./Permission.js";
-import { ContactDTO } from "./Contact.dto.js";
-import { PropsOf } from "./util/TypeUtils.js";
 import { UserSubject } from "casl-subjects/UserSubject";
+import { ContactSubject } from "casl-subjects/ContactSubject";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const SUBJECTS = [UserSubject, ContactDTO] as const;
-type SubjectsListExtends = readonly {
-  __caslSubjectTypeStatic: string;
-  new (...args: any): Record<any, any>;
-}[];
+const SUBJECTS = [UserSubject, ContactSubject] as const;
 
-export interface CASLSubjectWrapperGeneric<
-  TSubjectsList extends SubjectsListExtends,
-> {
-  // The backend augments this type declaration to enforce that only properties present in both DTOs and entities,
-  // are available.
-  caslSubjects: {
-    [T in TSubjectsList[number] as T["__caslSubjectTypeStatic"]]: PropsOf<
-      InstanceType<T>
-    > & { __caslSubjectType: T["__caslSubjectTypeStatic"] } & Subject;
-  };
-}
+export type CASLSubjects = {
+  [T in (typeof SUBJECTS)[number] as T /* Each subject has a __caslSubjectTypeStatic property, grab it. */ extends {
+    __caslSubjectTypeStatic: infer K;
+  }
+    ? K & string
+    : never]: InstanceType<T>;
+};
 
-export type CASLSubjectsGeneric<TSubjectsList extends SubjectsListExtends> =
-  CASLSubjectWrapperGeneric<TSubjectsList>["caslSubjects"];
+export type CASLSubjectUnion = CASLSubjects[keyof CASLSubjects];
 
-export type CASLSubjectUnionGeneric<TSubjectsList extends SubjectsListExtends> =
-  CASLSubjectsGeneric<TSubjectsList>[keyof CASLSubjectsGeneric<TSubjectsList>] &
-    Subject;
-
-type CASLSubjectReference<TSubjectsList extends SubjectsListExtends> =
-  | keyof CASLSubjectsGeneric<TSubjectsList>
-  | CASLSubjectUnionGeneric<TSubjectsList>;
+type CASLSubjectReference = keyof CASLSubjects | CASLSubjectUnion;
 
 // MongoAbility needs to know both about the string types (keyof CASLSubjects) and the object structure (CASLSubjects).
 // It maps from strings to object types via `detectSubjectType` below.
 // TODO: don't export once we have better tests.
-export type AppAbilityGeneric<TSubjectsList extends SubjectsListExtends> =
-  MongoAbility<[CASLAction, CASLSubjectReference<TSubjectsList>]>;
+export type AppAbility = MongoAbility<[CASLAction, CASLSubjectReference]>;
 
 // CASL uses "can" both to define abilities and query them.
 // Note that this is the method for querying.
-export function canGeneric<TSubjectsList extends SubjectsListExtends>(
-  ability: AppAbilityGeneric<TSubjectsList>,
+export function can(
+  ability: AppAbility,
   action: CASLAction,
-  type: keyof CASLSubjectsGeneric<TSubjectsList> & string,
-  object: CASLSubjectUnionGeneric<TSubjectsList> & Subject,
+  type: keyof CASLSubjects & string,
+  object: CASLSubjectUnion & Subject,
 ): boolean {
   return ability.can(action, subject(type, object));
 }
-
-const can = canGeneric<typeof SUBJECTS>;
