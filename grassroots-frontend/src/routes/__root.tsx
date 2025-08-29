@@ -39,6 +39,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           <AppShell.Section>
             <RoutedLink to="/Users">Users</RoutedLink>
           </AppShell.Section>
+          <AppShell.Section>
+            <RoutedLink to="/Admin">Admin</RoutedLink>
+          </AppShell.Section>
           <AppShell.Section grow component={ScrollArea}></AppShell.Section>
         </AppShell.Navbar>
 

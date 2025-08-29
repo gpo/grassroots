@@ -15,6 +15,7 @@ import { Route as UsersImport } from './routes/Users'
 import { Route as SharedSearchImport } from './routes/SharedSearch'
 import { Route as SearchImport } from './routes/Search'
 import { Route as CreateContactImport } from './routes/CreateContact'
+import { Route as AdminImport } from './routes/Admin'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -43,6 +44,12 @@ const CreateContactRoute = CreateContactImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
+const AdminRoute = AdminImport.update({
+  id: '/Admin',
+  path: '/Admin',
+  getParentRoute: () => rootRoute,
+} as any)
+
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
@@ -58,6 +65,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
+      parentRoute: typeof rootRoute
+    }
+    '/Admin': {
+      id: '/Admin'
+      path: '/Admin'
+      fullPath: '/Admin'
+      preLoaderRoute: typeof AdminImport
       parentRoute: typeof rootRoute
     }
     '/CreateContact': {
@@ -95,6 +109,7 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/Admin': typeof AdminRoute
   '/CreateContact': typeof CreateContactRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
@@ -103,6 +118,7 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/Admin': typeof AdminRoute
   '/CreateContact': typeof CreateContactRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
@@ -112,6 +128,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/Admin': typeof AdminRoute
   '/CreateContact': typeof CreateContactRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
@@ -120,12 +137,19 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/CreateContact' | '/Search' | '/SharedSearch' | '/Users'
+  fullPaths:
+    | '/'
+    | '/Admin'
+    | '/CreateContact'
+    | '/Search'
+    | '/SharedSearch'
+    | '/Users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/CreateContact' | '/Search' | '/SharedSearch' | '/Users'
+  to: '/' | '/Admin' | '/CreateContact' | '/Search' | '/SharedSearch' | '/Users'
   id:
     | '__root__'
     | '/'
+    | '/Admin'
     | '/CreateContact'
     | '/Search'
     | '/SharedSearch'
@@ -135,6 +159,7 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   CreateContactRoute: typeof CreateContactRoute
   SearchRoute: typeof SearchRoute
   SharedSearchRoute: typeof SharedSearchRoute
@@ -143,6 +168,7 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   CreateContactRoute: CreateContactRoute,
   SearchRoute: SearchRoute,
   SharedSearchRoute: SharedSearchRoute,
@@ -160,6 +186,7 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/Admin",
         "/CreateContact",
         "/Search",
         "/SharedSearch",
@@ -168,6 +195,9 @@ export const routeTree = rootRoute
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/Admin": {
+      "filePath": "Admin.tsx"
     },
     "/CreateContact": {
       "filePath": "CreateContact.tsx"
