@@ -14,6 +14,7 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as UsersImport } from './routes/Users'
 import { Route as SharedSearchImport } from './routes/SharedSearch'
 import { Route as SearchImport } from './routes/Search'
+import { Route as OrganizersImport } from './routes/Organizers'
 import { Route as CreateContactImport } from './routes/CreateContact'
 import { Route as IndexImport } from './routes/index'
 
@@ -34,6 +35,12 @@ const SharedSearchRoute = SharedSearchImport.update({
 const SearchRoute = SearchImport.update({
   id: '/Search',
   path: '/Search',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OrganizersRoute = OrganizersImport.update({
+  id: '/Organizers',
+  path: '/Organizers',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,6 +74,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreateContactImport
       parentRoute: typeof rootRoute
     }
+    '/Organizers': {
+      id: '/Organizers'
+      path: '/Organizers'
+      fullPath: '/Organizers'
+      preLoaderRoute: typeof OrganizersImport
+      parentRoute: typeof rootRoute
+    }
     '/Search': {
       id: '/Search'
       path: '/Search'
@@ -96,6 +110,7 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
+  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
@@ -104,6 +119,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
+  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
@@ -113,6 +129,7 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
+  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
@@ -120,13 +137,26 @@ export interface FileRoutesById {
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/CreateContact' | '/Search' | '/SharedSearch' | '/Users'
+  fullPaths:
+    | '/'
+    | '/CreateContact'
+    | '/Organizers'
+    | '/Search'
+    | '/SharedSearch'
+    | '/Users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/CreateContact' | '/Search' | '/SharedSearch' | '/Users'
+  to:
+    | '/'
+    | '/CreateContact'
+    | '/Organizers'
+    | '/Search'
+    | '/SharedSearch'
+    | '/Users'
   id:
     | '__root__'
     | '/'
     | '/CreateContact'
+    | '/Organizers'
     | '/Search'
     | '/SharedSearch'
     | '/Users'
@@ -136,6 +166,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateContactRoute: typeof CreateContactRoute
+  OrganizersRoute: typeof OrganizersRoute
   SearchRoute: typeof SearchRoute
   SharedSearchRoute: typeof SharedSearchRoute
   UsersRoute: typeof UsersRoute
@@ -144,6 +175,7 @@ export interface RootRouteChildren {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateContactRoute: CreateContactRoute,
+  OrganizersRoute: OrganizersRoute,
   SearchRoute: SearchRoute,
   SharedSearchRoute: SharedSearchRoute,
   UsersRoute: UsersRoute,
@@ -161,6 +193,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/CreateContact",
+        "/Organizers",
         "/Search",
         "/SharedSearch",
         "/Users"
@@ -171,6 +204,9 @@ export const routeTree = rootRoute
     },
     "/CreateContact": {
       "filePath": "CreateContact.tsx"
+    },
+    "/Organizers": {
+      "filePath": "Organizers.tsx"
     },
     "/Search": {
       "filePath": "Search.tsx"
