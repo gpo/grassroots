@@ -14,8 +14,8 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as UsersImport } from './routes/Users'
 import { Route as SharedSearchImport } from './routes/SharedSearch'
 import { Route as SearchImport } from './routes/Search'
+import { Route as OrganizersImport } from './routes/Organizers'
 import { Route as CreateContactImport } from './routes/CreateContact'
-import { Route as AdminImport } from './routes/Admin'
 import { Route as IndexImport } from './routes/index'
 
 // Create/Update Routes
@@ -38,15 +38,15 @@ const SearchRoute = SearchImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const CreateContactRoute = CreateContactImport.update({
-  id: '/CreateContact',
-  path: '/CreateContact',
+const OrganizersRoute = OrganizersImport.update({
+  id: '/Organizers',
+  path: '/Organizers',
   getParentRoute: () => rootRoute,
 } as any)
 
-const AdminRoute = AdminImport.update({
-  id: '/Admin',
-  path: '/Admin',
+const CreateContactRoute = CreateContactImport.update({
+  id: '/CreateContact',
+  path: '/CreateContact',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -67,18 +67,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/Admin': {
-      id: '/Admin'
-      path: '/Admin'
-      fullPath: '/Admin'
-      preLoaderRoute: typeof AdminImport
-      parentRoute: typeof rootRoute
-    }
     '/CreateContact': {
       id: '/CreateContact'
       path: '/CreateContact'
       fullPath: '/CreateContact'
       preLoaderRoute: typeof CreateContactImport
+      parentRoute: typeof rootRoute
+    }
+    '/Organizers': {
+      id: '/Organizers'
+      path: '/Organizers'
+      fullPath: '/Organizers'
+      preLoaderRoute: typeof OrganizersImport
       parentRoute: typeof rootRoute
     }
     '/Search': {
@@ -109,8 +109,8 @@ declare module '@tanstack/react-router' {
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/Admin': typeof AdminRoute
   '/CreateContact': typeof CreateContactRoute
+  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
@@ -118,8 +118,8 @@ export interface FileRoutesByFullPath {
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/Admin': typeof AdminRoute
   '/CreateContact': typeof CreateContactRoute
+  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
@@ -128,8 +128,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
-  '/Admin': typeof AdminRoute
   '/CreateContact': typeof CreateContactRoute
+  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
@@ -139,18 +139,24 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/Admin'
     | '/CreateContact'
+    | '/Organizers'
     | '/Search'
     | '/SharedSearch'
     | '/Users'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/Admin' | '/CreateContact' | '/Search' | '/SharedSearch' | '/Users'
+  to:
+    | '/'
+    | '/CreateContact'
+    | '/Organizers'
+    | '/Search'
+    | '/SharedSearch'
+    | '/Users'
   id:
     | '__root__'
     | '/'
-    | '/Admin'
     | '/CreateContact'
+    | '/Organizers'
     | '/Search'
     | '/SharedSearch'
     | '/Users'
@@ -159,8 +165,8 @@ export interface FileRouteTypes {
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AdminRoute: typeof AdminRoute
   CreateContactRoute: typeof CreateContactRoute
+  OrganizersRoute: typeof OrganizersRoute
   SearchRoute: typeof SearchRoute
   SharedSearchRoute: typeof SharedSearchRoute
   UsersRoute: typeof UsersRoute
@@ -168,8 +174,8 @@ export interface RootRouteChildren {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AdminRoute: AdminRoute,
   CreateContactRoute: CreateContactRoute,
+  OrganizersRoute: OrganizersRoute,
   SearchRoute: SearchRoute,
   SharedSearchRoute: SharedSearchRoute,
   UsersRoute: UsersRoute,
@@ -186,8 +192,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/Admin",
         "/CreateContact",
+        "/Organizers",
         "/Search",
         "/SharedSearch",
         "/Users"
@@ -196,11 +202,11 @@ export const routeTree = rootRoute
     "/": {
       "filePath": "index.tsx"
     },
-    "/Admin": {
-      "filePath": "Admin.tsx"
-    },
     "/CreateContact": {
       "filePath": "CreateContact.tsx"
+    },
+    "/Organizers": {
+      "filePath": "Organizers.tsx"
     },
     "/Search": {
       "filePath": "Search.tsx"

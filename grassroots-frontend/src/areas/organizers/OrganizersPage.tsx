@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { AdminTable } from "./AdminTable";
+import { OrganizersTable } from "./OrganizersTable";
 
 export interface sampleTableDataType {
   orgName: string;
@@ -23,11 +23,11 @@ const sampleTableData: sampleTableDataType[] = [
   },
 ];
 
-export function AdminPage(): JSX.Element {
+export function OrganizersPage(): JSX.Element {
   return (
     <div>
-      <h2>Admin Dashboard</h2>
-      <AdminTable tableData={sampleTableData} />
+      <h2>Organizers Dashboard</h2>
+      <OrganizersTable tableData={sampleTableData} />
     </div>
   );
 }

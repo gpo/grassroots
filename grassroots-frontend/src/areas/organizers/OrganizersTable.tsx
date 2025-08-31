@@ -1,11 +1,13 @@
 import { Table } from "@mantine/core";
 import { JSX } from "react";
-import { sampleTableDataType } from "./AdminPage";
-interface AdminTableProps {
+import { sampleTableDataType } from "./OrganizersPage";
+interface OrganizersTableProps {
   tableData: sampleTableDataType[];
 }
 
-export function AdminTable({ tableData }: AdminTableProps): JSX.Element {
+export function OrganizersTable({
+  tableData,
+}: OrganizersTableProps): JSX.Element {
   const rows = tableData.map((riding) => (
     <Table.Tr key={riding.orgName}>
       <Table.Td>{riding.orgName}</Table.Td>
