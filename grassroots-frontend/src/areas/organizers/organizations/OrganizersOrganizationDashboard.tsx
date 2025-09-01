@@ -1,7 +1,7 @@
 import { JSX } from "react";
 import { OrganizersOrganizationMembersTable } from "./OrganizersOrganizationMembersTable";
 import { useParams } from "@tanstack/react-router";
-import { Route as OrgRoute } from "../../../routes/organizers/$organizationId";
+import { Route as OrgRoute } from "../../../routes/Organizer/$organizationId";
 
 export interface sampleTableDataType {
   memberID: string;
