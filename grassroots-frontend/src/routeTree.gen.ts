@@ -16,8 +16,8 @@ import { Route as SharedSearchImport } from './routes/SharedSearch'
 import { Route as SearchImport } from './routes/Search'
 import { Route as CreateContactImport } from './routes/CreateContact'
 import { Route as IndexImport } from './routes/index'
-import { Route as OrganizersIndexImport } from './routes/organizers/index'
-import { Route as OrganizersOrganizationIdImport } from './routes/organizers/$organizationId'
+import { Route as OrganizersIndexImport } from './routes/Organizers/index'
+import { Route as OrganizersOrganizationIdImport } from './routes/Organizers/$organizationId'
 
 // Create/Update Routes
 
@@ -52,14 +52,14 @@ const IndexRoute = IndexImport.update({
 } as any)
 
 const OrganizersIndexRoute = OrganizersIndexImport.update({
-  id: '/organizers/',
-  path: '/organizers/',
+  id: '/Organizers/',
+  path: '/Organizers/',
   getParentRoute: () => rootRoute,
 } as any)
 
 const OrganizersOrganizationIdRoute = OrganizersOrganizationIdImport.update({
-  id: '/organizers/$organizationId',
-  path: '/organizers/$organizationId',
+  id: '/Organizers/$organizationId',
+  path: '/Organizers/$organizationId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -102,17 +102,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersImport
       parentRoute: typeof rootRoute
     }
-    '/organizers/$organizationId': {
-      id: '/organizers/$organizationId'
-      path: '/organizers/$organizationId'
-      fullPath: '/organizers/$organizationId'
+    '/Organizers/$organizationId': {
+      id: '/Organizers/$organizationId'
+      path: '/Organizers/$organizationId'
+      fullPath: '/Organizers/$organizationId'
       preLoaderRoute: typeof OrganizersOrganizationIdImport
       parentRoute: typeof rootRoute
     }
-    '/organizers/': {
-      id: '/organizers/'
-      path: '/organizers'
-      fullPath: '/organizers'
+    '/Organizers/': {
+      id: '/Organizers/'
+      path: '/Organizers'
+      fullPath: '/Organizers'
       preLoaderRoute: typeof OrganizersIndexImport
       parentRoute: typeof rootRoute
     }
@@ -127,8 +127,8 @@ export interface FileRoutesByFullPath {
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
-  '/organizers/$organizationId': typeof OrganizersOrganizationIdRoute
-  '/organizers': typeof OrganizersIndexRoute
+  '/Organizers/$organizationId': typeof OrganizersOrganizationIdRoute
+  '/Organizers': typeof OrganizersIndexRoute
 }
 
 export interface FileRoutesByTo {
@@ -137,8 +137,8 @@ export interface FileRoutesByTo {
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
-  '/organizers/$organizationId': typeof OrganizersOrganizationIdRoute
-  '/organizers': typeof OrganizersIndexRoute
+  '/Organizers/$organizationId': typeof OrganizersOrganizationIdRoute
+  '/Organizers': typeof OrganizersIndexRoute
 }
 
 export interface FileRoutesById {
@@ -148,8 +148,8 @@ export interface FileRoutesById {
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
-  '/organizers/$organizationId': typeof OrganizersOrganizationIdRoute
-  '/organizers/': typeof OrganizersIndexRoute
+  '/Organizers/$organizationId': typeof OrganizersOrganizationIdRoute
+  '/Organizers/': typeof OrganizersIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -160,8 +160,8 @@ export interface FileRouteTypes {
     | '/Search'
     | '/SharedSearch'
     | '/Users'
-    | '/organizers/$organizationId'
-    | '/organizers'
+    | '/Organizers/$organizationId'
+    | '/Organizers'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -169,8 +169,8 @@ export interface FileRouteTypes {
     | '/Search'
     | '/SharedSearch'
     | '/Users'
-    | '/organizers/$organizationId'
-    | '/organizers'
+    | '/Organizers/$organizationId'
+    | '/Organizers'
   id:
     | '__root__'
     | '/'
@@ -178,8 +178,8 @@ export interface FileRouteTypes {
     | '/Search'
     | '/SharedSearch'
     | '/Users'
-    | '/organizers/$organizationId'
-    | '/organizers/'
+    | '/Organizers/$organizationId'
+    | '/Organizers/'
   fileRoutesById: FileRoutesById
 }
 
@@ -218,8 +218,8 @@ export const routeTree = rootRoute
         "/Search",
         "/SharedSearch",
         "/Users",
-        "/organizers/$organizationId",
-        "/organizers/"
+        "/Organizers/$organizationId",
+        "/Organizers/"
       ]
     },
     "/": {
@@ -237,11 +237,11 @@ export const routeTree = rootRoute
     "/Users": {
       "filePath": "Users.tsx"
     },
-    "/organizers/$organizationId": {
-      "filePath": "organizers/$organizationId.tsx"
+    "/Organizers/$organizationId": {
+      "filePath": "Organizers/$organizationId.tsx"
     },
-    "/organizers/": {
-      "filePath": "organizers/index.tsx"
+    "/Organizers/": {
+      "filePath": "Organizers/index.tsx"
     }
   }
 }
