@@ -13,7 +13,7 @@ export function OrganizersTable({
     <Table.Tr key={riding.orgName} style={{ cursor: "pointer" }}>
       <Table.Td>
         <Link
-          to="/organizers/$organizationId"
+          to="/Organizers/$organizationId"
           params={{ organizationId: riding.abbrName }}
         >
           {riding.orgName}
