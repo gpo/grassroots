@@ -6,6 +6,6 @@
     "moduleResolution": "nodenext",
     "module": "NodeNext"
   },
-  "include": ["src"],
+  "include": ["src/**/*"],
   "exclude": ["gen"]
 }

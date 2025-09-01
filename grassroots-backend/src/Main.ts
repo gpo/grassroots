@@ -13,9 +13,9 @@ import {
   addValidationErrorsToOpenAPI,
   throwOnInvalidType,
 } from "./util/PostProcessOpenAPI";
-import { ValidationErrorOutDTO } from "./contacts/entities/ValidationError.dto";
 import { graphDependencies } from "./util/GraphDependencies";
 import { writeFormatted } from "./util/FormattingWriter";
+import { ValidationErrorOutDTO } from "grassroots-shared/ValidationError.dto";
 
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "../grassroots-shared/OpenAPI.gen.ts";

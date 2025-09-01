@@ -6,7 +6,7 @@ import { dirname, resolve } from "path";
 import { TSESLint } from "@typescript-eslint/utils";
 import * as parserBase from "@typescript-eslint/parser";
 import type { FlatConfig, Linter } from "@typescript-eslint/utils/ts-eslint";
-import rules from "./rules/Index";
+import rules from "./rules/Index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

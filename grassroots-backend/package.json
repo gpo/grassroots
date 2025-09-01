@@ -14,7 +14,8 @@
     "debug": "pnpm run build && node --inspect dist/Main",
     "test": "vitest watch",
     "test:ci": "vitest run",
-    "test:tstyche": "pnpm exec tstyche"
+    "test:tstyche": "pnpm exec tstyche",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",

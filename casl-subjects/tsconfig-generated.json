@@ -5,7 +5,9 @@
     "outDir": "./dist-gen",
     "moduleResolution": "nodenext",
     "module": "NodeNext",
-    "composite": true
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true
   },
   "include": ["gen"],
   "exclude": ["src"]

@@ -13,7 +13,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "gen-only": "tsc && node --enable-source-maps dist/GenerateSubjects.js",
     "build-only": "tsc --emitDeclarationOnly -p tsconfig-generated.json && swc --strip-leading-paths gen --out-dir dist-gen",
-    "gen": "pnpm run gen-only && pnpm run build-only"
+    "build": "pnpm run gen-only && pnpm run build-only",
+    "clean": "rm -rf dist dist-gen && rm -f tsconfig.tsbuildinfo"
   },
   "keywords": [],
   "author": "",

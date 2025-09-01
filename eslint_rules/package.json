@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@typescript-eslint/parser": "^8.41.0",
     "@typescript-eslint/utils": "8.32.1"
   },
   "devDependencies": {
@@ -22,7 +23,7 @@
   "main": "lib/index.js",
   "scripts": {
     "docs": "tsc && eslint-doc-generator",
-    "tsc": "tsc",
+    "build": "tsc",
     "test": "vitest"
   },
   "name": "grassroots_eslint",

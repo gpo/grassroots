@@ -1,5 +1,5 @@
-import { createRuleTester } from "../TestUtils";
-import { rule } from "./ControllerRoutesReturnDTOs";
+import { createRuleTester } from "../TestUtils.js";
+import { rule } from "./ControllerRoutesReturnDTOs.js";
 
 const ruleTester = createRuleTester();
 
