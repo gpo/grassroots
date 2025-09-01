@@ -55,12 +55,15 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   beforeLoad: async ({ context, location }) => {
     // If we want more unauthenticated routes, we could have a folder of routes that aren't authenticated,
     // or similar.
-    if (location.href == "/") {
+    if (location.href === "/") {
       return;
     }
 
     const loginState = await context.loginState;
     if (!loginState) {
+      // The navigateToBackendRoute function is designed to handle
+      // constructing the URL with query parameters internally.
+      // We pass the path as the first argument and the query object as the second.
       navigateToBackendRoute("/auth/login", { redirect_path: location.href });
     }
   },

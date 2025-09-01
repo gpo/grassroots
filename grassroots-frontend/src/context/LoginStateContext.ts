@@ -2,6 +2,14 @@ import { createContext } from "react";
 import { grassrootsAPI } from "../GrassRootsAPI";
 import { UserDTO } from "../grassroots-shared/User.dto";
 
+// Helper function to generate login URL with redirect_path
+export const getLoginUrl = (redirectPath?: string): string => {
+  const currentPath = redirectPath ?? window.location.href;
+  return `http://grassroots.org/api/auth/login?redirect_path=${encodeURIComponent(currentPath)}`;
+};
+
+// Keep the old constant for backward compatibility, but it's now deprecated
+// @deprecated Use getLoginUrl() instead to include redirect_path parameter
 export const LOGIN_URL = "http://grassroots.org/api/auth/login";
 
 export interface LoginState {

@@ -2,6 +2,6 @@ import "express-session";
 
 declare module "express-session" {
   interface SessionData {
-    redirect_path?: string;
+    redirect_path: string;
   }
 }

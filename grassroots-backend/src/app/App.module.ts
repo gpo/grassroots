@@ -2,7 +2,6 @@ import { Module, ValidationPipe } from "@nestjs/common";
 import { AppController } from "./App.controller";
 import { AppService } from "./App.service";
 import { ContactsModule } from "../contacts/Contacts.module";
-import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { AuthModule } from "../auth/Auth.module";
 import { PassportModuleImport } from "../auth/PassportModuleImport";
@@ -15,18 +14,19 @@ import {
 } from "@mikro-orm/postgresql";
 import expressSession from "express-session";
 import passport from "passport";
-import mikroORMConfig from "../mikro-orm.config";
-import { getEnvFilePaths } from "../GetEnvFilePaths";
+import createMikroOrmConfig from "../mikro-orm.config";
 import connectPgSimple from "connect-pg-simple";
 import { Pool } from "pg";
 import { notNull } from "../grassroots-shared/util/NotNull";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { UserDTO } from "../grassroots-shared/User.dto";
+import { getEnvironmentVariables } from "../GetEnvironmentVariables";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,
   desiredPort: number,
 ): Promise<{ port: number }> {
+  const environmentVariables = await getEnvironmentVariables();
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -40,20 +40,24 @@ export async function listenAndConfigureApp(
       },
     }),
   );
-  const config = app.get<ConfigService>(ConfigService);
-  const SESSION_SECRET = config.get<string>("SESSION_SECRET");
+  const SESSION_SECRET = environmentVariables.SESSION_SECRET;
   if (SESSION_SECRET === undefined) {
     throw new Error("Missing SESSION_SECRET environment variable.");
   }
+  const mikroORMConfig = await createMikroOrmConfig();
   const pool = new Pool({
     user: notNull(mikroORMConfig.user, "postgres user is null"),
     host: mikroORMConfig.host,
     database: mikroORMConfig.dbName,
-    password: notNull(
-      process.env.POSTGRES_PASSWORD,
-      "postgres password is null",
+    password: String(
+      notNull(mikroORMConfig.password, "postgres password is null"),
     ),
     port: mikroORMConfig.port,
+    // Add SSL settings to match MikroORM config
+    ssl:
+      process.env.NODE_ENV === "production"
+        ? { rejectUnauthorized: false }
+        : false,
   });
   const PgStore = connectPgSimple(expressSession);
   app.use(
@@ -112,20 +116,10 @@ export async function listenAndConfigureApp(
 @Module({
   imports: [
     MikroOrmModule.forRootAsync({
-      imports: [ConfigModule],
       driver: PostgreSqlDriver,
-      useFactory: (config: ConfigService): MikroOrmModuleOptions => {
-        void config;
-        return mikroORMConfig;
+      useFactory: async (): Promise<MikroOrmModuleOptions> => {
+        return await createMikroOrmConfig();
       },
-      // While we don't have an explicit dependency here, we need the ConfigModule to
-      // initialize process.env before this runs.
-      inject: [ConfigService],
-    }),
-    ConfigModule.forRoot({
-      // First file takes precedence.
-      envFilePath: getEnvFilePaths(),
-      isGlobal: false,
     }),
     ContactsModule,
     AuthModule,

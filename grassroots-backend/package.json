@@ -14,7 +14,8 @@
     "debug": "npm run build && node --inspect dist/Main",
     "test": "vitest watch",
     "test:ci": "vitest run",
-    "test:tstyche": "npx tstyche"
+    "test:tstyche": "npx tstyche",
+    "generate:openapi": "openapi-typescript openAPI.json --output src/grassroots-shared/OpenAPI.gen.ts"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.4.15",
