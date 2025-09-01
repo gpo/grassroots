@@ -14,9 +14,10 @@ import { Route as rootRoute } from './routes/__root'
 import { Route as UsersImport } from './routes/Users'
 import { Route as SharedSearchImport } from './routes/SharedSearch'
 import { Route as SearchImport } from './routes/Search'
-import { Route as OrganizersImport } from './routes/Organizers'
 import { Route as CreateContactImport } from './routes/CreateContact'
 import { Route as IndexImport } from './routes/index'
+import { Route as OrganizersIndexImport } from './routes/organizers/index'
+import { Route as OrganizersOrganizationIdImport } from './routes/organizers/$organizationId'
 
 // Create/Update Routes
 
@@ -38,12 +39,6 @@ const SearchRoute = SearchImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const OrganizersRoute = OrganizersImport.update({
-  id: '/Organizers',
-  path: '/Organizers',
-  getParentRoute: () => rootRoute,
-} as any)
-
 const CreateContactRoute = CreateContactImport.update({
   id: '/CreateContact',
   path: '/CreateContact',
@@ -53,6 +48,18 @@ const CreateContactRoute = CreateContactImport.update({
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OrganizersIndexRoute = OrganizersIndexImport.update({
+  id: '/organizers/',
+  path: '/organizers/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const OrganizersOrganizationIdRoute = OrganizersOrganizationIdImport.update({
+  id: '/organizers/$organizationId',
+  path: '/organizers/$organizationId',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -72,13 +79,6 @@ declare module '@tanstack/react-router' {
       path: '/CreateContact'
       fullPath: '/CreateContact'
       preLoaderRoute: typeof CreateContactImport
-      parentRoute: typeof rootRoute
-    }
-    '/Organizers': {
-      id: '/Organizers'
-      path: '/Organizers'
-      fullPath: '/Organizers'
-      preLoaderRoute: typeof OrganizersImport
       parentRoute: typeof rootRoute
     }
     '/Search': {
@@ -102,6 +102,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof UsersImport
       parentRoute: typeof rootRoute
     }
+    '/organizers/$organizationId': {
+      id: '/organizers/$organizationId'
+      path: '/organizers/$organizationId'
+      fullPath: '/organizers/$organizationId'
+      preLoaderRoute: typeof OrganizersOrganizationIdImport
+      parentRoute: typeof rootRoute
+    }
+    '/organizers/': {
+      id: '/organizers/'
+      path: '/organizers'
+      fullPath: '/organizers'
+      preLoaderRoute: typeof OrganizersIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -110,29 +124,32 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
-  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
+  '/organizers/$organizationId': typeof OrganizersOrganizationIdRoute
+  '/organizers': typeof OrganizersIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
-  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
+  '/organizers/$organizationId': typeof OrganizersOrganizationIdRoute
+  '/organizers': typeof OrganizersIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
-  '/Organizers': typeof OrganizersRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
+  '/organizers/$organizationId': typeof OrganizersOrganizationIdRoute
+  '/organizers/': typeof OrganizersIndexRoute
 }
 
 export interface FileRouteTypes {
@@ -140,45 +157,50 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/CreateContact'
-    | '/Organizers'
     | '/Search'
     | '/SharedSearch'
     | '/Users'
+    | '/organizers/$organizationId'
+    | '/organizers'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/CreateContact'
-    | '/Organizers'
     | '/Search'
     | '/SharedSearch'
     | '/Users'
+    | '/organizers/$organizationId'
+    | '/organizers'
   id:
     | '__root__'
     | '/'
     | '/CreateContact'
-    | '/Organizers'
     | '/Search'
     | '/SharedSearch'
     | '/Users'
+    | '/organizers/$organizationId'
+    | '/organizers/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateContactRoute: typeof CreateContactRoute
-  OrganizersRoute: typeof OrganizersRoute
   SearchRoute: typeof SearchRoute
   SharedSearchRoute: typeof SharedSearchRoute
   UsersRoute: typeof UsersRoute
+  OrganizersOrganizationIdRoute: typeof OrganizersOrganizationIdRoute
+  OrganizersIndexRoute: typeof OrganizersIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateContactRoute: CreateContactRoute,
-  OrganizersRoute: OrganizersRoute,
   SearchRoute: SearchRoute,
   SharedSearchRoute: SharedSearchRoute,
   UsersRoute: UsersRoute,
+  OrganizersOrganizationIdRoute: OrganizersOrganizationIdRoute,
+  OrganizersIndexRoute: OrganizersIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -193,10 +215,11 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/CreateContact",
-        "/Organizers",
         "/Search",
         "/SharedSearch",
-        "/Users"
+        "/Users",
+        "/organizers/$organizationId",
+        "/organizers/"
       ]
     },
     "/": {
@@ -204,9 +227,6 @@ export const routeTree = rootRoute
     },
     "/CreateContact": {
       "filePath": "CreateContact.tsx"
-    },
-    "/Organizers": {
-      "filePath": "Organizers.tsx"
     },
     "/Search": {
       "filePath": "Search.tsx"
@@ -216,6 +236,12 @@ export const routeTree = rootRoute
     },
     "/Users": {
       "filePath": "Users.tsx"
+    },
+    "/organizers/$organizationId": {
+      "filePath": "organizers/$organizationId.tsx"
+    },
+    "/organizers/": {
+      "filePath": "organizers/index.tsx"
     }
   }
 }
