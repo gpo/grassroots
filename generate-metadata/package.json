@@ -5,8 +5,8 @@
   "main": "GenerateMetadata.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rm /app/grassroots-shared/src/metadata.ts && swc src --strip-leading-paths --out-dir dist && node dist/GenerateMetadata.js"
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "rm -f /app/grassroots-shared/src/metadata.ts && swc src --strip-leading-paths --out-dir dist && node dist/GenerateMetadata.js"
   },
   "keywords": [],
   "author": "",

@@ -6,11 +6,12 @@
   "exports": {
     "./*": {
       "require": "./dist-gen/*.js",
+      "import": "./dist-gen/*.js",
       "types": "./dist-gen/*.d.ts"
     }
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "echo \"Error: no test specified\" && exit 0",
     "gen-only": "tsc && node --enable-source-maps dist/GenerateSubjects.js",
     "build-only": "tsc --emitDeclarationOnly -p tsconfig-generated.json && swc --strip-leading-paths gen --out-dir dist-gen",
     "build": "pnpm run gen-only && pnpm run build-only",

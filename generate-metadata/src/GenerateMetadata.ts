@@ -20,10 +20,17 @@ generator.generate({
 });
 
 (async () => {
-  const withBadPaths = await readFile(METADATA_TMP_PATH, "utf8");
+  let result = await readFile(METADATA_TMP_PATH, "utf8");
   // Rewrite  import("User.dto"
   // to:      import("User.dto.js"
   // Leave out the trailing slash because some of the imports have extra params.
-  const fixed = withBadPaths.replaceAll(/import\("([^"]*)"/g, 'import("$1.js"');
-  await writeFile("./src/metadata.ts", fixed);
+  result = result.replaceAll(/import\("([^"]*)"/g, 'import("$1.js"');
+  // There's some bug where we end up with resolution mode nonsense. Remove it.
+  result = result.replaceAll(', { with: { "resolution-mode": "import" } }', "");
+  result = result.replaceAll(', { with: { "resolution-mode": "import"', "");
+  result = result.replaceAll(
+    '\\", { with: { \\"resolution-mode\\": \\"import"',
+    '"',
+  );
+  await writeFile("./src/metadata.ts", result);
 })();

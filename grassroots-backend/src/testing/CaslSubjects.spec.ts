@@ -9,7 +9,6 @@ import { AbilityBuilder, createMongoAbility } from "@casl/ability";
 import { getAccessRules } from "../auth/CASLIntegration";
 import { permissionsToCaslAbilities } from "grassroots-shared/Permission";
 import { AppAbility, can } from "grassroots-shared/CASLInfra";
-import type { CASLSubjects } from "grassroots-shared/CASLInfra";
 import { ContactSubject } from "casl-subjects/ContactSubject";
 
 const ORG_WITH_PERMISSIONS_ID = 10;

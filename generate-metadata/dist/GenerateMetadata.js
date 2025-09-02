@@ -140,7 +140,7 @@ generator.generate({
 });
 (function() {
     return _async_to_generator(function() {
-        var withBadPaths, fixed;
+        var result;
         return _ts_generator(this, function(_state) {
             switch(_state.label){
                 case 0:
@@ -149,14 +149,18 @@ generator.generate({
                         readFile(METADATA_TMP_PATH, "utf8")
                     ];
                 case 1:
-                    withBadPaths = _state.sent();
+                    result = _state.sent();
                     // Rewrite  import("User.dto"
                     // to:      import("User.dto.js"
                     // Leave out the trailing slash because some of the imports have extra params.
-                    fixed = withBadPaths.replaceAll(/import\("([^"]*)"/g, 'import("$1.js"');
+                    result = result.replaceAll(/import\("([^"]*)"/g, 'import("$1.js"');
+                    // There's some bug where we end up with resolution mode nonsense. Remove it.
+                    result = result.replaceAll(', { with: { "resolution-mode": "import" } }', "");
+                    result = result.replaceAll(', { with: { "resolution-mode": "import"', "");
+                    result = result.replaceAll('\\", { with: { \\"resolution-mode\\": \\"import"', '"');
                     return [
                         4,
-                        writeFile("./src/metadata.ts", fixed)
+                        writeFile("./src/metadata.ts", result)
                     ];
                 case 2:
                     _state.sent();
