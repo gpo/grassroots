@@ -2,28 +2,26 @@ import { JSX } from "react";
 import { OrganizationMembersTable } from "./OrganizationMembersTable";
 import { useParams } from "@tanstack/react-router";
 import { Route as OrgRoute } from "../../routes/Organizations/$organizationId";
+import { UserDTO } from "../../grassroots-shared/User.dto";
 
-export interface sampleTableDataType {
-  memberID: string;
-  fname: string;
-  lname: string;
-  address: string;
+export interface sampleTableDataType
+  extends Pick<UserDTO, "id" | "firstName" | "lastName" | "emails"> {
   role: "Candidate" | "Volunteer" | "Financial Agent/ CFO" | "CEO/President";
 }
 
 const sampleTableData: sampleTableDataType[] = [
   {
-    memberID: "1234",
-    fname: "Test",
-    lname: "Candidate",
-    address: "123 abc st.",
+    id: "1234",
+    firstName: "Test",
+    lastName: "Candidate",
+    emails: ["testcandidate@gpo.ca"],
     role: "Candidate",
   },
   {
-    memberID: "1234",
-    fname: "Test",
-    lname: "CFO",
-    address: "1223 abcd st.",
+    id: "12345",
+    firstName: "Test",
+    lastName: "CFO",
+    emails: ["testcfo@gpo.ca"],
     role: "Financial Agent/ CFO",
   },
 ];

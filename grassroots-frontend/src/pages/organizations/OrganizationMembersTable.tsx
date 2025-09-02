@@ -1,19 +1,23 @@
 import { Table } from "@mantine/core";
 import { JSX } from "react";
-import { sampleTableDataType } from "./OrganizationPage";
-interface OrganizersOrganizationMembersTableProps {
+import type { sampleTableDataType } from "./OrganizationPage";
+interface OrganizationMembersTableProps {
   tableData: sampleTableDataType[];
 }
 
 export function OrganizationMembersTable({
   tableData,
-}: OrganizersOrganizationMembersTableProps): JSX.Element {
+}: OrganizationMembersTableProps): JSX.Element {
   const rows = tableData.map((member) => (
-    <Table.Tr key={member.memberID}>
-      <Table.Td>{member.fname}</Table.Td>
-      <Table.Td>{member.lname}</Table.Td>
+    <Table.Tr key={member.id}>
+      <Table.Td>{member.firstName}</Table.Td>
+      <Table.Td>{member.lastName}</Table.Td>
       <Table.Td>{member.role}</Table.Td>
-      <Table.Td>{member.address}</Table.Td>
+      <Table.Td>
+        {member.emails?.map((email: string) => {
+          return <p key={email}>- {email}</p>;
+        }) ?? ""}
+      </Table.Td>
     </Table.Tr>
   ));
 
