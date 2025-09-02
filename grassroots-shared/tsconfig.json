@@ -13,6 +13,6 @@
     "skipLibCheck": true,
     "rootDir": "src"
   },
-  "include": ["src", "GenerateMetadata.ts"],
+  "include": ["src"],
   "exclude": ["dist"]
 }

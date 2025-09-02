@@ -4,8 +4,9 @@ packages:
   - eslint_rules
   - grassroots-shared
   - casl-subjects
+  - generate-metadata
 
-ignoredBuiltDependencies:
+onlyBuiltDependencies:
   - esbuild
   - "@nestjs/core"
   - "@scarf/scarf"

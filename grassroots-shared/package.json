@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node --loader ts-node/esm GenerateMetadata.ts && tsc --emitDeclarationOnly && swc --strip-leading-paths src --out-dir dist",
+    "build": "tsc --emitDeclarationOnly && swc src --strip-leading-paths --out-dir dist",
     "clean": "rm -rf dist && rm -f tsconfig.tsbuildinfo"
   },
   "keywords": [],
@@ -21,13 +21,13 @@
   },
   "dependencies": {
     "@casl/ability": "^6.7.3",
-    "@nestjs/cli": "^11.0.10",
     "@nestjs/common": "^11.1.6",
     "@nestjs/swagger": "^11.2.0",
     "@types/node": "^24.3.0",
     "casl-subjects": "workspace:*",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
+    "generate-metadata": "workspace:*",
     "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
