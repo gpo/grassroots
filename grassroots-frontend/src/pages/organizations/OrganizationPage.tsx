@@ -1,7 +1,7 @@
 import { JSX } from "react";
-import { OrganizersOrganizationMembersTable } from "./OrganizersOrganizationMembersTable";
+import { OrganizationMembersTable } from "./OrganizationMembersTable";
 import { useParams } from "@tanstack/react-router";
-import { Route as OrgRoute } from "../../../routes/Organizers/$organizationId";
+import { Route as OrgRoute } from "../../routes/Organizations/$organizationId";
 
 export interface sampleTableDataType {
   memberID: string;
@@ -28,12 +28,13 @@ const sampleTableData: sampleTableDataType[] = [
   },
 ];
 
-export function OrganizersOrganizationDashboard(): JSX.Element {
+export function OrganizationDashboard(): JSX.Element {
   const { organizationId } = useParams({ from: OrgRoute.id });
+  // TODO: Change title from Org [orgid] to just [Org Name]
   return (
     <div>
-      <h2>Organization {organizationId} Dashboard</h2>
-      <OrganizersOrganizationMembersTable tableData={sampleTableData} />
+      <h2>Organization {organizationId}</h2>
+      <OrganizationMembersTable tableData={sampleTableData} />
     </div>
   );
 }

@@ -1,11 +1,11 @@
 import { Table } from "@mantine/core";
 import { JSX } from "react";
-import { sampleTableDataType } from "./OrganizersOrganizationDashboard";
+import { sampleTableDataType } from "./OrganizationPage";
 interface OrganizersOrganizationMembersTableProps {
   tableData: sampleTableDataType[];
 }
 
-export function OrganizersOrganizationMembersTable({
+export function OrganizationMembersTable({
   tableData,
 }: OrganizersOrganizationMembersTableProps): JSX.Element {
   const rows = tableData.map((member) => (
