@@ -1,19 +1,17 @@
 import { Table } from "@mantine/core";
 import { JSX } from "react";
-import { sampleTableDataType } from "./OrganizersPage";
+import { sampleTableDataType } from "./MyPage";
 import { Link } from "@tanstack/react-router";
 interface OrganizersTableProps {
   tableData: sampleTableDataType[];
 }
 
-export function OrganizersTable({
-  tableData,
-}: OrganizersTableProps): JSX.Element {
+export function MyTable({ tableData }: OrganizersTableProps): JSX.Element {
   const rows = tableData.map((riding) => (
     <Table.Tr key={riding.orgName} style={{ cursor: "pointer" }}>
       <Table.Td>
         <Link
-          to="/Organizers/$organizationId"
+          to="/Organizations/$organizationId"
           params={{ organizationId: riding.abbrName }}
         >
           {riding.orgName}
