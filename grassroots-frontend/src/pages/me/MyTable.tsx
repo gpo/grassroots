@@ -8,16 +8,15 @@ interface OrganizersTableProps {
 
 export function MyTable({ tableData }: OrganizersTableProps): JSX.Element {
   const rows = tableData.map((riding) => (
-    <Table.Tr key={riding.orgName} style={{ cursor: "pointer" }}>
+    <Table.Tr key={riding.name} style={{ cursor: "pointer" }}>
       <Table.Td>
         <Link
           to="/Organizations/$organizationId"
-          params={{ organizationId: riding.abbrName }}
+          params={{ organizationId: riding.id.toString() }}
         >
-          {riding.orgName}
+          {riding.name}
         </Link>
       </Table.Td>
-      <Table.Td>{riding.parentOrg}</Table.Td>
       <Table.Td>{riding.abbrName}</Table.Td>
       <Table.Td>{riding.desc}</Table.Td>
     </Table.Tr>
@@ -28,7 +27,6 @@ export function MyTable({ tableData }: OrganizersTableProps): JSX.Element {
       <Table.Thead>
         <Table.Tr>
           <Table.Th>Riding Name</Table.Th>
-          <Table.Th>Parent Org</Table.Th>
           <Table.Th>Abbrev Name</Table.Th>
           <Table.Th>Description</Table.Th>
         </Table.Tr>
