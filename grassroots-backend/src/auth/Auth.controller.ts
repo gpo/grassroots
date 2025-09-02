@@ -39,7 +39,7 @@ export class AuthController {
   login(@Query() redirect_path: string): VoidDTO {
     // The redirect path is used by the OAuth guard.
     void redirect_path;
-    return VoidDTO.get();
+    return VoidDTO.from({});
   }
 
   @Get("google/callback")
@@ -70,7 +70,7 @@ export class AuthController {
       }
       response.redirect(redirectPath);
     });
-    return VoidDTO.get();
+    return VoidDTO.from({});
   }
 
   @Get("is_authenticated")
