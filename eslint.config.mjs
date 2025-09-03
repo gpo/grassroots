@@ -35,6 +35,7 @@ export default tseslint.config(
       "eslint_rules/lib",
       // Getting this validated is tricky due to eslint requirements around the base dir.
       "eslint_rules/vitest.config.ts",
+      "grassroots-backend/vitest.config.ts",
     ],
   },
   {
@@ -47,9 +48,7 @@ export default tseslint.config(
       ecmaVersion: 5,
       sourceType: "module",
       parserOptions: {
-        projectService: {
-          allowDefaultProject: ["eslint.config.mjs", "vitest.config.ts"],
-        },
+        projectService: true,
         tsconfigRootDir: import.meta.dirname,
       },
     },

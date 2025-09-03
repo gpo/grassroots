@@ -12,6 +12,6 @@
     "skipLibCheck": true,
     "baseUrl": "./"
   },
-  "include": ["src"],
+  "include": ["src", "vitest.config.ts"],
   "exclude": ["src/testing/typetests/**"]
 }
