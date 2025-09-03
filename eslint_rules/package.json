@@ -16,17 +16,17 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "default": "./lib/index.js"
+      "types": "./lib/Index.d.ts",
+      "default": "./lib/Index.js"
     }
   },
-  "main": "lib/index.js",
+  "main": "lib/Index.js",
   "scripts": {
     "docs": "tsc && eslint-doc-generator",
     "build": "tsc",
     "test": "vitest"
   },
-  "name": "grassroots_eslint",
+  "name": "eslint_rules",
   "type": "module",
   "version": "0.0.0"
 }

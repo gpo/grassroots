@@ -1,7 +1,6 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule, listenAndConfigureApp } from "./app/App.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { readFile } from "fs/promises";
 import openapiTS, { astToString } from "openapi-typescript";
 import { stringify } from "safe-stable-stringify";
 import { MikroORM } from "@mikro-orm/core";

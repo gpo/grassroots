@@ -28,7 +28,7 @@ export type AppAbility = MongoAbility<[CASLAction, CASLSubjectReference]>;
 export function can(
   ability: AppAbility,
   action: CASLAction,
-  type: keyof CASLSubjects & string,
+  type: keyof CASLSubjects,
   object: CASLSubjectUnion & Subject,
 ): boolean {
   return ability.can(action, subject(type, object));

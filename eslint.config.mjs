@@ -8,7 +8,7 @@ import pluginRouter from "@tanstack/eslint-plugin-router";
 import checkFile from "eslint-plugin-check-file";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import eslintNestJs from "@darraghor/eslint-plugin-nestjs-typed";
-import * as GrassrootsEslintRules from "./eslint_rules/lib/Index";
+import * as GrassrootsEslintRules from "eslint_rules";
 import reactRefresh from "eslint-plugin-react-refresh";
 import vitest from "@vitest/eslint-plugin";
 
@@ -47,7 +47,9 @@ export default tseslint.config(
       ecmaVersion: 5,
       sourceType: "module",
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ["eslint.config.mjs", "vitest.config.ts"],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },

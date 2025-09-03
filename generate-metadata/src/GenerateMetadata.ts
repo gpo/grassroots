@@ -19,7 +19,7 @@ generator.generate({
   tsconfigPath: "tsconfig.json",
 });
 
-(async () => {
+void (async (): Promise<void> => {
   let result = await readFile(METADATA_TMP_PATH, "utf8");
   // Rewrite  import("User.dto"
   // to:      import("User.dto.js"
