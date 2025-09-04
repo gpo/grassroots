@@ -1,6 +1,6 @@
 import { IsNumber, Min } from "class-validator";
 import { describe, expect, it } from "vitest";
-import { cast } from "../grassroots-shared/util/Cast";
+import { cast } from "grassroots-shared/util/Cast";
 
 class Test {
   @IsNumber()

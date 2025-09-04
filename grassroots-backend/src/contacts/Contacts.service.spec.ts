@@ -2,10 +2,10 @@ import { ContactsService } from "./Contacts.service";
 import { useTestFixture } from "../testing/Setup";
 import { describe, expect, it } from "vitest";
 import { ContactsModule } from "./Contacts.module";
-import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto";
+import { CreateContactRequestDTO } from "grassroots-shared/Contact.dto";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { OrganizationsService } from "../organizations/Organizations.service";
-import { CreateOrganizationNoParentRequestDTO } from "../grassroots-shared/Organization.dto";
+import { CreateOrganizationNoParentRequestDTO } from "grassroots-shared/Organization.dto";
 
 describe("ContactsService", () => {
   const getFixture = useTestFixture({

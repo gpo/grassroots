@@ -1,4 +1,12 @@
-ignoredBuiltDependencies:
+packages:
+  - grassroots-backend
+  - grassroots-frontend
+  - eslint_rules
+  - grassroots-shared
+  - casl-subjects
+  - generate-metadata
+
+onlyBuiltDependencies:
   - esbuild
   - "@nestjs/core"
   - "@scarf/scarf"

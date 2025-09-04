@@ -1,6 +1,6 @@
 import { getSchemaPath, OpenAPIObject } from "@nestjs/swagger";
-import { ValidationErrorOutDTO } from "../contacts/entities/ValidationError.dto";
 import { OperationObject } from "@nestjs/swagger/dist/interfaces/open-api-spec.interface";
+import { ValidationErrorOutDTO } from "grassroots-shared/ValidationError.dto";
 
 function mapOperations(
   openAPI: OpenAPIObject,

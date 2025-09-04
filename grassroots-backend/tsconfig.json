@@ -1,23 +1,17 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "declaration": true,
     "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
-    "baseUrl": "./",
-    "paths": {
-      "@shared/CASLSubjects": [
-        "./src/grassroots-shared/CASL/CASLSubjects.backend.ts"
-      ]
-    }
+    "baseUrl": "./"
   },
+  "include": ["src", "vitest.config.ts"],
   "exclude": ["src/testing/typetests/**"]
 }

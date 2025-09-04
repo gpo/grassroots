@@ -14,8 +14,6 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
 
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "paths": {
       "@nestjs/common": ["./src/NestCommonShim"],
       "@nestjs/swagger": ["./src/NestCommonShim"],

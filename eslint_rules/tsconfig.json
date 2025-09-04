@@ -9,7 +9,7 @@
     "rootDir": "src",
     "skipLibCheck": true,
     "sourceMap": true,
-    "target": "ES2022"
+    "incremental": true
   },
   "include": ["src"]
 }

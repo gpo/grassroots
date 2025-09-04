@@ -9,7 +9,7 @@ import {
 import { UserEntity } from "./User.entity";
 import { RoleEntity, ROLES } from "../organizations/Roles.service";
 import { OrganizationEntity } from "../organizations/Organization.entity";
-import { UserRoleDTO } from "../grassroots-shared/UserRole.dto";
+import { UserRoleDTO } from "grassroots-shared/UserRole.dto";
 import { createEntityBase } from "../util/CreateEntityBase";
 
 @Entity()

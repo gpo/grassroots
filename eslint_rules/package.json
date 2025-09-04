@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@typescript-eslint/parser": "^8.41.0",
     "@typescript-eslint/utils": "8.32.1"
   },
   "devDependencies": {
@@ -15,17 +16,17 @@
   },
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "default": "./lib/index.js"
+      "types": "./lib/Index.d.ts",
+      "default": "./lib/Index.js"
     }
   },
-  "main": "lib/index.js",
+  "main": "lib/Index.js",
   "scripts": {
     "docs": "tsc && eslint-doc-generator",
-    "tsc": "tsc",
+    "build": "tsc",
     "test": "vitest"
   },
-  "name": "grassroots_eslint",
+  "name": "eslint_rules",
   "type": "module",
   "version": "0.0.0"
 }

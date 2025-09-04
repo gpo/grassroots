@@ -9,10 +9,10 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import { PaginatedRequestDTO, PaginatedResponseDTO } from "./Paginated.dto";
+import { PaginatedRequestDTO, PaginatedResponseDTO } from "./Paginated.dto.js";
 import "reflect-metadata";
-import { createDTOBase } from "./util/CreateDTOBase";
-import { OrganizationDTO } from "./Organization.dto";
+import { createDTOBase } from "./util/CreateDTOBase.js";
+import { OrganizationDTO } from "./Organization.dto.js";
 
 export class ContactDTO extends createDTOBase("Contact") {
   @IsInt()

@@ -1,6 +1,6 @@
 import { createContext } from "react";
 import { grassrootsAPI } from "../GrassRootsAPI";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "grassroots-shared/User.dto";
 
 export const LOGIN_URL = "http://grassroots.org/api/auth/login";
 

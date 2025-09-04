@@ -1,6 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
 import { AppService } from "./App.service";
-import { HelloOutDTO } from "../grassroots-shared/Hello.dto";
+import { HelloOutDTO } from "grassroots-shared/Hello.dto";
 import { PublicRoute } from "../auth/PublicRoute.decorator";
 
 @Controller()

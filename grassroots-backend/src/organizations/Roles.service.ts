@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
-import { Permission } from "../grassroots-shared/Permission.dto";
-import { RoleDTO } from "../grassroots-shared/Role.dto";
+import { Permission } from "grassroots-shared/Permission.dto";
+import { RoleDTO } from "grassroots-shared/Role.dto";
 import { createEntityBase } from "../util/CreateEntityBase";
 import { plainToInstance } from "class-transformer";
 

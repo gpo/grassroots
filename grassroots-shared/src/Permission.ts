@@ -1,6 +1,5 @@
-import { CASLSubjects } from "@shared/CASLSubjects";
 import { AbilityBuilder, createMongoAbility } from "@casl/ability";
-import { AppAbility, CASLSubjectUnion } from "./CASL/CASLInfra";
+import { AppAbility, CASLSubjects, CASLSubjectUnion } from "./CASLInfra.js";
 
 export enum Permission {
   VIEW_CONTACTS = "VIEW_CONTACTS",

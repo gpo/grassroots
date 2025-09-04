@@ -19,9 +19,9 @@ import mikroORMConfig from "../mikro-orm.config";
 import { getEnvFilePaths } from "../GetEnvFilePaths";
 import connectPgSimple from "connect-pg-simple";
 import { Pool } from "pg";
-import { notNull } from "../grassroots-shared/util/NotNull";
 import { OrganizationsModule } from "../organizations/Organizations.module";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "grassroots-shared/User.dto";
+import { notNull } from "grassroots-shared/util/NotNull";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,

@@ -6,9 +6,9 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import { RoleDTO } from "./Role.dto";
+import { RoleDTO } from "./Role.dto.js";
 import { Transform, Type } from "class-transformer";
-import { createDTOBase } from "./util/CreateDTOBase";
+import { createDTOBase } from "./util/CreateDTOBase.js";
 
 export class UserRoleDTO extends createDTOBase("UserRole") {
   @IsNumber()

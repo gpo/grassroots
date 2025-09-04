@@ -1,9 +1,8 @@
 import { MongoQuery } from "@casl/ability";
 import { AbilityQuery, rulesToQuery } from "@casl/ability/extra";
 import { FilterQuery } from "@mikro-orm/core";
-import { CASLSubjects } from "@shared/CASLSubjects";
-import { AppAbility } from "src/grassroots-shared/CASL/CASLInfra";
-import { CASLAction } from "src/grassroots-shared/Permission";
+import { AppAbility, CASLSubjects } from "grassroots-shared/CASLInfra";
+import { CASLAction } from "grassroots-shared/Permission";
 
 // Pulled from MikroORM's GroupOperator / QueryOperator, which are enums, and we can't easily extract a list of their keys.
 const OPERATORS = [

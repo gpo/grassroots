@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "grassroots-shared/User.dto";
 import mikroORMConfig from "../mikro-orm.config";
 import { MikroORM } from "@mikro-orm/core";
-import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
+import { OrganizationDTO } from "grassroots-shared/Organization.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity";
 import { OrganizationEntity } from "../organizations/Organization.entity";
 import { AbilityBuilder, createMongoAbility } from "@casl/ability";
 import { getAccessRules } from "../auth/CASLIntegration";
-import { CASLSubjects } from "@shared/CASLSubjects";
-import { permissionsToCaslAbilities } from "src/grassroots-shared/Permission";
-import { AppAbility, can } from "src/grassroots-shared/CASL/CASLInfra";
+import { permissionsToCaslAbilities } from "grassroots-shared/Permission";
+import { AppAbility, can } from "grassroots-shared/CASLInfra";
+import { ContactSubject } from "casl-subjects/ContactSubject";
 
 const ORG_WITH_PERMISSIONS_ID = 10;
 
@@ -18,20 +18,8 @@ const ORGANIZATION = OrganizationDTO.from({
   name: "Test",
 });
 
-export function buildCASLSubject<K extends keyof CASLSubjects>(
-  k: K,
-  x: Omit<CASLSubjects[K], "__caslSubjectType">,
-): CASLSubjects[K] {
-  // Type inference isn't quite clever enough here.
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  return {
-    ...x,
-    __caslSubjectType: k,
-  } as unknown as CASLSubjects[K];
-}
-
 describe("permissionsToCaslAbilities", () => {
-  const contact = buildCASLSubject("Contact", {
+  const contact = new ContactSubject({
     id: 1,
     email: "a@a.com",
     firstName: "d",
