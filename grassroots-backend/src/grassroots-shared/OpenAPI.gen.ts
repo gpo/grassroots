@@ -357,9 +357,13 @@ export interface components {
       phoneNumber: string;
     };
     CreateOrganizationNoParentRequestDTO: {
+      abbreviatedName: string;
+      description: string;
       name: string;
     };
     CreateOrganizationRequestDTO: {
+      abbreviatedName: string;
+      description: string;
       name: string;
       parentID: number;
     };

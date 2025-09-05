@@ -6,6 +6,8 @@ import { E2ETestFixture } from "../E2eSetup";
 
 interface OrganizationTreeNode {
   name: string;
+  abbreviatedName?: string;
+  description?: string;
   children?: OrganizationTreeNode[];
 }
 
@@ -33,13 +35,19 @@ export async function createOrganizationTree(
   let currentNodeId: number | undefined;
   const nameToId = new Map<string, number>();
 
+  const body = {
+    name: currentNode.name,
+    abbreviatedName:
+      currentNode.abbreviatedName ?? "Abbreviation of " + currentNode.name,
+    description:
+      currentNode.description ?? "Description of " + currentNode.name,
+  };
+
   // First we make the current node, then we recurse on the children.
   if (parentID === undefined) {
     const root = OrganizationDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/organizations/create-root", {
-        body: {
-          name: currentNode.name,
-        },
+        body,
       }),
     );
     currentNodeId = root.id;
@@ -47,7 +55,7 @@ export async function createOrganizationTree(
     const node = OrganizationDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/organizations", {
         body: {
-          name: currentNode.name,
+          ...body,
           parentID,
         },
       }),

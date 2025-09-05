@@ -56,9 +56,13 @@ export default async () => {
             },
             CreateOrganizationNoParentRequestDTO: {
               name: { required: true, type: () => String },
+              abbreviatedName: { required: true, type: () => String },
+              description: { required: true, type: () => String },
             },
             CreateOrganizationRequestDTO: {
               name: { required: true, type: () => String },
+              abbreviatedName: { required: true, type: () => String },
+              description: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
             },
           },

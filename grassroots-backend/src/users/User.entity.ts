@@ -22,7 +22,7 @@ export class UserEntity extends createEntityBase<"User", UserDTO>("User") {
   @Property({ nullable: true })
   displayName?: string;
 
-  @OneToMany(() => UserRoleEntity, (e) => e.user)
+  @OneToMany(() => UserRoleEntity, (e) => e.user, { eager: true })
   userRoles = new Collection<UserRoleEntity>(this);
 
   toDTO(): UserDTO {

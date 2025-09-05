@@ -122,15 +122,27 @@
       },
       "CreateOrganizationNoParentRequestDTO": {
         "properties": {
+          "abbreviatedName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           }
         },
-        "required": ["name"],
+        "required": ["name", "abbreviatedName", "description"],
         "type": "object"
       },
       "CreateOrganizationRequestDTO": {
         "properties": {
+          "abbreviatedName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
@@ -139,7 +151,7 @@
             "type": "number"
           }
         },
-        "required": ["name", "parentID"],
+        "required": ["name", "abbreviatedName", "description", "parentID"],
         "type": "object"
       },
       "GetContactByIDResponseDTO": {

@@ -45,6 +45,8 @@ export class ContactsService {
       });
       organization ??= this.entityManager.create(OrganizationEntity, {
         name: "Fake root organization",
+        abbreviatedName: "Fake root organization",
+        description: "A fake root organization",
       });
       // We need to flush here to make sure the organization gets an id before
       // we reference the ID in the contact.

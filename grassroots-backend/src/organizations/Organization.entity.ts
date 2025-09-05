@@ -6,6 +6,7 @@ import {
   OneToMany,
   PrimaryKey,
   Property,
+  Unique,
 } from "@mikro-orm/core";
 import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
 import { createEntityBase } from "../util/CreateEntityBase";
@@ -23,7 +24,15 @@ export class OrganizationEntity extends createEntityBase<
   id!: number;
 
   @Property()
+  @Unique()
   name!: string;
+
+  @Property()
+  @Unique()
+  abbreviatedName!: string;
+
+  @Property()
+  description!: string;
 
   @ManyToOne(() => OrganizationEntity, {
     nullable: true,
