@@ -9,6 +9,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { OrganizationsDTO } from "../../grassroots-shared/Organization.dto";
+import { createOrganizationTree } from "../../grassroots-shared/devtools/CreateOrganizationTree";
 
 function getRandomContact(orgId: number): CreateContactRequestDTO {
   // Generating valid phone numbers is tough, so we restrict the possible values.
@@ -75,44 +76,47 @@ function useAddFakeOrganizations(): UseMutationResult<
   return useMutation({
     mutationFn: async () => {
       try {
-        const rootResult = await grassrootsAPI.POST(
-          "/organizations/create-root",
-          {
-            body: {
-              name: "Root Organization",
-              abbreviatedName: "Root Org",
-              description: "The root organization",
+        await createOrganizationTree(grassrootsAPI, {
+          name: "Root Organization",
+          children: [
+            {
+              name: "Green Party of Canada",
+              children: [
+                { name: "Saanich—Gulf Islands" },
+                { name: "Kitchener Centre" },
+                { name: "Guelph" },
+                { name: "Fredricton" },
+              ],
             },
-          },
-        );
-
-        if (rootResult.error) {
-          console.log("Not creating new orgs, as the root org already exists.");
-          return;
-        }
-
-        const results: {
-          id: number;
-          name: string;
-          parentId?: number | undefined;
-        }[] = [];
-        for (const org of [
-          { name: "a", abbreviatedName: "a", description: "a" },
-          { name: "b", abbreviatedName: "b", description: "b" },
-          { name: "c", abbreviatedName: "c", description: "c" },
-        ]) {
-          const result = await grassrootsAPI.POST("/organizations", {
-            body: { ...org, parentID: rootResult.data.id },
-          });
-          if (result.error) {
-            console.log("Not creating new org. It probably already exists.");
-            return undefined;
-          }
-          results.push(result.data);
-        }
-        return [rootResult.data, ...results];
+            {
+              name: "Green Party of Ontario",
+              children: [
+                { name: "Guelph Provincial" },
+                { name: "Kitchener Centre Provincial" },
+                { name: "Parry—Sound Muskoka" },
+              ],
+            },
+            {
+              name: "BC Greens",
+              children: [
+                { name: "Cowichan Valley" },
+                { name: "Saanich North and the Islands" },
+                { name: "West Vancouver-Sea to Sky" },
+              ],
+            },
+            {
+              name: "Municipal",
+              children: [
+                { name: "Chloe Brown for Toronto Mayor" },
+                {
+                  name: "Dianne Saxe for Toronto City Council Ward 11 University—Rosedale",
+                },
+              ],
+            },
+          ],
+        });
       } catch {
-        console.log("Not creating new org. It probably already exists.");
+        console.log("Not creating new orgs. They probably already exists.");
         return undefined;
       }
     },
