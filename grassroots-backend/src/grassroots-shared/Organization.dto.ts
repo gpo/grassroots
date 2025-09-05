@@ -40,6 +40,10 @@ export class CreateOrganizationNoParentRequestDTO extends createDTOBase(
 ) {
   @IsNotEmpty()
   name!: string;
+  @IsNotEmpty()
+  abbreviatedName!: string;
+  @IsNotEmpty()
+  description!: string;
 }
 
 export class CreateOrganizationRequestDTO extends createDTOBase(
@@ -47,6 +51,12 @@ export class CreateOrganizationRequestDTO extends createDTOBase(
 ) {
   @IsNotEmpty()
   name!: string;
+
+  @IsNotEmpty()
+  abbreviatedName!: string;
+
+  @IsNotEmpty()
+  description!: string;
 
   @IsInt()
   @Min(1)
