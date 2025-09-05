@@ -11,13 +11,18 @@ import {
 import { OrganizationsDTO } from "../../grassroots-shared/Organization.dto";
 import { createOrganizationTree } from "../../grassroots-shared/devtools/CreateOrganizationTree";
 
-function getRandomContact(orgId: number): CreateContactRequestDTO {
+function getRandomContact(orgIds: number[]): CreateContactRequestDTO {
   // Generating valid phone numbers is tough, so we restrict the possible values.
   const phoneNumber =
     "226-" +
     String(faker.number.int({ min: 200, max: 999 })) +
     "-" +
     String(faker.number.int({ min: 0, max: 9999 })).padStart(4, "0");
+
+  const orgId = orgIds[Math.floor(Math.random() * orgIds.length)];
+  if (orgId === undefined) {
+    throw new Error("Missing organization ids");
+  }
   return CreateContactRequestDTO.from({
     firstName: faker.person.firstName(),
     lastName: faker.person.lastName(),
@@ -32,15 +37,15 @@ function useAddFakeContacts(): UseMutationResult<
     ids: number[];
   },
   Error,
-  number
+  number[]
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (orgId: number) => {
+    mutationFn: async (orgIds: number[]) => {
       const contacts = [];
 
       for (let i = 0; i < 100; ++i) {
-        contacts.push(getRandomContact(orgId));
+        contacts.push(getRandomContact(orgIds));
       }
       const result = await grassrootsAPI.POST("/contacts/bulk-create", {
         body: {
@@ -139,11 +144,7 @@ export function AddFakeDataButton(): JSX.Element {
           const orgs = OrganizationsDTO.fromFetchOrThrow(
             await grassrootsAPI.GET("/organizations"),
           ).organizations;
-          const firstOrg = orgs[0];
-          if (firstOrg === undefined) {
-            throw new Error("No organizations");
-          }
-          void addFakeContacts.mutateAsync(firstOrg.id);
+          void addFakeContacts.mutateAsync(orgs.map((x) => x.id));
         })();
       }}
     >
