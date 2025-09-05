@@ -4,24 +4,30 @@
 
 ## Columns
 
-| Name      | Type         | Default                                         | Nullable | Children                                                                                                                                                            | Parents                                                     | Comment |
-| --------- | ------------ | ----------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------- |
-| id        | integer      | nextval('organization_entity_id_seq'::regclass) | false    | [public.organization_entity](public.organization_entity.md) [public.contact_entity](public.contact_entity.md) [public.user_role_entity](public.user_role_entity.md) |                                                             |         |
-| name      | varchar(255) |                                                 | false    |                                                                                                                                                                     |                                                             |         |
-| parent_id | integer      |                                                 | true     |                                                                                                                                                                     | [public.organization_entity](public.organization_entity.md) |         |
+| Name             | Type         | Default                                         | Nullable | Children                                                                                                                                                            | Parents                                                     | Comment |
+| ---------------- | ------------ | ----------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------- |
+| id               | integer      | nextval('organization_entity_id_seq'::regclass) | false    | [public.organization_entity](public.organization_entity.md) [public.contact_entity](public.contact_entity.md) [public.user_role_entity](public.user_role_entity.md) |                                                             |         |
+| name             | varchar(255) |                                                 | false    |                                                                                                                                                                     |                                                             |         |
+| parent_id        | integer      |                                                 | true     |                                                                                                                                                                     | [public.organization_entity](public.organization_entity.md) |         |
+| abbreviated_name | varchar(255) |                                                 | false    |                                                                                                                                                                     |                                                             |         |
+| description      | varchar(255) |                                                 | false    |                                                                                                                                                                     |                                                             |         |
 
 ## Constraints
 
-| Name                                  | Type        | Definition                                                                                      |
-| ------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
-| organization_entity_parent_id_foreign | FOREIGN KEY | FOREIGN KEY (parent_id) REFERENCES organization_entity(id) ON UPDATE CASCADE ON DELETE SET NULL |
-| organization_entity_pkey              | PRIMARY KEY | PRIMARY KEY (id)                                                                                |
+| Name                                        | Type        | Definition                                                                                      |
+| ------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
+| organization_entity_parent_id_foreign       | FOREIGN KEY | FOREIGN KEY (parent_id) REFERENCES organization_entity(id) ON UPDATE CASCADE ON DELETE SET NULL |
+| organization_entity_pkey                    | PRIMARY KEY | PRIMARY KEY (id)                                                                                |
+| organization_entity_name_unique             | UNIQUE      | UNIQUE (name)                                                                                   |
+| organization_entity_abbreviated_name_unique | UNIQUE      | UNIQUE (abbreviated_name)                                                                       |
 
 ## Indexes
 
-| Name                     | Definition                                                                                  |
-| ------------------------ | ------------------------------------------------------------------------------------------- |
-| organization_entity_pkey | CREATE UNIQUE INDEX organization_entity_pkey ON public.organization_entity USING btree (id) |
+| Name                                        | Definition                                                                                                                   |
+| ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| organization_entity_pkey                    | CREATE UNIQUE INDEX organization_entity_pkey ON public.organization_entity USING btree (id)                                  |
+| organization_entity_name_unique             | CREATE UNIQUE INDEX organization_entity_name_unique ON public.organization_entity USING btree (name)                         |
+| organization_entity_abbreviated_name_unique | CREATE UNIQUE INDEX organization_entity_abbreviated_name_unique ON public.organization_entity USING btree (abbreviated_name) |
 
 ## Relations
 
@@ -36,6 +42,8 @@ erDiagram
   integer id
   varchar_255_ name
   integer parent_id FK
+  varchar_255_ abbreviated_name
+  varchar_255_ description
 }
 "public.contact_entity" {
   integer id
