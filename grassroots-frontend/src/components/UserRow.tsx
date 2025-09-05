@@ -5,11 +5,10 @@ interface UserRowProps {
   user: UserDTO;
 }
 
-export function UserRow(props: UserRowProps): JSX.Element {
+export function UserRow({ user }: UserRowProps): JSX.Element {
   return (
-    <p>
-      {props.user.firstName} {props.user.lastName} (
-      {props.user.emails?.join(", ")})
+    <p key={user.id}>
+      {user.firstName} {user.lastName} ({user.emails?.join(", ")})
     </p>
   );
 }
