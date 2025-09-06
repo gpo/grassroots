@@ -43,6 +43,7 @@ COPY package.json ./package.json
 COPY grassroots-frontend/package.json grassroots-frontend/package.json
 COPY grassroots-backend/package.json grassroots-backend/package.json
 COPY eslint_rules/package.json eslint_rules/package.json
+COPY grassroots-backend/src/FormattedMetadata.gen.ts grassroots-backend/src/FormattedMetadata.gen.ts
 
 RUN pnpm install -r
 
