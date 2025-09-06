@@ -9,7 +9,7 @@ install_deps_if_needed() {
     # If node modules is empty, install dependencies.
     if [ -z "$(ls -A $dir/node_modules)" ]; then
         echo "Installing $name dependencies..."
-        cd "$dir" && npm i
+        cd "$dir" && pnpm i
     else
         echo "$name dependencies already installed, skipping."
     fi
@@ -20,7 +20,7 @@ install_deps_if_needed() {
 create_shared_symlink() {
     local source="$1"
     local destination="$2"
-    
+
     if [ -L "$destination" ] || [ -e "$destination" ]; then
         echo "Removing existing file/symlink"
         rm -rf "$destination"

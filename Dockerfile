@@ -45,8 +45,8 @@ EXPOSE 3000
 # also update .devcontainer.json's "postStartCommand".
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-# For dev, we don't actually want to run npm run dev, it's better to do that manually. For prod,
+# For dev, we don't actually want to run pnpm run dev, it's better to do that manually. For prod,
 # we'd want to:
-# CMD ["npm", "run", "dev"]
+# CMD ["pnpm", "run", "dev"]
 
 CMD ["sleep", "infinity"]
