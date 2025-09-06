@@ -1,7 +1,7 @@
 # Grassroots eslint rules.
 
 Currently built manually via `npm run tsc`.
-e.g., from the root, run `npm run tsc --prefix eslint_rules && npx eslint .`.
+e.g., from the root, run `npm run tsc --prefix eslint_rules && pnpm exec eslint .`.
 
 ## Rules
 

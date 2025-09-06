@@ -1,0 +1,5 @@
+ignoredBuiltDependencies:
+  - esbuild
+  - "@nestjs/core"
+  - "@scarf/scarf"
+  - "@swc/core"

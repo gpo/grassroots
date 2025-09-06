@@ -11,13 +11,13 @@ root package, `npm prune`, install it in the frontend package, and
 restart vite.
 
 When migrating the database with `docker compose exec grassroots_dev
-bash -c "cd grassroots-backend && npx mikro-orm migration:up"` you get
+bash -c "cd grassroots-backend && pnpm exec mikro-orm migration:up"` you get
 `MODULE_NOT_FOUND`
 
 ```
 docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm i"
 docker compose exec grassroots_dev bash -c "cd grassroots-backend && npm audit fix"
-docker compose exec grassroots_dev bash -c "cd grassroots-backend && npx mikro-orm migration:up"
+docker compose exec grassroots_dev bash -c "cd grassroots-backend && pnpm exec mikro-orm migration:up"
 ```
 
 # Environment Variables
