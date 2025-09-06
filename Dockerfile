@@ -39,9 +39,9 @@ RUN npm install -g pnpm
 
 # Technically we should maybe install dependencies as one step, and then copy source in as another step
 # as that breaks the image cache less often, but this is much easier.
-COPY . .
+COPY --chown=${UNAME}:${UNAME} . .
+RUN chown $UNAME:$UNAME /app
 
-RUN chown $UNAME:$UNAME -R /app
 USER ${UNAME}
 RUN pnpm install -r
 
