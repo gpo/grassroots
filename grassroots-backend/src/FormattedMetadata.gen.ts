@@ -89,6 +89,11 @@ export default async () => {
                 type: () =>
                   t["./grassroots-shared/Organization.dto"].OrganizationDTO,
               },
+              organizationId: {
+                required: true,
+                type: () => Number,
+                minimum: 1,
+              },
               phoneNumber: { required: true, type: () => String },
             },
             ContactsDTO: {

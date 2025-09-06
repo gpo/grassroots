@@ -20,6 +20,10 @@
           "organization": {
             "$ref": "#/components/schemas/OrganizationDTO"
           },
+          "organizationId": {
+            "minimum": 1,
+            "type": "number"
+          },
           "phoneNumber": {
             "type": "string"
           }
@@ -30,6 +34,7 @@
           "firstName",
           "lastName",
           "organization",
+          "organizationId",
           "phoneNumber"
         ],
         "type": "object"

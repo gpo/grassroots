@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@casl/ability": "^6.7.3",
     "@faker-js/faker": "^9.9.0",
     "@mantine/core": "^7.17.4",
     "@mantine/hooks": "^7.17.4",

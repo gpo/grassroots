@@ -11,7 +11,13 @@
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@shared/CASLSubjects": [
+        "./src/grassroots-shared/CASL/CASLSubjects.backend.ts"
+      ]
+    }
   },
   "exclude": ["src/testing/typetests/**"]
 }
