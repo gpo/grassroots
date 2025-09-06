@@ -28,7 +28,7 @@
 ## Project setup
 
 ```bash
-$ pnpm install
+$ pnpm install -r
 ```
 
 ## Compile and run the project
