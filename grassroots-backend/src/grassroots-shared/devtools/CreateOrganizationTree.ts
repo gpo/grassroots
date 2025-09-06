@@ -22,7 +22,7 @@ function mergeNameToIdMap(
 ): void {
   for (const [key, value] of from) {
     if (into.has(key)) {
-      throw new Error(`Duplicate organization names in tree: ${String(key)}`);
+      throw new Error(`Duplicate organization names in tree: ${key}`);
     }
     into.set(key, value);
   }

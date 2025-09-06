@@ -58,7 +58,7 @@ Common examples:
     ./run "cd grassroots-backend && npm install"
     ./run "cd grassroots-backend && npm run start:dev"
     ./run "cd grassroots-backend && npm test"
-    ./run "cd grassroots-backend && npx mikro-orm migration:up"
+    ./run "cd grassroots-backend && pnpm exec mikro-orm migration:up"
 
   Frontend:
     ./run "cd grassroots-frontend && npm install"
