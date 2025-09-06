@@ -28,11 +28,22 @@ COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN mkdir node_modules && \
     mkdir -p grassroots-frontend/node_modules && \
     mkdir -p grassroots-backend/node_modules && \
-    mkdir -p grassroots-frontend/dist && \
-    mkdir -p grassroots-backend/dist && \
-    chown $UNAME -R *
+    mkdir -p eslint_rules/node_modules
+
+RUN npm install -g pnpm
+
+# We want to do an initial build here to make sure all the symlinks are sorted
+# out before anything can possibly bind to them.
+# By doing this here, container local directories take precedence over
+# bind mounted directories.
+
+# Technically we should maybe install dependencies as one step, and then copy source in as another step
+# as that breaks the image cache less often, but this is much easier.
+COPY --chown=${UNAME}:${UNAME} . .
+RUN chown $UNAME:$UNAME /app
 
 USER ${UNAME}
+RUN pnpm install -r
 
 # Vite
 EXPOSE 5173
@@ -43,8 +54,8 @@ EXPOSE 3000
 # also update .devcontainer.json's "postStartCommand".
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
-# For dev, we don't actually want to run npm run dev, it's better to do that manually. For prod,
+# For dev, we don't actually want to run pnpm run dev, it's better to do that manually. For prod,
 # we'd want to:
-# CMD ["npm", "run", "dev"]
+# CMD ["pnpm", "run", "dev"]
 
 CMD ["sleep", "infinity"]
