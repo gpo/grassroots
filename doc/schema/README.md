@@ -6,7 +6,7 @@
 | ------------------------------------------------------------- | ------- | ------- | ---------- |
 | [public.mikro_orm_migrations](public.mikro_orm_migrations.md) | 3       |         | BASE TABLE |
 | [public.user_entity](public.user_entity.md)                   | 5       |         | BASE TABLE |
-| [public.organization_entity](public.organization_entity.md)   | 3       |         | BASE TABLE |
+| [public.organization_entity](public.organization_entity.md)   | 5       |         | BASE TABLE |
 | [public.contact_entity](public.contact_entity.md)             | 6       |         | BASE TABLE |
 | [public.user_role_entity](public.user_role_entity.md)         | 5       |         | BASE TABLE |
 
@@ -36,6 +36,8 @@ erDiagram
   integer id
   varchar_255_ name
   integer parent_id FK
+  varchar_255_ abbreviated_name
+  varchar_255_ description
 }
 "public.contact_entity" {
   integer id

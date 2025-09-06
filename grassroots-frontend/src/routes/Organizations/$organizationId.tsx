@@ -3,4 +3,12 @@ import { OrganizationDashboard } from "../../pages/organizations/OrganizationPag
 
 export const Route = createFileRoute("/Organizations/$organizationId")({
   component: OrganizationDashboard,
+  params: {
+    parse: (raw) => ({
+      organizationId: Number(raw.organizationId),
+    }),
+    stringify: (params) => ({
+      organizationId: String(params.organizationId),
+    }),
+  },
 });

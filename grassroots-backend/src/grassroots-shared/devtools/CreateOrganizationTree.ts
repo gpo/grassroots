@@ -1,11 +1,14 @@
+import { Client } from "openapi-fetch";
 import { OrganizationDTO } from "../../grassroots-shared/Organization.dto";
-import { E2ETestFixture } from "../E2eSetup";
+import { paths } from "../OpenAPI.gen";
 
 // Creating these trees manually is pretty painful, and makes it harder to understand the
 // point of the test.
 
 interface OrganizationTreeNode {
   name: string;
+  abbreviatedName?: string;
+  description?: string;
   children?: OrganizationTreeNode[];
 }
 
@@ -26,28 +29,34 @@ function mergeNameToIdMap(
 }
 
 export async function createOrganizationTree(
-  f: E2ETestFixture,
+  grassrootsAPI: Client<paths>,
   currentNode: OrganizationTreeNode,
   parentID?: number,
 ): Promise<CreateOrganizationTreeResult> {
   let currentNodeId: number | undefined;
   const nameToId = new Map<string, number>();
 
+  const body = {
+    name: currentNode.name,
+    abbreviatedName:
+      currentNode.abbreviatedName ?? "Abbreviation of " + currentNode.name,
+    description:
+      currentNode.description ?? "Description of " + currentNode.name,
+  };
+
   // First we make the current node, then we recurse on the children.
   if (parentID === undefined) {
     const root = OrganizationDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/organizations/create-root", {
-        body: {
-          name: currentNode.name,
-        },
+      await grassrootsAPI.POST("/organizations/create-root", {
+        body,
       }),
     );
     currentNodeId = root.id;
   } else {
     const node = OrganizationDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/organizations", {
+      await grassrootsAPI.POST("/organizations", {
         body: {
-          name: currentNode.name,
+          ...body,
           parentID,
         },
       }),
@@ -59,7 +68,7 @@ export async function createOrganizationTree(
 
   for (const child of currentNode.children ?? []) {
     const nameToIdMapExtention = await createOrganizationTree(
-      f,
+      grassrootsAPI,
       child,
       currentNodeId,
     );

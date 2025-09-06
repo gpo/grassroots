@@ -110,6 +110,8 @@ export class ContactSearchRequestDTO extends createDTOBase(
   @IsOptional()
   lastName?: string;
   @IsOptional()
+  organizationId?: number;
+  @IsOptional()
   phoneNumber?: string;
 }
 

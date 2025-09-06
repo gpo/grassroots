@@ -305,6 +305,7 @@ export interface components {
       firstName?: string;
       id?: number;
       lastName?: string;
+      organizationId?: number;
       phoneNumber?: string;
     };
     ContactsDTO: {
@@ -325,9 +326,13 @@ export interface components {
       phoneNumber: string;
     };
     CreateOrganizationNoParentRequestDTO: {
+      abbreviatedName: string;
+      description: string;
       name: string;
     };
     CreateOrganizationRequestDTO: {
+      abbreviatedName: string;
+      description: string;
       name: string;
       parentID: number;
     };
@@ -341,6 +346,8 @@ export interface components {
       user?: components["schemas"]["UserDTO"];
     };
     OrganizationDTO: {
+      abbreviatedName: string;
+      description: string;
       id: number;
       name: string;
       parentId?: number;

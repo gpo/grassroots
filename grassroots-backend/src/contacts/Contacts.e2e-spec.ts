@@ -24,6 +24,8 @@ describe("ContactsController (e2e)", () => {
       await f.grassrootsAPI.POST("/organizations/create-root", {
         body: {
           name: "Root organization",
+          abbreviatedName: "Root",
+          description: "Root description",
         },
       }),
     );
