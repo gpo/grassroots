@@ -107,7 +107,7 @@ jobs:
         run: pnpm install -r
 
       - name: Run tstyche
-        run: pnpm run test:tstyche --prefix grassroots-backend
+        run: cd grassroots-backend && pnpm run test:tstyche
 
       - name: Check mikro-orm migration
         run: |
