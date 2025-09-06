@@ -14,9 +14,6 @@ create_shared_symlink() {
     echo "Symlink created successfully"
 }
 
-cd /app
-pnpm install -r
-
 # Create the symlink
 create_shared_symlink "/app/grassroots-backend/src/grassroots-shared" "/app/grassroots-frontend/src/grassroots-shared"
 

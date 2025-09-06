@@ -24,17 +24,28 @@ RUN deluser node --remove-home \
 
 COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
-RUN npm install -g pnpm
-
 # We need to make these before we mount them to make sure the permissions are correct.
 RUN mkdir node_modules && \
     mkdir -p grassroots-frontend/node_modules && \
     mkdir -p grassroots-backend/node_modules && \
-    mkdir -p grassroots-frontend/dist && \
-    mkdir -p grassroots-backend/dist && \
-    chown $UNAME -R *
+    mkdir -p eslint_rules/node_modules
 
+RUN npm install -g pnpm
+RUN chown $UNAME:$UNAME -R /app
 USER ${UNAME}
+
+# We want to do an initial build here to make sure all the symlinks are sorted
+# out before anything can possibly bind to them.
+# By doing this here, container local directories take precedence over
+# bind mounted directories.
+COPY pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package.json ./package.json
+COPY grassroots-frontend/package.json grassroots-frontend/package.json
+COPY grassroots-backend/package.json grassroots-backend/package.json
+COPY grassroots-shared/package.json grassroots-shared/package.json
+COPY eslint_rules/package.json eslint_rules/package.json
+
+RUN pnpm install -r
 
 # Vite
 EXPOSE 5173
