@@ -17,8 +17,7 @@
     "test": "cd grassroots-frontend && pnpm run test && cd ../grassroots-backend && pnpm run test && cd ../eslint_rules && pnpm run test",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
-    "check": "pnpm exec tsc --noEmit --project grassroots-frontend && pnpm exec tsc --noEmit --project grassroots-backend && pnpm exec tsc --noEmit --project eslint_rules && pnpm exec eslint .",
-    "postinstall": "cd eslint_rules && pnpm run tsc"
+    "check": "pnpm exec tsc --noEmit --project grassroots-frontend && pnpm exec tsc --noEmit --project grassroots-backend && pnpm exec tsc --noEmit --project eslint_rules && pnpm exec eslint ."
   },
   "devDependencies": {
     "@darraghor/eslint-plugin-nestjs-typed": "^6.4.14",
