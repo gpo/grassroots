@@ -49,6 +49,9 @@
           "lastName": {
             "type": "string"
           },
+          "organizationId": {
+            "type": "number"
+          },
           "phoneNumber": {
             "type": "string"
           }
@@ -187,6 +190,12 @@
       },
       "OrganizationDTO": {
         "properties": {
+          "abbreviatedName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
           "id": {
             "minimum": 1,
             "type": "number"
@@ -199,7 +208,7 @@
             "type": "number"
           }
         },
-        "required": ["id", "name"],
+        "required": ["id", "name", "abbreviatedName", "description"],
         "type": "object"
       },
       "OrganizationReferenceDTO": {

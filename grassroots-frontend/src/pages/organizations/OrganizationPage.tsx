@@ -1,38 +1,35 @@
-import { JSX } from "react";
-import { OrganizationMembersTable } from "./OrganizationMembersTable";
+import { JSX, useState } from "react";
 import { useParams } from "@tanstack/react-router";
 import { Route as OrgRoute } from "../../routes/Organizations/$organizationId";
-import { UserDTO } from "../../grassroots-shared/User.dto";
+import { useContactSearch } from "../../hooks/useContactSearch";
+import {
+  PaginatedContactResponseDTO,
+  PaginatedContactSearchRequestDTO,
+} from "../../grassroots-shared/Contact.dto";
+import { PaginatedContacts } from "../../components/PaginatedContacts";
 
-export interface sampleTableDataType
-  extends Pick<UserDTO, "id" | "firstName" | "lastName" | "emails"> {
-  role: "Candidate" | "Volunteer" | "Financial Agent/ CFO" | "CEO/President";
-}
-
-const sampleTableData: sampleTableDataType[] = [
-  {
-    id: "1234",
-    firstName: "Test",
-    lastName: "Candidate",
-    emails: ["testcandidate@gpo.ca"],
-    role: "Candidate",
-  },
-  {
-    id: "12345",
-    firstName: "Test",
-    lastName: "CFO",
-    emails: ["testcfo@gpo.ca"],
-    role: "Financial Agent/ CFO",
-  },
-];
+const ROWS_PER_PAGE = 10;
 
 export function OrganizationDashboard(): JSX.Element {
   const { organizationId } = useParams({ from: OrgRoute.id });
+  const [rowsToSkip, setRowsToSkip] = useState<number>(0);
+
+  const useContactSearchResults =
+    useContactSearch(
+      PaginatedContactSearchRequestDTO.from({
+        contact: { organizationId: organizationId },
+        paginated: { rowsToSkip: rowsToSkip, rowsToTake: ROWS_PER_PAGE },
+      }),
+    ).data ?? PaginatedContactResponseDTO.empty();
   // TODO: Change title from Org [orgid] to just [Org Name]
   return (
     <div>
       <h2>Organization {organizationId}</h2>
-      <OrganizationMembersTable tableData={sampleTableData} />
+      <PaginatedContacts
+        paginatedContactResponse={useContactSearchResults}
+        setRowsToSkip={setRowsToSkip}
+        rowsPerPage={ROWS_PER_PAGE}
+      ></PaginatedContacts>
     </div>
   );
 }

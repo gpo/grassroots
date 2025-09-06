@@ -23,6 +23,12 @@ export class OrganizationDTO extends createDTOBase("Organization") {
   @IsNotEmpty()
   name!: string;
 
+  @IsNotEmpty()
+  abbreviatedName!: string;
+
+  @IsNotEmpty()
+  description!: string;
+
   @IsOptional()
   @IsNumber()
   @Min(1)

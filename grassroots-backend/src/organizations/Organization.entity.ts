@@ -49,6 +49,8 @@ export class OrganizationEntity extends createEntityBase<
     return OrganizationDTO.from({
       id: this.id,
       name: this.name,
+      abbreviatedName: this.abbreviatedName,
+      description: this.description,
       parentId: this.parent?.id,
     });
   }
