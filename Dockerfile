@@ -42,7 +42,6 @@ COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY package.json ./package.json
 COPY grassroots-frontend/package.json grassroots-frontend/package.json
 COPY grassroots-backend/package.json grassroots-backend/package.json
-COPY grassroots-shared/package.json grassroots-shared/package.json
 COPY eslint_rules/package.json eslint_rules/package.json
 
 RUN pnpm install -r
