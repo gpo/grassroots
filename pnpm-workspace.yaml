@@ -1,4 +1,9 @@
-ignoredBuiltDependencies:
+packages:
+  - grassroots-backend
+  - grassroots-frontend
+  - eslint_rules
+
+onlyBuiltDependencies:
   - esbuild
   - "@nestjs/core"
   - "@scarf/scarf"
