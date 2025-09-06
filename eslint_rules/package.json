@@ -22,8 +22,9 @@
   "main": "lib/index.js",
   "scripts": {
     "docs": "tsc && eslint-doc-generator",
-    "tsc": "tsc",
-    "test": "vitest"
+    "build": "tsc",
+    "test": "vitest",
+    "postinstall": "tsc"
   },
   "name": "grassroots_eslint",
   "type": "module",
