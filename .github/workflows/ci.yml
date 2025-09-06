@@ -45,13 +45,13 @@ jobs:
           compose-file: "./docker/compose-ci.yaml"
 
       - name: Generate backend files
-        run: pnpm run gen-files-only --prefix grassroots-backend
+        run: cd grassroots-backend && pnpm run gen-files-only
 
       - name: Build backend
-        run: pnpm run build --prefix grassroots-backend
+        run: cd grassroots-backend && pnpm run build
 
       - name: Build frontend
-        run: pnpm run build:ci --prefix grassroots-frontend
+        run: cd grassroots-frontend && pnpm run build:ci
 
       - name: Run TypeScript Checks
         run: |
@@ -121,4 +121,4 @@ jobs:
           compose-file: "./docker/compose-ci.yaml"
 
       - name: Tests
-        run: pnpm run test:ci --prefix grassroots-backend
+        run: cd grassroots-backend && pnpm run test:ci
