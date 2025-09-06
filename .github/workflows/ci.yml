@@ -51,7 +51,7 @@ jobs:
         run: cd grassroots-backend && pnpm run build
 
       - name: Temporarily setup symlink for frontend builds
-        run: rm -rf "/app/grassroots-frontend/src/grassroots-shared" && ln -s "/app/grassroots-backend/src/grassroots-shared" "/app/grassroots-frontend/src/grassroots-shared"
+        run: rm -rf "grassroots-frontend/src/grassroots-shared" && ln -s "grassroots-backend/src/grassroots-shared" "grassroots-frontend/src/grassroots-shared"
 
       - name: Build frontend
         run: cd grassroots-frontend && pnpm run build:ci
