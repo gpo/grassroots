@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { useE2ETestFixture } from "../testing/E2eSetup";
 import { OrganizationsDTO } from "../grassroots-shared/Organization.dto";
-import { createOrganizationTree } from "../testing/testHelpers/CreateOrganizationTree";
 import { fail } from "assert";
+import { createOrganizationTree } from "../grassroots-shared/devtools/CreateOrganizationTree";
 
 describe("Organizations (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -13,7 +13,7 @@ describe("Organizations (e2e)", () => {
   it("should create a tree", async () => {
     const f = getFixture();
 
-    const { nameToId } = await createOrganizationTree(f, {
+    const { nameToId } = await createOrganizationTree(f.grassrootsAPI, {
       name: "root",
       children: [
         { name: "A", children: [{ name: "B", children: [{ name: "C" }] }] },

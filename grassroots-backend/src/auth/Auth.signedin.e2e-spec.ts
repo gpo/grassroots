@@ -5,8 +5,8 @@ import { UsersModule } from "../users/Users.module";
 import { MOCK_AUTH_GUARD_USER } from "../testing/MockAuthGuard";
 import { LoginStateDTO } from "../grassroots-shared/LoginState.dto";
 import { OrganizationDTO } from "../grassroots-shared/Organization.dto";
-import { createOrganizationTree } from "../testing/testHelpers/CreateOrganizationTree";
 import { fail } from "../grassroots-shared/util/Fail";
+import { createOrganizationTree } from "../grassroots-shared/devtools/CreateOrganizationTree";
 
 describe("AuthController (e2e) while signed in", () => {
   const getFixture = useE2ETestFixture({
@@ -26,7 +26,7 @@ describe("AuthController (e2e) while signed in", () => {
   it("Allows setting the active organization", async () => {
     const f = getFixture();
 
-    const { nameToId } = await createOrganizationTree(f, {
+    const { nameToId } = await createOrganizationTree(f.grassrootsAPI, {
       name: "root",
     });
     const rootOrganizationId =
