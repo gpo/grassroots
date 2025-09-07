@@ -24,8 +24,8 @@ services:
       POSTGRES_PASSWORD: test
       POSTGRES_DATABASE: grassroots_test
       SESSION_SECRET: test_session_secret
-      GOOGLE_CLIENT_ID: GOOGLE_CLIENT_ID_DUMMY_FOR_TEST
-      GOOGLE_CLIENT_SECRET: GOOGLE_CLIENT_SECRET_DUMMY_FOR_TEST
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       GOOGLE_AUTH_CALLBACK_URL: http://localhost:5173/api/auth/google/callback
       FRONTEND_HOST: http://localhost:5173
     ports:
