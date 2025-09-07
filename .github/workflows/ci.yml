@@ -37,7 +37,7 @@ jobs:
       - name: Run syncpack
         run: |
           pnpm exec syncpack fix-mismatches
-          pnpm install
+          pnpm install -r
 
       - name: "Services: Start Test Services"
         uses: hoverkraft-tech/compose-action@v2.2.0
