@@ -54,7 +54,7 @@ jobs:
         run: rm -rf "grassroots-frontend/src/grassroots-shared" && ln -s "grassroots-backend/src/grassroots-shared" "grassroots-frontend/src/grassroots-shared"
 
       - name: Build frontend
-        run: cd grassroots-frontend && pnpm run build:ci
+        run: cd grassroots-frontend && ls && ls src && ls src/grassroots-shared && pnpm run build:ci
 
       - name: Run TypeScript Checks
         run: |
