@@ -32,12 +32,12 @@ jobs:
         uses: pnpm/action-setup@v4
 
       - name: Install dependencies
-        run: pnpm install -r
+        run: pnpm install
 
       - name: Run syncpack
         run: |
           pnpm exec syncpack fix-mismatches
-          pnpm install -r
+          pnpm install
 
       - name: "Services: Start Test Services"
         uses: hoverkraft-tech/compose-action@v2.2.0
@@ -107,7 +107,7 @@ jobs:
         uses: pnpm/action-setup@v4
 
       - name: Install dependencies
-        run: pnpm install -r
+        run: pnpm install
 
       - name: Run tstyche
         run: cd grassroots-backend && pnpm run test:tstyche

@@ -37,7 +37,7 @@ COPY --chown=${UNAME}:${UNAME} . .
 RUN chown $UNAME:$UNAME /app
 
 USER ${UNAME}
-RUN pnpm install -r
+RUN pnpm install
 
 # Vite
 EXPOSE 5173
