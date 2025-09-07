@@ -38,14 +38,14 @@ Followed [these instructions](https://mantine.dev/guides/vite/).
 # Bootstrapping Vite
 
 ```sh
-npm create vite@latest # typescript + SWC
+pnpm create vite@latest # typescript + SWC
 ```
 
 # Generate Contacts Resource
 
 ```sh
 cd grassroots-backend
-npx nest generate resource contacts # Rest, generate entry points.
+pnpm exec nest generate resource contacts # Rest, generate entry points.
 ```
 
 # Bootstrapping Nest
@@ -53,6 +53,6 @@ npx nest generate resource contacts # Rest, generate entry points.
 Shortly we'll move the environment into docker, but to bootstrap, we'll just install the nest CLI globally.
 
 ```sh
-npm i -g @nestjs/cli
-nest new grassroots-backend # selected npm as package manager
+pnpm i -g @nestjs/cli
+nest new grassroots-backend # selected pnpm as package manager
 ```
