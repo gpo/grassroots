@@ -41,6 +41,8 @@ export default async () => {
             OrganizationDTO: {
               id: { required: true, type: () => Number, minimum: 1 },
               name: { required: true, type: () => String },
+              abbreviatedName: { required: true, type: () => String },
+              description: { required: true, type: () => String },
               parentId: { required: false, type: () => Number, minimum: 1 },
             },
             OrganizationsDTO: {
@@ -56,9 +58,13 @@ export default async () => {
             },
             CreateOrganizationNoParentRequestDTO: {
               name: { required: true, type: () => String },
+              abbreviatedName: { required: true, type: () => String },
+              description: { required: true, type: () => String },
             },
             CreateOrganizationRequestDTO: {
               name: { required: true, type: () => String },
+              abbreviatedName: { required: true, type: () => String },
+              description: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
             },
           },
@@ -131,6 +137,7 @@ export default async () => {
               email: { required: false, type: () => String },
               firstName: { required: false, type: () => String },
               lastName: { required: false, type: () => String },
+              organizationId: { required: false, type: () => Number },
               phoneNumber: { required: false, type: () => String },
             },
             PaginatedContactSearchRequestDTO: {

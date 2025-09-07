@@ -118,6 +118,16 @@
           "name": "parent_id",
           "type": "integer",
           "nullable": true
+        },
+        {
+          "name": "abbreviated_name",
+          "type": "varchar(255)",
+          "nullable": false
+        },
+        {
+          "name": "description",
+          "type": "varchar(255)",
+          "nullable": false
         }
       ],
       "indexes": [
@@ -127,6 +137,22 @@
           "table": "public.organization_entity",
           "columns": [
             "id"
+          ]
+        },
+        {
+          "name": "organization_entity_name_unique",
+          "def": "CREATE UNIQUE INDEX organization_entity_name_unique ON public.organization_entity USING btree (name)",
+          "table": "public.organization_entity",
+          "columns": [
+            "name"
+          ]
+        },
+        {
+          "name": "organization_entity_abbreviated_name_unique",
+          "def": "CREATE UNIQUE INDEX organization_entity_abbreviated_name_unique ON public.organization_entity USING btree (abbreviated_name)",
+          "table": "public.organization_entity",
+          "columns": [
+            "abbreviated_name"
           ]
         }
       ],
@@ -152,6 +178,26 @@
           "referenced_table": "",
           "columns": [
             "id"
+          ]
+        },
+        {
+          "name": "organization_entity_name_unique",
+          "type": "UNIQUE",
+          "def": "UNIQUE (name)",
+          "table": "public.organization_entity",
+          "referenced_table": "",
+          "columns": [
+            "name"
+          ]
+        },
+        {
+          "name": "organization_entity_abbreviated_name_unique",
+          "type": "UNIQUE",
+          "def": "UNIQUE (abbreviated_name)",
+          "table": "public.organization_entity",
+          "referenced_table": "",
+          "columns": [
+            "abbreviated_name"
           ]
         }
       ]

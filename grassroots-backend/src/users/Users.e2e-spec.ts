@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { useE2ETestFixture } from "../testing/E2eSetup";
 import { UsersModule } from "./Users.module";
-import { createOrganizationTree } from "../testing/testHelpers/CreateOrganizationTree";
 import {
   Permission,
   PermissionsDTO,
@@ -10,6 +9,7 @@ import { fail } from "../grassroots-shared/util/Fail";
 import { OrganizationsModule } from "../organizations/Organizations.module";
 import { ROLES_BY_NAME } from "../organizations/Roles.service";
 import { UserDTO } from "../grassroots-shared/User.dto";
+import { createOrganizationTree } from "../grassroots-shared/devtools/CreateOrganizationTree";
 
 describe("Users (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -18,7 +18,7 @@ describe("Users (e2e)", () => {
 
   it("should return valid permissions", async () => {
     const f = getFixture();
-    const { nameToId } = await createOrganizationTree(f, {
+    const { nameToId } = await createOrganizationTree(f.grassrootsAPI, {
       name: "root",
       children: [
         { name: "A", children: [{ name: "B", children: [{ name: "C" }] }] },

@@ -52,6 +52,8 @@ erDiagram
   integer id
   varchar_255_ name
   integer parent_id FK
+  varchar_255_ abbreviated_name
+  varchar_255_ description
 }
 ```
 

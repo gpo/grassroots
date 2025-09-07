@@ -45,6 +45,8 @@ export class ContactsService {
       });
       organization ??= this.entityManager.create(OrganizationEntity, {
         name: "Fake root organization",
+        abbreviatedName: "Fake root organization",
+        description: "A fake root organization",
       });
       // We need to flush here to make sure the organization gets an id before
       // we reference the ID in the contact.
@@ -93,6 +95,7 @@ export class ContactsService {
         contact.email,
         contact.phoneNumber,
         contact.id,
+        contact.organizationId,
       ].every((x) => x === undefined || x === "")
     ) {
       return PaginatedContactResponseDTO.empty();
@@ -102,6 +105,9 @@ export class ContactsService {
       ...LikeOrUndefined<ContactEntity>("lastName", contact.lastName),
       ...LikeOrUndefined<ContactEntity>("email", contact.email),
       ...LikeOrUndefined<ContactEntity>("phoneNumber", contact.phoneNumber),
+      ...(contact.organizationId == undefined
+        ? {}
+        : { organization: contact.organizationId }),
       ...(contact.id == undefined ? {} : { id: contact.id }),
     };
     const [result, rowsTotal] = await this.repo.findAndCount(query, {

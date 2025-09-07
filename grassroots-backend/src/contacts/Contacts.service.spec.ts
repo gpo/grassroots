@@ -36,6 +36,8 @@ describe("ContactsService", () => {
     const organization = await organizationsService.create(
       CreateOrganizationNoParentRequestDTO.from({
         name: "root",
+        abbreviatedName: "root",
+        description: "Test Description",
       }),
       null,
     );

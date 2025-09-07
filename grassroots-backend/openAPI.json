@@ -49,6 +49,9 @@
           "lastName": {
             "type": "string"
           },
+          "organizationId": {
+            "type": "number"
+          },
           "phoneNumber": {
             "type": "string"
           }
@@ -122,15 +125,27 @@
       },
       "CreateOrganizationNoParentRequestDTO": {
         "properties": {
+          "abbreviatedName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           }
         },
-        "required": ["name"],
+        "required": ["name", "abbreviatedName", "description"],
         "type": "object"
       },
       "CreateOrganizationRequestDTO": {
         "properties": {
+          "abbreviatedName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
@@ -139,7 +154,7 @@
             "type": "number"
           }
         },
-        "required": ["name", "parentID"],
+        "required": ["name", "abbreviatedName", "description", "parentID"],
         "type": "object"
       },
       "GetContactByIDResponseDTO": {
@@ -175,6 +190,12 @@
       },
       "OrganizationDTO": {
         "properties": {
+          "abbreviatedName": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
           "id": {
             "minimum": 1,
             "type": "number"
@@ -187,7 +208,7 @@
             "type": "number"
           }
         },
-        "required": ["id", "name"],
+        "required": ["id", "name", "abbreviatedName", "description"],
         "type": "object"
       },
       "OrganizationReferenceDTO": {
