@@ -24,7 +24,7 @@ only to convince typescript that these types shouldn't be castable to one anothe
 */
 
 import { plainToInstance } from "class-transformer";
-import { PropsOf } from "./TypeUtils";
+import { PropsOf } from "./TypeUtils.js";
 import { HttpException } from "@nestjs/common";
 
 export interface FetchResponse<T, E> {

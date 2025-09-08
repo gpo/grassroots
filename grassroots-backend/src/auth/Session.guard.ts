@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
-import { DECORATOR_METADATA_INDICATING_PUBLIC_ROUTE } from "./PublicRoute.decorator";
+import { DECORATOR_METADATA_INDICATING_PUBLIC_ROUTE } from "./PublicRoute.decorator.js";
 import { GrassrootsRequest } from "../types/GrassrootsRequest.js";
 
 @Injectable()

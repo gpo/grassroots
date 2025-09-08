@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { OrganizationsService } from "./Organizations.service";
-import { OrganizationsController } from "./Organizations.controller";
-import { RolesService } from "./Roles.service";
-import { RolesController } from "./Roles.controller";
+import { OrganizationsService } from "./Organizations.service.js";
+import { OrganizationsController } from "./Organizations.controller.js";
+import { RolesService } from "./Roles.service.js";
+import { RolesController } from "./Roles.controller.js";
 
 @Module({
   providers: [OrganizationsService, RolesService],

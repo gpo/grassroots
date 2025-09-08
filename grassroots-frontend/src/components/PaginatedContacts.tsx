@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { ContactRow } from "./ContactRow.jsx";
+import { ContactRow } from "./ContactRow.js";
 import { PaginatedContactResponseDTO } from "../grassroots-shared/Contact.dto.js";
 
 interface PaginatedContactsProps {

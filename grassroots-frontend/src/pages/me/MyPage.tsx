@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { MyTable } from "./MyTable.jsx";
+import { MyTable } from "./MyTable.js";
 import { OrganizationsDTO } from "../../grassroots-shared/Organization.dto.js";
 import { useOrganizations } from "../../hooks/useOrganizations.js";
 

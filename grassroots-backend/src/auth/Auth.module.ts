@@ -1,12 +1,12 @@
 import { Module } from "@nestjs/common";
-import { UsersModule } from "../users/Users.module";
-import { GoogleOAuthStrategy } from "./GoogleOAuth.strategy";
-import { PassportModuleImport } from "./PassportModuleImport";
+import { UsersModule } from "../users/Users.module.js";
+import { GoogleOAuthStrategy } from "./GoogleOAuth.strategy.js";
+import { PassportModuleImport } from "./PassportModuleImport.js";
 import { ConfigModule } from "@nestjs/config";
-import { AuthController } from "./Auth.controller";
+import { AuthController } from "./Auth.controller.js";
 import { APP_GUARD } from "@nestjs/core";
-import { SessionGuard } from "./Session.guard";
-import { OrganizationsModule } from "../organizations/Organizations.module";
+import { SessionGuard } from "./Session.guard.js";
+import { OrganizationsModule } from "../organizations/Organizations.module.js";
 
 @Module({
   providers: [

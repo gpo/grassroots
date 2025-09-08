@@ -1,12 +1,12 @@
 import { Module, ValidationPipe } from "@nestjs/common";
-import { AppController } from "./App.controller";
-import { AppService } from "./App.service";
-import { ContactsModule } from "../contacts/Contacts.module";
+import { AppController } from "./App.controller.js";
+import { AppService } from "./App.service.js";
+import { ContactsModule } from "../contacts/Contacts.module.js";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { AuthModule } from "../auth/Auth.module";
-import { PassportModuleImport } from "../auth/PassportModuleImport";
-import { UsersService } from "../users/Users.service";
+import { AuthModule } from "../auth/Auth.module.js";
+import { PassportModuleImport } from "../auth/PassportModuleImport.js";
+import { UsersService } from "../users/Users.service.js";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
 import {
   MikroORM,
@@ -15,13 +15,13 @@ import {
 } from "@mikro-orm/postgresql";
 import expressSession from "express-session";
 import passport from "passport";
-import mikroORMConfig from "../mikro-orm.config";
-import { getEnvFilePaths } from "../GetEnvFilePaths";
+import mikroORMConfig from "../mikro-orm.config.js";
+import { getEnvFilePaths } from "../GetEnvFilePaths.js";
 import connectPgSimple from "connect-pg-simple";
 import { Pool } from "pg";
-import { notNull } from "../grassroots-shared/util/NotNull";
-import { OrganizationsModule } from "../organizations/Organizations.module";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { notNull } from "../grassroots-shared/util/NotNull.js";
+import { OrganizationsModule } from "../organizations/Organizations.module.js";
+import { UserDTO } from "../grassroots-shared/User.dto.js";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,

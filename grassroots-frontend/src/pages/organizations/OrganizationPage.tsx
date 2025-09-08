@@ -1,6 +1,6 @@
 import { JSX, useState } from "react";
 import { useParams } from "@tanstack/react-router";
-import { Route as OrgRoute } from "../../routes/Organizations/$organizationId.jsx";
+import { Route as OrgRoute } from "../../routes/Organizations/$organizationId.js";
 import { useContactSearch } from "../../hooks/useContactSearch.js";
 import {
   PaginatedContactResponseDTO,

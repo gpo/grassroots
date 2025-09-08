@@ -7,9 +7,9 @@ import {
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
-import { UsersService } from "../users/Users.service";
+import { UsersService } from "../users/Users.service.js";
 import OpenIDConnectStrategy from "passport-openidconnect";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "../grassroots-shared/User.dto.js";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
 

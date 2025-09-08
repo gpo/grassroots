@@ -5,7 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
 import { grassrootsAPI } from "../GrassRootsAPI.js";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
-import { TextField } from "../components/TextField.jsx";
+import { TextField } from "../components/TextField.js";
 import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto.js";
 import { TEMPORARY_FAKE_ORGANIZATION_ID } from "../grassroots-shared/Organization.dto.js";
 

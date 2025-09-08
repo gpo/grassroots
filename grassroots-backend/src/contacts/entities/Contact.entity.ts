@@ -7,9 +7,9 @@ import {
   Unique,
 } from "@mikro-orm/core";
 import "reflect-metadata";
-import { ContactDTO } from "../../grassroots-shared/Contact.dto";
-import { createEntityBase } from "../../util/CreateEntityBase";
-import { OrganizationEntity } from "../../organizations/Organization.entity";
+import { ContactDTO } from "../../grassroots-shared/Contact.dto.js";
+import { createEntityBase } from "../../util/CreateEntityBase.js";
+import { OrganizationEntity } from "../../organizations/Organization.entity.js";
 
 @Entity()
 export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(

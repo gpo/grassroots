@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PaginatedContacts } from "../components/PaginatedContacts.jsx";
+import { PaginatedContacts } from "../components/PaginatedContacts.js";
 import { JSX, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useContactSearch } from "../hooks/useContactSearch.js";
-import { TextField } from "../components/TextField.jsx";
-import { RoutedLink } from "../components/RoutedLink.jsx";
+import { TextField } from "../components/TextField.js";
+import { RoutedLink } from "../components/RoutedLink.js";
 import { transformingClassValidatorResolver } from "../TransformingClassValidatorResolver.js";
 import {
   ContactSearchRequestDTO,
