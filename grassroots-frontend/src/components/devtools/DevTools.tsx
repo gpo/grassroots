@@ -1,7 +1,7 @@
 import { Affix, AppShell, Button, Drawer } from "@mantine/core";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { JSX, useState } from "react";
-import { AddFakeDataButton } from "./AddFakeDataButton";
+import { AddFakeDataButton } from "./AddFakeDataButton.jsx";
 
 export function DevTools(): JSX.Element {
   const [devtoolsOpen, setDevtoolsShown] = useState(false);

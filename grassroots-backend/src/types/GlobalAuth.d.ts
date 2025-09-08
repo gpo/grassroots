@@ -1,4 +1,4 @@
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "../grassroots-shared/User.dto.js";
 
 declare global {
   namespace Express {

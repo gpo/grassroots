@@ -2,9 +2,9 @@ packages:
   - grassroots-backend
   - grassroots-frontend
   - eslint_rules
-
 onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@scarf/scarf'
+  - '@swc/core'
   - esbuild
-  - "@nestjs/core"
-  - "@scarf/scarf"
-  - "@swc/core"
+  - unrs-resolver

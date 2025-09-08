@@ -8,9 +8,10 @@ import pluginRouter from "@tanstack/eslint-plugin-router";
 import checkFile from "eslint-plugin-check-file";
 import eslintConfigPrettier from "eslint-config-prettier/flat";
 import eslintNestJs from "@darraghor/eslint-plugin-nestjs-typed";
-import * as GrassrootsEslintRules from "./eslint_rules/lib/Index.js";
+import * as GrassrootsEslintRules from "./eslint_rules/dist/Index.js";
 import reactRefresh from "eslint-plugin-react-refresh";
 import vitest from "@vitest/eslint-plugin";
+import eslintPluginImport from "eslint-plugin-import";
 
 export default tseslint.config(
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
@@ -25,6 +26,8 @@ export default tseslint.config(
   ...GrassrootsEslintRules.configs.flatRecommended,
   reactRefresh.configs.recommended,
   vitest.configs.recommended,
+  eslintPluginImport.flatConfigs.recommended,
+  eslintPluginImport.flatConfigs.typescript,
   {
     ignores: [
       "**/*.mjs",
@@ -32,9 +35,9 @@ export default tseslint.config(
       "**/*.js",
       "**/*.gen.ts",
       "grassroots-backend/src/migrations/",
-      "eslint_rules/lib",
-      // Getting this validated is tricky due to eslint requirements around the base dir.
+      "eslint_rules/dist",
       "eslint_rules/vitest.config.ts",
+      "grassroots-backend/vitest.config.ts",
     ],
   },
   {
@@ -98,10 +101,31 @@ export default tseslint.config(
       "@darraghor/nestjs-typed/injectable-should-be-provided": "off",
       // Allow an error message.
       "vitest/valid-expect": ["error", { maxArgs: 2 }],
+      // Always require the .js extension for local imports. This is required for
+      // nodenext module resolution which we need to use on the backend, and we might as
+      // well be consistent.
+      "import/extensions": [
+        "error",
+        "ignorePackages",
+        {
+          js: "always",
+          jsx: "always",
+          ts: "always",
+          tsx: "always",
+        },
+      ],
+      // These have false positives in our repo.
+      "import/no-unresolved": "off",
+      "import/namespace": "off",
     },
     settings: {
       vitest: {
         typecheck: true,
+      },
+      "import/resolver": {
+        node: {
+          extensions: [".js", ".jsx", ".ts", ".tsx"],
+        },
       },
     },
   },

@@ -3,10 +3,10 @@ import "@mantine/core/styles.css";
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 
 import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
-import { RoutedLink } from "../components/RoutedLink";
-import { navigateToBackendRoute } from "../GrassRootsAPI";
-import { LoginState } from "../context/LoginStateContext";
-import { DevTools } from "../components/devtools/DevTools";
+import { RoutedLink } from "../components/RoutedLink.jsx";
+import { navigateToBackendRoute } from "../GrassRootsAPI.js";
+import { LoginState } from "../context/LoginStateContext.js";
+import { DevTools } from "../components/devtools/DevTools.js";
 
 interface RouterContext {
   loginState: Promise<LoginState | undefined>;

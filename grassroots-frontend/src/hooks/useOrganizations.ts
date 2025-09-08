@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from "@tanstack/react-query";
-import { grassrootsAPI } from "../GrassRootsAPI";
-import { OrganizationsDTO } from "../grassroots-shared/Organization.dto";
+import { grassrootsAPI } from "../GrassRootsAPI.js";
+import { OrganizationsDTO } from "../grassroots-shared/Organization.dto.js";
 
 export function useOrganizations(): UseQueryResult<OrganizationsDTO> {
   return useQuery<OrganizationsDTO>({

@@ -3,8 +3,11 @@ import { JSX, StrictMode } from "react";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
 // Import the generated route tree
-import { routeTree } from "../routeTree.gen";
-import { getLoginState, LoginStateContext } from "../context/LoginStateContext";
+import { routeTree } from "../routeTree.gen.js";
+import {
+  getLoginState,
+  LoginStateContext,
+} from "../context/LoginStateContext.js";
 
 // Create a new router instance
 const router = createRouter({
