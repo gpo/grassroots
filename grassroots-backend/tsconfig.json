@@ -1,17 +1,11 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "module": "commonjs",
-    "declaration": true,
-    "removeComments": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "ES2023",
-    "sourceMap": true,
     "outDir": "./dist",
-    "incremental": true,
-    "skipLibCheck": true
+    // Required for express-session, and others.
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true
   },
-  "exclude": ["src/testing/typetests/**"]
+  "include": ["src"],
+  "exclude": ["src/testing/typetests/**", "vitest.config.ts"]
 }

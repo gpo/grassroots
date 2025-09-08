@@ -8,6 +8,17 @@
     "noUncheckedIndexedAccess": true,
     "noUncheckedSideEffectImports": true,
     "noUnusedLocals": false, // replaced by eslint no-unused-vars
-    "noUnusedParameters": false // replaced by eslint no-unused-vars
+    "noUnusedParameters": false, // replaced by eslint no-unused-vars
+    /* Default compilation settings */
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.tsbuildinfo",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "ES2023",
+    "sourceMap": true,
+    "incremental": true,
+    "skipLibCheck": true
   }
 }
