@@ -12,3 +12,56 @@ services:
       # Last file wins.
       - ../.env.test
       - ../.env.test.ci
+
+  backend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.backend
+    environment:
+      POSTGRES_HOST: test_db
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DATABASE: grassroots_test
+      SESSION_SECRET: test_session_secret
+      GOOGLE_AUTH_CALLBACK_URL: http://localhost:5173/api/auth/google/callback
+      FRONTEND_HOST: http://localhost:5173
+    ports:
+      - "3000:3000"
+    depends_on:
+      - test_db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    command: >
+      sh -c "
+        cd /app/grassroots-backend &&
+        npm install && 
+        npx mikro-orm migration:up &&
+        npm run start:prod
+      "
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: Dockerfile.frontend
+    environment:
+      - VITE_API_URL=http://backend:3000
+      - VITE_BACKEND_HOST=http://localhost:3000/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  caddy:
+    container_name: caddy
+    volumes:
+      - ./data/caddy:/data
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    image: caddy
+    ports:
+      - "80:80"
+      - "443:443"
