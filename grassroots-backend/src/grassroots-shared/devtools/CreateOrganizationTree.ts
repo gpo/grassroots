@@ -1,6 +1,6 @@
 import { Client } from "openapi-fetch";
-import { OrganizationDTO } from "../../grassroots-shared/Organization.dto";
-import { paths } from "../OpenAPI.gen";
+import { OrganizationDTO } from "../../grassroots-shared/Organization.dto.js";
+import { paths } from "../OpenAPI.gen.js";
 
 // Creating these trees manually is pretty painful, and makes it harder to understand the
 // point of the test.

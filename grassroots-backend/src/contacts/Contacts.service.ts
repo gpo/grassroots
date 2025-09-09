@@ -6,7 +6,7 @@ import {
   FilterQuery,
   RequiredEntityData,
 } from "@mikro-orm/core";
-import { LikeOrUndefined } from "../util/LikeOrUndefined";
+import { LikeOrUndefined } from "../util/LikeOrUndefined.js";
 import {
   ContactDTO,
   CreateContactRequestDTO,

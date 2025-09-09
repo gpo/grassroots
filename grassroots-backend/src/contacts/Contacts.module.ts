@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
-import { ContactsService } from "./Contacts.service";
-import { ContactsController } from "./Contacts.controller";
-import { ContactEntity } from "./entities/Contact.entity";
+import { ContactsService } from "./Contacts.service.js";
+import { ContactsController } from "./Contacts.controller.js";
+import { ContactEntity } from "./entities/Contact.entity.js";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 
 @Module({

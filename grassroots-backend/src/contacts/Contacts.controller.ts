@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param } from "@nestjs/common";
-import { ContactsService } from "./Contacts.service";
+import { ContactsService } from "./Contacts.service.js";
 import {
   ContactDTO,
   ContactsDTO,
@@ -9,7 +9,7 @@ import {
   GetContactByIDResponseDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
-} from "../grassroots-shared/Contact.dto";
+} from "../grassroots-shared/Contact.dto.js";
 
 @Controller("contacts")
 export class ContactsController {

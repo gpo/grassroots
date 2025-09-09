@@ -1,15 +1,15 @@
 import { Button } from "@mantine/core";
 import { JSX } from "react";
-import { grassrootsAPI } from "../../GrassRootsAPI";
-import { CreateContactRequestDTO } from "../../grassroots-shared/Contact.dto";
+import { grassrootsAPI } from "../../GrassRootsAPI.js";
+import { CreateContactRequestDTO } from "../../grassroots-shared/Contact.dto.js";
 import { faker } from "@faker-js/faker";
 import {
   useMutation,
   UseMutationResult,
   useQueryClient,
 } from "@tanstack/react-query";
-import { OrganizationsDTO } from "../../grassroots-shared/Organization.dto";
-import { createOrganizationTree } from "../../grassroots-shared/devtools/CreateOrganizationTree";
+import { OrganizationsDTO } from "../../grassroots-shared/Organization.dto.js";
+import { createOrganizationTree } from "../../grassroots-shared/devtools/CreateOrganizationTree.js";
 
 function getRandomContact(orgIds: number[]): CreateContactRequestDTO {
   // Generating valid phone numbers is tough, so we restrict the possible values.

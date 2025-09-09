@@ -1,12 +1,12 @@
 import { JSX, useState } from "react";
 import { useParams } from "@tanstack/react-router";
-import { Route as OrgRoute } from "../../routes/Organizations/$organizationId";
-import { useContactSearch } from "../../hooks/useContactSearch";
+import { Route as OrgRoute } from "../../routes/Organizations/$organizationId.js";
+import { useContactSearch } from "../../hooks/useContactSearch.js";
 import {
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
-} from "../../grassroots-shared/Contact.dto";
-import { PaginatedContacts } from "../../components/PaginatedContacts";
+} from "../../grassroots-shared/Contact.dto.js";
+import { PaginatedContacts } from "../../components/PaginatedContacts.js";
 
 const ROWS_PER_PAGE = 10;
 

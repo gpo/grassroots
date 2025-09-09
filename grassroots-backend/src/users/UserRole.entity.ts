@@ -6,11 +6,11 @@ import {
   Property,
   Rel,
 } from "@mikro-orm/core";
-import { UserEntity } from "./User.entity";
-import { RoleEntity, ROLES } from "../organizations/Roles.service";
-import { OrganizationEntity } from "../organizations/Organization.entity";
-import { UserRoleDTO } from "../grassroots-shared/UserRole.dto";
-import { createEntityBase } from "../util/CreateEntityBase";
+import { UserEntity } from "./User.entity.js";
+import { RoleEntity, ROLES } from "../organizations/Roles.service.js";
+import { OrganizationEntity } from "../organizations/Organization.entity.js";
+import { UserRoleDTO } from "../grassroots-shared/UserRole.dto.js";
+import { createEntityBase } from "../util/CreateEntityBase.js";
 
 @Entity()
 export class UserRoleEntity extends createEntityBase<"UserRole", UserRoleDTO>(

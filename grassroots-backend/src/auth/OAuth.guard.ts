@@ -1,7 +1,7 @@
 import { AuthGuard } from "@nestjs/passport";
-import { DEFAULT_PASSPORT_STRATEGY_NAME } from "./GoogleOAuth.strategy";
+import { DEFAULT_PASSPORT_STRATEGY_NAME } from "./GoogleOAuth.strategy.js";
 import { ExecutionContext, Injectable } from "@nestjs/common";
-import { GrassrootsRequest } from "../types/GrassrootsRequest";
+import { GrassrootsRequest } from "../types/GrassrootsRequest.js";
 import { Observable } from "rxjs";
 
 // Only used for OAuth to establish a session. The SessionGuard is responsible

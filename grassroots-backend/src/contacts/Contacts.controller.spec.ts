@@ -1,5 +1,5 @@
-import { ContactsController } from "./Contacts.controller";
-import { getTestApp } from "../testing/GetTestApp";
+import { ContactsController } from "./Contacts.controller.js";
+import { getTestApp } from "../testing/GetTestApp.js";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { EntityManager } from "@mikro-orm/postgresql";
 import {
@@ -11,7 +11,7 @@ import {
   expect,
   it,
 } from "vitest";
-import { ContactsModule } from "./Contacts.module";
+import { ContactsModule } from "./Contacts.module.js";
 
 describe("ContactsController", () => {
   let controller: ContactsController;

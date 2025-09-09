@@ -2,13 +2,13 @@ import { Test } from "@nestjs/testing";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { Type } from "@nestjs/common";
-import { PassportModuleImport } from "../auth/PassportModuleImport";
+import { PassportModuleImport } from "../auth/PassportModuleImport.js";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
-import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest";
-import { MockSessionGuard } from "./MockAuthGuard";
-import { SessionGuard } from "../auth/Session.guard";
-import mikroORMConfig from "./../mikro-orm.config";
+import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest.js";
+import { MockSessionGuard } from "./MockAuthGuard.js";
+import { SessionGuard } from "../auth/Session.guard.js";
+import mikroORMConfig from "./../mikro-orm.config.js";
 
 let app: NestExpressApplication | undefined = undefined;
 

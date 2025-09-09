@@ -3,11 +3,11 @@ import { JSX, useCallback } from "react";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FormProvider, SubmitHandler, useForm } from "react-hook-form";
-import { grassrootsAPI } from "../GrassRootsAPI";
+import { grassrootsAPI } from "../GrassRootsAPI.js";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
-import { TextField } from "../components/TextField";
-import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto";
-import { TEMPORARY_FAKE_ORGANIZATION_ID } from "../grassroots-shared/Organization.dto";
+import { TextField } from "../components/TextField.js";
+import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto.js";
+import { TEMPORARY_FAKE_ORGANIZATION_ID } from "../grassroots-shared/Organization.dto.js";
 
 export const Route = createFileRoute("/CreateContact")({
   component: CreateContact,

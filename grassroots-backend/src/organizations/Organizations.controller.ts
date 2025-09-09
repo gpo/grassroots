@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Param, Post } from "@nestjs/common";
-import { OrganizationsService } from "./Organizations.service";
+import { OrganizationsService } from "./Organizations.service.js";
 import {
   CreateOrganizationRequestDTO,
   CreateOrganizationNoParentRequestDTO,
   OrganizationDTO,
   OrganizationsDTO,
-} from "../grassroots-shared/Organization.dto";
+} from "../grassroots-shared/Organization.dto.js";
 
 @Controller("organizations")
 export class OrganizationsController {

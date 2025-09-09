@@ -1,5 +1,5 @@
 import { EntityRepository, Loaded } from "@mikro-orm/postgresql";
-import { OrganizationEntity } from "./Organization.entity";
+import { OrganizationEntity } from "./Organization.entity.js";
 import { NotFoundException } from "@nestjs/common";
 
 export class OrganizationRepository extends EntityRepository<OrganizationEntity> {

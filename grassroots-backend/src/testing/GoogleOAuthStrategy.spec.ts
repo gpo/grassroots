@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { GoogleOAuthStrategy } from "../auth/GoogleOAuth.strategy";
-import { useTestFixture } from "./Setup";
-import { UsersModule } from "../users/Users.module";
+import { GoogleOAuthStrategy } from "../auth/GoogleOAuth.strategy.js";
+import { useTestFixture } from "./Setup.js";
+import { UsersModule } from "../users/Users.module.js";
 import { ConfigModule, ConfigService } from "@nestjs/config";
-import { UsersService } from "../users/Users.service";
+import { UsersService } from "../users/Users.service.js";
 
 describe("GoogleOAuthStrategy", () => {
   const getFixture = useTestFixture({

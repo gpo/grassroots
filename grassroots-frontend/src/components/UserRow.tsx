@@ -1,5 +1,5 @@
 import { JSX } from "react";
-import { UserDTO } from "../grassroots-shared/User.dto";
+import { UserDTO } from "../grassroots-shared/User.dto.js";
 
 interface UserRowProps {
   user: UserDTO;

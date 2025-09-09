@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { PropsOf } from "../grassroots-shared/util/TypeUtils";
+import { PropsOf } from "../grassroots-shared/util/TypeUtils.js";
 
 class Branded<TBrand> {
   readonly __DTOBrand!: "Foo";

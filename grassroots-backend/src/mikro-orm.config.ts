@@ -1,11 +1,11 @@
 /* eslint-disable check-file/filename-naming-convention */
 import { defineConfig, PostgreSqlDriver } from "@mikro-orm/postgresql";
-import { UserEntity } from "./users/User.entity";
-import { ContactEntity } from "./contacts/entities/Contact.entity";
+import { UserEntity } from "./users/User.entity.js";
+import { ContactEntity } from "./contacts/entities/Contact.entity.js";
 
 import dotenvFlow from "dotenv-flow";
-import { getEnvFilePaths } from "./GetEnvFilePaths";
-import { OrganizationEntity } from "./organizations/Organization.entity";
+import { getEnvFilePaths } from "./GetEnvFilePaths.js";
+import { OrganizationEntity } from "./organizations/Organization.entity.js";
 dotenvFlow.config({
   // Reversed so that earlier files take priority, to align with the ConfigModule.
   files: getEnvFilePaths().reverse(),

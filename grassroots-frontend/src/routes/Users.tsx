@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX } from "react";
-import { UsersDTO } from "../grassroots-shared/User.dto";
+import { UsersDTO } from "../grassroots-shared/User.dto.js";
 import { useQuery } from "@tanstack/react-query";
-import { grassrootsAPI } from "../GrassRootsAPI";
-import { UserRow } from "../components/UserRow";
+import { grassrootsAPI } from "../GrassRootsAPI.js";
+import { UserRow } from "../components/UserRow.js";
 
 export const Route = createFileRoute("/Users")({
   component: Users,
