@@ -44,8 +44,8 @@ jobs:
         with:
           compose-file: "./docker/compose-ci.yaml"
         env:
-          GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-          GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
 
       - name: Generate backend files
         run: cd grassroots-backend && pnpm run gen-files-only
