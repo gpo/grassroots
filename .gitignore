@@ -1,6 +1,6 @@
 **/node_modules
 **/dist
-grassroots-backend/src/metadata.ts
+grassroots-backend/src/grassroots-shared/metadata.ts
 .env.development.local
 .env.test.local
 .env.local
