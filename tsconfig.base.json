@@ -22,6 +22,7 @@
     "skipLibCheck": true,
     // Required for express-session, and others.
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "exactOptionalPropertyTypes": true
   }
 }
