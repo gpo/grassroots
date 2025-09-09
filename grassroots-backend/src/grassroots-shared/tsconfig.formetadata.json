@@ -6,5 +6,6 @@
     "declarationMap": true,
     "sourceMap": true
   },
-  "include": ["."]
+  "include": ["."],
+  "exclude": ["devtools/*", "util"]
 }

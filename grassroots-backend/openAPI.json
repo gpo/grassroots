@@ -1,39 +1,6 @@
 {
   "components": {
     "schemas": {
-      "ContactDTO": {
-        "properties": {
-          "email": {
-            "format": "email",
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "organization": {
-            "$ref": "#/components/schemas/OrganizationDTO"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "email",
-          "firstName",
-          "lastName",
-          "organization",
-          "phoneNumber"
-        ],
-        "type": "object"
-      },
       "ContactSearchRequestDTO": {
         "properties": {
           "email": {
@@ -58,18 +25,6 @@
         },
         "type": "object"
       },
-      "ContactsDTO": {
-        "properties": {
-          "contacts": {
-            "items": {
-              "$ref": "#/components/schemas/ContactDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["contacts"],
-        "type": "object"
-      },
       "CreateBulkContactRequestDTO": {
         "properties": {
           "contacts": {
@@ -80,18 +35,6 @@
           }
         },
         "required": ["contacts"],
-        "type": "object"
-      },
-      "CreateBulkContactResponseDTO": {
-        "properties": {
-          "ids": {
-            "items": {
-              "type": "number"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["ids"],
         "type": "object"
       },
       "CreateContactRequestDTO": {
@@ -157,58 +100,12 @@
         "required": ["name", "abbreviatedName", "description", "parentID"],
         "type": "object"
       },
-      "GetContactByIDResponseDTO": {
-        "properties": {
-          "contact": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ContactDTO"
-              }
-            ],
-            "nullable": true
-          }
-        },
-        "required": ["contact"],
-        "type": "object"
-      },
-      "HelloOutDTO": {
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["message"],
-        "type": "object"
-      },
       "LoginStateDTO": {
         "properties": {
           "user": {
             "$ref": "#/components/schemas/UserDTO"
           }
         },
-        "type": "object"
-      },
-      "OrganizationDTO": {
-        "properties": {
-          "abbreviatedName": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "parentId": {
-            "minimum": 1,
-            "type": "number"
-          }
-        },
-        "required": ["id", "name", "abbreviatedName", "description"],
         "type": "object"
       },
       "OrganizationReferenceDTO": {
@@ -219,33 +116,6 @@
           }
         },
         "required": ["id"],
-        "type": "object"
-      },
-      "OrganizationsDTO": {
-        "properties": {
-          "organizations": {
-            "items": {
-              "$ref": "#/components/schemas/OrganizationDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["organizations"],
-        "type": "object"
-      },
-      "PaginatedContactResponseDTO": {
-        "properties": {
-          "contacts": {
-            "items": {
-              "$ref": "#/components/schemas/ContactDTO"
-            },
-            "type": "array"
-          },
-          "paginated": {
-            "$ref": "#/components/schemas/PaginatedResponseDTO"
-          }
-        },
-        "required": ["contacts", "paginated"],
         "type": "object"
       },
       "PaginatedContactSearchRequestDTO": {
@@ -274,33 +144,6 @@
         "required": ["rowsToSkip", "rowsToTake"],
         "type": "object"
       },
-      "PaginatedResponseDTO": {
-        "properties": {
-          "rowsSkipped": {
-            "minimum": 0,
-            "type": "number"
-          },
-          "rowsTotal": {
-            "minimum": 0,
-            "type": "number"
-          }
-        },
-        "required": ["rowsSkipped", "rowsTotal"],
-        "type": "object"
-      },
-      "PermissionsDTO": {
-        "properties": {
-          "permissions": {
-            "items": {
-              "enum": ["VIEW_CONTACTS", "MANAGE_CONTACTS", "MANAGE_USERS"],
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["permissions"],
-        "type": "object"
-      },
       "RoleDTO": {
         "properties": {
           "id": {
@@ -319,18 +162,6 @@
           }
         },
         "required": ["permissions", "id", "name"],
-        "type": "object"
-      },
-      "RolesDTO": {
-        "properties": {
-          "roles": {
-            "items": {
-              "$ref": "#/components/schemas/RoleDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["roles"],
         "type": "object"
       },
       "UserDTO": {
@@ -387,37 +218,7 @@
         "required": ["role", "organizationId", "inherited"],
         "type": "object"
       },
-      "UsersDTO": {
-        "properties": {
-          "users": {
-            "items": {
-              "$ref": "#/components/schemas/UserDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["users"],
-        "type": "object"
-      },
       "ValidationErrorOutDTO": {
-        "properties": {
-          "error": {
-            "type": "string"
-          },
-          "message": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "statusCode": {
-            "type": "number"
-          }
-        },
-        "required": ["statusCode", "message", "error"],
-        "type": "object"
-      },
-      "VoidDTO": {
         "properties": {},
         "type": "object"
       }
@@ -437,13 +238,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HelloOutDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -466,13 +260,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -524,13 +311,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VoidDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -553,13 +333,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/LoginStateDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -591,13 +364,6 @@
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VoidDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -620,13 +386,6 @@
         "parameters": [],
         "responses": {
           "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VoidDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -659,13 +418,6 @@
         },
         "responses": {
           "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/VoidDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -688,13 +440,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContactsDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -725,13 +470,6 @@
         },
         "responses": {
           "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ContactDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -764,13 +502,6 @@
         },
         "responses": {
           "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/CreateBulkContactResponseDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -803,13 +534,6 @@
         },
         "responses": {
           "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PaginatedContactResponseDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -841,13 +565,6 @@
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/GetContactByIDResponseDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -870,13 +587,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationsDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -907,13 +617,6 @@
         },
         "responses": {
           "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -945,13 +648,6 @@
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationsDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -984,13 +680,6 @@
         },
         "responses": {
           "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -1022,13 +711,6 @@
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -1051,13 +733,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/RolesDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -1080,13 +755,6 @@
         "parameters": [],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UsersDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -1119,13 +787,6 @@
         },
         "responses": {
           "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/UserDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
@@ -1166,13 +827,6 @@
         ],
         "responses": {
           "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/PermissionsDTO"
-                }
-              }
-            },
             "description": ""
           },
           "401": {
