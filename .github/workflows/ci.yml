@@ -44,11 +44,11 @@ jobs:
         with:
           compose-file: "./docker/compose-ci.yaml"
 
-      - name: Generate backend files
-        run: cd grassroots-backend && pnpm run gen-files-only
-
       - name: Build backend
         run: cd grassroots-backend && pnpm run build
+
+      - name: Generate backend files
+        run: cd grassroots-backend && pnpm run gen-files-only
 
       - name: Temporarily setup symlink for frontend builds
         run: ln -sfn $(pwd)/grassroots-backend/src/grassroots-shared $(pwd)/grassroots-frontend/src/grassroots-shared
