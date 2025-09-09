@@ -2,8 +2,6 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    // Required for express-session, and others.
-    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
   },
   "include": ["src"],

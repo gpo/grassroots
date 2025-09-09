@@ -6,7 +6,6 @@
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
-    "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
     "build": "nest build",
     "start": "nest start --watch",
     "start:prod": "node dist/Main",
@@ -17,6 +16,7 @@
     "test:tstyche": "pnpm exec tstyche"
   },
   "dependencies": {
+    "generate-metadata": "workspace:*",
     "@mikro-orm/core": "^6.4.15",
     "@mikro-orm/nestjs": "^6.1.1",
     "@mikro-orm/postgresql": "^6.4.15",
