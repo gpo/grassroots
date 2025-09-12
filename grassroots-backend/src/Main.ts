@@ -4,18 +4,36 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import openapiTS, { astToString } from "openapi-typescript";
 import { stringify } from "safe-stable-stringify";
 import { MikroORM } from "@mikro-orm/core";
-import metadata from "grassroots-shared/metadata";
+import backendMetadataPromise from "./metadata.js";
+import sharedMetadataPromise from "grassroots-shared/metadata";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import {
   addValidationErrorsToOpenAPI,
   throwOnInvalidType,
 } from "./util/PostProcessOpenAPI.js";
-import { ValidationErrorOutDTO } from "./contacts/entities/ValidationError.dto.js";
 import { graphDependencies } from "./util/GraphDependencies.js";
 import { writeFormatted } from "./util/FormattingWriter.js";
 
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "../grassroots-shared/src/OpenAPI.gen.ts";
+
+// Promise<Awaited<...>> is just to make the linter happy that this async method is
+// returning a promise.
+async function getunifiedMetadata(): Promise<
+  Awaited<ReturnType<typeof backendMetadataPromise>>
+> {
+  const backendMetadata = await backendMetadataPromise();
+  const sharedMetadata = await sharedMetadataPromise();
+
+  return {
+    "@nestjs/swagger": {
+      // @ts-expect-error This doesn't line up since the models are different,
+      // and these end up with types equivalent to their values.
+      models: sharedMetadata["@nestjs/swagger"].models,
+      controllers: backendMetadata["@nestjs/swagger"].controllers,
+    },
+  };
+}
 
 async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
   performance.mark("writeOpenAPI");
@@ -25,7 +43,7 @@ async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
     .setVersion("0.0")
     .build();
 
-  await SwaggerModule.loadPluginMetadata(metadata);
+  await SwaggerModule.loadPluginMetadata(getunifiedMetadata);
   const openAPI = SwaggerModule.createDocument(app, config, {
     autoTagControllers: true,
     extraModels: [ValidationErrorOutDTO],

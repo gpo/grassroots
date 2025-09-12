@@ -1,4 +1,10 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationMap": true,
+    "rootDir": "./src"
+  },
   "include": ["./src/dtos"]
 }

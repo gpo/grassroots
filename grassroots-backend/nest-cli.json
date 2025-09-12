@@ -5,10 +5,18 @@
   "entryFile": "Main",
   "compilerOptions": {
     "deleteOutDir": true,
-    "builder": {
-      "type": "swc",
-      "swcrcPath": ".swcrc"
-    },
-    "typeCheck": true
+    "builder": "swc",
+    "typeCheck": true,
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "dtoFileNameSuffix": [
+            ".dto.ts"
+          ],
+          "esmCompatible": true
+        }
+      }
+    ]
   }
 }

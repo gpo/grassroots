@@ -20,10 +20,8 @@ generator.generate({
   outputDir: "",
   filename: METADATA_TMP_PATH,
   watch: false,
-  tsconfigPath: "tsconfig.formetadata.json",
+  tsconfigPath: "./tsconfig.formetadata.json",
 });
-
-console.log("About to read " + METADATA_TMP_PATH);
 
 void (async (): Promise<void> => {
   let result = await readFile(METADATA_TMP_PATH, "utf8");
