@@ -9,7 +9,7 @@ import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "../users/Users.service.js";
 import OpenIDConnectStrategy from "passport-openidconnect";
-import { UserDTO } from "../grassroots-shared/User.dto.js";
+import { UserDTO } from "grassroots-shared/dtos/User.dto";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
 

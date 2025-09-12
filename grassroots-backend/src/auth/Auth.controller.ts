@@ -9,19 +9,19 @@ import {
   Body,
   Session,
 } from "@nestjs/common";
-import { Response as ExpressResponse } from "express";
+import type { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../types/GrassrootsRequest.js";
 import { ConfigService } from "@nestjs/config";
-import { LoginStateDTO } from "../grassroots-shared/LoginState.dto.js";
-import { VoidDTO } from "../grassroots-shared/Void.dto.js";
+import { LoginStateDTO } from "grassroots-shared/dtos/LoginState.dto";
+import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { ApiProperty, ApiQuery, ApiResponse } from "@nestjs/swagger";
 import { PublicRoute } from "./PublicRoute.decorator.js";
 import { OAuthGuard } from "./OAuth.guard.js";
-import { SessionData } from "express-session";
+import type { SessionData } from "express-session";
 import {
   OrganizationDTO,
   OrganizationReferenceDTO,
-} from "../grassroots-shared/Organization.dto.js";
+} from "grassroots-shared/dtos/Organization.dto";
 import { OrganizationsService } from "../organizations/Organizations.service.js";
 
 @Controller("auth")

@@ -4,12 +4,12 @@ import { UsersModule } from "./Users.module.js";
 import {
   Permission,
   PermissionsDTO,
-} from "../grassroots-shared/Permission.dto.js";
-import { fail } from "../grassroots-shared/util/Fail.js";
+} from "grassroots-shared/dtos/Permission.dto";
+import { fail } from "grassroots-shared/util/Fail";
 import { OrganizationsModule } from "../organizations/Organizations.module.js";
 import { ROLES_BY_NAME } from "../organizations/Roles.service.js";
-import { UserDTO } from "../grassroots-shared/User.dto.js";
-import { createOrganizationTree } from "../grassroots-shared/devtools/CreateOrganizationTree.js";
+import { UserDTO } from "grassroots-shared/dtos/User.dto";
+import { createOrganizationTree } from "grassroots-shared/devtools/CreateOrganizationTree";
 
 describe("Users (e2e)", () => {
   const getFixture = useE2ETestFixture({

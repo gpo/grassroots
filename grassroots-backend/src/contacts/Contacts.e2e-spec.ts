@@ -3,10 +3,10 @@ import { writeFile, readFile } from "fs/promises";
 import { ContactsModule } from "./Contacts.module.js";
 import { useE2ETestFixture } from "../testing/E2eSetup.js";
 import { graphDependencies } from "../util/GraphDependencies.js";
-import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto.js";
-import { OrganizationDTO } from "../grassroots-shared/Organization.dto.js";
+import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
+import { OrganizationDTO } from "grassroots-shared/dtos/Organization.dto";
 import { OrganizationsModule } from "../organizations/Organizations.module.js";
-import { PropsOf } from "../grassroots-shared/util/TypeUtils.js";
+import { PropsOf } from "grassroots-shared/util/TypeUtils";
 
 describe("ContactsController (e2e)", () => {
   // Created in beforeEach.

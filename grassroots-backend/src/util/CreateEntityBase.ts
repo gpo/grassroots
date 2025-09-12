@@ -1,4 +1,5 @@
-import { BaseEntity, Opt, OptionalProps, Property } from "@mikro-orm/core";
+import { BaseEntity, OptionalProps, Property } from "@mikro-orm/core";
+import type { Opt } from "@mikro-orm/core";
 
 // Re-export OptionalProps to prevent issues with exporting class using private name.
 export { OptionalProps };

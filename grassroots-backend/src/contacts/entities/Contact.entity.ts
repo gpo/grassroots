@@ -3,11 +3,11 @@ import {
   ManyToOne,
   PrimaryKey,
   Property,
-  Rel,
   Unique,
 } from "@mikro-orm/core";
+import type { Rel } from "@mikro-orm/core";
 import "reflect-metadata";
-import { ContactDTO } from "../../grassroots-shared/Contact.dto.js";
+import { ContactDTO } from "grassroots-shared/dtos/Contact.dto";
 import { createEntityBase } from "../../util/CreateEntityBase.js";
 import { OrganizationEntity } from "../../organizations/Organization.entity.js";
 

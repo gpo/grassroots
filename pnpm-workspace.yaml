@@ -3,6 +3,7 @@ packages:
   - grassroots-frontend
   - eslint_rules
   - generate-metadata
+  - grassroots-shared
 onlyBuiltDependencies:
   - "@nestjs/core"
   - "@scarf/scarf"

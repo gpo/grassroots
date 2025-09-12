@@ -4,7 +4,7 @@ import {
   CreateOrganizationNoParentRequestDTO,
   OrganizationDTO,
   OrganizationsDTO,
-} from "../grassroots-shared/Organization.dto.js";
+} from "grassroots-shared/dtos/Organization.dto";
 import { EntityManager } from "@mikro-orm/core";
 import { OrganizationRepository } from "./Organization.repo.js";
 

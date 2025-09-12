@@ -1,6 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
 import { RolesService } from "./Roles.service.js";
-import { RolesDTO } from "../grassroots-shared/Role.dto.js";
+import { RolesDTO } from "grassroots-shared/dtos/Role.dto";
 
 @Controller("roles")
 export class RolesController {

@@ -3,10 +3,10 @@ import { useE2ETestFixture } from "../testing/E2eSetup.js";
 import { AuthModule } from "./Auth.module.js";
 import { UsersModule } from "../users/Users.module.js";
 import { MOCK_AUTH_GUARD_USER } from "../testing/MockAuthGuard.js";
-import { LoginStateDTO } from "../grassroots-shared/LoginState.dto.js";
-import { OrganizationDTO } from "../grassroots-shared/Organization.dto.js";
-import { fail } from "../grassroots-shared/util/Fail.js";
-import { createOrganizationTree } from "../grassroots-shared/devtools/CreateOrganizationTree.js";
+import { LoginStateDTO } from "grassroots-shared/dtos/LoginState.dto";
+import { OrganizationDTO } from "grassroots-shared/dtos/Organization.dto";
+import { fail } from "grassroots-shared/util/Fail";
+import { createOrganizationTree } from "grassroots-shared/devtools/CreateOrganizationTree";
 
 describe("AuthController (e2e) while signed in", () => {
   const getFixture = useE2ETestFixture({

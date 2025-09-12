@@ -6,7 +6,7 @@ import {
   Property,
 } from "@mikro-orm/core";
 import { createEntityBase } from "../util/CreateEntityBase.js";
-import { UserDTO } from "../grassroots-shared/User.dto.js";
+import { UserDTO } from "grassroots-shared/dtos/User.dto";
 import { UserRoleEntity } from "./UserRole.entity.js";
 
 @Entity()

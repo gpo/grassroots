@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX } from "react";
-import { UsersDTO } from "../grassroots-shared/User.dto.js";
+import { UsersDTO } from "grassroots-shared/dtos/User.dto";
 import { useQuery } from "@tanstack/react-query";
 import { grassrootsAPI } from "../GrassRootsAPI.js";
 import { UserRow } from "../components/UserRow.js";

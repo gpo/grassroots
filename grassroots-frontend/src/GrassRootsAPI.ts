@@ -1,8 +1,8 @@
-import createFetchClient from "openapi-fetch";
-import { paths } from "./grassroots-shared/OpenAPI.gen.js";
+import createClient from "openapi-fetch";
+import { paths } from "grassroots-shared/OpenAPI.gen.js";
 import { redirect } from "@tanstack/react-router";
 
-export const grassrootsAPI = createFetchClient<paths>({
+export const grassrootsAPI = createClient<paths>({
   baseUrl: import.meta.env.VITE_BACKEND_HOST,
 });
 

@@ -8,7 +8,7 @@ import {
 } from "class-validator";
 import { RoleDTO } from "./Role.dto.js";
 import { Transform, Type } from "class-transformer";
-import { createDTOBase } from "./util/CreateDTOBase.js";
+import { createDTOBase } from "../util/CreateDTOBase.js";
 
 export class UserRoleDTO extends createDTOBase("UserRole") {
   @IsNumber()

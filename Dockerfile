@@ -22,8 +22,6 @@ RUN deluser node --remove-home \
     && echo "${UNAME} ALL=(ALL) NOPASSWD:ALL" | tee /etc/sudoers.d/${UNAME}-nopasswd \
     && chmod 440 /etc/sudoers.d/${UNAME}-nopasswd
 
-COPY --chmod=755 docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-
 RUN npm install -g pnpm
 
 # We want to do an initial build here to make sure all the symlinks are sorted
@@ -43,10 +41,6 @@ RUN pnpm install
 EXPOSE 5173
 # Nest
 EXPOSE 3000
-
-# Note that this is overridden when using a vscode devcontainer. If updating this,
-# also update .devcontainer.json's "postStartCommand".
-ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 
 # For dev, we don't actually want to run pnpm run dev, it's better to do that manually. For prod,
 # we'd want to:

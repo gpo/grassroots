@@ -4,8 +4,7 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import openapiTS, { astToString } from "openapi-typescript";
 import { stringify } from "safe-stable-stringify";
 import { MikroORM } from "@mikro-orm/core";
-
-import metadata from "./grassroots-shared/metadata.js";
+import metadata from "grassroots-shared/metadata";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import {
   addValidationErrorsToOpenAPI,
@@ -16,7 +15,7 @@ import { graphDependencies } from "./util/GraphDependencies.js";
 import { writeFormatted } from "./util/FormattingWriter.js";
 
 const openAPISchemaPath = "./openAPI.json";
-const openAPITSSchemaPath = "./src/grassroots-shared/OpenAPI.gen.ts";
+const openAPITSSchemaPath = "../grassroots-shared/src/OpenAPI.gen.ts";
 
 async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
   performance.mark("writeOpenAPI");

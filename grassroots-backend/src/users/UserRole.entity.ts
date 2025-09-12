@@ -4,12 +4,12 @@ import {
   OptionalProps,
   PrimaryKey,
   Property,
-  Rel,
 } from "@mikro-orm/core";
+import type { Rel } from "@mikro-orm/postgresql";
 import { UserEntity } from "./User.entity.js";
 import { RoleEntity, ROLES } from "../organizations/Roles.service.js";
 import { OrganizationEntity } from "../organizations/Organization.entity.js";
-import { UserRoleDTO } from "../grassroots-shared/UserRole.dto.js";
+import { UserRoleDTO } from "grassroots-shared/dtos/UserRole.dto";
 import { createEntityBase } from "../util/CreateEntityBase.js";
 
 @Entity()

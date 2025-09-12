@@ -5,7 +5,7 @@ import { useContactSearch } from "../../hooks/useContactSearch.js";
 import {
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
-} from "../../grassroots-shared/Contact.dto.js";
+} from "grassroots-shared/Contact.dto";
 import { PaginatedContacts } from "../../components/PaginatedContacts.js";
 
 const ROWS_PER_PAGE = 10;

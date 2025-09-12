@@ -7,7 +7,7 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import { createDTOBase } from "./util/CreateDTOBase.js";
+import { createDTOBase } from "../util/CreateDTOBase.js";
 import { Transform, Type } from "class-transformer";
 import { UserRoleDTO } from "./UserRole.dto.js";
 

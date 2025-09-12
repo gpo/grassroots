@@ -1,5 +1,5 @@
 import { IsInt, Min } from "class-validator";
-import { createDTOBase } from "./util/CreateDTOBase.js";
+import { createDTOBase } from "../util/CreateDTOBase.js";
 
 export class PaginatedRequestDTO extends createDTOBase("PaginatedRequest") {
   @IsInt()
