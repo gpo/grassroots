@@ -1,10 +1,10 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist",
+    "outDir": "./dist-metadata",
     "declaration": true,
     "declarationMap": true,
     "rootDir": "./src"
   },
-  "include": ["src/metadata.ts"]
+  "include": ["src"]
 }

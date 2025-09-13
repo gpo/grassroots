@@ -6,6 +6,7 @@
     "declarationMap": true,
     "rootDir": "./src"
   },
+
   "exclude": ["src/metadata.ts"],
   "include": ["src"]
 }

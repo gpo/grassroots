@@ -4,6 +4,7 @@ packages:
   - eslint_rules
   - generate-metadata
   - grassroots-shared
+  - grassroots-shared-net
 onlyBuiltDependencies:
   - "@nestjs/core"
   - "@scarf/scarf"

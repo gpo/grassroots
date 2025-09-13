@@ -1,10 +1,10 @@
 {
-  "name": "grassroots-shared",
+  "name": "grassroots-shared-net",
   "version": "1.0.0",
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "build": "tsc -p tsconfig.nometadata.json && tsc -p tsconfig.justmetadata.json && cp dist-metadata/metadata.* dist",
+    "build": "tsc",
     "clean": "rm -rf dist && rm -f tsconfig.tsbuildinfo"
   },
   "keywords": [],
@@ -21,18 +21,9 @@
     }
   },
   "dependencies": {
-    "@nestjs/common": "^11.1.6",
-    "@nestjs/swagger": "^11.2.0",
-    "@types/node": "^24.3.0",
-    "class-transformer": "^0.5.1",
-    "class-validator": "^0.14.2",
-    "generate-metadata": "workspace:*",
-    "openapi-fetch": "^0.13.8",
-    "reflect-metadata": "^0.2.2"
+    "grassroots-shared": "workspace:*"
   },
   "devDependencies": {
-    "@swc/cli": "^0.6.0",
-    "@swc/core": "^1.13.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

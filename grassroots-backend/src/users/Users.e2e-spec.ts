@@ -9,7 +9,7 @@ import { fail } from "grassroots-shared/util/Fail";
 import { OrganizationsModule } from "../organizations/Organizations.module.js";
 import { ROLES_BY_NAME } from "../organizations/Roles.service.js";
 import { UserDTO } from "grassroots-shared/dtos/User.dto";
-import { createOrganizationTree } from "grassroots-shared/devtools/CreateOrganizationTree";
+import { createOrganizationTree } from "grassroots-shared-net/devtools/CreateOrganizationTree";
 
 describe("Users (e2e)", () => {
   const getFixture = useE2ETestFixture({

@@ -16,6 +16,7 @@
     "test:tstyche": "pnpm exec tstyche"
   },
   "dependencies": {
+    "grassroots-shared-net": "workspace:*",
     "grassroots-shared": "workspace:*",
     "generate-metadata": "workspace:*",
     "@mikro-orm/core": "^6.4.15",

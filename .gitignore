@@ -1,10 +1,12 @@
 **/node_modules
 **/dist
+**/dist-metadata
 grassroots-backend/src/grassroots-shared/metadata.ts
 .env.development.local
 .env.test.local
 .env.local
 .pnpm-store
+**/*.tsbuildinfo
 
 # CI
 eslint_report.json

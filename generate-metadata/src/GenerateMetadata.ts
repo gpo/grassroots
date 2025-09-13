@@ -24,8 +24,9 @@ generator.generate({
 });
 
 void (async (): Promise<void> => {
-  let result = await readFile(METADATA_TMP_PATH, "utf8");
+  const result = await readFile(METADATA_TMP_PATH, "utf8");
   // Rewrite to refer to dist, or openapi.json generation fails.
-  result = result.replaceAll(/"\.\/dtos\//g, '"../dist/dtos/');
+  //result = result.replaceAll(/"\.\/dtos\//g, '"../dist/dtos/');
+  // TODO
   await writeFile("./src/metadata.ts", result);
 })();

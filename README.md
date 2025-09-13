@@ -3,6 +3,13 @@
 Political Campaign Software focused on voter outreach and volunteer
 management.
 
+# Package dependencies
+
+generate-metadata depends on grassroots-shared source code ()
+grassroots-shared depends on metadata.ts from generate-metadata
+grassroots-backend depends on metadata.ts
+grassroots-shared depends on openapi.gen.ts, from grassroots-backend
+
 # Recommended Development Setup
 
 Install:
