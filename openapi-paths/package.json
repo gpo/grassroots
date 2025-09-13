@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "build": "tsc"
+    "build": "cd grassroots-backend && pnpm run gen-files-only && cd ../openapi-paths && tsc"
   },
   "keywords": [],
   "private": true,

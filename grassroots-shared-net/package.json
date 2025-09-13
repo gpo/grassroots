@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "grassroots-shared": "workspace:*",
-    "openapi-fetch": "^0.14.0",
+    "openapi-fetch": "^0.13.8",
     "openapi-paths": "workspace:*"
   },
   "devDependencies": {

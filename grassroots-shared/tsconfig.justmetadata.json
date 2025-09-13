@@ -4,7 +4,8 @@
     "outDir": "./dist-metadata",
     "declaration": true,
     "declarationMap": true,
-    "rootDir": "./src"
+    "rootDir": "./src",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
   "include": ["src"]
 }

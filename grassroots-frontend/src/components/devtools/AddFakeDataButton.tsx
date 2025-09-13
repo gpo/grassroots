@@ -9,7 +9,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { OrganizationsDTO } from "grassroots-shared/dtos/Organization.dto";
-import { createOrganizationTree } from "grassroots-shared-net/devtools/CreateOrganizationTree";
+import { createOrganizationTree } from "grassroots-shared-net/CreateOrganizationTree";
 
 function getRandomContact(orgIds: number[]): CreateContactRequestDTO {
   // Generating valid phone numbers is tough, so we restrict the possible values.
