@@ -1,4 +1,4 @@
-import { createDTOBase } from "grassroots-shared/util/CreateDTOBase";
+import { createDTOBase } from "../util/CreateDTOBase.js";
 
 export class ValidationErrorOutDTO extends createDTOBase("ValidationErrorOut") {
   statusCode!: number;

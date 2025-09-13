@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "build": "tsc -p tsconfig.nometadata.json && tsc -p tsconfig.justmetadata.json && cp dist-metadata/metadata.* dist",
+    "build": "tsc -p tsconfig.nometadata.json && tsc -p tsconfig.json && cp dist-metadata/metadata.* dist",
     "clean": "rm -rf dist && rm -f tsconfig.tsbuildinfo"
   },
   "keywords": [],

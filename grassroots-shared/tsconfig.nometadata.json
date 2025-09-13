@@ -1,12 +1,5 @@
 {
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "./dist",
-    "declaration": true,
-    "declarationMap": true,
-    "rootDir": "./src"
-  },
-
-  "exclude": ["src/metadata.ts"],
-  "include": ["src"]
+  "extends": "./tsconfig.json",
+  "compilerOptions": { "outDir": "dist" },
+  "exclude": ["src/metadata.ts"]
 }

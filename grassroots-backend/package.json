@@ -13,13 +13,12 @@
     "debug": "pnpm run build && node --inspect dist/Main",
     "test": "vitest watch",
     "test:ci": "vitest run",
-    "test:tstyche": "pnpm exec tstyche"
+    "test:tstyche": "pnpm exec tstyche",
+    "db-create": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:create --config dist/mikro-orm.config.js",
+    "db-up": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:up --config dist/mikro-orm.config.js",
+    "db-fresh": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:fresh --config dist/mikro-orm.config.js"
   },
   "dependencies": {
-    "openapi-paths": "workspace:*",
-    "grassroots-shared-net": "workspace:*",
-    "grassroots-shared": "workspace:*",
-    "generate-metadata": "workspace:*",
     "@mikro-orm/core": "^6.4.15",
     "@mikro-orm/nestjs": "^6.1.1",
     "@mikro-orm/postgresql": "^6.4.15",
@@ -36,8 +35,12 @@
     "dotenv-flow": "^4.1.0",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
+    "generate-metadata": "workspace:*",
+    "grassroots-shared": "workspace:*",
+    "grassroots-shared-net": "workspace:*",
     "nestjs-spelunker": "^1.3.2",
     "openapi-fetch": "^0.13.8",
+    "openapi-paths": "workspace:*",
     "passport": "^0.7.0",
     "passport-google-oidc": "^0.1.0",
     "passport-local": "^1.0.0",
@@ -70,9 +73,17 @@
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
     "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.2",
     "unplugin-swc": "^1.5.4",
     "vitest": "^3.2.0"
+  },
+  "mikro-orm": {
+    "alwaysAllowTs": true,
+    "useTsNode": false,
+    "configPaths": [
+      "./path/to/your/mikro-orm.config.ts"
+    ]
   }
 }
