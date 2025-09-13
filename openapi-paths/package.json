@@ -1,11 +1,10 @@
 {
-  "name": "grassroots-shared-net",
+  "name": "openapi-paths",
   "version": "1.0.0",
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 0",
-    "build": "tsc",
-    "clean": "rm -rf dist && rm -f tsconfig.tsbuildinfo"
+    "build": "tsc"
   },
   "keywords": [],
   "private": true,
@@ -19,11 +18,6 @@
       "import": "./dist/*.js",
       "types": "./dist/*.d.ts"
     }
-  },
-  "dependencies": {
-    "grassroots-shared": "workspace:*",
-    "openapi-fetch": "^0.14.0",
-    "openapi-paths": "workspace:*"
   },
   "devDependencies": {
     "ts-node": "^10.9.2",

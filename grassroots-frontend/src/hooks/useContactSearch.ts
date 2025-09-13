@@ -3,7 +3,7 @@ import { grassrootsAPI } from "../GrassRootsAPI.js";
 import {
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
-} from "grassroots-shared/Contact.dto";
+} from "grassroots-shared/dtos/Contact.dto";
 
 export function useContactSearch(
   searchParams: PaginatedContactSearchRequestDTO,

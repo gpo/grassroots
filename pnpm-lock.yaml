@@ -192,6 +192,9 @@ importers:
       openapi-fetch:
         specifier: ^0.13.5
         version: 0.13.8
+      openapi-paths:
+        specifier: workspace:*
+        version: link:../openapi-paths
       passport:
         specifier: ^0.7.0
         version: 0.7.0
@@ -325,9 +328,15 @@ importers:
       grassroots-shared:
         specifier: workspace:*
         version: link:../grassroots-shared
+      grassroots-shared-net:
+        specifier: workspace:*
+        version: link:../grassroots-shared-net
       openapi-fetch:
         specifier: ^0.13.5
         version: 0.13.8
+      openapi-paths:
+        specifier: workspace:*
+        version: link:../openapi-paths
       react:
         specifier: ^19.0.0
         version: 19.1.1
@@ -423,6 +432,21 @@ importers:
       grassroots-shared:
         specifier: workspace:*
         version: link:../grassroots-shared
+      openapi-fetch:
+        specifier: ^0.14.0
+        version: 0.14.0
+      openapi-paths:
+        specifier: workspace:*
+        version: link:../openapi-paths
+    devDependencies:
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@swc/core@1.13.5)(@types/node@24.3.2)(typescript@5.9.2)
+      typescript:
+        specifier: ^5.9.2
+        version: 5.9.2
+
+  openapi-paths:
     devDependencies:
       ts-node:
         specifier: ^10.9.2
@@ -4194,6 +4218,9 @@ packages:
 
   openapi-fetch@0.13.8:
     resolution: {integrity: sha512-yJ4QKRyNxE44baQ9mY5+r/kAzZ8yXMemtNAOFwOzRXJscdjSxxzWSNlyBAr+o5JjkUw9Lc3W7OIoca0cY3PYnQ==}
+
+  openapi-fetch@0.14.0:
+    resolution: {integrity: sha512-PshIdm1NgdLvb05zp8LqRQMNSKzIlPkyMxYFxwyHR+UlKD4t2nUjkDhNxeRbhRSEd3x5EUNh2w5sJYwkhOH4fg==}
 
   openapi-typescript-helpers@0.0.15:
     resolution: {integrity: sha512-opyTPaunsklCBpTK8JGef6mfPhLSnyy5a0IN9vKtx3+4aExf+KxEqYwIy3hqkedXIB97u357uLMJsOnm3GVjsw==}
@@ -9866,6 +9893,10 @@ snapshots:
       mimic-function: 5.0.1
 
   openapi-fetch@0.13.8:
+    dependencies:
+      openapi-typescript-helpers: 0.0.15
+
+  openapi-fetch@0.14.0:
     dependencies:
       openapi-typescript-helpers: 0.0.15
 

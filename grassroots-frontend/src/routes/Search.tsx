@@ -10,7 +10,7 @@ import {
   ContactSearchRequestDTO,
   PaginatedContactResponseDTO,
   PaginatedContactSearchRequestDTO,
-} from "grassroots-shared/Contact.dto";
+} from "grassroots-shared/dtos/Contact.dto";
 
 export const Route = createFileRoute("/Search")({
   component: Search,

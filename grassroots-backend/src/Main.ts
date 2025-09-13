@@ -16,7 +16,7 @@ import { writeFormatted } from "./util/FormattingWriter.js";
 import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
 
 const openAPISchemaPath = "./openAPI.json";
-const openAPITSSchemaPath = "../grassroots-shared/src/OpenAPI.gen.ts";
+const openAPITSSchemaPath = "../openapi-paths/src/OpenAPI.gen.ts";
 
 // Promise<Awaited<...>> is just to make the linter happy that this async method is
 // returning a promise.

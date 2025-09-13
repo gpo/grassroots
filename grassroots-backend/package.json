@@ -16,6 +16,7 @@
     "test:tstyche": "pnpm exec tstyche"
   },
   "dependencies": {
+    "openapi-paths": "workspace:*",
     "grassroots-shared-net": "workspace:*",
     "grassroots-shared": "workspace:*",
     "generate-metadata": "workspace:*",

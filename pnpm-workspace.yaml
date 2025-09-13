@@ -5,6 +5,7 @@ packages:
   - generate-metadata
   - grassroots-shared
   - grassroots-shared-net
+  - openapi-paths
 onlyBuiltDependencies:
   - "@nestjs/core"
   - "@scarf/scarf"

@@ -1,5 +1,5 @@
 import createClient from "openapi-fetch";
-import { paths } from "grassroots-shared/OpenAPI.gen.js";
+import { paths } from "openapi-paths/OpenAPI.gen";
 import { redirect } from "@tanstack/react-router";
 
 export const grassrootsAPI = createClient<paths>({
