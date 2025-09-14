@@ -13,10 +13,10 @@ import {
 } from "./util/PostProcessOpenAPI.js";
 import { graphDependencies } from "./util/GraphDependencies.js";
 import { writeFormatted } from "./util/FormattingWriter.js";
-import { ValidationErrorOutDTO } from "grassroots-shared/ValidationError.dto.js";
 
 // Needs to show up somewhere.
 import "reflect-metadata";
+import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
 
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "../openapi-paths/src/OpenAPI.gen.ts";
