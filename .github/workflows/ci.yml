@@ -95,6 +95,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: "Services: Start Test Services"
+        uses: hoverkraft-tech/compose-action@v2.2.0
+        with:
+          compose-file: "./docker/compose-ci.yaml"
+
       - name: Build everything
         run: pnpm run -r build
 
@@ -106,11 +111,6 @@ jobs:
           if ! cd grassroots-backend && pnpm run db-check 2>&1 | grep -q "No changes required, schema is up-to-date"; then
             exit 1
           fi
-
-      - name: "Services: Start Test Services"
-        uses: hoverkraft-tech/compose-action@v2.2.0
-        with:
-          compose-file: "./docker/compose-ci.yaml"
 
       - name: Tests
         run: cd grassroots-backend && pnpm run test:ci
