@@ -15,6 +15,9 @@ import { graphDependencies } from "./util/GraphDependencies.js";
 import { writeFormatted } from "./util/FormattingWriter.js";
 import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
 
+// Needs to show up somewhere.
+import "reflect-metadata";
+
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "../openapi-paths/src/OpenAPI.gen.ts";
 

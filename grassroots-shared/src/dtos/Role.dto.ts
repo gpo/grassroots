@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { Permission, PermissionsDecorator } from "./Permission.dto.js";
 import {
   IsArray,

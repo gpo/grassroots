@@ -27,10 +27,6 @@ import { plainToInstance } from "class-transformer";
 import { PropsOf } from "./TypeUtils.js";
 import { HttpException } from "@nestjs/common";
 
-// This makes sure that this is imported in all dtos. If this is missing,
-// some DTOs end up randomly not getting openAPI specs generated correctly.
-import "reflect-metadata";
-
 export interface FetchResponse<T, E> {
   data?: T;
   error?: E;

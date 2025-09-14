@@ -10,7 +10,6 @@ import {
   ValidateNested,
 } from "class-validator";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "./Paginated.dto.js";
-import "reflect-metadata";
 import { createDTOBase } from "../util/CreateDTOBase.js";
 import { OrganizationDTO } from "./Organization.dto.js";
 

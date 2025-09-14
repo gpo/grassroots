@@ -6,7 +6,6 @@ import {
   Min,
   ValidateNested,
 } from "class-validator";
-import "reflect-metadata";
 import { createDTOBase } from "../util/CreateDTOBase.js";
 import { Type } from "class-transformer";
 
