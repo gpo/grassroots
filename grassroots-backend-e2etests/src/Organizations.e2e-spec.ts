@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { OrganizationsModule } from "../organizations/Organizations.module.js";
-import { useE2ETestFixture } from "../testing/E2eSetup.js";
 import { OrganizationsDTO } from "grassroots-shared/dtos/Organization.dto";
 import { fail } from "assert";
 import { createOrganizationTree } from "grassroots-shared-net/CreateOrganizationTree";
+import { useE2ETestFixture } from "./infra/E2eSetup.js";
+import { OrganizationsModule } from "grassroots-backend/organizations/Organizations.module";
 
 describe("Organizations (e2e)", () => {
   const getFixture = useE2ETestFixture({

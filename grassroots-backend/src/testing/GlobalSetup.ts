@@ -1,4 +1,4 @@
-import mikroORMConfig from "../mikro-orm.config.js";
+import mikroORMConfig from "../../../grassroots-backend/src/mikro-orm.config.js";
 import { MikroORM } from "@mikro-orm/core";
 
 export default async function setup(): Promise<void> {

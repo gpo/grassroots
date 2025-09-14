@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { useE2ETestFixture } from "../testing/E2eSetup.js";
-import { AuthModule } from "./Auth.module.js";
-import { UsersModule } from "../users/Users.module.js";
-import { MOCK_AUTH_GUARD_USER } from "../testing/MockAuthGuard.js";
 import { LoginStateDTO } from "grassroots-shared/dtos/LoginState.dto";
 import { OrganizationDTO } from "grassroots-shared/dtos/Organization.dto";
 import { fail } from "grassroots-shared/util/Fail";
+import { AuthModule } from "grassroots-backend/auth/Auth.module";
+import { MOCK_AUTH_GUARD_USER } from "grassroots-backend/testing/MockAuthGuard";
+import { UsersModule } from "grassroots-backend/users/Users.module";
+import { useE2ETestFixture } from "./infra/E2eSetup.js";
 import { createOrganizationTree } from "grassroots-shared-net/CreateOrganizationTree";
 
 describe("AuthController (e2e) while signed in", () => {

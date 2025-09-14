@@ -1,5 +1,5 @@
 import { ContactsService } from "./Contacts.service.js";
-import { useTestFixture } from "../testing/Setup.js";
+import { useTestFixture } from "../testing/TestSetup.js";
 import { describe, expect, it } from "vitest";
 import { ContactsModule } from "./Contacts.module.js";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";

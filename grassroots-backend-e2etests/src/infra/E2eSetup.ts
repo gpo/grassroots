@@ -1,10 +1,16 @@
 import createClient, { Client } from "openapi-fetch";
-import { listenAndConfigureApp } from "../app/App.module.js";
 import { paths } from "openapi-paths/OpenAPI.gen";
-import { getTestApp, TestSpecificDependencies } from "./GetTestApp.js";
 import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
-import { TestFixture, TestFixtureProps } from "./Setup.js";
 import { EntityManager } from "@mikro-orm/postgresql";
+import {
+  TestFixture,
+  TestFixtureProps,
+} from "grassroots-backend/testing/TestSetup";
+import {
+  getTestApp,
+  TestSpecificDependencies,
+} from "grassroots-backend/testing/GetTestApp";
+import { listenAndConfigureApp } from "grassroots-backend/app/App.module";
 
 type GrassRootsAPIRaw = (
   path: keyof paths,

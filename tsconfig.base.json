@@ -24,6 +24,9 @@
     // Required for express-session, and others.
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "customConditions": ["import"]
+    "customConditions": ["import"],
+    // We end up importing almost every package as a dependency somewhere, so make this the default.
+    "declaration": true,
+    "declarationMap": true
   }
 }

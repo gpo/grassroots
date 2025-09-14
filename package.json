@@ -14,7 +14,7 @@
   "scripts": {
     "start": "concurrently \"cd grassroots-frontend && pnpm run start \" \"cd grassroots-backend && run start\"",
     "prepare": "husky",
-    "test": "cd grassroots-frontend && pnpm run test && cd ../grassroots-backend && pnpm run test && cd ../eslint_rules && pnpm run test",
+    "test": "cd grassroots-frontend && pnpm run test && cd ../grassroots-backend && pnpm run test && cd ../grassroots-backend-e2etests && pnpm run test && cd ../eslint_rules && pnpm run test",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "check": "cd grassroots-frontend && pnpm exec tsc --noEmit  && cd ../grassroots-backend && pnpm exec tsc --noEmit  && cd ../eslint_rules && pnpm exec tsc && cd .. && pnpm exec eslint ."

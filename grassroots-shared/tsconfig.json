@@ -2,8 +2,6 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist-metadata",
-    "declaration": true,
-    "declarationMap": true,
     "rootDir": "./src"
   },
   "include": ["./src"]

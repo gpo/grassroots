@@ -12,20 +12,21 @@ Writes metadata.ts into grassroots-shared.
 Depends on generate-metadata to have created metadata.ts.
 Contains all logic shared between frontend and backend that doesn't rely on generated openAPI bindings.
 
-## openapi-paths
-
-Depends on grassroots-shared, as it calls the backend with --gen-files-only which depends on grassroots-shared. Produces and contains the openAPI bindings.
-
 ## grassroots-backend
 
-Depends on all of the above (though only indirectly on generate-metadata).
+Depends on grassroots-shared.
 Contains the backend.
+
+## openapi-paths
+
+Depends on grassroots-backend, as it runs the backend with --gen-files-only.
+Produces and contains the openAPI bindings.
 
 ## grassroots-shared-net
 
-Contains logic shared between grassroots-frontend and grassroots-backend-tests that relies on generated openAPI bindings.
+Contains logic shared between grassroots-frontend and grassroots-backend-e2etests that relies on generated openAPI bindings (openapi-paths).
 
-## grassroots-backend-tests
+## grassroots-backend-e2etests
 
 Depends on grassroots-backend and grassroots-shared-net.
 

@@ -1,17 +1,24 @@
 {
-  "name": "grassroots-backend-tests",
+  "name": "grassroots-backend-e2etests",
   "version": "0.0.1",
   "description": "",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "type": "module",
   "scripts": {
     "test": "vitest watch",
     "test:ci": "vitest run"
   },
   "dependencies": {
-    "unplugin-swc": "^1.5.7",
-    "grassroots-backend": "workspace:*"
+    "@mikro-orm/core": "^6.5.2",
+    "@mikro-orm/postgresql": "^6.5.2",
+    "grassroots-backend": "workspace:*",
+    "grassroots-shared-net": "workspace:*",
+    "grassroots-shared": "workspace:*",
+    "openapi-fetch": "^0.13.8",
+    "openapi-paths": "workspace:*",
+    "unplugin-swc": "^1.5.7"
   },
   "devDependencies": {
     "@swc/cli": "^0.6.0",

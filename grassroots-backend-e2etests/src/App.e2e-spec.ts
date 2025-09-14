@@ -1,6 +1,6 @@
+import { AppModule } from "grassroots-backend/app/App.module";
 import { useE2ETestFixture } from "./infra/E2eSetup.js";
 import { describe, expect, it } from "vitest";
-import { AppModule } from "grassroots-backend/AppModule";
 
 describe("AppController (e2e)", () => {
   const getFixture = useE2ETestFixture({

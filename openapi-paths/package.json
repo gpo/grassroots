@@ -15,8 +15,7 @@
   "exports": {
     "./*": {
       "require": "./dist/*.js",
-      "import": "./dist/*.js",
-      "types": "./dist/*.d.ts"
+      "import": "./dist/*.js"
     }
   },
   "dependencies": {

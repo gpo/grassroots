@@ -10,7 +10,7 @@ export default defineConfig({
   ],
   test: {
     globals: false,
-    globalSetup: "./src/GlobalSetup.ts",
+    globalSetup: "../grassroots-backend/src/testing/GlobalSetup.ts",
     root: "./",
     exclude: ["node_modules/**", "dist/**"],
     include: ["**/*.spec.ts", "**/*.e2e-spec.ts"],

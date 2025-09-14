@@ -1,15 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { useE2ETestFixture } from "../testing/E2eSetup.js";
-import { UsersModule } from "./Users.module.js";
 import {
   Permission,
   PermissionsDTO,
 } from "grassroots-shared/dtos/Permission.dto";
 import { fail } from "grassroots-shared/util/Fail";
-import { OrganizationsModule } from "../organizations/Organizations.module.js";
-import { ROLES_BY_NAME } from "../organizations/Roles.service.js";
 import { UserDTO } from "grassroots-shared/dtos/User.dto";
+import { useE2ETestFixture } from "./infra/E2eSetup.js";
 import { createOrganizationTree } from "grassroots-shared-net/CreateOrganizationTree";
+import { UsersModule } from "grassroots-backend/users/Users.module";
+import { OrganizationsModule } from "grassroots-backend/organizations/Organizations.module";
+import { ROLES_BY_NAME } from "grassroots-backend/organizations/Roles.service";
 
 describe("Users (e2e)", () => {
   const getFixture = useE2ETestFixture({

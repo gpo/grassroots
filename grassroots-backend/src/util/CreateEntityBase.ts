@@ -11,9 +11,15 @@ export { OptionalProps };
 // using this is a bit repetitive.
 // e.g., class FooEntity extends createEntityBase<"Foo", FooDTO>("Foo") {}
 
-// We don't explicitly type this function because it's super gnarly.
-// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
-export function createEntityBase<TBrand extends string, TDTO>(brand: TBrand) {
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+export function createEntityBase<TBrand extends string, TDTO>(
+  brand: TBrand,
+  // eslint-disable-next-line grassroots/entity-use
+): abstract new () => BaseEntity & {
+  readonly __entityBrand: Opt<`${TBrand}Entity`>;
+  readonly __caslSubjectType: Opt<string>;
+  toDTO(): TDTO;
+} {
   abstract class Branded extends BaseEntity {
     @Property({ persist: false })
     // We need different names for our branding types

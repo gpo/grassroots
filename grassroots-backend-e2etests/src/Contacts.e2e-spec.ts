@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { writeFile, readFile } from "fs/promises";
-import { ContactsModule } from "./Contacts.module.js";
-import { useE2ETestFixture } from "../testing/E2eSetup.js";
-import { graphDependencies } from "../util/GraphDependencies.js";
+import { ContactsModule } from "grassroots-backend/contacts/Contacts.module";
+import { OrganizationsModule } from "grassroots-backend/organizations/Organizations.module";
+import { graphDependencies } from "grassroots-backend/util/GraphDependencies";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { OrganizationDTO } from "grassroots-shared/dtos/Organization.dto";
-import { OrganizationsModule } from "../organizations/Organizations.module.js";
 import { PropsOf } from "grassroots-shared/util/TypeUtils";
+import { useE2ETestFixture } from "./infra/E2eSetup.js";
 
 describe("ContactsController (e2e)", () => {
   // Created in beforeEach.
