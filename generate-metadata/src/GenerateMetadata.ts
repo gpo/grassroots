@@ -2,7 +2,7 @@ import { PluginMetadataGenerator } from "@nestjs/cli/lib/compiler/plugins/plugin
 import { ReadonlyVisitor } from "@nestjs/swagger/dist/plugin/index.js";
 import { readFile, writeFile } from "fs/promises";
 
-process.chdir("/app/grassroots-shared");
+process.chdir("../grassroots-shared");
 
 const METADATA_TMP_DIR = "/tmp/";
 const METADATA_TMP_FILENAME = "metadata.withbadpaths.ts";

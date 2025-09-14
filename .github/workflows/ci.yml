@@ -95,6 +95,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      - name: Build everything
+        run: pnpm run -r build
+
       - name: Run tstyche
         run: cd grassroots-backend && pnpm run test:tstyche
 
