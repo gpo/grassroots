@@ -3,6 +3,7 @@
 **/dist-metadata
 **/dist-build
 grassroots-shared/src/metadata.ts
+grassroots-backend/src/metadata.ts
 .env.development.local
 .env.test.local
 .env.local
