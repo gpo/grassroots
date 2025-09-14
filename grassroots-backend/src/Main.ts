@@ -13,7 +13,7 @@ import {
 } from "./util/PostProcessOpenAPI.js";
 import { graphDependencies } from "./util/GraphDependencies.js";
 import { writeFormatted } from "./util/FormattingWriter.js";
-import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
+import { ValidationErrorOutDTO } from "grassroots-shared/ValidationError.dto.js";
 
 // Needs to show up somewhere.
 import "reflect-metadata";

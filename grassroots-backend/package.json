@@ -16,7 +16,8 @@
     "test:tstyche": "pnpm exec tstyche",
     "db-create": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:create --config dist/mikro-orm.config.js",
     "db-up": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:up --config dist/mikro-orm.config.js",
-    "db-fresh": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:fresh --config dist/mikro-orm.config.js"
+    "db-fresh": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:fresh --config dist/mikro-orm.config.js",
+    "db-check": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:check --config dist/mikro-orm.config.js"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.4.15",

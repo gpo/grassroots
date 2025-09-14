@@ -44,25 +44,11 @@ jobs:
         with:
           compose-file: "./docker/compose-ci.yaml"
 
-      - name: Build backend
-        run: cd grassroots-backend && pnpm run build
-
-      - name: Generate backend files
-        run: cd grassroots-backend && pnpm run gen-files-only
-
-      - name: Temporarily setup symlink for frontend builds
-        run: ln -sfn $(pwd)/grassroots-backend/src/grassroots-shared $(pwd)/grassroots-frontend/src/grassroots-shared
-
-      - name: Build frontend
-        run: cd grassroots-frontend && ls && ls src && ls src/grassroots-shared && pnpm run build:ci
-
-      - name: Run TypeScript Checks
-        run: |
-          pnpm exec tsc --noEmit --project grassroots-frontend
-          pnpm exec tsc --noEmit --project grassroots-backend
+      - name: Build everything
+        run: pnpm run -r build
 
       - name: Migrate DB
-        run: cd grassroots-backend && pnpm exec mikro-orm migration:up
+        run: cd grassroots-backend && pnpm run db-up
 
       - name: Setup tbls
         uses: k1low/setup-tbls@v1
@@ -114,7 +100,7 @@ jobs:
 
       - name: Check mikro-orm migration
         run: |
-          if ! cd grassroots-backend && pnpm exec mikro-orm migration:check 2>&1 | grep -q "No changes required, schema is up-to-date"; then
+          if ! cd grassroots-backend && pnpm run db-check 2>&1 | grep -q "No changes required, schema is up-to-date"; then
             exit 1
           fi
 
