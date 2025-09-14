@@ -4,5 +4,5 @@
     "outDir": "./dist-metadata",
     "rootDir": "./src"
   },
-  "include": ["./src"]
+  "include": ["src"]
 }

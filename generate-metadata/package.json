@@ -9,7 +9,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "UNLICENSED",
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
     "@nestjs/cli": "^11.0.10",

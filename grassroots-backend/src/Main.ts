@@ -14,16 +14,20 @@ import {
 import { graphDependencies } from "./util/GraphDependencies.js";
 import { writeFormatted } from "./util/FormattingWriter.js";
 
-// Needs to show up somewhere.
+// Needs to show up somewhere for decorators to work.
 import "reflect-metadata";
 import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
 
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "../openapi-paths/src/OpenAPI.gen.ts";
 
+// To get openAPI bindings which include both dtos and controllers, we generate metadata.ts
+// for grassroots-shared (dtos) and grassroots-backend (controllers).
+// This method glues those two metadata files together into a unified metadata.
+// Since we keep dtos and controllers completely separate, this is pretty simple.
 // Promise<Awaited<...>> is just to make the linter happy that this async method is
 // returning a promise.
-async function getunifiedMetadata(): Promise<
+async function getUnifiedMetadata(): Promise<
   Awaited<ReturnType<typeof backendMetadataPromise>>
 > {
   const backendMetadata = await backendMetadataPromise();
@@ -47,7 +51,7 @@ async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
     .setVersion("0.0")
     .build();
 
-  await SwaggerModule.loadPluginMetadata(getunifiedMetadata);
+  await SwaggerModule.loadPluginMetadata(getUnifiedMetadata);
   const openAPI = SwaggerModule.createDocument(app, config, {
     autoTagControllers: true,
     extraModels: [ValidationErrorOutDTO],
