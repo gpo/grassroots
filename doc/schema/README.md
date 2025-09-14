@@ -5,54 +5,17 @@
 | Name                                                          | Columns | Comment | Type       |
 | ------------------------------------------------------------- | ------- | ------- | ---------- |
 | [public.mikro_orm_migrations](public.mikro_orm_migrations.md) | 3       |         | BASE TABLE |
-| [public.user_entity](public.user_entity.md)                   | 5       |         | BASE TABLE |
-| [public.organization_entity](public.organization_entity.md)   | 5       |         | BASE TABLE |
-| [public.contact_entity](public.contact_entity.md)             | 6       |         | BASE TABLE |
-| [public.user_role_entity](public.user_role_entity.md)         | 5       |         | BASE TABLE |
 
 ## Relations
 
 ```mermaid
 erDiagram
 
-"public.organization_entity" }o--o| "public.organization_entity" : ""
-"public.contact_entity" }o--|| "public.organization_entity" : ""
-"public.user_role_entity" }o--|| "public.user_entity" : ""
-"public.user_role_entity" }o--|| "public.organization_entity" : ""
 
 "public.mikro_orm_migrations" {
   integer id
   varchar_255_ name
   timestamp_with_time_zone executed_at
-}
-"public.user_entity" {
-  varchar_255_ id
-  varchar_255_ first_name
-  varchar_255_ last_name
-  varchar_255_ display_name
-  jsonb emails
-}
-"public.organization_entity" {
-  integer id
-  varchar_255_ name
-  integer parent_id FK
-  varchar_255_ abbreviated_name
-  varchar_255_ description
-}
-"public.contact_entity" {
-  integer id
-  varchar_255_ email
-  varchar_255_ first_name
-  varchar_255_ last_name
-  varchar_255_ phone_number
-  integer organization_id FK
-}
-"public.user_role_entity" {
-  integer id
-  varchar_255_ user_id FK
-  integer _role_id
-  integer organization_id FK
-  boolean inherited
 }
 ```
 

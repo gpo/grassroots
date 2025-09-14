@@ -11,9 +11,7 @@
       {
         "name": "@nestjs/swagger",
         "options": {
-          "dtoFileNameSuffix": [
-            ".dto.ts"
-          ],
+          "dtoFileNameSuffix": [".dto.ts"],
           "esmCompatible": true
         }
       }
