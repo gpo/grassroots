@@ -262,9 +262,6 @@ importers:
       '@types/supertest':
         specifier: ^6.0.2
         version: 6.0.3
-      '@vitest/coverage-v8':
-        specifier: ^3.2.0
-        version: 3.2.4(vitest@3.2.4(@types/node@24.3.2)(sugarss@5.0.1(postcss@8.5.6))(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
       globals:
         specifier: ^16.0.0
         version: 16.4.0
@@ -283,9 +280,6 @@ importers:
       ts-loader:
         specifier: ^9.5.2
         version: 9.5.4(typescript@5.9.2)(webpack@5.100.2(@swc/core@1.13.5))
-      ts-node:
-        specifier: ^10.9.2
-        version: 10.9.2(@swc/core@1.13.5)(@types/node@24.3.2)(typescript@5.9.2)
       tsconfig-paths:
         specifier: ^4.2.0
         version: 4.2.0
@@ -295,6 +289,31 @@ importers:
       unplugin-swc:
         specifier: ^1.5.4
         version: 1.5.7(@swc/core@1.13.5)(rollup@4.50.1)
+
+  grassroots-backend-tests:
+    dependencies:
+      grassroots-backend:
+        specifier: workspace:*
+        version: link:../grassroots-backend
+      unplugin-swc:
+        specifier: ^1.5.7
+        version: 1.5.7(@swc/core@1.13.5)(rollup@4.50.1)
+    devDependencies:
+      '@swc/cli':
+        specifier: ^0.6.0
+        version: 0.6.0(@swc/core@1.13.5)(chokidar@4.0.3)
+      '@swc/core':
+        specifier: ^1.13.5
+        version: 1.13.5
+      '@types/node':
+        specifier: ^24.3.0
+        version: 24.3.2
+      '@types/supertest':
+        specifier: ^6.0.2
+        version: 6.0.3
+      '@vitest/coverage-v8':
+        specifier: ^3.2.0
+        version: 3.2.4(vitest@3.2.4(@types/node@24.3.2)(sugarss@5.0.1(postcss@8.5.6))(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
       vitest:
         specifier: ^3.2.0
         version: 3.2.4(@types/node@24.3.2)(sugarss@5.0.1(postcss@8.5.6))(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1)

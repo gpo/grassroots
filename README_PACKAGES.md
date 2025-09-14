@@ -16,15 +16,18 @@ Contains all logic shared between frontend and backend that doesn't rely on gene
 
 Depends on grassroots-shared, as it calls the backend with --gen-files-only which depends on grassroots-shared. Produces and contains the openAPI bindings.
 
-## grassroots-shared-net
-
-Contains logic shared between frontend and backend that relies on generated openAPI bindings.
-For the backend, this is mostly test infrastructure.
-
 ## grassroots-backend
 
 Depends on all of the above (though only indirectly on generate-metadata).
 Contains the backend.
+
+## grassroots-shared-net
+
+Contains logic shared between grassroots-frontend and grassroots-backend-tests that relies on generated openAPI bindings.
+
+## grassroots-backend-tests
+
+Depends on grassroots-backend and grassroots-shared-net.
 
 ## grassroots-frontend
 

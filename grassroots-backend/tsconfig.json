@@ -3,7 +3,7 @@
   "compilerOptions": {
     "outDir": "./dist"
   },
-  "include": ["src", "tsconfig.mikroorm.json"],
+  "include": ["src"],
   "exclude": [
     "src/testing/typetests/**",
     "vitest.config.ts",

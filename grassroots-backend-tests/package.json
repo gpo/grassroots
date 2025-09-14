@@ -1,0 +1,24 @@
+{
+  "name": "grassroots-backend-tests",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "license": "UNLICENSED",
+  "scripts": {
+    "test": "vitest watch",
+    "test:ci": "vitest run"
+  },
+  "dependencies": {
+    "unplugin-swc": "^1.5.7",
+    "grassroots-backend": "workspace:*"
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.6.0",
+    "@swc/core": "^1.13.5",
+    "@types/node": "^24.3.0",
+    "@types/supertest": "^6.0.2",
+    "@vitest/coverage-v8": "^3.2.0",
+    "vitest": "^3.2.0"
+  }
+}

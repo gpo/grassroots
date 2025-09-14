@@ -1,5 +1,6 @@
 packages:
   - grassroots-backend
+  - grassroots-backend-tests
   - grassroots-frontend
   - eslint_rules
   - generate-metadata

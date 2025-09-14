@@ -10,9 +10,9 @@ export default defineConfig({
   ],
   test: {
     globals: false,
-    globalSetup: "./src/testing/GlobalSetup.ts",
+    globalSetup: "./src/GlobalSetup.ts",
     root: "./",
-    exclude: ["./src/testing/typetests/**", "node_modules/**", "dist/**"],
+    exclude: ["node_modules/**", "dist/**"],
     include: ["**/*.spec.ts", "**/*.e2e-spec.ts"],
   },
 });
