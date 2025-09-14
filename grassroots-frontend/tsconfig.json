@@ -13,6 +13,9 @@
 
     "outDir": "./dist",
 
+    "declaration": false,
+    "declarationMap": false,
+
     "paths": {
       "@nestjs/common": ["./src/NestCommonShim"],
       "@nestjs/swagger": ["./src/NestCommonShim"]
