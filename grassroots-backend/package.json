@@ -20,10 +20,6 @@
     "gen-files-only": "nest start -- --gen-files-only",
     "debug": "pnpm run build && node --inspect dist-build/Main",
     "test:tstyche": "pnpm exec tstyche",
-    "db-create": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:create --config dist/mikro-orm.config.js",
-    "db-up": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:up --config dist/mikro-orm.config.js",
-    "db-fresh": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:fresh --config dist/mikro-orm.config.js",
-    "db-check": "tsc -p tsconfig.mikroorm.json && pnpm exec mikro-orm migration:check --config dist/mikro-orm.config.js",
     "test": "vitest watch",
     "test:ci": "vitest run"
   },
@@ -79,6 +75,7 @@
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
     "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.2",
     "unplugin-swc": "^1.5.7",

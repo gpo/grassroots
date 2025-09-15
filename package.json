@@ -10,6 +10,7 @@
   "bugs": {
     "url": "https://github.com/gpo/grassroots/issues"
   },
+  "type": "module",
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
     "start": "concurrently \"cd grassroots-frontend && pnpm run start \" \"cd grassroots-backend && run start\"",

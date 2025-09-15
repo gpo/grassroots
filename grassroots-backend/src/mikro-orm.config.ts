@@ -21,7 +21,4 @@ export default defineConfig({
   password: process.env.POSTGRES_PASSWORD,
   dbName: process.env.POSTGRES_DATABASE,
   debug: true,
-  migrations: {
-    path: "./dist-build/migrations",
-  },
 });
