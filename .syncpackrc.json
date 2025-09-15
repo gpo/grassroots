@@ -1,0 +1,12 @@
+{
+  "source": ["./*/package.json", "package.json"],
+  "workspace": false,
+  "versionGroups": [
+    {
+      "packages": ["**"],
+      "dependencies": ["$LOCAL"],
+      "dependencyTypes": ["dev", "prod"],
+      "pinVersion": "workspace:*"
+    }
+  ]
+}

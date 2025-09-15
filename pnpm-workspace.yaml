@@ -1,7 +1,12 @@
 packages:
   - grassroots-backend
+  - grassroots-backend-e2etests
   - grassroots-frontend
   - eslint_rules
+  - generate-metadata
+  - grassroots-shared
+  - grassroots-shared-net
+  - openapi-paths
 onlyBuiltDependencies:
   - "@nestjs/core"
   - "@scarf/scarf"

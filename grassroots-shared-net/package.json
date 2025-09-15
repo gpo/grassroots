@@ -1,0 +1,31 @@
+{
+  "name": "grassroots-shared-net",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "tsc",
+    "clean": "rm -rf dist && rm -f tsconfig.tsbuildinfo"
+  },
+  "keywords": [],
+  "private": true,
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.11.0",
+  "type": "module",
+  "composite": true,
+  "exports": {
+    "./*": {
+      "require": "./dist/*.js",
+      "import": "./dist/*.js"
+    }
+  },
+  "dependencies": {
+    "grassroots-shared": "workspace:*",
+    "openapi-fetch": "^0.13.8",
+    "openapi-paths": "workspace:*"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

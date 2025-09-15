@@ -1,0 +1,28 @@
+{
+  "name": "openapi-paths",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "cd ../grassroots-backend && pnpm run gen-files-only && cd ../openapi-paths && tsc"
+  },
+  "keywords": [],
+  "private": true,
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.11.0",
+  "type": "module",
+  "composite": true,
+  "exports": {
+    "./*": {
+      "require": "./dist/*.js",
+      "import": "./dist/*.js"
+    }
+  },
+  "dependencies": {
+    "grassroots-shared": "workspace:*"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
+  }
+}

@@ -1,11 +1,11 @@
 import { ContactsService } from "./Contacts.service.js";
-import { useTestFixture } from "../testing/Setup.js";
+import { useTestFixture } from "../testing/TestSetup.js";
 import { describe, expect, it } from "vitest";
 import { ContactsModule } from "./Contacts.module.js";
-import { CreateContactRequestDTO } from "../grassroots-shared/Contact.dto.js";
+import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { OrganizationsModule } from "../organizations/Organizations.module.js";
 import { OrganizationsService } from "../organizations/Organizations.service.js";
-import { CreateOrganizationNoParentRequestDTO } from "../grassroots-shared/Organization.dto.js";
+import { CreateOrganizationNoParentRequestDTO } from "grassroots-shared/dtos/Organization.dto";
 
 describe("ContactsService", () => {
   const getFixture = useTestFixture({

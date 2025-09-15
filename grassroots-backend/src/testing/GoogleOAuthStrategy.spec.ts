@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { GoogleOAuthStrategy } from "../auth/GoogleOAuth.strategy.js";
-import { useTestFixture } from "./Setup.js";
+import { useTestFixture } from "./TestSetup.js";
 import { UsersModule } from "../users/Users.module.js";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { UsersService } from "../users/Users.service.js";

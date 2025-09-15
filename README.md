@@ -63,7 +63,7 @@ npm run start
 cd docker
 docker compose exec grassroots_dev bash
 cd grassroots-backend
-pnpm exec mikro-orm migration:up
+pnpm exec mikro-orm-esm migration:up
 npm run start
 ```
 
@@ -86,11 +86,11 @@ On Chrome, you can add the cert via chrome://certificate-manager/.
 To migrate:
 
 ```sh
-pnpm exec mikro-orm migration:up
+pnpm exec mikro-orm-esm migration:up
 ```
 
 To create a migration to the current Entity schemas.
 
 ```sh
-pnpm exec mikro-orm migration:create
+pnpm exec mikro-orm-esm migration:create
 ```

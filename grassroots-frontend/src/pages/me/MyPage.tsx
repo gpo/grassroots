@@ -1,6 +1,6 @@
 import { JSX } from "react";
 import { MyTable } from "./MyTable.js";
-import { OrganizationsDTO } from "../../grassroots-shared/Organization.dto.js";
+import { OrganizationsDTO } from "grassroots-shared/dtos/Organization.dto";
 import { useOrganizations } from "../../hooks/useOrganizations.js";
 
 export function MyPage(): JSX.Element {

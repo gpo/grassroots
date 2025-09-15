@@ -1,7 +1,7 @@
 import { Table } from "@mantine/core";
 import { JSX } from "react";
 import { Link } from "@tanstack/react-router";
-import { OrganizationsDTO } from "../../grassroots-shared/Organization.dto.js";
+import { OrganizationsDTO } from "grassroots-shared/dtos/Organization.dto";
 interface OrganizersTableProps {
   tableData: OrganizationsDTO;
 }

@@ -3,9 +3,9 @@ import {
   UserDTO,
   UserPermissionsForOrgRequestDTO,
   UsersDTO,
-} from "../grassroots-shared/User.dto.js";
+} from "grassroots-shared/dtos/User.dto";
 import { UsersService } from "../users/Users.service.js";
-import { PermissionsDTO } from "../grassroots-shared/Permission.dto.js";
+import { PermissionsDTO } from "grassroots-shared/dtos/Permission.dto";
 
 @Controller("users")
 export class UsersController {

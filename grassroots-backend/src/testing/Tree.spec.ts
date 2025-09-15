@@ -1,8 +1,8 @@
 // Use the OrganizationDTO as an example.
 
 import { describe, expect, it } from "vitest";
-import { OrganizationDTO } from "../grassroots-shared/Organization.dto.js";
-import { Tree } from "../grassroots-shared/Tree.js";
+import { OrganizationDTO } from "grassroots-shared/dtos/Organization.dto";
+import { Tree } from "grassroots-shared/util/Tree";
 
 function toOrg(x: {
   id: number;

@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "./dist-build"
+  },
+  "include": ["src"],
+  "exclude": [
+    "src/testing/typetests/**",
+    "vitest.config.ts",
+    "src/mikro-orm.config.ts"
+  ]
+}

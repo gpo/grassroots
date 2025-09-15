@@ -8,6 +8,25 @@
     "noUncheckedIndexedAccess": true,
     "noUncheckedSideEffectImports": true,
     "noUnusedLocals": false, // replaced by eslint no-unused-vars
-    "noUnusedParameters": false // replaced by eslint no-unused-vars
+    "noUnusedParameters": false, // replaced by eslint no-unused-vars
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    // Don't use new style decorators, as nest doesn't support them.
+    "useDefineForClassFields": false,
+    "target": "ES2023",
+    "sourceMap": true,
+    "inlineSources": true,
+    "incremental": true,
+    "skipLibCheck": true,
+    // Required for express-session, and others.
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "customConditions": ["import"],
+    // We end up importing almost every package as a dependency somewhere, so make this the default.
+    "declaration": true,
+    "declarationMap": true
   }
 }

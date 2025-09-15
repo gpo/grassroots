@@ -1,371 +1,162 @@
 /* eslint-disable */
 export default async () => {
   const t = {
-    ["./grassroots-shared/Organization.dto"]: await import(
-      "./grassroots-shared/Organization.dto"
+    ["../../grassroots-shared/dist/dtos/Hello.dto.js"]: await import(
+      "../../grassroots-shared/dist/dtos/Hello.dto.js"
     ),
-    ["./grassroots-shared/Contact.dto"]: await import(
-      "./grassroots-shared/Contact.dto"
+    ["../../grassroots-shared/dist/dtos/Contact.dto.js"]: await import(
+      "../../grassroots-shared/dist/dtos/Contact.dto.js"
     ),
-    ["./grassroots-shared/Paginated.dto"]: await import(
-      "./grassroots-shared/Paginated.dto"
+    ["../../grassroots-shared/dist/dtos/User.dto.js"]: await import(
+      "../../grassroots-shared/dist/dtos/User.dto.js"
     ),
-    ["./grassroots-shared/Role.dto"]: await import(
-      "./grassroots-shared/Role.dto"
+    ["../../grassroots-shared/dist/dtos/Permission.dto.js"]: await import(
+      "../../grassroots-shared/dist/dtos/Permission.dto.js"
     ),
-    ["./grassroots-shared/UserRole.dto"]: await import(
-      "./grassroots-shared/UserRole.dto"
+    ["../../grassroots-shared/dist/dtos/Void.dto.js"]: await import(
+      "../../grassroots-shared/dist/dtos/Void.dto.js"
     ),
-    ["./grassroots-shared/User.dto"]: await import(
-      "./grassroots-shared/User.dto"
+    ["../../grassroots-shared/dist/dtos/LoginState.dto.js"]: await import(
+      "../../grassroots-shared/dist/dtos/LoginState.dto.js"
     ),
-    ["./grassroots-shared/Permission.dto"]: await import(
-      "./grassroots-shared/Permission.dto"
+    ["../../grassroots-shared/dist/dtos/Organization.dto.js"]: await import(
+      "../../grassroots-shared/dist/dtos/Organization.dto.js"
     ),
-    ["./grassroots-shared/Void.dto"]: await import(
-      "./grassroots-shared/Void.dto"
-    ),
-    ["./grassroots-shared/LoginState.dto"]: await import(
-      "./grassroots-shared/LoginState.dto"
-    ),
-    ["./grassroots-shared/Hello.dto"]: await import(
-      "./grassroots-shared/Hello.dto"
+    ["../../grassroots-shared/dist/dtos/Role.dto.js"]: await import(
+      "../../grassroots-shared/dist/dtos/Role.dto.js"
     ),
   };
   return {
     "@nestjs/swagger": {
-      models: [
-        [
-          import("./grassroots-shared/Organization.dto"),
-          {
-            OrganizationDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              name: { required: true, type: () => String },
-              abbreviatedName: { required: true, type: () => String },
-              description: { required: true, type: () => String },
-              parentId: { required: false, type: () => Number, minimum: 1 },
-            },
-            OrganizationsDTO: {
-              organizations: {
-                required: true,
-                type: () => [
-                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
-                ],
-              },
-            },
-            OrganizationReferenceDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
-            },
-            CreateOrganizationNoParentRequestDTO: {
-              name: { required: true, type: () => String },
-              abbreviatedName: { required: true, type: () => String },
-              description: { required: true, type: () => String },
-            },
-            CreateOrganizationRequestDTO: {
-              name: { required: true, type: () => String },
-              abbreviatedName: { required: true, type: () => String },
-              description: { required: true, type: () => String },
-              parentID: { required: true, type: () => Number, minimum: 1 },
-            },
-          },
-        ],
-        [
-          import("./grassroots-shared/Paginated.dto"),
-          {
-            PaginatedRequestDTO: {
-              rowsToSkip: { required: true, type: () => Number, minimum: 0 },
-              rowsToTake: { required: true, type: () => Number, minimum: 1 },
-            },
-            PaginatedResponseDTO: {
-              rowsSkipped: { required: true, type: () => Number, minimum: 0 },
-              rowsTotal: { required: true, type: () => Number, minimum: 0 },
-            },
-          },
-        ],
-        [
-          import("./grassroots-shared/Contact.dto"),
-          {
-            ContactDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              email: { required: true, type: () => String, format: "email" },
-              firstName: { required: true, type: () => String },
-              lastName: { required: true, type: () => String },
-              organization: {
-                required: true,
-                type: () =>
-                  t["./grassroots-shared/Organization.dto"].OrganizationDTO,
-              },
-              phoneNumber: { required: true, type: () => String },
-            },
-            ContactsDTO: {
-              contacts: {
-                required: true,
-                type: () => [t["./grassroots-shared/Contact.dto"].ContactDTO],
-              },
-            },
-            CreateContactRequestDTO: {
-              email: { required: true, type: () => String, format: "email" },
-              firstName: { required: true, type: () => String },
-              lastName: { required: true, type: () => String },
-              phoneNumber: { required: true, type: () => String },
-              organizationId: {
-                required: true,
-                type: () => Number,
-                minimum: -1,
-              },
-            },
-            CreateBulkContactRequestDTO: {
-              contacts: {
-                required: true,
-                type: () => [
-                  t["./grassroots-shared/Contact.dto"].CreateContactRequestDTO,
-                ],
-              },
-            },
-            CreateBulkContactResponseDTO: {
-              ids: { required: true, type: () => [Number] },
-            },
-            GetContactByIDResponseDTO: {
-              contact: {
-                required: true,
-                type: () => t["./grassroots-shared/Contact.dto"].ContactDTO,
-                nullable: true,
-              },
-            },
-            ContactSearchRequestDTO: {
-              id: { required: false, type: () => Number, minimum: 1 },
-              email: { required: false, type: () => String },
-              firstName: { required: false, type: () => String },
-              lastName: { required: false, type: () => String },
-              organizationId: { required: false, type: () => Number },
-              phoneNumber: { required: false, type: () => String },
-            },
-            PaginatedContactSearchRequestDTO: {
-              contact: {
-                required: true,
-                type: () =>
-                  t["./grassroots-shared/Contact.dto"].ContactSearchRequestDTO,
-              },
-              paginated: {
-                required: true,
-                type: () =>
-                  t["./grassroots-shared/Paginated.dto"].PaginatedRequestDTO,
-              },
-            },
-            PaginatedContactResponseDTO: {
-              contacts: {
-                required: true,
-                type: () => [t["./grassroots-shared/Contact.dto"].ContactDTO],
-              },
-              paginated: {
-                required: true,
-                type: () =>
-                  t["./grassroots-shared/Paginated.dto"].PaginatedResponseDTO,
-              },
-            },
-          },
-        ],
-        [
-          import("./grassroots-shared/Permission.dto"),
-          {
-            PermissionsDTO: {
-              permissions: { required: true, type: () => [Object] },
-            },
-          },
-        ],
-        [
-          import("./grassroots-shared/Role.dto"),
-          {
-            RoleDTO: {
-              id: { required: true, type: () => Number, minimum: 1 },
-              name: { required: true, type: () => String },
-              permissions: { required: true, type: () => [Object] },
-            },
-            RolesDTO: {
-              roles: {
-                required: true,
-                type: () => [t["./grassroots-shared/Role.dto"].RoleDTO],
-              },
-            },
-          },
-        ],
-        [
-          import("./grassroots-shared/UserRole.dto"),
-          {
-            UserRoleDTO: {
-              id: { required: false, type: () => Number, minimum: 1 },
-              userId: { required: false, type: () => String },
-              role: {
-                required: true,
-                type: () => t["./grassroots-shared/Role.dto"].RoleDTO,
-              },
-              organizationId: {
-                required: true,
-                type: () => Number,
-                minimum: 1,
-              },
-              inherited: { required: true, type: () => Boolean },
-            },
-          },
-        ],
-        [
-          import("./grassroots-shared/User.dto"),
-          {
-            UserDTO: {
-              id: { required: true, type: () => String },
-              emails: {
-                required: false,
-                type: () => [String],
-                format: "email",
-              },
-              firstName: { required: false, type: () => String },
-              lastName: { required: false, type: () => String },
-              displayName: { required: false, type: () => String },
-              userRoles: {
-                required: false,
-                type: () => [t["./grassroots-shared/UserRole.dto"].UserRoleDTO],
-              },
-            },
-            UserPermissionsForOrgRequestDTO: {
-              userId: { required: true, type: () => String },
-              organizationId: {
-                required: true,
-                type: () => Number,
-                minimum: 1,
-              },
-            },
-            UsersDTO: {
-              users: {
-                required: true,
-                type: () => [t["./grassroots-shared/User.dto"].UserDTO],
-              },
-            },
-          },
-        ],
-        [import("./grassroots-shared/Void.dto"), { VoidDTO: {} }],
-        [
-          import("./grassroots-shared/LoginState.dto"),
-          {
-            LoginStateDTO: {
-              user: {
-                required: false,
-                type: () => t["./grassroots-shared/User.dto"].UserDTO,
-              },
-            },
-          },
-        ],
-        [
-          import("./grassroots-shared/Hello.dto"),
-          { HelloOutDTO: { message: { required: true, type: () => String } } },
-        ],
-        [
-          import("./contacts/entities/ValidationError.dto"),
-          {
-            ValidationErrorOutDTO: {
-              statusCode: { required: true, type: () => Number },
-              message: { required: true, type: () => [String] },
-              error: { required: true, type: () => String },
-            },
-          },
-        ],
-      ],
+      models: [],
       controllers: [
         [
-          import("./contacts/Contacts.controller"),
+          import("./app/App.controller.js"),
+          {
+            AppController: {
+              getHello: {
+                type: t["../../grassroots-shared/dist/dtos/Hello.dto.js"]
+                  .HelloOutDTO,
+              },
+            },
+          },
+        ],
+        [
+          import("./contacts/Contacts.controller.js"),
           {
             ContactsController: {
-              create: { type: t["./grassroots-shared/Contact.dto"].ContactDTO },
+              create: {
+                type: t["../../grassroots-shared/dist/dtos/Contact.dto.js"]
+                  .ContactDTO,
+              },
               bulkCreate: {
-                type: t["./grassroots-shared/Contact.dto"]
+                type: t["../../grassroots-shared/dist/dtos/Contact.dto.js"]
                   .CreateBulkContactResponseDTO,
               },
               findAll: {
-                type: t["./grassroots-shared/Contact.dto"].ContactsDTO,
+                type: t["../../grassroots-shared/dist/dtos/Contact.dto.js"]
+                  .ContactsDTO,
               },
               search: {
-                type: t["./grassroots-shared/Contact.dto"]
+                type: t["../../grassroots-shared/dist/dtos/Contact.dto.js"]
                   .PaginatedContactResponseDTO,
               },
               findOne: {
-                type: t["./grassroots-shared/Contact.dto"]
+                type: t["../../grassroots-shared/dist/dtos/Contact.dto.js"]
                   .GetContactByIDResponseDTO,
               },
             },
           },
         ],
         [
-          import("./users/Users.controller"),
+          import("./users/Users.controller.js"),
           {
             UsersController: {
-              findAll: { type: t["./grassroots-shared/User.dto"].UsersDTO },
-              findOrCreate: { type: t["./grassroots-shared/User.dto"].UserDTO },
+              findAll: {
+                type: t["../../grassroots-shared/dist/dtos/User.dto.js"]
+                  .UsersDTO,
+              },
+              findOrCreate: {
+                type: t["../../grassroots-shared/dist/dtos/User.dto.js"]
+                  .UserDTO,
+              },
               getUserPermissionsForOrg: {
-                type: t["./grassroots-shared/Permission.dto"].PermissionsDTO,
+                type: t["../../grassroots-shared/dist/dtos/Permission.dto.js"]
+                  .PermissionsDTO,
               },
             },
           },
         ],
         [
-          import("./auth/Auth.controller"),
+          import("./auth/Auth.controller.js"),
           {
             AuthController: {
-              login: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+              login: {
+                type: t["../../grassroots-shared/dist/dtos/Void.dto.js"]
+                  .VoidDTO,
+              },
               googleAuthRedirect: {
-                type: t["./grassroots-shared/Void.dto"].VoidDTO,
+                type: t["../../grassroots-shared/dist/dtos/Void.dto.js"]
+                  .VoidDTO,
               },
               isUserLoggedIn: {
-                type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
+                type: t["../../grassroots-shared/dist/dtos/LoginState.dto.js"]
+                  .LoginStateDTO,
               },
               example: {
-                type: t["./grassroots-shared/LoginState.dto"].LoginStateDTO,
+                type: t["../../grassroots-shared/dist/dtos/LoginState.dto.js"]
+                  .LoginStateDTO,
               },
-              logout: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
-              setActiveOrg: { type: t["./grassroots-shared/Void.dto"].VoidDTO },
+              logout: {
+                type: t["../../grassroots-shared/dist/dtos/Void.dto.js"]
+                  .VoidDTO,
+              },
+              setActiveOrg: {
+                type: t["../../grassroots-shared/dist/dtos/Void.dto.js"]
+                  .VoidDTO,
+              },
               getActiveOrg: {
-                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                type: t["../../grassroots-shared/dist/dtos/Organization.dto.js"]
+                  .OrganizationDTO,
               },
             },
           },
         ],
         [
-          import("./organizations/Organizations.controller"),
+          import("./organizations/Organizations.controller.js"),
           {
             OrganizationsController: {
               create: {
-                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                type: t["../../grassroots-shared/dist/dtos/Organization.dto.js"]
+                  .OrganizationDTO,
               },
               createRoot: {
-                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                type: t["../../grassroots-shared/dist/dtos/Organization.dto.js"]
+                  .OrganizationDTO,
               },
               findAll: {
-                type: t["./grassroots-shared/Organization.dto"]
+                type: t["../../grassroots-shared/dist/dtos/Organization.dto.js"]
                   .OrganizationsDTO,
               },
               findById: {
-                type: t["./grassroots-shared/Organization.dto"].OrganizationDTO,
+                type: t["../../grassroots-shared/dist/dtos/Organization.dto.js"]
+                  .OrganizationDTO,
               },
               getAncestors: {
-                type: t["./grassroots-shared/Organization.dto"]
+                type: t["../../grassroots-shared/dist/dtos/Organization.dto.js"]
                   .OrganizationsDTO,
               },
             },
           },
         ],
         [
-          import("./app/App.controller"),
-          {
-            AppController: {
-              getHello: {
-                type: t["./grassroots-shared/Hello.dto"].HelloOutDTO,
-              },
-            },
-          },
-        ],
-        [
-          import("./organizations/Roles.controller"),
+          import("./organizations/Roles.controller.js"),
           {
             RolesController: {
-              findAll: { type: t["./grassroots-shared/Role.dto"].RolesDTO },
+              findAll: {
+                type: t["../../grassroots-shared/dist/dtos/Role.dto.js"]
+                  .RolesDTO,
+              },
             },
           },
         ],
