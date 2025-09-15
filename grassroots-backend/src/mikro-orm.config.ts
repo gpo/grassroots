@@ -23,6 +23,5 @@ export default defineConfig({
   debug: true,
   migrations: {
     path: "./dist-build/migrations",
-    pathTs: "./src/migrations",
   },
 });
