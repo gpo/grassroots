@@ -15,7 +15,7 @@
   "scripts": {
     "prepare": "husky",
     "test": "turbo test",
-    "dev-watch": "turbo watch build-watch tsc-watch --filter=generate-metadata --filter=grassroots-shared --filter=grassroots-shared-net --filter=openapi-paths",
+    "dev-watch": "concurrently \"turbo gen-files-only-watch\" \"turbo --parallel build-watch --filter=generate-metadata --filter=grassroots-shared --filter=grassroots-shared-net --filter=openapi-paths\"",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "check": "turbo tsc && turbo lint "
