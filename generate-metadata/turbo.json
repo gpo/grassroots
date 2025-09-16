@@ -1,0 +1,16 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": [
+    "//"
+  ],
+  "tasks": {
+    "gen-metadata": {
+      "inputs": [
+        "../grassroots-shared/src/dtos/*"
+      ],
+      "outputs": [
+        "../grassroots-shared/src/metadata.ts"
+      ]
+    }
+  }
+}

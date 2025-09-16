@@ -1,3 +1,5 @@
+TODO: turbo run startBackend --parallel --watch
+
 # grassroots
 
 Political Campaign Software focused on voter outreach and volunteer
@@ -54,7 +56,7 @@ docker compose up
 cd docker
 docker compose exec grassroots_dev bash
 cd grassroots-frontend
-npm run start
+pnpm run start
 ```
 
 ## 6. In another terminal, set up and run the backend application in the same `grassroots_dev` Docker container
@@ -64,7 +66,7 @@ cd docker
 docker compose exec grassroots_dev bash
 cd grassroots-backend
 pnpm exec mikro-orm-esm migration:up
-npm run start
+pnpm run start
 ```
 
 ## 7. Install the SSL certificate

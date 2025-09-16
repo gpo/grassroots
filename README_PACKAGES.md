@@ -2,6 +2,8 @@
 
 This doc describes the function and dependency tree of the packages in this repo.
 
+See [docs/buildgraph.mermaid](docs/buildgraph.mermaid) for the dependency graph.
+
 ## generate-metadata
 
 Directly reads source from grassroots-shared, but otherwise has no dependency.

@@ -7,7 +7,8 @@
         "bierner.markdown-mermaid",
         "ms-azuretools.vscode-docker",
         "github.vscode-github-actions",
-        "editorconfig.editorconfig"
+        "editorconfig.editorconfig",
+        "Vercel.turbo-vsc"
       ]
     }
   },

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://swc.rs/schema.json",
+  "exclude": ["src/FormattedMetadata.gen.ts"],
+  "jsc": {
+    "parser": {
+      "syntax": "typescript",
+      "decorators": true,
+      "legacyDecorator": true,
+      "decoratorMetadata": true
+    }
+  },
+  "sourceMaps": true,
+  "module": { "type": "nodenext" }
+}

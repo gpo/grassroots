@@ -4,31 +4,37 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",
+    "@swc/cli": "^0.6.0",
+    "@swc/core": "^1.13.5",
     "@types/node": "^24.3.0",
+    "@typescript-eslint/parser": "8.32.1",
     "@typescript-eslint/rule-tester": "8.32.1",
+    "@typescript-eslint/utils": "8.32.1",
     "eslint": "^9.33.0",
     "eslint-doc-generator": "^2.1.2",
     "eslint-plugin-eslint-plugin": "^6.4.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "8.32.1",
-    "@typescript-eslint/parser": "8.32.1",
-    "@typescript-eslint/utils": "8.32.1",
     "vitest": "^3.2.4"
   },
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "default": "./lib/index.js"
+      "types": "./dist/Index.d.ts",
+      "default": "./dist/Index.js"
     }
   },
-  "main": "lib/index.js",
+  "main": "dist/Index.js",
   "scripts": {
-    "docs": "tsc && eslint-doc-generator",
-    "build": "tsc",
-    "test": "vitest",
-    "postinstall": "tsc"
+    "docs": "eslint-doc-generator",
+    "build": "swc src --strip-leading-paths --out-dir dist --config-file=../.swcrc",
+    "build-watch": "swc src --strip-leading-paths --out-dir dist --config-file=../.swcrc --watch",
+    "tsc": "tsc",
+    "tsc-watch": "tsc --watch",
+    "test": "vitest run",
+    "test-watch": "vitest watch",
+    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo"
   },
-  "name": "grassroots_eslint",
+  "name": "eslint_rules",
   "type": "module",
   "version": "0.0.0"
 }

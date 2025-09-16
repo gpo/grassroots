@@ -13,12 +13,12 @@
   "type": "module",
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
-    "start": "concurrently \"cd grassroots-frontend && pnpm run start \" \"cd grassroots-backend && run start\"",
     "prepare": "husky",
-    "test": "cd grassroots-frontend && pnpm run test && cd ../grassroots-backend && pnpm run test && cd ../grassroots-backend-e2etests && pnpm run test && cd ../eslint_rules && pnpm run test",
+    "test": "turbo test",
+    "dev-watch": "turbo watch build-watch tsc-watch --filter=generate-metadata --filter=grassroots-shared --filter=grassroots-shared-net --filter=openapi-paths",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
-    "check": "cd grassroots-frontend && pnpm exec tsc --noEmit  && cd ../grassroots-backend && pnpm exec tsc --noEmit  && cd ../eslint_rules && pnpm exec tsc && cd .. && pnpm exec eslint ."
+    "check": "turbo tsc && turbo lint "
   },
   "devDependencies": {
     "@darraghor/eslint-plugin-nestjs-typed": "^6.4.14",
@@ -41,6 +41,7 @@
     "prettier": "^3.6.2",
     "react": "^19.0.0",
     "syncpack": "^13.0.4",
+    "turbo": "^2.5.6",
     "typescript-eslint": "8.32.1"
   },
   "packageManager": "pnpm@10.11.0+sha512.6540583f41cc5f628eb3d9773ecee802f4f9ef9923cc45b69890fb47991d4b092964694ec3a4f738a420c918a333062c8b925d312f42e4f0c263eb603551f977"

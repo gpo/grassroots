@@ -1,0 +1,19 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": [
+    "//"
+  ],
+  "tasks": {
+    "gen-files-only": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "src/metadata.ts",
+        "src/FormattedMetadata.gen.ts",
+        "./openAPI.json",
+        "../openapi-paths/src/OpenAPI.gen.ts"
+      ]
+    }
+  }
+}

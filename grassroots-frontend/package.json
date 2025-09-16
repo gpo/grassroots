@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "vite --host",
-    "build": "tsc -b --noEmit && vite build",
+    "build": "vite build",
+    "tsc": "tsc -b --noEmit",
     "test": "echo \"TODO: test frontend\" && exit 0",
     "preview": "vite preview"
   },

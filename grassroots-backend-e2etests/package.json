@@ -7,8 +7,8 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "test": "vitest watch",
-    "test:ci": "vitest run"
+    "test": "vitest run",
+    "test-watch": "vitest watch"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.5.2",

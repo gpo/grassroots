@@ -14,14 +14,17 @@
   },
   "scripts": {
     "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
-    "build": "nest build && tsc -p tsconfig.buildwithtypes.json",
+    "build": "nest build",
+    "build-watch": "tsc -p tsconfig.buildwithtypes.json --watch",
+    "tsc": "tsc -p tsconfig.buildwithtypes.json",
     "start": "nest start --watch",
     "start:prod": "node dist-build/Main",
     "gen-files-only": "nest start -- --gen-files-only",
     "debug": "pnpm run build && node --inspect dist-build/Main",
     "test:tstyche": "pnpm exec tstyche",
-    "test": "vitest watch",
-    "test:ci": "vitest run"
+    "test": "vitest run",
+    "test-watch": "vitest watch",
+    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.5.2",
@@ -41,7 +44,6 @@
     "express": "^5.1.0",
     "express-session": "^1.18.1",
     "grassroots-shared": "workspace:*",
-    "grassroots-shared-net": "workspace:*",
     "nestjs-spelunker": "^1.3.2",
     "openapi-fetch": "^0.13.8",
     "passport": "^0.7.0",
