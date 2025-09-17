@@ -24,7 +24,7 @@
     "test:tstyche": "pnpm exec tstyche",
     "test": "vitest run",
     "test-watch": "vitest watch",
-    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo"
+    "clean": "rm -rf .turbo && rm -rf dist && rm -rf dist-build && rm -f *.tsbuildinfo && rm -rf /app/.turbo"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.5.2",

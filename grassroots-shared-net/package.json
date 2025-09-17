@@ -8,7 +8,7 @@
     "build-watch": "swc src --strip-leading-paths --out-dir dist --config-file=../.swcrc --watch",
     "tsc": "tsc",
     "tsc-watch": "nice -n 10 tsc --watch",
-    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo"
+    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo"
   },
   "keywords": [],
   "private": true,

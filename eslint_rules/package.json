@@ -32,7 +32,7 @@
     "tsc-watch": "tsc --watch",
     "test": "vitest run",
     "test-watch": "vitest watch",
-    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo"
+    "clean": "rm -rf .turbo && rm -rf /app/.turbo && rm -rf dist && rm -f *.tsbuildinfo"
   },
   "name": "eslint_rules",
   "type": "module",
