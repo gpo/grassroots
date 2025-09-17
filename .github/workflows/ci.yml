@@ -45,7 +45,7 @@ jobs:
           compose-file: "./docker/compose-ci.yaml"
 
       - name: Build everything
-        run: pnpm exec turbo build
+        run: pnpm exec turbo build --env-mode=loose
 
       - name: Migrate DB
         run: cd grassroots-backend && pnpm exec mikro-orm-esm migration:up
@@ -104,7 +104,7 @@ jobs:
           compose-file: "./docker/compose-ci.yaml"
 
       - name: Build everything
-        run: pnpm exec turbo build
+        run: pnpm exec turbo build --env-mode=loose
 
       - name: Run tstyche
         run: cd grassroots-backend && pnpm run test:tstyche
