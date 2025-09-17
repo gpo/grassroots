@@ -1,5 +1,3 @@
-TODO: turbo run startBackend --parallel --watch
-
 # grassroots
 
 Political Campaign Software focused on voter outreach and volunteer
