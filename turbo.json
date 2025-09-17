@@ -2,20 +2,14 @@
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
     "test": {
-      "dependsOn": [
-        "^build",
-        "^tsc"
-      ]
+      "dependsOn": ["^build", "^tsc"]
     },
     "test:watch": {
       "cache": false,
       "persistent": true
     },
     "build": {
-      "dependsOn": [
-        "^build",
-        "^tsc"
-      ],
+      "dependsOn": ["^build", "^tsc"],
       "outputs": [
         "dist/**/*.js",
         "dist/**/*.js.map",
@@ -23,14 +17,8 @@
         "dist-build/**/*.js.map"
       ]
     },
-    "build-watch": {
-      "cache": false,
-      "persistent": true
-    },
     "tsc": {
-      "dependsOn": [
-        "^tsc"
-      ],
+      "dependsOn": ["^tsc"],
       "outputs": [
         "dist/**/*.d.ts",
         "dist/**/*.d.ts.map",
@@ -38,14 +26,8 @@
         "dist-build/**/*.d.ts.map"
       ]
     },
-    "tsc-watch": {
-      "cache": false,
-      "persistent": true
-    },
     "clean": {
-      "dependsOn": [
-        "^clean"
-      ],
+      "dependsOn": ["^clean"],
       "cache": false
     },
     "start": {
@@ -53,9 +35,7 @@
       "cache": false
     },
     "lint": {
-      "dependsOn": [
-        "eslint_rules#build"
-      ]
+      "dependsOn": ["eslint_rules#build"]
     }
   }
 }

@@ -15,7 +15,6 @@
   "scripts": {
     "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
     "build": "nest build",
-    "build-watch": "tsc -p tsconfig.buildwithtypes.json --watch",
     "tsc": "tsc -p tsconfig.buildwithtypes.json",
     "start": "nest start --watch",
     "start:prod": "node dist-build/Main",
@@ -67,7 +66,7 @@
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
-    "@types/node": "^24.3.0",
+    "@types/node": "^24.3.2",
     "@types/passport": "^1.0.17",
     "@types/passport-local": "^1.0.38",
     "@types/passport-openidconnect": "^0.1.3",

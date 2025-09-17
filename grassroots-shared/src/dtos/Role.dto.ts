@@ -12,7 +12,7 @@ import { Type } from "class-transformer";
 
 export class RoleDTO extends createDTOBase("Role") {
   @IsNumber()
-  @Min(5)
+  @Min(15)
   id!: number;
 
   @IsString()

@@ -10,10 +10,6 @@
         "./openAPI.json",
         "../openapi-paths/src/OpenAPI.gen.ts"
       ]
-    },
-    "gen-files-only-watch": {
-      "cache": false,
-      "persistent": true
     }
   }
 }

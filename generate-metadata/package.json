@@ -18,7 +18,7 @@
     "@nestjs/swagger": "^11.2.0",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.13.5",
-    "@types/node": "^24.3.0"
+    "@types/node": "^24.3.2"
   },
   "devDependencies": {
     "chokidar-cli": "^3.0.0"

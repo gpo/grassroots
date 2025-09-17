@@ -10,12 +10,12 @@
   "bugs": {
     "url": "https://github.com/gpo/grassroots/issues"
   },
-  "type": "module",
   "homepage": "https://github.com/gpo/grassroots#readme",
   "scripts": {
     "prepare": "husky",
     "test": "turbo test",
-    "dev-watch": "concurrently \"turbo gen-files-only-watch\" \"turbo --parallel build-watch --filter=generate-metadata --filter=grassroots-shared --filter=grassroots-shared-net --filter=openapi-paths\"",
+    "//watch-deps": "# e.g., 'pnpm run build grassroots-backend-e2etests' will watch and rebuild all dependencies of grassroots-backend-e2etests, but not the target itself.",
+    "watch-deps": "pnpm exec ts-node --compiler-options '{\"module\":\"CommonJS\"}' watch-deps.ts",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "check": "turbo tsc && turbo lint "
@@ -25,7 +25,9 @@
     "@eslint/compat": "^1.2.8",
     "@eslint/js": "^9.27.0",
     "@tanstack/eslint-plugin-router": "^1.115.0",
+    "@types/node": "^24.3.2",
     "@vitest/eslint-plugin": "^1.3.4",
+    "chokidar": "^4.0.3",
     "concurrently": "^9.1.2",
     "eslint": "^9.33.0",
     "eslint-config-prettier": "^10.1.2",
@@ -41,6 +43,7 @@
     "prettier": "^3.6.2",
     "react": "^19.0.0",
     "syncpack": "^13.0.4",
+    "ts-node": "^10.9.2",
     "turbo": "^2.5.6",
     "typescript-eslint": "8.32.1"
   },
