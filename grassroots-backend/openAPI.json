@@ -304,7 +304,7 @@
       "RoleDTO": {
         "properties": {
           "id": {
-            "minimum": 15,
+            "minimum": 1,
             "type": "number"
           },
           "name": {
