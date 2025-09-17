@@ -5,6 +5,7 @@ graph TD
 	LRHC("grassroots-backend#build") --> GLAO("grassroots-shared#build")
 	LRHC("grassroots-backend#build") --> VELR("grassroots-shared#tsc")
 	TXWC("grassroots-backend#gen-files-only") --> GLAO("grassroots-shared#build")
+	TXWC("grassroots-backend#gen-files-only") --> VELR("grassroots-shared#tsc")
 	WCIN("grassroots-backend#tsc") --> VELR("grassroots-shared#tsc")
 	TPBW("grassroots-backend-e2etests#build") --> LRHC("grassroots-backend#build")
 	TPBW("grassroots-backend-e2etests#build") --> WCIN("grassroots-backend#tsc")

@@ -1,16 +1,10 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
     "docs": {
-      "outputs": [
-        "docs/**"
-      ],
-      "dependsOn": [
-        "build"
-      ]
+      "outputs": ["docs/**"],
+      "dependsOn": ["build"]
     }
   }
 }
