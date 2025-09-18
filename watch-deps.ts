@@ -85,31 +85,10 @@ void (async function main(): Promise<void> {
 
   const grassrootsShared = taskGraph.get("grassroots-shared")!;
 
-  console.log(grassrootsShared.inputs);
-
-  /*const grassrootsSharedWatcher = watch(["/app/grassroots-shared/src"], {
-    usePolling: true,
-    depth: 99,
-    atomic: false,
-  })
-    .on("all", (event, path) => {
-      console.log(`${event} in ${path}`);
-    })
-    .on("error", (err) => {
-      throw new Error("watcher error:" + String(err));
-    });
-
-  grassrootsSharedWatcher.on("ready", () => {
-    console.log("ready");
-    console.log("watched paths:", grassrootsSharedWatcher.getWatched());
-  });
-
-  console.log("DONE WATCHING");*/
-
   // We currently assume that dto modification will always update src/metadata.ts.
   // This lets us avoid a double update in grassroots-shared on dto updates, but
   // does risk things getting stale when a dto update doesn't impact src/metadata.ts.
-  const grassrootsSharedWatcher = watch(grassrootsShared.inputs, {
+  watch(grassrootsShared.inputs, {
     ignoreInitial: true,
     ignored: "/app/grassroots-shared/dtos",
     awaitWriteFinish: true,
@@ -119,13 +98,6 @@ void (async function main(): Promise<void> {
       cwd: "/app/grassroots-shared",
     });
     void asyncSpawn("pnpm", ["run", "tsc"], { cwd: "/app/grassroots-shared" });
-  });
-
-  grassrootsSharedWatcher.on("ready", () => {
-    console.log(
-      "Grassroots shared watcher watching : ",
-      grassrootsSharedWatcher.getWatched(),
-    );
   });
 
   void asyncSpawn("pnpm", ["run", "build-watch"], {
