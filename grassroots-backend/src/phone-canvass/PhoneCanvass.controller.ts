@@ -13,7 +13,6 @@ export class PhoneCanvassController {
   async create(
     @Body() canvas: CreatePhoneCanvassRequestDTO,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    console.log("create controller");
     return await this.phoneCanvassService.create(canvas);
   }
 }

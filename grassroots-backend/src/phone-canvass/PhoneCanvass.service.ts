@@ -17,7 +17,6 @@ export class PhoneCanvassService {
   async create(
     canvass: CreatePhoneCanvassRequestDTO,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    console.log("CREATING");
     const canvassEntity = this.repo.create(canvass);
     await this.entityManager.flush();
     console.log(canvassEntity);
