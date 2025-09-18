@@ -5,7 +5,9 @@
   "main": "GenerateMetadata.js",
   "type": "module",
   "scripts": {
-    "build": "rm -f /app/grassroots-backend/src/grassroots-shared/metadata.ts && swc src --strip-leading-paths --out-dir dist && node dist/GenerateMetadata.js"
+    "gen-metadata": "swc src --strip-leading-paths --out-dir dist && node dist/GenerateMetadata.js",
+    "build-watch": "concurrently -k -n SWC,NODE \"swc src --strip-leading-paths --out-dir dist --watch \"  \"chokidar dist/GenerateMetadata.js \"../grassroots-shared/src/dtos/*\" -c 'node dist/GenerateMetadata.js'\"",
+    "clean": "rm -f ../grassroots-shared/src/metadata.ts && rm -rf dist && rm -rf .turbo && rm -rf /app/.turbo"
   },
   "keywords": [],
   "author": "",
@@ -16,6 +18,9 @@
     "@nestjs/swagger": "^11.2.0",
     "@swc/cli": "^0.6.0",
     "@swc/core": "^1.13.5",
-    "@types/node": "^24.3.0"
+    "@types/node": "^24.3.2"
+  },
+  "devDependencies": {
+    "chokidar-cli": "^3.0.0"
   }
 }

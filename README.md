@@ -3,6 +3,12 @@
 Political Campaign Software focused on voter outreach and volunteer
 management.
 
+# Note on building:
+
+Currently, we build dependencies via `turbo build`, and use `pnpm run start` to run
+the backend or frontend in watch mode. If a dependency changes, you need to `turbo build` again.
+This isn't great, and we plan to improve it.
+
 # Recommended Development Setup
 
 Install:
@@ -54,7 +60,7 @@ docker compose up
 cd docker
 docker compose exec grassroots_dev bash
 cd grassroots-frontend
-npm run start
+pnpm run start
 ```
 
 ## 6. In another terminal, set up and run the backend application in the same `grassroots_dev` Docker container
@@ -64,7 +70,7 @@ cd docker
 docker compose exec grassroots_dev bash
 cd grassroots-backend
 pnpm exec mikro-orm-esm migration:up
-npm run start
+pnpm run start
 ```
 
 ## 7. Install the SSL certificate

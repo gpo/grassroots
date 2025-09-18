@@ -1,0 +1,12 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["grassroots-backend#gen-files-only"]
+    },
+    "tsc": {
+      "dependsOn": ["grassroots-backend#gen-files-only"]
+    }
+  }
+}

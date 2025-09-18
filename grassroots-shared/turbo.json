@@ -1,0 +1,14 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["generate-metadata#gen-metadata"],
+      "outputs": ["dist/**/*.js", "dist/**/*.js.map"]
+    },
+    "tsc": {
+      "dependsOn": ["generate-metadata#gen-metadata"],
+      "outputs": ["dist/**/*.d.ts", "dist/**/*.d.ts.map"]
+    }
+  }
+}
