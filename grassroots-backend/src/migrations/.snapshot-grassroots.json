@@ -101,6 +101,7 @@
             "id"
           ],
           "referencedTableName": "public.organization_entity",
+          "createForeignKeyConstraint": true,
           "deleteRule": "set null",
           "updateRule": "cascade"
         }
@@ -204,9 +205,41 @@
             "id"
           ],
           "referencedTableName": "public.organization_entity",
+          "createForeignKeyConstraint": true,
           "updateRule": "cascade"
         }
       },
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "gen_random_uuid()",
+          "mappedType": "uuid"
+        }
+      },
+      "name": "phone_canvass_entity",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "phone_canvass_entity_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {},
       "nativeEnums": {}
     },
     {
@@ -354,6 +387,7 @@
             "id"
           ],
           "referencedTableName": "public.user_entity",
+          "createForeignKeyConstraint": true,
           "updateRule": "cascade"
         },
         "user_role_entity_organization_id_foreign": {
@@ -366,6 +400,7 @@
             "id"
           ],
           "referencedTableName": "public.organization_entity",
+          "createForeignKeyConstraint": true,
           "updateRule": "cascade"
         }
       },

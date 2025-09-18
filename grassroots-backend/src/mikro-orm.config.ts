@@ -6,6 +6,7 @@ import { ContactEntity } from "./contacts/entities/Contact.entity.js";
 import dotenvFlow from "dotenv-flow";
 import { getEnvFilePaths } from "./GetEnvFilePaths.js";
 import { OrganizationEntity } from "./organizations/Organization.entity.js";
+import { PhoneCanvassEntity } from "./phone-canvass/entities/PhoneCanvass.entity.js";
 dotenvFlow.config({
   // Reversed so that earlier files take priority, to align with the ConfigModule.
   files: getEnvFilePaths().reverse(),
@@ -14,7 +15,7 @@ dotenvFlow.config({
 export default defineConfig({
   metadataCache: { enabled: false },
   driver: PostgreSqlDriver,
-  entities: [ContactEntity, UserEntity, OrganizationEntity],
+  entities: [ContactEntity, UserEntity, OrganizationEntity, PhoneCanvassEntity],
   host: process.env.POSTGRES_HOST,
   port: Number(process.env.POSTGRES_PORT),
   user: process.env.POSTGRES_USER,

@@ -25,6 +25,10 @@ export default async () => {
     ["../../grassroots-shared/dist/dtos/Role.dto.js"]: await import(
       "../../grassroots-shared/dist/dtos/Role.dto.js"
     ),
+    ["../../grassroots-shared/dist/dtos/PhoneCanvass/PhoneCanvass.dto.js"]:
+      await import(
+        "../../grassroots-shared/dist/dtos/PhoneCanvass/PhoneCanvass.dto.js"
+      ),
   };
   return {
     "@nestjs/swagger": {
@@ -156,6 +160,18 @@ export default async () => {
               findAll: {
                 type: t["../../grassroots-shared/dist/dtos/Role.dto.js"]
                   .RolesDTO,
+              },
+            },
+          },
+        ],
+        [
+          import("./phone-canvass/PhoneCanvass.controller.js"),
+          {
+            PhoneCanvassController: {
+              create: {
+                type: t[
+                  "../../grassroots-shared/dist/dtos/PhoneCanvass/PhoneCanvass.dto.js"
+                ].CreatePhoneCanvassResponseDTO,
               },
             },
           },
