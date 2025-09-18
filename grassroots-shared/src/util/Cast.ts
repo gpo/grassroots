@@ -11,5 +11,6 @@ export function cast<T extends object>(
   if (validationErrors.length > 0) {
     throw new Error(validationErrors.join("\n"));
   }
+
   return instance;
 }

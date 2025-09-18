@@ -1,10 +1,23 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
     "gen-metadata": {
-      "inputs": ["../grassroots-shared/src/dtos/*"],
-      "outputs": ["../grassroots-shared/src/metadata.ts"]
+      "inputs": [
+        "../grassroots-shared/src/dtos/*"
+      ],
+      "outputs": [
+        "../grassroots-shared/src/metadata.ts"
+      ],
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "gen-metadata-watch": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

@@ -15,7 +15,9 @@
   "scripts": {
     "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
     "build": "nest build",
+    "build-watch": "swc src --strip-leading-paths --out-dir dist --watch",
     "tsc": "tsc -p tsconfig.buildwithtypes.json",
+    "tsc-watch": "tsc -p tsconfig.buildwithtypes.json --watch --preserveWatchOutput",
     "start": "nest start --watch",
     "start:prod": "node dist-build/Main",
     "gen-files-only": "nest start -- --gen-files-only",

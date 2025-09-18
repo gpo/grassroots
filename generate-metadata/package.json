@@ -5,8 +5,10 @@
   "main": "GenerateMetadata.js",
   "type": "module",
   "scripts": {
-    "gen-metadata": "swc src --strip-leading-paths --out-dir dist && node dist/GenerateMetadata.js",
-    "build-watch": "concurrently -k -n SWC,NODE \"swc src --strip-leading-paths --out-dir dist --watch \"  \"chokidar dist/GenerateMetadata.js \"../grassroots-shared/src/dtos/*\" -c 'node dist/GenerateMetadata.js'\"",
+    "gen-metadata": "node dist/GenerateMetadata.js",
+    "gen-metadata-watch": "node dist/GenerateMetadata.js --watch",
+    "build": "swc src --strip-leading-paths --out-dir dist",
+    "build-watch": "swc src --strip-leading-paths --out-dir dist --watch",
     "clean": "rm -f ../grassroots-shared/src/metadata.ts && rm -rf dist && rm -rf .turbo && rm -rf /app/.turbo"
   },
   "keywords": [],
@@ -21,6 +23,7 @@
     "@types/node": "^24.3.2"
   },
   "devDependencies": {
+    "chokidar": "^4.0.3",
     "chokidar-cli": "^3.0.0"
   }
 }
