@@ -371,6 +371,40 @@
           ]
         }
       ]
+    },
+    {
+      "name": "public.phone_canvass_entity",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "default": "gen_random_uuid()"
+        }
+      ],
+      "indexes": [
+        {
+          "name": "phone_canvass_entity_pkey",
+          "def": "CREATE UNIQUE INDEX phone_canvass_entity_pkey ON public.phone_canvass_entity USING btree (id)",
+          "table": "public.phone_canvass_entity",
+          "columns": [
+            "id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "phone_canvass_entity_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.phone_canvass_entity",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        }
+      ]
     }
   ],
   "relations": [

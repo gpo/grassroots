@@ -22,6 +22,7 @@ import { Pool } from "pg";
 import { notNull } from "grassroots-shared/util/NotNull";
 import { OrganizationsModule } from "../organizations/Organizations.module.js";
 import { UserDTO } from "grassroots-shared/dtos/User.dto";
+import { PhoneCanvassModule } from "../phone-canvass/PhoneCanvass.module.js";
 
 export async function listenAndConfigureApp(
   app: NestExpressApplication,
@@ -131,6 +132,7 @@ export async function listenAndConfigureApp(
     AuthModule,
     PassportModuleImport(),
     OrganizationsModule,
+    PhoneCanvassModule,
   ],
   controllers: [AppController],
   providers: [AppService],

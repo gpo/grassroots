@@ -157,6 +157,40 @@
         "required": ["name", "abbreviatedName", "description", "parentID"],
         "type": "object"
       },
+      "CreatePhoneCanvasContactRequestDTO": {
+        "properties": {
+          "contact": {
+            "$ref": "#/components/schemas/CreateContactRequestDTO"
+          },
+          "metadata": {
+            "format": "json",
+            "type": "string"
+          }
+        },
+        "required": ["contact", "metadata"],
+        "type": "object"
+      },
+      "CreatePhoneCanvassRequestDTO": {
+        "properties": {
+          "contacts": {
+            "items": {
+              "$ref": "#/components/schemas/CreatePhoneCanvasContactRequestDTO"
+            },
+            "type": "array"
+          }
+        },
+        "required": ["contacts"],
+        "type": "object"
+      },
+      "CreatePhoneCanvassResponseDTO": {
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": ["id"],
+        "type": "object"
+      },
       "GetContactByIDResponseDTO": {
         "properties": {
           "contact": {
@@ -1043,6 +1077,45 @@
           }
         },
         "tags": ["Organizations"]
+      }
+    },
+    "/phone-canvass": {
+      "post": {
+        "operationId": "PhoneCanvassController_create",
+        "parameters": [],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePhoneCanvassRequestDTO"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreatePhoneCanvassResponseDTO"
+                }
+              }
+            },
+            "description": ""
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorOutDTO"
+                }
+              }
+            },
+            "description": "Validation failed"
+          }
+        },
+        "tags": ["PhoneCanvass"]
       }
     },
     "/roles": {
