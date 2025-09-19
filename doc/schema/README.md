@@ -9,6 +9,7 @@
 | [public.organization_entity](public.organization_entity.md)   | 5       |         | BASE TABLE |
 | [public.contact_entity](public.contact_entity.md)             | 6       |         | BASE TABLE |
 | [public.user_role_entity](public.user_role_entity.md)         | 5       |         | BASE TABLE |
+| [public.phone_canvass_entity](public.phone_canvass_entity.md) | 1       |         | BASE TABLE |
 
 ## Relations
 
@@ -53,6 +54,9 @@ erDiagram
   integer _role_id
   integer organization_id FK
   boolean inherited
+}
+"public.phone_canvass_entity" {
+  uuid id
 }
 ```
 
