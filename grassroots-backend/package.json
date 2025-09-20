@@ -8,8 +8,8 @@
   "type": "module",
   "exports": {
     "./*": {
-      "require": "./dist-build/*.js",
-      "import": "./dist-build/*.js"
+      "require": "./src/*.ts",
+      "import": "./src/*.ts"
     }
   },
   "scripts": {

@@ -255,6 +255,22 @@ export interface paths {
     patch?: never;
     trace?: never;
   };
+  "/phone-canvass": {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    get?: never;
+    put?: never;
+    post: operations["PhoneCanvassController_create"];
+    delete?: never;
+    options?: never;
+    head?: never;
+    patch?: never;
+    trace?: never;
+  };
   "/roles": {
     parameters: {
       query?: never;
@@ -367,6 +383,17 @@ export interface components {
       description: string;
       name: string;
       parentID: number;
+    };
+    CreatePhoneCanvasContactRequestDTO: {
+      contact: components["schemas"]["CreateContactRequestDTO"];
+      /** Format: json */
+      metadata: string;
+    };
+    CreatePhoneCanvassRequestDTO: {
+      contacts: components["schemas"]["CreatePhoneCanvasContactRequestDTO"][];
+    };
+    CreatePhoneCanvassResponseDTO: {
+      id: string;
     };
     GetContactByIDResponseDTO: {
       contact: components["schemas"]["ContactDTO"] | null;
@@ -973,6 +1000,38 @@ export interface operations {
         };
         content: {
           "application/json": components["schemas"]["OrganizationDTO"];
+        };
+      };
+      /** @description Validation failed */
+      401: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["ValidationErrorOutDTO"];
+        };
+      };
+    };
+  };
+  PhoneCanvassController_create: {
+    parameters: {
+      query?: never;
+      header?: never;
+      path?: never;
+      cookie?: never;
+    };
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["CreatePhoneCanvassRequestDTO"];
+      };
+    };
+    responses: {
+      201: {
+        headers: {
+          [name: string]: unknown;
+        };
+        content: {
+          "application/json": components["schemas"]["CreatePhoneCanvassResponseDTO"];
         };
       };
       /** @description Validation failed */
