@@ -8,6 +8,7 @@
   "exclude": [
     "src/testing/typetests/**",
     "vitest.config.ts",
-    "src/mikro-orm.config.ts"
+    "src/mikro-orm.config.ts",
+    "src/FormattedMetadata.gen.ts"
   ]
 }

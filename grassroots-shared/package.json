@@ -16,9 +16,9 @@
   "composite": true,
   "exports": {
     "./*": {
-      "types": "./src/*.ts",
       "require": "./dist/*.js",
-      "import": "./dist/*.js"
+      "import": "./dist/*.js",
+      "types": "./src/*.ts"
     }
   },
   "dependencies": {

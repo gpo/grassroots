@@ -4,24 +4,15 @@
     "//"
   ],
   "tasks": {
-    "build": {
-      "dependsOn": [
-        "generate-metadata#gen-metadata"
-      ],
-      "outputs": [
-        "dist/**/*.js",
-        "dist/**/*.js.map"
-      ]
-    },
     "gen-files-only": {
       "dependsOn": [
-        "^build",
-        "^tsc"
+        "^build"
       ],
       "outputs": [
         "src/metadata.ts",
         "./openAPI.json",
-        "../openapi-paths/src/OpenAPI.gen.ts"
+        "../openapi-paths/src/OpenAPI.gen.ts",
+        "src/FormattedMetadata.gen.ts"
       ]
     }
   }

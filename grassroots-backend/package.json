@@ -14,6 +14,7 @@
     }
   },
   "scripts": {
+    "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
     "build": "nest build",
     "tsc": "tsc -p tsconfig.buildwithtypes.json",
     "start": "nest start --watch",

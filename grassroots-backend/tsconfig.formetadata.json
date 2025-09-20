@@ -4,6 +4,7 @@
     "src/testing/typetests/**",
     "vitest.config.ts",
     "src/mikro-orm.config.ts",
-    "src/Main.ts"
+    "src/Main.ts",
+    "src/FormattedMetadata.gen.ts"
   ]
 }
