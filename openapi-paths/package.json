@@ -3,12 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
-    "build": "swc src --strip-leading-paths --out-dir dist --config-file=../.swcrc",
-    "build-watch": "swc src --strip-leading-paths --out-dir dist --config-file=../.swcrc --watch",
-    "tsc": "tsc",
-    "tsc-watch": "tsc --watch",
-    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo"
+    "test": "echo \"Error: no test specified\" && exit 0"
   },
   "keywords": [],
   "private": true,
@@ -18,8 +13,9 @@
   "composite": true,
   "exports": {
     "./*": {
-      "require": "./dist/*.js",
-      "import": "./dist/*.js"
+      "require": "./src/**/*.ts",
+      "import": "./src/**/*.ts",
+      "types": "./src/**/*.ts"
     }
   },
   "dependencies": {

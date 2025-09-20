@@ -1,0 +1,33 @@
+{
+  "name": "openapi-metadata",
+  "version": "1.0.0",
+  "description": "",
+  "main": "GenerateMetadata.js",
+  "type": "module",
+  "scripts": {
+    "build-tooling": "swc src --strip-leading-paths --out-dir dist-tooling --config-file=../.swcrc",
+    "gen-metadata": "node dist-tooling/GenerateMetadata.js",
+    "clean": "rm -rf gen && rm -rf dist && rm -rf .turbo && rm -rf /app/.turbo"
+  },
+  "exports": {
+    "./*": {
+      "require": "./gen/**/*.ts",
+      "import": "./gen/**/*.ts",
+      "types": "./gen/**/*.ts"
+    }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@10.11.0",
+  "dependencies": {
+    "@nestjs/cli": "^11.0.10",
+    "@nestjs/swagger": "^11.2.0",
+    "@swc/cli": "^0.6.0",
+    "@swc/core": "^1.13.5",
+    "@types/node": "^24.3.2"
+  },
+  "devDependencies": {
+    "chokidar-cli": "^3.0.0"
+  }
+}

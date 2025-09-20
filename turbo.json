@@ -1,41 +1,42 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
-    "test": {
-      "dependsOn": ["^build", "^tsc"]
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**/*.js",
+        "dist/**/*.js.map"
+      ]
     },
+    "test": {},
     "test:watch": {
       "cache": false,
       "persistent": true
     },
-    "build": {
-      "dependsOn": ["^build", "^tsc"],
-      "outputs": [
-        "dist/**/*.js",
-        "dist/**/*.js.map",
-        "dist-build/**/*.js",
-        "dist-build/**/*.js.map"
-      ]
-    },
-    "tsc": {
-      "dependsOn": ["^tsc"],
-      "outputs": [
-        "dist/**/*.d.ts",
-        "dist/**/*.d.ts.map",
-        "dist-build/**/*.d.ts",
-        "dist-build/**/*.d.ts.map"
-      ]
-    },
     "clean": {
-      "dependsOn": ["^clean"],
+      "dependsOn": [
+        "^clean"
+      ],
       "cache": false
     },
     "start": {
       "persistent": true,
       "cache": false
     },
+    "build-tooling": {
+      "outputs": [
+        "dist-tooling"
+      ],
+      "inputs": [
+        "src"
+      ]
+    },
     "lint": {
-      "dependsOn": ["eslint_rules#build"]
+      "dependsOn": [
+        "eslint_rules#build"
+      ]
     }
   }
 }

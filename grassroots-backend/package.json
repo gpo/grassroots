@@ -8,23 +8,23 @@
   "type": "module",
   "exports": {
     "./*": {
-      "require": "./dist-build/*.js",
-      "import": "./dist-build/*.js"
+      "require": "./src/**/*.ts",
+      "import": "./src/**/*.ts",
+      "types": "./src/**/*.ts"
     }
   },
   "scripts": {
-    "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
     "build": "nest build",
     "tsc": "tsc -p tsconfig.buildwithtypes.json",
     "start": "nest start --watch",
-    "start:prod": "node dist-build/Main",
+    "start:prod": "node dist/Main",
     "gen-files-only": "nest start -- --gen-files-only",
     "gen-files-only-watch": "chokidar ../grassroots-shared/dist/metadata.js -c \"nest start -- --gen-files-only\"",
-    "debug": "pnpm run build && node --inspect dist-build/Main",
+    "debug": "pnpm run build && node --inspect dist/Main",
     "test:tstyche": "pnpm exec tstyche",
     "test": "vitest run",
     "test-watch": "vitest watch",
-    "clean": "rm -rf .turbo && rm -rf dist && rm -rf dist-build && rm -f *.tsbuildinfo && rm -rf /app/.turbo"
+    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.5.2",

@@ -9,6 +9,7 @@ import {
   Unique,
 } from "@mikro-orm/core";
 import { OrganizationDTO } from "grassroots-shared/dtos/Organization.dto";
+
 import { createEntityBase } from "../util/CreateEntityBase.js";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { OrganizationRepository } from "./Organization.repo.js";

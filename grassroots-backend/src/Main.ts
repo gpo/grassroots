@@ -83,16 +83,6 @@ async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
   performance.measure("writeOpenAPI");
 }
 
-async function writeFormattedMetadata(): Promise<void> {
-  const metadataPath = "./src/metadata.ts";
-  const formattedMetadataPath = "./src/FormattedMetadata.gen.ts";
-  const metadataTs = await readFile(metadataPath, "utf8");
-  await writeFormatted({
-    filePath: formattedMetadataPath,
-    text: metadataTs,
-  });
-}
-
 async function createMikroORMMigration(
   app: NestExpressApplication,
 ): Promise<void> {
@@ -128,7 +118,6 @@ async function bootstrap(port: number): Promise<void> {
       filePath: "../docs/DependencyGraph.md",
       text: graphDependencies(app),
     }),
-    writeFormattedMetadata(),
     createMikroORMMigration(app),
   ];
 

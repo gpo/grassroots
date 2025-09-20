@@ -1,12 +1,25 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": ["//"],
+  "extends": [
+    "//"
+  ],
   "tasks": {
+    "build": {
+      "dependsOn": [
+        "generate-metadata#gen-metadata"
+      ],
+      "outputs": [
+        "dist/**/*.js",
+        "dist/**/*.js.map"
+      ]
+    },
     "gen-files-only": {
-      "dependsOn": ["^build", "^tsc"],
+      "dependsOn": [
+        "^build",
+        "^tsc"
+      ],
       "outputs": [
         "src/metadata.ts",
-        "src/FormattedMetadata.gen.ts",
         "./openAPI.json",
         "../openapi-paths/src/OpenAPI.gen.ts"
       ]

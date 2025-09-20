@@ -3,7 +3,7 @@ packages:
   - grassroots-backend-e2etests
   - grassroots-frontend
   - eslint_rules
-  - generate-metadata
+  - openapi-metadata
   - grassroots-shared
   - grassroots-shared-net
   - openapi-paths
