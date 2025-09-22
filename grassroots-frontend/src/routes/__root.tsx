@@ -31,16 +31,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             <RoutedLink to="/">Home</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
-            <RoutedLink to="/CreateContact">Create Contact</RoutedLink>
-          </AppShell.Section>
-          <AppShell.Section>
-            <RoutedLink to="/Search">Search Contacts</RoutedLink>
-          </AppShell.Section>
-          <AppShell.Section>
-            <RoutedLink to="/Users">Users</RoutedLink>
-          </AppShell.Section>
-          <AppShell.Section>
-            <RoutedLink to="/Me">Your Dashboard</RoutedLink>
+            <RoutedLink to="/CreatePhoneCanvass">
+              Create Phone Canvass
+            </RoutedLink>
           </AppShell.Section>
           <AppShell.Section grow component={ScrollArea}></AppShell.Section>
         </AppShell.Navbar>
