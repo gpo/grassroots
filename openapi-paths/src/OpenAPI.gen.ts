@@ -323,123 +323,28 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ContactDTO: {
-      /** Format: email */
-      email: string;
-      firstName: string;
-      id: number;
-      lastName: string;
-      organization: components["schemas"]["OrganizationDTO"];
-      phoneNumber: string;
-    };
-    ContactSearchRequestDTO: {
-      email?: string;
-      firstName?: string;
-      id?: number;
-      lastName?: string;
-      organizationId?: number;
-      phoneNumber?: string;
-    };
-    ContactsDTO: {
-      contacts: components["schemas"]["ContactDTO"][];
-    };
-    CreateBulkContactRequestDTO: {
-      contacts: components["schemas"]["CreateContactRequestDTO"][];
-    };
-    CreateBulkContactResponseDTO: {
-      ids: number[];
-    };
-    CreateContactRequestDTO: {
-      /** Format: email */
-      email: string;
-      firstName: string;
-      lastName: string;
-      organizationId: number;
-      phoneNumber: string;
-    };
-    CreateOrganizationNoParentRequestDTO: {
-      abbreviatedName: string;
-      description: string;
-      name: string;
-    };
-    CreateOrganizationRequestDTO: {
-      abbreviatedName: string;
-      description: string;
-      name: string;
-      parentID: number;
-    };
-    GetContactByIDResponseDTO: {
-      contact: components["schemas"]["ContactDTO"] | null;
-    };
-    HelloOutDTO: {
-      message: string;
-    };
-    LoginStateDTO: {
-      user?: components["schemas"]["UserDTO"];
-    };
-    OrganizationDTO: {
-      abbreviatedName: string;
-      description: string;
-      id: number;
-      name: string;
-      parentId?: number;
-    };
-    OrganizationReferenceDTO: {
-      id: number;
-    };
-    OrganizationsDTO: {
-      organizations: components["schemas"]["OrganizationDTO"][];
-    };
-    PaginatedContactResponseDTO: {
-      contacts: components["schemas"]["ContactDTO"][];
-      paginated: components["schemas"]["PaginatedResponseDTO"];
-    };
-    PaginatedContactSearchRequestDTO: {
-      contact: components["schemas"]["ContactSearchRequestDTO"];
-      paginated: components["schemas"]["PaginatedRequestDTO"];
-    };
-    PaginatedRequestDTO: {
-      rowsToSkip: number;
-      rowsToTake: number;
-    };
-    PaginatedResponseDTO: {
-      rowsSkipped: number;
-      rowsTotal: number;
-    };
+    ContactDTO: Record<string, never>;
+    ContactsDTO: Record<string, never>;
+    CreateBulkContactRequestDTO: Record<string, never>;
+    CreateBulkContactResponseDTO: Record<string, never>;
+    CreateContactRequestDTO: Record<string, never>;
+    CreateOrganizationNoParentRequestDTO: Record<string, never>;
+    CreateOrganizationRequestDTO: Record<string, never>;
+    GetContactByIDResponseDTO: Record<string, never>;
+    HelloOutDTO: Record<string, never>;
+    LoginStateDTO: Record<string, never>;
+    OrganizationDTO: Record<string, never>;
+    OrganizationReferenceDTO: Record<string, never>;
+    OrganizationsDTO: Record<string, never>;
+    PaginatedContactResponseDTO: Record<string, never>;
+    PaginatedContactSearchRequestDTO: Record<string, never>;
     PermissionsDTO: {
       permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
     };
-    RoleDTO: {
-      id: number;
-      name: string;
-      permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
-    };
-    RolesDTO: {
-      roles: components["schemas"]["RoleDTO"][];
-    };
-    UserDTO: {
-      displayName?: string;
-      emails?: string[];
-      firstName?: string;
-      id: string;
-      lastName?: string;
-      userRoles?: components["schemas"]["UserRoleDTO"][];
-    };
-    UserRoleDTO: {
-      id?: number;
-      inherited: boolean;
-      organizationId: number;
-      role: components["schemas"]["RoleDTO"];
-      userId?: string;
-    };
-    UsersDTO: {
-      users: components["schemas"]["UserDTO"][];
-    };
-    ValidationErrorOutDTO: {
-      error: string;
-      message: string[];
-      statusCode: number;
-    };
+    RolesDTO: Record<string, never>;
+    UserDTO: Record<string, never>;
+    UsersDTO: Record<string, never>;
+    ValidationErrorOutDTO: Record<string, never>;
     VoidDTO: Record<string, never>;
   };
   responses: never;
@@ -1076,10 +981,7 @@ export interface operations {
   };
   UsersController_getUserPermissionsForOrg: {
     parameters: {
-      query: {
-        userId: string;
-        organizationId: number;
-      };
+      query?: never;
       header?: never;
       path?: never;
       cookie?: never;

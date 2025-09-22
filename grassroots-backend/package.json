@@ -14,7 +14,6 @@
     }
   },
   "scripts": {
-    "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
     "build": "nest build",
     "tsc": "tsc -p tsconfig.buildwithtypes.json",
     "start": "nest start --watch",
@@ -25,7 +24,7 @@
     "test:tstyche": "pnpm exec tstyche",
     "test": "vitest run",
     "test-watch": "vitest watch",
-    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo"
+    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo && rm src/metadata.ts && rm src/FormattedMetadata.ts"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.5.2",

@@ -2,290 +2,63 @@
   "components": {
     "schemas": {
       "ContactDTO": {
-        "properties": {
-          "email": {
-            "format": "email",
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "organization": {
-            "$ref": "#/components/schemas/OrganizationDTO"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "email",
-          "firstName",
-          "lastName",
-          "organization",
-          "phoneNumber"
-        ],
-        "type": "object"
-      },
-      "ContactSearchRequestDTO": {
-        "properties": {
-          "email": {
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "organizationId": {
-            "type": "number"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
+        "properties": {},
         "type": "object"
       },
       "ContactsDTO": {
-        "properties": {
-          "contacts": {
-            "items": {
-              "$ref": "#/components/schemas/ContactDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["contacts"],
+        "properties": {},
         "type": "object"
       },
       "CreateBulkContactRequestDTO": {
-        "properties": {
-          "contacts": {
-            "items": {
-              "$ref": "#/components/schemas/CreateContactRequestDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["contacts"],
+        "properties": {},
         "type": "object"
       },
       "CreateBulkContactResponseDTO": {
-        "properties": {
-          "ids": {
-            "items": {
-              "type": "number"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["ids"],
+        "properties": {},
         "type": "object"
       },
       "CreateContactRequestDTO": {
-        "properties": {
-          "email": {
-            "format": "email",
-            "type": "string"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "organizationId": {
-            "minimum": -1,
-            "type": "number"
-          },
-          "phoneNumber": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "email",
-          "firstName",
-          "lastName",
-          "phoneNumber",
-          "organizationId"
-        ],
+        "properties": {},
         "type": "object"
       },
       "CreateOrganizationNoParentRequestDTO": {
-        "properties": {
-          "abbreviatedName": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          }
-        },
-        "required": ["name", "abbreviatedName", "description"],
+        "properties": {},
         "type": "object"
       },
       "CreateOrganizationRequestDTO": {
-        "properties": {
-          "abbreviatedName": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "parentID": {
-            "minimum": 1,
-            "type": "number"
-          }
-        },
-        "required": ["name", "abbreviatedName", "description", "parentID"],
+        "properties": {},
         "type": "object"
       },
       "GetContactByIDResponseDTO": {
-        "properties": {
-          "contact": {
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/ContactDTO"
-              }
-            ],
-            "nullable": true
-          }
-        },
-        "required": ["contact"],
+        "properties": {},
         "type": "object"
       },
       "HelloOutDTO": {
-        "properties": {
-          "message": {
-            "type": "string"
-          }
-        },
-        "required": ["message"],
+        "properties": {},
         "type": "object"
       },
       "LoginStateDTO": {
-        "properties": {
-          "user": {
-            "$ref": "#/components/schemas/UserDTO"
-          }
-        },
+        "properties": {},
         "type": "object"
       },
       "OrganizationDTO": {
-        "properties": {
-          "abbreviatedName": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string"
-          },
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "parentId": {
-            "minimum": 1,
-            "type": "number"
-          }
-        },
-        "required": ["id", "name", "abbreviatedName", "description"],
+        "properties": {},
         "type": "object"
       },
       "OrganizationReferenceDTO": {
-        "properties": {
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          }
-        },
-        "required": ["id"],
+        "properties": {},
         "type": "object"
       },
       "OrganizationsDTO": {
-        "properties": {
-          "organizations": {
-            "items": {
-              "$ref": "#/components/schemas/OrganizationDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["organizations"],
+        "properties": {},
         "type": "object"
       },
       "PaginatedContactResponseDTO": {
-        "properties": {
-          "contacts": {
-            "items": {
-              "$ref": "#/components/schemas/ContactDTO"
-            },
-            "type": "array"
-          },
-          "paginated": {
-            "$ref": "#/components/schemas/PaginatedResponseDTO"
-          }
-        },
-        "required": ["contacts", "paginated"],
+        "properties": {},
         "type": "object"
       },
       "PaginatedContactSearchRequestDTO": {
-        "properties": {
-          "contact": {
-            "$ref": "#/components/schemas/ContactSearchRequestDTO"
-          },
-          "paginated": {
-            "$ref": "#/components/schemas/PaginatedRequestDTO"
-          }
-        },
-        "required": ["contact", "paginated"],
-        "type": "object"
-      },
-      "PaginatedRequestDTO": {
-        "properties": {
-          "rowsToSkip": {
-            "minimum": 0,
-            "type": "number"
-          },
-          "rowsToTake": {
-            "minimum": 1,
-            "type": "number"
-          }
-        },
-        "required": ["rowsToSkip", "rowsToTake"],
-        "type": "object"
-      },
-      "PaginatedResponseDTO": {
-        "properties": {
-          "rowsSkipped": {
-            "minimum": 0,
-            "type": "number"
-          },
-          "rowsTotal": {
-            "minimum": 0,
-            "type": "number"
-          }
-        },
-        "required": ["rowsSkipped", "rowsTotal"],
+        "properties": {},
         "type": "object"
       },
       "PermissionsDTO": {
@@ -301,120 +74,20 @@
         "required": ["permissions"],
         "type": "object"
       },
-      "RoleDTO": {
-        "properties": {
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "name": {
-            "type": "string"
-          },
-          "permissions": {
-            "items": {
-              "enum": ["VIEW_CONTACTS", "MANAGE_CONTACTS", "MANAGE_USERS"],
-              "type": "string"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["permissions", "id", "name"],
-        "type": "object"
-      },
       "RolesDTO": {
-        "properties": {
-          "roles": {
-            "items": {
-              "$ref": "#/components/schemas/RoleDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["roles"],
+        "properties": {},
         "type": "object"
       },
       "UserDTO": {
-        "properties": {
-          "displayName": {
-            "type": "string"
-          },
-          "emails": {
-            "items": {
-              "format": "email",
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "firstName": {
-            "type": "string"
-          },
-          "id": {
-            "type": "string"
-          },
-          "lastName": {
-            "type": "string"
-          },
-          "userRoles": {
-            "items": {
-              "$ref": "#/components/schemas/UserRoleDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["id"],
-        "type": "object"
-      },
-      "UserRoleDTO": {
-        "properties": {
-          "id": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "inherited": {
-            "type": "boolean"
-          },
-          "organizationId": {
-            "minimum": 1,
-            "type": "number"
-          },
-          "role": {
-            "$ref": "#/components/schemas/RoleDTO"
-          },
-          "userId": {
-            "type": "string"
-          }
-        },
-        "required": ["role", "organizationId", "inherited"],
+        "properties": {},
         "type": "object"
       },
       "UsersDTO": {
-        "properties": {
-          "users": {
-            "items": {
-              "$ref": "#/components/schemas/UserDTO"
-            },
-            "type": "array"
-          }
-        },
-        "required": ["users"],
+        "properties": {},
         "type": "object"
       },
       "ValidationErrorOutDTO": {
-        "properties": {
-          "error": {
-            "type": "string"
-          },
-          "message": {
-            "items": {
-              "type": "string"
-            },
-            "type": "array"
-          },
-          "statusCode": {
-            "type": "number"
-          }
-        },
-        "required": ["statusCode", "message", "error"],
+        "properties": {},
         "type": "object"
       },
       "VoidDTO": {
@@ -1145,25 +818,7 @@
     "/users/user-permissions-for-org": {
       "get": {
         "operationId": "UsersController_getUserPermissionsForOrg",
-        "parameters": [
-          {
-            "in": "query",
-            "name": "userId",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "in": "query",
-            "name": "organizationId",
-            "required": true,
-            "schema": {
-              "minimum": 1,
-              "type": "number"
-            }
-          }
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "content": {

@@ -4,7 +4,6 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import openapiTS, { astToString } from "openapi-typescript";
 import { stringify } from "safe-stable-stringify";
 import { MikroORM } from "@mikro-orm/core";
-import metadata from "./FormattedMetadata.gen.js";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import {
   addValidationErrorsToOpenAPI,
@@ -16,12 +15,19 @@ import { writeFormatted } from "./util/FormattingWriter.js";
 // Needs to show up somewhere for decorators to work.
 import "reflect-metadata";
 import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
-import { readFile } from "fs/promises";
+import { readFile, writeFile } from "fs/promises";
+import { watch } from "chokidar";
+import { existsSync } from "fs";
+import { LAST_DEPENDENCY_UPDATE_TIME } from "./util/LastDependencyUpdateTime.js";
+
+// This is updated when grassroots-shared is built when in watch mode, to trigger a reload.
+void LAST_DEPENDENCY_UPDATE_TIME;
 
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "../openapi-paths/src/OpenAPI.gen.ts";
 const METADATA_PATH = "./src/metadata.ts";
-const FIXED_METADATA_PATH = "./grassroots-backend/src/FormattedMetadata.gen.ts";
+const FIXED_METADATA_PATH = "./src/FormattedMetadata.gen.ts";
+const LAST_METADATA_PATH = "/tmp/lastmetadata.ts";
 
 async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
   performance.mark("writeOpenAPI");
@@ -31,6 +37,15 @@ async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
     .setVersion("0.0")
     .build();
 
+  if (!existsSync(METADATA_PATH)) {
+    // In watch mode, this will write the metadata, and then restart.
+    // Otherwise, we need to have run --gen-files-only before running.
+    // TODO
+    console.log("Missing metadata");
+    return;
+  }
+  await fixMetadataPaths();
+  const metadata = (await import("./FormattedMetadata.gen.js")).default;
   await SwaggerModule.loadPluginMetadata(metadata);
   const openAPI = SwaggerModule.createDocument(app, config, {
     autoTagControllers: true,
@@ -59,6 +74,7 @@ async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
     });
     console.log("Done updating OpenAPI Schema TS bindings");
   }
+
   performance.measure("writeOpenAPI");
 }
 
@@ -86,16 +102,21 @@ async function createMikroORMMigration(
 }
 
 async function fixMetadataPaths(): Promise<void> {
-  console.log("metadata.ts update");
+  let lastMetadata: string | null = null;
+  try {
+    lastMetadata = await readFile(LAST_METADATA_PATH, "utf8");
+  } catch {
+    /* empty */
+  }
+  let metadata = await readFile(METADATA_PATH, "utf8");
+  if (metadata === lastMetadata) {
+    return;
+  }
+  await writeFile(LAST_METADATA_PATH, metadata);
 
-  let metadataTs = await readFile(METADATA_PATH, "utf8");
   const importRegex = /import\("..\/..\/grassroots-shared\/src\/(.*)\.js"\)/g;
-  metadataTs = metadataTs.replaceAll(
-    importRegex,
-    'import("grassroots-shared/$1")',
-  );
-  await writeFormatted({ filePath: FIXED_METADATA_PATH, text: metadataTs });
-  console.log("WRITTEN fixed metadata");
+  metadata = metadata.replaceAll(importRegex, 'import("grassroots-shared/$1")');
+  await writeFormatted({ filePath: FIXED_METADATA_PATH, text: metadata });
 }
 
 async function bootstrap(port: number): Promise<void> {
@@ -111,7 +132,6 @@ async function bootstrap(port: number): Promise<void> {
       text: graphDependencies(app),
     }),
     createMikroORMMigration(app),
-    fixMetadataPaths(),
   ];
 
   await Promise.all(postStartupTasks);
@@ -122,7 +142,12 @@ async function bootstrap(port: number): Promise<void> {
     await app.close();
   }
 
-  watch(METADATA_PATH, { ignoreInitial: true }).on("all", fixMetadataPaths);
+  // Whenever we update the metadata.ts, we need to create a version with the paths fixed.
+  watch(METADATA_PATH, { ignoreInitial: true }).on("all", () => {
+    void (async (): Promise<void> => {
+      await fixMetadataPaths();
+    })();
+  });
 }
 
 const port = process.env.PORT !== undefined ? parseInt(process.env.PORT) : 3000;
