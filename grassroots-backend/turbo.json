@@ -1,13 +1,13 @@
 {
   "$schema": "https://turborepo.com/schema.json",
-  "extends": [
-    "//"
-  ],
+  "extends": ["//"],
   "tasks": {
+    "bootstrap-metadata": {
+      "outputs": ["src/FormattedMetadata.gen.ts"],
+      "cache": true
+    },
     "gen-files-only": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build", "bootstrap-metadata"],
       "outputs": [
         "src/metadata.ts",
         "./openAPI.json",
@@ -16,14 +16,8 @@
       ]
     },
     "build": {
-      "dependsOn": [
-        "^build",
-        "gen-files-only"
-      ],
-      "outputs": [
-        "dist/**/*.js",
-        "dist/**/*.js.map"
-      ]
+      "dependsOn": ["^build", "gen-files-only"],
+      "outputs": ["dist/**/*.js", "dist/**/*.js.map"]
     }
   }
 }

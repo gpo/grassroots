@@ -17,9 +17,8 @@
   "composite": true,
   "exports": {
     "./*": {
-      "require": "./src/**/*.ts",
-      "import": "./src/**/*.ts",
-      "types": "./src/**/*.ts"
+      "require": "./src/*.ts",
+      "import": "./src/*.ts"
     }
   },
   "dependencies": {

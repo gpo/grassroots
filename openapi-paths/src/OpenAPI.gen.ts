@@ -323,29 +323,15 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    ContactDTO: Record<string, never>;
-    ContactsDTO: Record<string, never>;
     CreateBulkContactRequestDTO: Record<string, never>;
-    CreateBulkContactResponseDTO: Record<string, never>;
     CreateContactRequestDTO: Record<string, never>;
     CreateOrganizationNoParentRequestDTO: Record<string, never>;
     CreateOrganizationRequestDTO: Record<string, never>;
-    GetContactByIDResponseDTO: Record<string, never>;
-    HelloOutDTO: Record<string, never>;
     LoginStateDTO: Record<string, never>;
-    OrganizationDTO: Record<string, never>;
     OrganizationReferenceDTO: Record<string, never>;
-    OrganizationsDTO: Record<string, never>;
-    PaginatedContactResponseDTO: Record<string, never>;
     PaginatedContactSearchRequestDTO: Record<string, never>;
-    PermissionsDTO: {
-      permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
-    };
-    RolesDTO: Record<string, never>;
     UserDTO: Record<string, never>;
-    UsersDTO: Record<string, never>;
     ValidationErrorOutDTO: Record<string, never>;
-    VoidDTO: Record<string, never>;
   };
   responses: never;
   parameters: never;
@@ -368,9 +354,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["HelloOutDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -396,9 +380,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["OrganizationDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -452,9 +434,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["VoidDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -480,9 +460,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["LoginStateDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -510,9 +488,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["VoidDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -538,9 +514,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["VoidDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -570,9 +544,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["VoidDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -598,9 +570,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["ContactsDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -630,9 +600,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["ContactDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -662,9 +630,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["CreateBulkContactResponseDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -694,9 +660,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["PaginatedContactResponseDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -724,9 +688,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["GetContactByIDResponseDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -752,9 +714,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["OrganizationsDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -784,9 +744,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["OrganizationDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -814,9 +772,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["OrganizationsDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -846,9 +802,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["OrganizationDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -876,9 +830,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["OrganizationDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -904,9 +856,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["RolesDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -932,9 +882,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["UsersDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -964,9 +912,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["UserDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {
@@ -992,9 +938,7 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content: {
-          "application/json": components["schemas"]["PermissionsDTO"];
-        };
+        content?: never;
       };
       /** @description Validation failed */
       401: {

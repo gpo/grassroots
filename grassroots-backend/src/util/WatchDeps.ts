@@ -8,10 +8,6 @@ import { execSync, spawn } from "child_process";
 import { watch } from "chokidar";
 import { writeFile } from "fs/promises";
 
-console.log(
-  "Note that you need to be running `pnpm start` in grassroots-backend for this to work.",
-);
-
 function asyncSpawn(
   bin: string,
   args: string[],
@@ -72,21 +68,23 @@ for (const task of tasks) {
 
 const grassrootsShared = taskGraph.get("grassroots-shared")!;
 
-watch(grassrootsShared.inputs, {
-  ignoreInitial: true,
-  awaitWriteFinish: true,
-}).on("all", (event, path) => {
-  void (async (): Promise<void> => {
-    console.log(`${event} in ${path}`);
-    void asyncSpawn("pnpm", ["run", "build"], {
-      cwd: "/app/grassroots-shared",
-    });
-    await writeFile(
-      "./grassroots-backend/src/util/LastDependencyUpdateTime.ts",
-      `
+export function WatchDeps(): void {
+  watch(grassrootsShared.inputs, {
+    ignoreInitial: true,
+    awaitWriteFinish: true,
+  }).on("all", (event, path) => {
+    void (async (): Promise<void> => {
+      console.log(`${event} in ${path}`);
+      void asyncSpawn("pnpm", ["run", "build"], {
+        cwd: "/app/grassroots-shared",
+      });
+      await writeFile(
+        "./src/util/LastDependencyUpdateTime.ts",
+        `
 // This file is updated when grassroots-shared is done building to trigger a rebuild in watch mode.
 export const LAST_DEPENDENCY_UPDATE_TIME = ${String(performance.now())}
 `,
-    );
-  })();
-});
+      );
+    })();
+  });
+}

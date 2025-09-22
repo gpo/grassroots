@@ -17,10 +17,16 @@ import "reflect-metadata";
 import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
 import { readFile, writeFile } from "fs/promises";
 import { watch } from "chokidar";
-import { existsSync } from "fs";
 import { LAST_DEPENDENCY_UPDATE_TIME } from "./util/LastDependencyUpdateTime.js";
+import { WatchDeps } from "./util/WatchDeps.js";
+import { argv } from "process";
 
-// This is updated when grassroots-shared is built when in watch mode, to trigger a reload.
+const watching = argv.includes("--watch") || argv.includes("-w");
+
+// If grassroots-shared changes, rebuild it, and update LAST_DEPENDENCY_UPDATE_TIME to trigger a reload.
+if (watching) {
+  WatchDeps();
+}
 void LAST_DEPENDENCY_UPDATE_TIME;
 
 const openAPISchemaPath = "./openAPI.json";
@@ -37,14 +43,8 @@ async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
     .setVersion("0.0")
     .build();
 
-  if (!existsSync(METADATA_PATH)) {
-    // In watch mode, this will write the metadata, and then restart.
-    // Otherwise, we need to have run --gen-files-only before running.
-    // TODO
-    console.log("Missing metadata");
-    return;
-  }
   await fixMetadataPaths();
+
   const metadata = (await import("./FormattedMetadata.gen.js")).default;
   await SwaggerModule.loadPluginMetadata(metadata);
   const openAPI = SwaggerModule.createDocument(app, config, {
@@ -101,12 +101,13 @@ async function createMikroORMMigration(
   }
 }
 
+// The nestjs metadata generator produces relative paths, but we need absolute paths.
 async function fixMetadataPaths(): Promise<void> {
   let lastMetadata: string | null = null;
   try {
     lastMetadata = await readFile(LAST_METADATA_PATH, "utf8");
   } catch {
-    /* empty */
+    /* This is the first time, that's fine. */
   }
   let metadata = await readFile(METADATA_PATH, "utf8");
   if (metadata === lastMetadata) {
@@ -114,8 +115,9 @@ async function fixMetadataPaths(): Promise<void> {
   }
   await writeFile(LAST_METADATA_PATH, metadata);
 
-  const importRegex = /import\("..\/..\/grassroots-shared\/src\/(.*)\.js"\)/g;
-  metadata = metadata.replaceAll(importRegex, 'import("grassroots-shared/$1")');
+  const importRegex =
+    /import\("(..\/..\/)?grassroots-shared\/src\/([^"]*)\.js"\)/g;
+  metadata = metadata.replaceAll(importRegex, 'import("grassroots-shared/$2")');
   await writeFormatted({ filePath: FIXED_METADATA_PATH, text: metadata });
 }
 
@@ -136,10 +138,9 @@ async function bootstrap(port: number): Promise<void> {
 
   await Promise.all(postStartupTasks);
 
-  console.timeEnd("generate files");
-
   if (process.argv.includes("--gen-files-only")) {
     await app.close();
+    return;
   }
 
   // Whenever we update the metadata.ts, we need to create a version with the paths fixed.
