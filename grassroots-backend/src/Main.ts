@@ -16,11 +16,12 @@ import { writeFormatted } from "./util/FormattingWriter.js";
 // Needs to show up somewhere for decorators to work.
 import "reflect-metadata";
 import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
+import { readFile } from "fs/promises";
 
 const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "../openapi-paths/src/OpenAPI.gen.ts";
-
-console.log(1);
+const METADATA_PATH = "./src/metadata.ts";
+const FIXED_METADATA_PATH = "./grassroots-backend/src/FormattedMetadata.gen.ts";
 
 async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
   performance.mark("writeOpenAPI");
@@ -84,6 +85,19 @@ async function createMikroORMMigration(
   }
 }
 
+async function fixMetadataPaths(): Promise<void> {
+  console.log("metadata.ts update");
+
+  let metadataTs = await readFile(METADATA_PATH, "utf8");
+  const importRegex = /import\("..\/..\/grassroots-shared\/src\/(.*)\.js"\)/g;
+  metadataTs = metadataTs.replaceAll(
+    importRegex,
+    'import("grassroots-shared/$1")',
+  );
+  await writeFormatted({ filePath: FIXED_METADATA_PATH, text: metadataTs });
+  console.log("WRITTEN fixed metadata");
+}
+
 async function bootstrap(port: number): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   await listenAndConfigureApp(app, port);
@@ -97,6 +111,7 @@ async function bootstrap(port: number): Promise<void> {
       text: graphDependencies(app),
     }),
     createMikroORMMigration(app),
+    fixMetadataPaths(),
   ];
 
   await Promise.all(postStartupTasks);
@@ -106,6 +121,8 @@ async function bootstrap(port: number): Promise<void> {
   if (process.argv.includes("--gen-files-only")) {
     await app.close();
   }
+
+  watch(METADATA_PATH, { ignoreInitial: true }).on("all", fixMetadataPaths);
 }
 
 const port = process.env.PORT !== undefined ? parseInt(process.env.PORT) : 3000;
