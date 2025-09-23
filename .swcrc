@@ -1,6 +1,5 @@
 {
   "$schema": "https://swc.rs/schema.json",
-  "exclude": ["src/FormattedMetadata.gen.ts"],
   "jsc": {
     "parser": {
       "syntax": "typescript",

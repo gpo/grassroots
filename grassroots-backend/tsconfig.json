@@ -1,13 +1,14 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "baseUrl": "."
   },
-  "include": ["src"],
+  "include": ["src", "types"],
   "exclude": [
     "src/testing/typetests/**",
     "vitest.config.ts",
     "src/mikro-orm.config.ts",
-    "src/FormattedMetadata.gen.ts"
+    "src/metadata.ts"
   ]
 }

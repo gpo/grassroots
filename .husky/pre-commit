@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
+turbo build --filter=eslint_rules
 pnpm exec lint-staged

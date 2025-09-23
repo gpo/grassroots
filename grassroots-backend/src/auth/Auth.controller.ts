@@ -10,7 +10,7 @@ import {
   Session,
 } from "@nestjs/common";
 import type { Response as ExpressResponse } from "express";
-import type { GrassrootsRequest } from "../types/GrassrootsRequest.js";
+import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
 import { ConfigService } from "@nestjs/config";
 import { LoginStateDTO } from "grassroots-shared/dtos/LoginState.dto";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";

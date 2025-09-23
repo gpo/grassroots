@@ -2,8 +2,9 @@
 **/dist
 **/dist-metadata
 **/dist-build
-grassroots-shared/src/metadata.ts
 grassroots-backend/src/metadata.ts
+grassroots-backend/src/FormattedMetadata.gen.ts
+
 .env.development.local
 .env.test.local
 .env.local

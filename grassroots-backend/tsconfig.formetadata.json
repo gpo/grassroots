@@ -1,13 +1,10 @@
 {
-  "extends": "../tsconfig.base.json",
-  "compilerOptions": {
-    "outDir": "./dist-build"
-  },
-  "include": ["src"],
+  "extends": "./tsconfig.json",
   "exclude": [
     "src/testing/typetests/**",
     "vitest.config.ts",
     "src/mikro-orm.config.ts",
+    "src/Main.ts",
     "src/FormattedMetadata.gen.ts"
   ]
 }
