@@ -8,15 +8,15 @@
   "type": "module",
   "exports": {
     "./*": {
-      "require": "./src/**/*.ts",
-      "import": "./src/**/*.ts",
-      "types": "./src/**/*.ts"
+      "require": "./src/*.ts",
+      "import": "./src/*.ts"
     }
   },
   "scripts": {
     "build": "nest build",
     "bootstrap-metadata": "echo 'export default async () => {return {}};' > src/FormattedMetadata.gen.ts",
     "tsc": "tsc -p tsconfig.buildwithtypes.json",
+    "type-check": "tsc -p tsconfig.json --noEmit",
     "start": "nest start --watch",
     "start:prod": "node dist/Main",
     "gen-files-only": "nest start -- --gen-files-only",

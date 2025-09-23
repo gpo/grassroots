@@ -6,7 +6,6 @@
     "test": "echo \"Error: no test specified\" && exit 0",
     "build": "swc src --strip-leading-paths --out-dir dist --config-file=../.swcrc",
     "build-watch": "swc src --strip-leading-paths --out-dir dist --config-file=../.swcrc --watch",
-    "type-check": "tsc --noEmit",
     "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo"
   },
   "keywords": [],
@@ -18,7 +17,8 @@
   "exports": {
     "./*": {
       "require": "./src/*.ts",
-      "import": "./src/*.ts"
+      "import": "./src/*.ts",
+      "types": "./src/*.ts"
     }
   },
   "dependencies": {

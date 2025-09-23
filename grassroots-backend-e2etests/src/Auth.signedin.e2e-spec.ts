@@ -6,7 +6,7 @@ import { AuthModule } from "grassroots-backend/auth/Auth.module";
 import { MOCK_AUTH_GUARD_USER } from "grassroots-backend/testing/MockAuthGuard";
 import { UsersModule } from "grassroots-backend/users/Users.module";
 import { useE2ETestFixture } from "./infra/E2eSetup.js";
-import { createOrganizationTree } from "grassroots-shared-net/CreateOrganizationTree";
+import { createOrganizationTree } from "grassroots-shared-net/devtools/CreateOrganizationTree";
 
 describe("AuthController (e2e) while signed in", () => {
   const getFixture = useE2ETestFixture({
@@ -34,6 +34,8 @@ describe("AuthController (e2e) while signed in", () => {
 
     const beforeSet = await f.grassrootsAPI.GET("/auth/active-org");
     expect(beforeSet.response.status).toBe(404);
+
+    const X = typeof f.grassrootsAPI;
 
     const { response } = await f.grassrootsAPI.POST("/auth/set-active-org", {
       body: { id: rootOrganizationId },

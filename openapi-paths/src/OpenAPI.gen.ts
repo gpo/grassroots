@@ -323,15 +323,124 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
   schemas: {
-    CreateBulkContactRequestDTO: Record<string, never>;
-    CreateContactRequestDTO: Record<string, never>;
-    CreateOrganizationNoParentRequestDTO: Record<string, never>;
-    CreateOrganizationRequestDTO: Record<string, never>;
-    LoginStateDTO: Record<string, never>;
-    OrganizationReferenceDTO: Record<string, never>;
-    PaginatedContactSearchRequestDTO: Record<string, never>;
-    UserDTO: Record<string, never>;
-    ValidationErrorOutDTO: Record<string, never>;
+    ContactDTO: {
+      /** Format: email */
+      email: string;
+      firstName: string;
+      id: number;
+      lastName: string;
+      organization: components["schemas"]["OrganizationDTO"];
+      phoneNumber: string;
+    };
+    ContactSearchRequestDTO: {
+      email?: string;
+      firstName?: string;
+      id?: number;
+      lastName?: string;
+      organizationId?: number;
+      phoneNumber?: string;
+    };
+    ContactsDTO: {
+      contacts: components["schemas"]["ContactDTO"][];
+    };
+    CreateBulkContactRequestDTO: {
+      contacts: components["schemas"]["CreateContactRequestDTO"][];
+    };
+    CreateBulkContactResponseDTO: {
+      ids: number[];
+    };
+    CreateContactRequestDTO: {
+      /** Format: email */
+      email: string;
+      firstName: string;
+      lastName: string;
+      organizationId: number;
+      phoneNumber: string;
+    };
+    CreateOrganizationNoParentRequestDTO: {
+      abbreviatedName: string;
+      description: string;
+      name: string;
+    };
+    CreateOrganizationRequestDTO: {
+      abbreviatedName: string;
+      description: string;
+      name: string;
+      parentID: number;
+    };
+    GetContactByIDResponseDTO: {
+      contact: components["schemas"]["ContactDTO"] | null;
+    };
+    HelloOutDTO: {
+      message: string;
+    };
+    LoginStateDTO: {
+      user?: components["schemas"]["UserDTO"];
+    };
+    OrganizationDTO: {
+      abbreviatedName: string;
+      description: string;
+      id: number;
+      name: string;
+      parentId?: number;
+    };
+    OrganizationReferenceDTO: {
+      id: number;
+    };
+    OrganizationsDTO: {
+      organizations: components["schemas"]["OrganizationDTO"][];
+    };
+    PaginatedContactResponseDTO: {
+      contacts: components["schemas"]["ContactDTO"][];
+      paginated: components["schemas"]["PaginatedResponseDTO"];
+    };
+    PaginatedContactSearchRequestDTO: {
+      contact: components["schemas"]["ContactSearchRequestDTO"];
+      paginated: components["schemas"]["PaginatedRequestDTO"];
+    };
+    PaginatedRequestDTO: {
+      rowsToSkip: number;
+      rowsToTake: number;
+    };
+    PaginatedResponseDTO: {
+      rowsSkipped: number;
+      rowsTotal: number;
+    };
+    PermissionsDTO: {
+      permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
+    };
+    RoleDTO: {
+      id: number;
+      name: string;
+      permissions: ("VIEW_CONTACTS" | "MANAGE_CONTACTS" | "MANAGE_USERS")[];
+    };
+    RolesDTO: {
+      roles: components["schemas"]["RoleDTO"][];
+    };
+    UserDTO: {
+      displayName?: string;
+      emails?: string[];
+      firstName?: string;
+      id: string;
+      lastName?: string;
+      userRoles?: components["schemas"]["UserRoleDTO"][];
+    };
+    UserRoleDTO: {
+      id?: number;
+      inherited: boolean;
+      organizationId: number;
+      role: components["schemas"]["RoleDTO"];
+      userId?: string;
+    };
+    UsersDTO: {
+      users: components["schemas"]["UserDTO"][];
+    };
+    ValidationErrorOutDTO: {
+      error: string;
+      message: string[];
+      statusCode: number;
+    };
+    VoidDTO: Record<string, never>;
   };
   responses: never;
   parameters: never;
@@ -354,7 +463,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["HelloOutDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -380,7 +491,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["OrganizationDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -434,7 +547,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["VoidDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -460,7 +575,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["LoginStateDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -488,7 +605,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["VoidDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -514,7 +633,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["VoidDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -544,7 +665,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["VoidDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -570,7 +693,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["ContactsDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -600,7 +725,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["ContactDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -630,7 +757,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["CreateBulkContactResponseDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -660,7 +789,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["PaginatedContactResponseDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -688,7 +819,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["GetContactByIDResponseDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -714,7 +847,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["OrganizationsDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -744,7 +879,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["OrganizationDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -772,7 +909,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["OrganizationsDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -802,7 +941,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["OrganizationDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -830,7 +971,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["OrganizationDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -856,7 +999,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["RolesDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -882,7 +1027,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["UsersDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -912,7 +1059,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["UserDTO"];
+        };
       };
       /** @description Validation failed */
       401: {
@@ -927,7 +1076,10 @@ export interface operations {
   };
   UsersController_getUserPermissionsForOrg: {
     parameters: {
-      query?: never;
+      query: {
+        userId: string;
+        organizationId: number;
+      };
       header?: never;
       path?: never;
       cookie?: never;
@@ -938,7 +1090,9 @@ export interface operations {
         headers: {
           [name: string]: unknown;
         };
-        content?: never;
+        content: {
+          "application/json": components["schemas"]["PermissionsDTO"];
+        };
       };
       /** @description Validation failed */
       401: {

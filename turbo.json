@@ -10,6 +10,11 @@
         "dist/**/*.js.map"
       ]
     },
+    "type-check": {
+      "dependsOn": [
+        "^type-check"
+      ]
+    },
     "test": {},
     "test:watch": {
       "cache": false,
@@ -24,14 +29,6 @@
     "start": {
       "persistent": true,
       "cache": false
-    },
-    "build-tooling": {
-      "outputs": [
-        "dist-tooling"
-      ],
-      "inputs": [
-        "src"
-      ]
     },
     "lint": {
       "dependsOn": [
