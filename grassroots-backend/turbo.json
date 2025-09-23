@@ -2,12 +2,8 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "bootstrap-metadata": {
-      "outputs": ["src/FormattedMetadata.gen.ts"],
-      "cache": true
-    },
     "gen-files-only": {
-      "dependsOn": ["^build", "bootstrap-metadata"],
+      "dependsOn": ["^build"],
       "outputs": [
         "src/metadata.ts",
         "./openAPI.json",
