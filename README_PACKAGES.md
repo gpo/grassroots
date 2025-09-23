@@ -10,12 +10,7 @@ and compiled packages spend a ton of time just spinning up and down compilers.
 Vite (and vitest) in watch mode will happily refresh when a JIT package dependency updates, so we
 can just rely on them for watch mode for grassroots-frontend and grassroots-backend-e2etests.
 
-The only dependencies we need to worry about actually compiling are grassroots-shared and openapi-metadata.
-
-## openapi-metadata
-
-Directly reads source from grassroots-shared and grassroots-backend, but otherwise has no dependency.
-Writes metadata.ts into it's own package.
+The only dependency we need to worry about actually compiling is grassroots-shared.
 
 ## grassroots-shared
 
@@ -23,7 +18,7 @@ Contains all logic shared between frontend and backend that doesn't rely on gene
 
 ## grassroots-backend
 
-Depends on grassroots-shared and openapi-metadata.
+Depends on grassroots-shared.
 Contains the backend.
 
 ## openapi-paths

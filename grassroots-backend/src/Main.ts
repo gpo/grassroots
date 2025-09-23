@@ -18,7 +18,7 @@ import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dt
 import { readFile } from "fs/promises";
 import { watch } from "chokidar";
 import { LAST_DEPENDENCY_UPDATE_TIME } from "./util/LastDependencyUpdateTime.js";
-import { WatchDeps as watchDeps } from "./build/WatchDeps.js";
+import { watchDeps } from "./build/WatchDeps.js";
 import { argv, exit } from "process";
 import { buildMetadata } from "./build/BuildMetadata.js";
 import metadata from "./FormattedMetadata.gen.js";
@@ -121,11 +121,7 @@ async function fixMetadataPaths(): Promise<void> {
     onlyIfChanged: true,
   });
 
-  // TODO: this doesn't seem to work, we might need to stable sort it somehow?
   if (!changed.noChange) {
-    // Alternatively, I think we could use a fancy async compilation / reload to avoid this restart.
-    // In the short term, we just assume that if we're skipping computing metadata, then nothing changed.
-    //if (!skipMetadata) {
     console.log("Need to rerun to pick up new metadata.");
     exit(1);
   }
@@ -147,6 +143,8 @@ async function bootstrap(port: number): Promise<void> {
   ];
 
   await Promise.all(postStartupTasks);
+
+  console.timeEnd("generate files");
 
   if (process.argv.includes("--gen-files-only")) {
     await app.close();

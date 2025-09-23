@@ -68,7 +68,7 @@ for (const task of tasks) {
 
 const grassrootsShared = taskGraph.get("grassroots-shared")!;
 
-export function WatchDeps(): void {
+export function watchDeps(): void {
   watch(grassrootsShared.inputs, {
     ignoreInitial: true,
     awaitWriteFinish: true,

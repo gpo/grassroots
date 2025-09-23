@@ -8,7 +8,9 @@
     "type-check": {
       "dependsOn": ["^type-check"]
     },
-    "test": {},
+    "test": {
+      "dependsOn": ["grassroots-backend#gen-files-only"]
+    },
     "test:watch": {
       "cache": false,
       "persistent": true
