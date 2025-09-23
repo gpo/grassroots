@@ -15,13 +15,20 @@ import { writeFormatted } from "./util/FormattingWriter.js";
 // Needs to show up somewhere for decorators to work.
 import "reflect-metadata";
 import { ValidationErrorOutDTO } from "grassroots-shared/dtos/ValidationError.dto";
-import { readFile, writeFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import { watch } from "chokidar";
 import { LAST_DEPENDENCY_UPDATE_TIME } from "./util/LastDependencyUpdateTime.js";
-import { WatchDeps } from "./util/WatchDeps.js";
-import { argv } from "process";
+import { WatchDeps } from "./build/WatchDeps.js";
+import { argv, exit } from "process";
+import { buildMetadata } from "./build/BuildMetadata.js";
+import metadata from "./FormattedMetadata.gen.js";
 
 const watching = argv.includes("--watch") || argv.includes("-w");
+const skipMetadata = argv.includes("--skip-metadata");
+
+if (!skipMetadata) {
+  buildMetadata(watching);
+}
 
 // If grassroots-shared changes, rebuild it, and update LAST_DEPENDENCY_UPDATE_TIME to trigger a reload.
 if (watching) {
@@ -33,7 +40,6 @@ const openAPISchemaPath = "./openAPI.json";
 const openAPITSSchemaPath = "../openapi-paths/src/OpenAPI.gen.ts";
 const METADATA_PATH = "./src/metadata.ts";
 const FIXED_METADATA_PATH = "./src/FormattedMetadata.gen.ts";
-const LAST_METADATA_PATH = "/tmp/lastmetadata.ts";
 
 async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
   performance.mark("writeOpenAPI");
@@ -44,9 +50,8 @@ async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
     .build();
 
   await fixMetadataPaths();
-
-  const metadata = (await import("./FormattedMetadata.gen.js")).default;
   await SwaggerModule.loadPluginMetadata(metadata);
+
   const openAPI = SwaggerModule.createDocument(app, config, {
     autoTagControllers: true,
     extraModels: [ValidationErrorOutDTO],
@@ -103,22 +108,26 @@ async function createMikroORMMigration(
 
 // The nestjs metadata generator produces relative paths, but we need absolute paths.
 async function fixMetadataPaths(): Promise<void> {
-  let lastMetadata: string | null = null;
-  try {
-    lastMetadata = await readFile(LAST_METADATA_PATH, "utf8");
-  } catch {
-    /* This is the first time, that's fine. */
-  }
   let metadata = await readFile(METADATA_PATH, "utf8");
-  if (metadata === lastMetadata) {
-    return;
-  }
-  await writeFile(LAST_METADATA_PATH, metadata);
 
   const importRegex =
     /import\("(..\/..\/)?grassroots-shared\/src\/([^"]*)\.js"\)/g;
   metadata = metadata.replaceAll(importRegex, 'import("grassroots-shared/$2")');
-  await writeFormatted({ filePath: FIXED_METADATA_PATH, text: metadata });
+
+  /*const changed = */ await writeFormatted({
+    filePath: FIXED_METADATA_PATH,
+    text: metadata,
+    onlyIfChanged: true,
+  });
+
+  // TODO: this doesn't seem to work, we might need to stable sort it somehow?
+  //if (!changed.noChange) {
+  // Alternatively, I think we could use a fancy async compilation / reload to avoid this restart.
+  // In the short term, we just assume that if we're skipping computing metadata, then nothing changed.
+  if (!skipMetadata) {
+    console.log("Need to rerun to pick up new metadata.");
+    exit(1);
+  }
 }
 
 async function bootstrap(port: number): Promise<void> {
