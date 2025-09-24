@@ -64,7 +64,7 @@ async function writeOpenAPI(app: NestExpressApplication): Promise<void> {
     console.log("Updating OpenAPI Schema TS bindings");
     const ast = await openapiTS(openAPIStr);
     const contents = astToString(ast);
-    await mkdir(dirname(openAPISchemaPath), { recursive: true });
+    await mkdir(dirname(openAPITSSchemaPath), { recursive: true });
     await writeFormatted({
       filePath: openAPITSSchemaPath,
       text: contents,
