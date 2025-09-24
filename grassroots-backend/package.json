@@ -15,7 +15,7 @@
   "scripts": {
     "build": "nest build",
     "bootstrap-generated-files": "echo 'export default async () => {return {}};' > src/FormattedMetadata.gen.ts && echo 'export const LAST_DEPENDENCY_UPDATE_TIME = 0;' > src/util/LastDependencyUpdateTime.ts",
-    "postinstall": "bootstrap-generated-files",
+    "postinstall": "pnpm run bootstrap-generated-files",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "start": "nest start --watch",
     "start:prod": "node dist/Main",
