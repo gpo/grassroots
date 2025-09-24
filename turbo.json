@@ -1,30 +1,19 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**/*.js", "dist/**/*.js.map"]
+    },
+    "type-check": {
+      "dependsOn": ["^type-check"]
+    },
     "test": {
-      "dependsOn": ["^build", "^tsc"]
+      "dependsOn": ["grassroots-backend#gen-files-only"]
     },
     "test:watch": {
       "cache": false,
       "persistent": true
-    },
-    "build": {
-      "dependsOn": ["^build", "^tsc"],
-      "outputs": [
-        "dist/**/*.js",
-        "dist/**/*.js.map",
-        "dist-build/**/*.js",
-        "dist-build/**/*.js.map"
-      ]
-    },
-    "tsc": {
-      "dependsOn": ["^tsc"],
-      "outputs": [
-        "dist/**/*.d.ts",
-        "dist/**/*.d.ts.map",
-        "dist-build/**/*.d.ts",
-        "dist-build/**/*.d.ts.map"
-      ]
     },
     "clean": {
       "dependsOn": ["^clean"],

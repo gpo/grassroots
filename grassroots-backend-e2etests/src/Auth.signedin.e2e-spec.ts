@@ -6,7 +6,7 @@ import { AuthModule } from "grassroots-backend/auth/Auth.module";
 import { MOCK_AUTH_GUARD_USER } from "grassroots-backend/testing/MockAuthGuard";
 import { UsersModule } from "grassroots-backend/users/Users.module";
 import { useE2ETestFixture } from "./infra/E2eSetup.js";
-import { createOrganizationTree } from "grassroots-shared-net/CreateOrganizationTree";
+import { createOrganizationTree } from "grassroots-shared-net/devtools/CreateOrganizationTree";
 
 describe("AuthController (e2e) while signed in", () => {
   const getFixture = useE2ETestFixture({

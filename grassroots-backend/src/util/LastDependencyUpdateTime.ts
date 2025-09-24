@@ -1,0 +1,1 @@
+export const LAST_DEPENDENCY_UPDATE_TIME = 0;

@@ -13,18 +13,19 @@
     }
   },
   "scripts": {
-    "postinstall": "if [ ! -f src/metadata.ts ]; then cp src/FormattedMetadata.gen.ts src/metadata.ts; fi",
     "build": "nest build",
-    "tsc": "tsc -p tsconfig.buildwithtypes.json",
+    "bootstrap-generated-files": "echo 'export default async () => {return {}};' > src/FormattedMetadata.gen.ts && echo 'export const LAST_DEPENDENCY_UPDATE_TIME = 0;' > src/util/LastDependencyUpdateTime.ts",
+    "postinstall": "pnpm run bootstrap-generated-files",
+    "type-check": "tsc -p tsconfig.json --noEmit",
     "start": "nest start --watch",
-    "start:prod": "node dist-build/Main",
-    "gen-files-only": "nest start -- --gen-files-only",
-    "gen-files-only-watch": "chokidar ../grassroots-shared/dist/metadata.js -c \"nest start -- --gen-files-only\"",
-    "debug": "pnpm run build && node --inspect dist-build/Main",
+    "start:prod": "node dist/Main",
+    "//gen-files-only": "gen-files-only needs to be run twice if the metadata has changed",
+    "gen-files-only": "nest start -- --gen-files-only || nest start -- --gen-files-only --skip-metadata",
+    "debug": "pnpm run build && node --inspect dist/Main",
     "test:tstyche": "pnpm exec tstyche",
     "test": "vitest run",
     "test-watch": "vitest watch",
-    "clean": "rm -rf .turbo && rm -rf dist && rm -rf dist-build && rm -f *.tsbuildinfo && rm -rf /app/.turbo"
+    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo && rm -f src/metadata.ts src/FormattedMetadata.gen.ts openAPI.json && pnpm run bootstrap-generated-files"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.5.2",
@@ -34,6 +35,7 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.0.1",
     "@nestjs/passport": "^11.0.5",
+    "chokidar": "^4.0.3",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
     "@types/pg": "^8.15.5",

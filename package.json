@@ -14,8 +14,6 @@
   "scripts": {
     "prepare": "husky",
     "test": "turbo test",
-    "//watch-deps": "# e.g., 'pnpm run build grassroots-backend-e2etests' will watch and rebuild all dependencies of grassroots-backend-e2etests, but not the target itself.",
-    "watch-deps": "pnpm exec ts-node --compiler-options '{\"module\":\"CommonJS\"}' watch-deps.ts",
     "format": "prettier . --write",
     "lint": "eslint . --fix",
     "check": "turbo tsc && turbo lint "

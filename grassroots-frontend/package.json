@@ -6,7 +6,7 @@
   "scripts": {
     "start": "vite --host",
     "build": "vite build",
-    "tsc": "tsc -b --noEmit",
+    "type-check": "tsc -b --noEmit",
     "test": "echo \"TODO: test frontend\" && exit 0",
     "preview": "vite preview"
   },

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { OrganizationsDTO } from "grassroots-shared/dtos/Organization.dto";
 import { fail } from "assert";
-import { createOrganizationTree } from "grassroots-shared-net/CreateOrganizationTree";
+import { createOrganizationTree } from "grassroots-shared-net/devtools/CreateOrganizationTree";
 import { useE2ETestFixture } from "./infra/E2eSetup.js";
 import { OrganizationsModule } from "grassroots-backend/organizations/Organizations.module";
 
