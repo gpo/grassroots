@@ -127,6 +127,11 @@ export type PropsOf<Undistributed> = Undistributed extends infer A extends
     }
   : never;
 
+export function propsOf<T>(t: T): PropsOf<T> {
+  // @ts-expect-error this is known safe.
+  return t;
+}
+
 type ValueToValueProps<Undistributed> = Undistributed extends infer A extends
   Undistributed
   ? // If it's an array, recurse.
