@@ -25,6 +25,7 @@ export class PhoneCanvassService {
       creatorEmail,
       contacts: [],
     });
+    await this.entityManager.flush();
 
     canvass.contacts.forEach((x) => {
       this.entityManager.create(PhoneCanvassToContactEntity, {
@@ -45,9 +46,9 @@ export class PhoneCanvassService {
   async getProgressInfo(
     id: string,
   ): Promise<PhoneCanvassProgressInfoResponseDTO> {
-    const count = await this.repo.count({ id });
+    const canvass = await this.repo.findOneOrFail({ id });
     return PhoneCanvassProgressInfoResponseDTO.from({
-      count,
+      count: canvass.contacts.length,
     });
   }
 }

@@ -52,9 +52,14 @@ describe("PhoneCanvass (e2e)", () => {
     expect(result.id.length).toBe(36);
 
     const progress = PhoneCanvassProgressInfoResponseDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.GET("/phone-canvass/progress/" + result.id),
+      await f.grassrootsAPI.GET("/phone-canvass/progress/{id}", {
+        params: {
+          path: {
+            id: result.id,
+          },
+        },
+      }),
     );
-
-    expect(progress.count).toBe(1);
+    expect(progress.count).toBe(2);
   });
 });
