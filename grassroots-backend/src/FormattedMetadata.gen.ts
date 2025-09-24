@@ -38,6 +38,23 @@ export default async () => {
     "@nestjs/swagger": {
       models: [
         [
+          import("grassroots-shared/dtos/Hello.dto"),
+          { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
+        [
+          import("grassroots-shared/dtos/Paginated.dto"),
+          {
+            PaginatedRequestDTO: {
+              rowsToSkip: { required: true, type: () => Number, minimum: 0 },
+              rowsToTake: { required: true, type: () => Number, minimum: 1 },
+            },
+            PaginatedResponseDTO: {
+              rowsSkipped: { required: true, type: () => Number, minimum: 0 },
+              rowsTotal: { required: true, type: () => Number, minimum: 0 },
+            },
+          },
+        ],
+        [
           import("grassroots-shared/dtos/Organization.dto"),
           {
             OrganizationDTO: {
@@ -69,19 +86,6 @@ export default async () => {
               abbreviatedName: { required: true, type: () => String },
               description: { required: true, type: () => String },
               parentID: { required: true, type: () => Number, minimum: 1 },
-            },
-          },
-        ],
-        [
-          import("grassroots-shared/dtos/Paginated.dto"),
-          {
-            PaginatedRequestDTO: {
-              rowsToSkip: { required: true, type: () => Number, minimum: 0 },
-              rowsToTake: { required: true, type: () => Number, minimum: 1 },
-            },
-            PaginatedResponseDTO: {
-              rowsSkipped: { required: true, type: () => Number, minimum: 0 },
-              rowsTotal: { required: true, type: () => Number, minimum: 0 },
             },
           },
         ],
@@ -267,11 +271,6 @@ export default async () => {
           },
         ],
         [
-          import("grassroots-shared/dtos/Hello.dto"),
-          { HelloOutDTO: { message: { required: true, type: () => String } } },
-        ],
-        [import("grassroots-shared/dtos/Void.dto"), { VoidDTO: {} }],
-        [
           import("grassroots-shared/dtos/LoginState.dto"),
           {
             LoginStateDTO: {
@@ -283,16 +282,7 @@ export default async () => {
             },
           },
         ],
-        [
-          import("grassroots-shared/dtos/ValidationError.dto"),
-          {
-            ValidationErrorOutDTO: {
-              statusCode: { required: true, type: () => Number },
-              message: { required: true, type: () => [String] },
-              error: { required: true, type: () => String },
-            },
-          },
-        ],
+        [import("grassroots-shared/dtos/Void.dto"), { VoidDTO: {} }],
         [
           import("grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto"),
           {
@@ -338,6 +328,16 @@ export default async () => {
               },
               metadata: { required: true, type: () => String, format: "json" },
               callStatus: { required: true, type: () => Object },
+            },
+          },
+        ],
+        [
+          import("grassroots-shared/dtos/ValidationError.dto"),
+          {
+            ValidationErrorOutDTO: {
+              statusCode: { required: true, type: () => Number },
+              message: { required: true, type: () => [String] },
+              error: { required: true, type: () => String },
             },
           },
         ],

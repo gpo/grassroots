@@ -1,13 +1,290 @@
 /* eslint-disable */
 export default async () => {
-    const t = {
-        ["./dtos/Organization.dto.js"]: await import("./dtos/Organization.dto.js"),
-        ["./dtos/Contact.dto.js"]: await import("./dtos/Contact.dto.js"),
-        ["./dtos/Paginated.dto.js"]: await import("./dtos/Paginated.dto.js"),
-        ["./dtos/Role.dto.js"]: await import("./dtos/Role.dto.js"),
-        ["./dtos/UserRole.dto.js"]: await import("./dtos/UserRole.dto.js"),
-        ["./dtos/User.dto.js"]: await import("./dtos/User.dto.js"),
-        ["./dtos/PhoneCanvass/PhoneCanvass.dto.js"]: await import("./dtos/PhoneCanvass/PhoneCanvass.dto.js")
-    };
-    return { "@nestjs/swagger": { "models": [[import("./dtos/Paginated.dto.js"), { "PaginatedRequestDTO": { rowsToSkip: { required: true, type: () => Number, minimum: 0 }, rowsToTake: { required: true, type: () => Number, minimum: 1 } }, "PaginatedResponseDTO": { rowsSkipped: { required: true, type: () => Number, minimum: 0 }, rowsTotal: { required: true, type: () => Number, minimum: 0 } } }], [import("./dtos/Organization.dto.js"), { "OrganizationDTO": { id: { required: true, type: () => Number, minimum: 1 }, name: { required: true, type: () => String }, abbreviatedName: { required: true, type: () => String }, description: { required: true, type: () => String }, parentId: { required: false, type: () => Number, minimum: 1 } }, "OrganizationsDTO": { organizations: { required: true, type: () => [t["./dtos/Organization.dto.js"].OrganizationDTO] } }, "OrganizationReferenceDTO": { id: { required: true, type: () => Number, minimum: 1 } }, "CreateOrganizationNoParentRequestDTO": { name: { required: true, type: () => String }, abbreviatedName: { required: true, type: () => String }, description: { required: true, type: () => String } }, "CreateOrganizationRequestDTO": { name: { required: true, type: () => String }, abbreviatedName: { required: true, type: () => String }, description: { required: true, type: () => String }, parentID: { required: true, type: () => Number, minimum: 1 } } }], [import("./dtos/Contact.dto.js"), { "ContactDTO": { id: { required: true, type: () => Number, minimum: 1 }, email: { required: true, type: () => String, format: "email" }, firstName: { required: true, type: () => String }, lastName: { required: true, type: () => String }, organization: { required: true, type: () => t["./dtos/Organization.dto.js"].OrganizationDTO }, phoneNumber: { required: true, type: () => String } }, "ContactsDTO": { contacts: { required: true, type: () => [t["./dtos/Contact.dto.js"].ContactDTO] } }, "CreateContactRequestDTO": { email: { required: true, type: () => String, format: "email" }, firstName: { required: true, type: () => String }, lastName: { required: true, type: () => String }, phoneNumber: { required: true, type: () => String }, organizationId: { required: true, type: () => Number, minimum: -1 } }, "CreateBulkContactRequestDTO": { contacts: { required: true, type: () => [t["./dtos/Contact.dto.js"].CreateContactRequestDTO] } }, "CreateBulkContactResponseDTO": { ids: { required: true, type: () => [Number] } }, "GetContactByIDResponseDTO": { contact: { required: true, type: () => t["./dtos/Contact.dto.js"].ContactDTO, nullable: true } }, "ContactSearchRequestDTO": { id: { required: false, type: () => Number, minimum: 1 }, email: { required: false, type: () => String }, firstName: { required: false, type: () => String }, lastName: { required: false, type: () => String }, organizationId: { required: false, type: () => Number }, phoneNumber: { required: false, type: () => String } }, "PaginatedContactSearchRequestDTO": { contact: { required: true, type: () => t["./dtos/Contact.dto.js"].ContactSearchRequestDTO }, paginated: { required: true, type: () => t["./dtos/Paginated.dto.js"].PaginatedRequestDTO } }, "PaginatedContactResponseDTO": { contacts: { required: true, type: () => [t["./dtos/Contact.dto.js"].ContactDTO] }, paginated: { required: true, type: () => t["./dtos/Paginated.dto.js"].PaginatedResponseDTO } } }], [import("./dtos/Hello.dto.js"), { "HelloOutDTO": { message: { required: true, type: () => String } } }], [import("./dtos/Permission.dto.js"), { "PermissionsDTO": { permissions: { required: true, type: () => [Object] } } }], [import("./dtos/Role.dto.js"), { "RoleDTO": { id: { required: true, type: () => Number, minimum: 1 }, name: { required: true, type: () => String }, permissions: { required: true, type: () => [Object] } }, "RolesDTO": { roles: { required: true, type: () => [t["./dtos/Role.dto.js"].RoleDTO] } } }], [import("./dtos/UserRole.dto.js"), { "UserRoleDTO": { id: { required: false, type: () => Number, minimum: 1 }, userId: { required: false, type: () => String }, role: { required: true, type: () => t["./dtos/Role.dto.js"].RoleDTO }, organizationId: { required: true, type: () => Number, minimum: 1 }, inherited: { required: true, type: () => Boolean } } }], [import("./dtos/User.dto.js"), { "UserDTO": { id: { required: true, type: () => String }, emails: { required: false, type: () => [String], format: "email" }, firstName: { required: false, type: () => String }, lastName: { required: false, type: () => String }, displayName: { required: false, type: () => String }, userRoles: { required: false, type: () => [t["./dtos/UserRole.dto.js"].UserRoleDTO] } }, "UserPermissionsForOrgRequestDTO": { userId: { required: true, type: () => String }, organizationId: { required: true, type: () => Number, minimum: 1 } }, "UsersDTO": { users: { required: true, type: () => [t["./dtos/User.dto.js"].UserDTO] } } }], [import("./dtos/LoginState.dto.js"), { "LoginStateDTO": { user: { required: false, type: () => t["./dtos/User.dto.js"].UserDTO } } }], [import("./dtos/ValidationError.dto.js"), { "ValidationErrorOutDTO": { statusCode: { required: true, type: () => Number }, message: { required: true, type: () => [String] }, error: { required: true, type: () => String } } }], [import("./dtos/Void.dto.js"), { "VoidDTO": {} }], [import("./dtos/PhoneCanvass/PhoneCanvass.dto.js"), { "PhoneCanvassDTO": { id: { required: true, type: () => String }, contacts: { required: true, type: () => [t["./dtos/PhoneCanvass/PhoneCanvass.dto.js"].PhoneCanvassContactDTO] } }, "CreatePhoneCanvasContactRequestDTO": { contact: { required: true, type: () => t["./dtos/Contact.dto.js"].CreateContactRequestDTO }, metadata: { required: true, type: () => String, format: "json" } }, "CreatePhoneCanvassRequestDTO": { contacts: { required: true, type: () => [t["./dtos/PhoneCanvass/PhoneCanvass.dto.js"].CreatePhoneCanvasContactRequestDTO] } }, "CreatePhoneCanvassResponseDTO": { id: { required: true, type: () => String } }, "PhoneCanvassContactDTO": { contact: { required: true, type: () => t["./dtos/Contact.dto.js"].ContactDTO }, metadata: { required: true, type: () => String, format: "json" }, callStatus: { required: true, type: () => Object } } }]], "controllers": [] } };
+  const t = {
+    ["./dtos/Organization.dto.js"]: await import("./dtos/Organization.dto.js"),
+    ["./dtos/Contact.dto.js"]: await import("./dtos/Contact.dto.js"),
+    ["./dtos/Paginated.dto.js"]: await import("./dtos/Paginated.dto.js"),
+    ["./dtos/Role.dto.js"]: await import("./dtos/Role.dto.js"),
+    ["./dtos/UserRole.dto.js"]: await import("./dtos/UserRole.dto.js"),
+    ["./dtos/User.dto.js"]: await import("./dtos/User.dto.js"),
+    ["./dtos/PhoneCanvass/PhoneCanvass.dto.js"]: await import(
+      "./dtos/PhoneCanvass/PhoneCanvass.dto.js"
+    ),
+  };
+  return {
+    "@nestjs/swagger": {
+      models: [
+        [
+          import("./dtos/Paginated.dto.js"),
+          {
+            PaginatedRequestDTO: {
+              rowsToSkip: { required: true, type: () => Number, minimum: 0 },
+              rowsToTake: { required: true, type: () => Number, minimum: 1 },
+            },
+            PaginatedResponseDTO: {
+              rowsSkipped: { required: true, type: () => Number, minimum: 0 },
+              rowsTotal: { required: true, type: () => Number, minimum: 0 },
+            },
+          },
+        ],
+        [
+          import("./dtos/Organization.dto.js"),
+          {
+            OrganizationDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
+              name: { required: true, type: () => String },
+              abbreviatedName: { required: true, type: () => String },
+              description: { required: true, type: () => String },
+              parentId: { required: false, type: () => Number, minimum: 1 },
+            },
+            OrganizationsDTO: {
+              organizations: {
+                required: true,
+                type: () => [t["./dtos/Organization.dto.js"].OrganizationDTO],
+              },
+            },
+            OrganizationReferenceDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
+            },
+            CreateOrganizationNoParentRequestDTO: {
+              name: { required: true, type: () => String },
+              abbreviatedName: { required: true, type: () => String },
+              description: { required: true, type: () => String },
+            },
+            CreateOrganizationRequestDTO: {
+              name: { required: true, type: () => String },
+              abbreviatedName: { required: true, type: () => String },
+              description: { required: true, type: () => String },
+              parentID: { required: true, type: () => Number, minimum: 1 },
+            },
+          },
+        ],
+        [
+          import("./dtos/Contact.dto.js"),
+          {
+            ContactDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
+              email: { required: true, type: () => String, format: "email" },
+              firstName: { required: true, type: () => String },
+              lastName: { required: true, type: () => String },
+              organization: {
+                required: true,
+                type: () => t["./dtos/Organization.dto.js"].OrganizationDTO,
+              },
+              phoneNumber: { required: true, type: () => String },
+            },
+            ContactsDTO: {
+              contacts: {
+                required: true,
+                type: () => [t["./dtos/Contact.dto.js"].ContactDTO],
+              },
+            },
+            CreateContactRequestDTO: {
+              email: { required: true, type: () => String, format: "email" },
+              firstName: { required: true, type: () => String },
+              lastName: { required: true, type: () => String },
+              phoneNumber: { required: true, type: () => String },
+              organizationId: {
+                required: true,
+                type: () => Number,
+                minimum: -1,
+              },
+            },
+            CreateBulkContactRequestDTO: {
+              contacts: {
+                required: true,
+                type: () => [
+                  t["./dtos/Contact.dto.js"].CreateContactRequestDTO,
+                ],
+              },
+            },
+            CreateBulkContactResponseDTO: {
+              ids: { required: true, type: () => [Number] },
+            },
+            GetContactByIDResponseDTO: {
+              contact: {
+                required: true,
+                type: () => t["./dtos/Contact.dto.js"].ContactDTO,
+                nullable: true,
+              },
+            },
+            ContactSearchRequestDTO: {
+              id: { required: false, type: () => Number, minimum: 1 },
+              email: { required: false, type: () => String },
+              firstName: { required: false, type: () => String },
+              lastName: { required: false, type: () => String },
+              organizationId: { required: false, type: () => Number },
+              phoneNumber: { required: false, type: () => String },
+            },
+            PaginatedContactSearchRequestDTO: {
+              contact: {
+                required: true,
+                type: () => t["./dtos/Contact.dto.js"].ContactSearchRequestDTO,
+              },
+              paginated: {
+                required: true,
+                type: () => t["./dtos/Paginated.dto.js"].PaginatedRequestDTO,
+              },
+            },
+            PaginatedContactResponseDTO: {
+              contacts: {
+                required: true,
+                type: () => [t["./dtos/Contact.dto.js"].ContactDTO],
+              },
+              paginated: {
+                required: true,
+                type: () => t["./dtos/Paginated.dto.js"].PaginatedResponseDTO,
+              },
+            },
+          },
+        ],
+        [
+          import("./dtos/Hello.dto.js"),
+          { HelloOutDTO: { message: { required: true, type: () => String } } },
+        ],
+        [
+          import("./dtos/Permission.dto.js"),
+          {
+            PermissionsDTO: {
+              permissions: { required: true, type: () => [Object] },
+            },
+          },
+        ],
+        [
+          import("./dtos/Role.dto.js"),
+          {
+            RoleDTO: {
+              id: { required: true, type: () => Number, minimum: 1 },
+              name: { required: true, type: () => String },
+              permissions: { required: true, type: () => [Object] },
+            },
+            RolesDTO: {
+              roles: {
+                required: true,
+                type: () => [t["./dtos/Role.dto.js"].RoleDTO],
+              },
+            },
+          },
+        ],
+        [
+          import("./dtos/UserRole.dto.js"),
+          {
+            UserRoleDTO: {
+              id: { required: false, type: () => Number, minimum: 1 },
+              userId: { required: false, type: () => String },
+              role: {
+                required: true,
+                type: () => t["./dtos/Role.dto.js"].RoleDTO,
+              },
+              organizationId: {
+                required: true,
+                type: () => Number,
+                minimum: 1,
+              },
+              inherited: { required: true, type: () => Boolean },
+            },
+          },
+        ],
+        [
+          import("./dtos/User.dto.js"),
+          {
+            UserDTO: {
+              id: { required: true, type: () => String },
+              emails: {
+                required: false,
+                type: () => [String],
+                format: "email",
+              },
+              firstName: { required: false, type: () => String },
+              lastName: { required: false, type: () => String },
+              displayName: { required: false, type: () => String },
+              userRoles: {
+                required: false,
+                type: () => [t["./dtos/UserRole.dto.js"].UserRoleDTO],
+              },
+            },
+            UserPermissionsForOrgRequestDTO: {
+              userId: { required: true, type: () => String },
+              organizationId: {
+                required: true,
+                type: () => Number,
+                minimum: 1,
+              },
+            },
+            UsersDTO: {
+              users: {
+                required: true,
+                type: () => [t["./dtos/User.dto.js"].UserDTO],
+              },
+            },
+          },
+        ],
+        [
+          import("./dtos/LoginState.dto.js"),
+          {
+            LoginStateDTO: {
+              user: {
+                required: false,
+                type: () => t["./dtos/User.dto.js"].UserDTO,
+              },
+            },
+          },
+        ],
+        [
+          import("./dtos/ValidationError.dto.js"),
+          {
+            ValidationErrorOutDTO: {
+              statusCode: { required: true, type: () => Number },
+              message: { required: true, type: () => [String] },
+              error: { required: true, type: () => String },
+            },
+          },
+        ],
+        [import("./dtos/Void.dto.js"), { VoidDTO: {} }],
+        [
+          import("./dtos/PhoneCanvass/PhoneCanvass.dto.js"),
+          {
+            PhoneCanvassDTO: {
+              id: { required: true, type: () => String },
+              contacts: {
+                required: true,
+                type: () => [
+                  t["./dtos/PhoneCanvass/PhoneCanvass.dto.js"]
+                    .PhoneCanvassContactDTO,
+                ],
+              },
+            },
+            CreatePhoneCanvasContactRequestDTO: {
+              contact: {
+                required: true,
+                type: () => t["./dtos/Contact.dto.js"].CreateContactRequestDTO,
+              },
+              metadata: { required: true, type: () => String, format: "json" },
+            },
+            CreatePhoneCanvassRequestDTO: {
+              contacts: {
+                required: true,
+                type: () => [
+                  t["./dtos/PhoneCanvass/PhoneCanvass.dto.js"]
+                    .CreatePhoneCanvasContactRequestDTO,
+                ],
+              },
+            },
+            CreatePhoneCanvassResponseDTO: {
+              id: { required: true, type: () => String },
+            },
+            PhoneCanvassContactDTO: {
+              contact: {
+                required: true,
+                type: () => t["./dtos/Contact.dto.js"].ContactDTO,
+              },
+              metadata: { required: true, type: () => String, format: "json" },
+              callStatus: { required: true, type: () => Object },
+            },
+          },
+        ],
+      ],
+      controllers: [],
+    },
+  };
 };
