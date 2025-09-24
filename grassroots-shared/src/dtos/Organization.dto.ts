@@ -9,9 +9,7 @@ import {
 import { createDTOBase } from "../util/CreateDTOBase.js";
 import { Type } from "class-transformer";
 
-// Until we fully support organizations in the frontend, we just use -1 to mean "make
-// sure there's an organization for this contact."
-export const TEMPORARY_FAKE_ORGANIZATION_ID = -1;
+export const ROOT_ORGANIZATION_ID = 1;
 
 export class OrganizationDTO extends createDTOBase("Organization") {
   @IsNumber()

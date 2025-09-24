@@ -31,6 +31,7 @@ export class UsersService {
     }
     const newUser = this.repo.create({
       ...instanceToPlain(user),
+      emails: user.emails,
       userRoles: [],
     });
 

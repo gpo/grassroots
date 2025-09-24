@@ -13,8 +13,8 @@ import { UserRoleEntity } from "./UserRole.entity.js";
 export class UserEntity extends createEntityBase<"User", UserDTO>("User") {
   @PrimaryKey()
   id!: string;
-  @Property({ type: "json", nullable: true })
-  emails?: string[];
+  @Property({ type: "json" })
+  emails!: string[];
   @Property({ nullable: true })
   firstName?: string;
   @Property({ nullable: true })

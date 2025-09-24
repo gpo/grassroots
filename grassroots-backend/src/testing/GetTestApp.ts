@@ -9,6 +9,7 @@ import { overrideEntityManagerForTest } from "./OverrideEntityManagerForTest.js"
 import { MockSessionGuard } from "./MockAuthGuard.js";
 import { SessionGuard } from "../auth/Session.guard.js";
 import mikroORMConfig from "./../mikro-orm.config.js";
+import { OrganizationEntity } from "../organizations/Organization.entity.js";
 
 let app: NestExpressApplication | undefined = undefined;
 
@@ -56,6 +57,7 @@ export async function getTestApp(
   const moduleRef = await builder.compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
+  await OrganizationEntity.ensureRootOrganization(app);
 
   return { app };
 }
