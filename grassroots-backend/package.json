@@ -14,8 +14,8 @@
   },
   "scripts": {
     "build": "nest build",
-    "bootstrap-metadata": "echo 'export default async () => {return {}};' > src/FormattedMetadata.gen.ts",
-    "postinstall": "pnpm run bootstrap-metadata",
+    "bootstrap-generated-files": "echo 'export default async () => {return {}};' > src/FormattedMetadata.gen.ts && echo 'export const LAST_DEPENDENCY_UPDATE_TIME = 0;' > src/util/LastDependencyUpdateTime.ts",
+    "postinstall": "bootstrap-generated-files",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "start": "nest start --watch",
     "start:prod": "node dist/Main",
@@ -25,7 +25,7 @@
     "test:tstyche": "pnpm exec tstyche",
     "test": "vitest run",
     "test-watch": "vitest watch",
-    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo && rm -f src/metadata.ts src/FormattedMetadata.gen.ts openAPI.json && pnpm run bootstrap-metadata"
+    "clean": "rm -rf .turbo && rm -rf dist && rm -f *.tsbuildinfo && rm -rf /app/.turbo && rm -f src/metadata.ts src/FormattedMetadata.gen.ts openAPI.json && pnpm run bootstrap-generated-files"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.5.2",
