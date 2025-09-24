@@ -5,6 +5,8 @@
 grassroots-backend/src/metadata.ts
 grassroots-backend/src/FormattedMetadata.gen.ts
 grassroots-backend/src/util/LastDependencyUpdateTime.ts
+openapi-paths/src/OpenAPI.gen.ts
+grassroots-backend/openAPI.json
 
 .env.development.local
 .env.test.local

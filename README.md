@@ -5,9 +5,10 @@ management.
 
 # Note on building:
 
-Currently, we build dependencies via `turbo build`, and use `pnpm run start` to run
-the backend or frontend in watch mode. If a dependency changes, you need to `turbo build` again.
-This isn't great, and we plan to improve it.
+# Build process
+
+To build everything, run `turbo build`.
+For full watch-mode, run `turbo watcher` in the root, and `pnpm run start` in grassroots-backend and grassroots-frontend.
 
 # Recommended Development Setup
 

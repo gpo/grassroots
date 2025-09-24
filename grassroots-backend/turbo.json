@@ -14,6 +14,9 @@
     "build": {
       "dependsOn": ["^build", "gen-files-only"],
       "outputs": ["dist/**/*.js", "dist/**/*.js.map"]
+    },
+    "type-check": {
+      "dependsOn": ["^build", "gen-metadata"]
     }
   }
 }
