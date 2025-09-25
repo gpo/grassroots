@@ -11,6 +11,7 @@ import {
   TestSpecificDependencies,
 } from "grassroots-backend/testing/GetTestApp";
 import { listenAndConfigureApp } from "grassroots-backend/app/App.module";
+import { OrganizationEntity } from "grassroots-backend/organizations/Organization.entity";
 
 type GrassRootsAPIRaw = (
   path: keyof paths,
@@ -50,7 +51,7 @@ export function useE2ETestFixture(
       baseUrl,
     });
     const grassrootsAPIRaw: GrassRootsAPIRaw = (path, options) => {
-      return fetch(baseUrl + path, options);
+      return fetch(baseUrl + String(path), options);
     };
     fixture = new E2ETestFixture({ app, grassrootsAPI, grassrootsAPIRaw });
   });
@@ -66,6 +67,7 @@ export function useE2ETestFixture(
 
   afterEach(async () => {
     await fixture?.entityManager.rollback();
+    await fixture?.entityManager.nativeDelete(OrganizationEntity, {});
   });
 
   return () => {

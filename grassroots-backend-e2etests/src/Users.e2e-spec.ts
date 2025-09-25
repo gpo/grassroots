@@ -30,7 +30,7 @@ describe("Users (e2e)", () => {
       await f.grassrootsAPI.POST("/users/find-or-create", {
         body: {
           displayName: "A",
-          emails: undefined,
+          emails: ["foo@foo.com"],
           firstName: "A",
           id: "testUserID",
           lastName: "A",

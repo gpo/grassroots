@@ -65,7 +65,14 @@ export class OrganizationEntity extends createEntityBase<
   ): Promise<void> {
     const orm = app.get(MikroORM);
     const em = orm.em.fork();
-    const rootOrganization = await em.findOne(OrganizationEntity, { id: 1 });
+    const rootOrganization = await em.findOne(OrganizationEntity, {
+      name: "Root Organization",
+    });
+    if (rootOrganization && rootOrganization.id != ROOT_ORGANIZATION_ID) {
+      throw new Error(
+        "Root organization has incorrect id: " + String(rootOrganization.id),
+      );
+    }
     if (rootOrganization != null) {
       return;
     }

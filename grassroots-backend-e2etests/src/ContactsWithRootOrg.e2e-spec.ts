@@ -5,19 +5,21 @@ import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { ContactsModule } from "grassroots-backend/contacts/Contacts.module";
 import { OrganizationsModule } from "grassroots-backend/organizations/Organizations.module";
 import { useE2ETestFixture } from "./infra/E2eSetup.js";
+import { OrganizationEntity } from "grassroots-backend/organizations/Organization.entity";
 
 // Until we have frontend for dealing with organizations, we just
 // create a dummy organization if none exists and we try to create a contact.
 
-describe("ContactsController with dummy org (e2e)", () => {
+describe("ContactsController with root org (e2e)", () => {
   // Created in beforeEach.
   let testContact: PropsOf<CreateContactRequestDTO>;
   const getFixture = useE2ETestFixture({
     imports: [ContactsModule, OrganizationsModule],
   });
 
-  it("creates an organization when you create a contact with organizationId -1", async () => {
+  it("creates an organization when you create a contact with organizationId 1", async () => {
     const f = getFixture();
+    await OrganizationEntity.ensureRootOrganization(f.app);
 
     testContact = CreateContactRequestDTO.from({
       email: "test@test.com",

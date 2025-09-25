@@ -23,8 +23,8 @@ describe("ContactsController (e2e)", () => {
     rootOrganization = OrganizationDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/organizations/create-root", {
         body: {
-          name: "Root organization",
-          abbreviatedName: "Root",
+          name: "Test Root organization",
+          abbreviatedName: "Test Root",
           description: "Root description",
         },
       }),
