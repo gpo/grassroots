@@ -2,11 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { UserEntity } from "./User.entity.js";
 import { EntityManager, EntityRepository } from "@mikro-orm/core";
 import { UserDTO } from "grassroots-shared/dtos/User.dto";
-import { instanceToPlain } from "class-transformer";
 import { OrganizationEntity } from "../organizations/Organization.entity.js";
 import { OrganizationRepository } from "../organizations/Organization.repo.js";
 import { UserRoleEntity } from "./UserRole.entity.js";
 import { Permission } from "grassroots-shared/dtos/Permission.dto";
+import { propsOf, PropsOf } from "grassroots-shared/util/TypeUtils";
 
 @Injectable()
 export class UsersService {
@@ -29,8 +29,9 @@ export class UsersService {
     if (existing !== null) {
       return existing.toDTO();
     }
+    const userProps: PropsOf<UserDTO> = user;
     const newUser = this.repo.create({
-      ...instanceToPlain(user),
+      ...propsOf(userProps),
       userRoles: [],
     });
 

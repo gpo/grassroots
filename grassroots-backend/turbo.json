@@ -3,13 +3,17 @@
   "extends": ["//"],
   "tasks": {
     "gen-files-only": {
-      "dependsOn": ["^build"],
+      "dependsOn": ["^build", "gen-metadata"],
       "outputs": [
         "src/metadata.ts",
         "./openAPI.json",
         "../openapi-paths/src/OpenAPI.gen.ts",
         "src/FormattedMetadata.gen.ts"
       ]
+    },
+    "gen-metadata": {
+      "dependsOn": ["^build"],
+      "outputs": ["src/metadata.ts", "src/FormattedMetadata.gen.ts"]
     },
     "build": {
       "dependsOn": ["^build", "gen-files-only"],

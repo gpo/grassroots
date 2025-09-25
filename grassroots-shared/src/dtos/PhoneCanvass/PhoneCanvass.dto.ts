@@ -1,4 +1,4 @@
-import { IsJSON, IsString, ValidateNested } from "class-validator";
+import { IsJSON, IsNumber, IsString, ValidateNested } from "class-validator";
 import { createDTOBase } from "../../util/CreateDTOBase.js";
 import { CallStatus, CallStatusDecorator } from "./CallStatus.dto.js";
 import { Type } from "class-transformer";
@@ -50,4 +50,16 @@ export class PhoneCanvassContactDTO extends createDTOBase(
   // eslint-disable-next-line @darraghor/nestjs-typed/all-properties-are-whitelisted, @darraghor/nestjs-typed/all-properties-have-explicit-defined
   @CallStatusDecorator()
   callStatus!: CallStatus;
+}
+
+// We don't ever actually use this class, but the entity needs a DTO to references.
+export class PhoneCanvassToContactDTO extends createDTOBase(
+  "PhoneCanvassToContact",
+) {}
+
+export class PhoneCanvassProgressInfoResponseDTO extends createDTOBase(
+  "PhoneCanvassProgressInfoResponse",
+) {
+  @IsNumber()
+  count!: number;
 }

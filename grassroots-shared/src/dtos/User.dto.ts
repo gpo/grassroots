@@ -1,4 +1,5 @@
 import {
+  ArrayNotEmpty,
   IsArray,
   IsEmail,
   IsNumber,
@@ -16,8 +17,8 @@ export class UserDTO extends createDTOBase("User") {
   id!: string;
 
   @IsEmail({}, { each: true })
-  @IsOptional()
-  emails?: string[];
+  @ArrayNotEmpty()
+  emails!: string[];
 
   @IsString()
   @IsOptional()

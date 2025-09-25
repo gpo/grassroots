@@ -23,8 +23,9 @@
       "persistent": true,
       "cache": false
     },
-    "lint": {
-      "dependsOn": ["eslint_rules#build"]
+    "//#lint": {
+      "dependsOn": ["eslint_rules#build"],
+      "cache": false
     }
   }
 }

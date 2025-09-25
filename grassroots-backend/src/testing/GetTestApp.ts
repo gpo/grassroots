@@ -56,6 +56,5 @@ export async function getTestApp(
   const moduleRef = await builder.compile();
 
   app = moduleRef.createNestApplication<NestExpressApplication>();
-
   return { app };
 }
