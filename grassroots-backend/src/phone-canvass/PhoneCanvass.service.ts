@@ -27,12 +27,14 @@ export class PhoneCanvassService {
     });
     await this.entityManager.flush();
 
-    canvass.contacts.forEach((x) => {
+    canvass.contacts.forEach((canvasContact) => {
       this.entityManager.create(PhoneCanvassToContactEntity, {
         phoneCanvas: canvassEntity,
-        metadata: x.metadata,
+        metadata: canvasContact.metadata,
         callStatus: "NOT_STARTED",
-        contact: ContactEntity.fromCreateContactRequestDTO(x.contact),
+        contact: ContactEntity.fromCreateContactRequestDTO(
+          canvasContact.contact,
+        ),
       });
     });
 

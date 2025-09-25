@@ -21,6 +21,7 @@ import { argv } from "process";
 import metadata from "./FormattedMetadata.gen.js";
 import { mkdir } from "fs/promises";
 import { dirname } from "path";
+import { OrganizationEntity } from "./organizations/Organization.entity.js";
 
 const watching = argv.includes("--watch") || argv.includes("-w");
 
@@ -110,7 +111,10 @@ async function bootstrap(port: number): Promise<void> {
       filePath: "../docs/DependencyGraph.md",
       text: graphDependencies(app),
     }),
-    createMikroORMMigration(app),
+    (async (): Promise<void> => {
+      await createMikroORMMigration(app);
+      await OrganizationEntity.ensureRootOrganization(app);
+    })(),
   ];
 
   await Promise.all(postStartupTasks);

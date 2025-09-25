@@ -63,6 +63,7 @@ export class OrganizationEntity extends createEntityBase<
   static async ensureRootOrganization(
     app: NestExpressApplication,
   ): Promise<void> {
+    console.log("ENSURE");
     const orm = app.get(MikroORM);
     const em = orm.em.fork();
     const rootOrganization = await em.findOne(OrganizationEntity, { id: 1 });
