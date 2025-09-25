@@ -24,6 +24,7 @@ import { dirname } from "path";
 import { OrganizationEntity } from "./organizations/Organization.entity.js";
 
 const watching = argv.includes("--watch") || argv.includes("-w");
+const genFilesOnly = argv.includes("--gen-files-only");
 
 // If grassroots-shared changes, rebuild it, and update LAST_DEPENDENCY_UPDATE_TIME to trigger a reload.
 if (watching) {
@@ -111,17 +112,22 @@ async function bootstrap(port: number): Promise<void> {
       filePath: "../docs/DependencyGraph.md",
       text: graphDependencies(app),
     }),
-    (async (): Promise<void> => {
-      await createMikroORMMigration(app);
-      await OrganizationEntity.ensureRootOrganization(app);
-    })(),
   ];
+
+  if (!genFilesOnly) {
+    postStartupTasks.push(
+      (async (): Promise<void> => {
+        await createMikroORMMigration(app);
+        await OrganizationEntity.ensureRootOrganization(app);
+      })(),
+    );
+  }
 
   await Promise.all(postStartupTasks);
 
   console.timeEnd("generate files");
 
-  if (process.argv.includes("--gen-files-only")) {
+  if (genFilesOnly) {
     await app.close();
   }
 }
