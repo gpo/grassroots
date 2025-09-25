@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { PropsOf } from "grassroots-shared/util/TypeUtils";
-import { TEMPORARY_FAKE_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
+import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { ContactsModule } from "grassroots-backend/contacts/Contacts.module";
 import { OrganizationsModule } from "grassroots-backend/organizations/Organizations.module";
 import { useE2ETestFixture } from "./infra/E2eSetup.js";
@@ -24,7 +24,7 @@ describe("ContactsController with dummy org (e2e)", () => {
       firstName: "Test",
       lastName: "Test",
       phoneNumber: "226-999-9999",
-      organizationId: TEMPORARY_FAKE_ORGANIZATION_ID,
+      organizationId: ROOT_ORGANIZATION_ID,
     });
 
     const { data, response } = await f.grassrootsAPI.POST("/contacts", {
