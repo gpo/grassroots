@@ -10,7 +10,7 @@
 | first_name   | varchar(255) |         | true     |                                                       |         |         |
 | last_name    | varchar(255) |         | true     |                                                       |         |         |
 | display_name | varchar(255) |         | true     |                                                       |         |         |
-| emails       | jsonb        |         | true     |                                                       |         |         |
+| emails       | jsonb        |         | false    |                                                       |         |         |
 
 ## Constraints
 

@@ -4,9 +4,9 @@
 
 ## Columns
 
-| Name | Type | Default           | Nullable | Children | Parents | Comment |
-| ---- | ---- | ----------------- | -------- | -------- | ------- | ------- |
-| id   | uuid | gen_random_uuid() | false    |          |         |         |
+| Name | Type | Default           | Nullable | Children                                                                            | Parents | Comment |
+| ---- | ---- | ----------------- | -------- | ----------------------------------------------------------------------------------- | ------- | ------- |
+| id   | uuid | gen_random_uuid() | false    | [public.phone_canvass_to_contact_entity](public.phone_canvass_to_contact_entity.md) |         |         |
 
 ## Constraints
 
@@ -25,9 +25,17 @@
 ```mermaid
 erDiagram
 
+"public.phone_canvass_to_contact_entity" }o--|| "public.phone_canvass_entity" : ""
 
 "public.phone_canvass_entity" {
   uuid id
+}
+"public.phone_canvass_to_contact_entity" {
+  integer id
+  uuid phone_canvas_id FK
+  jsonb metadata
+  varchar_255_ call_status
+  integer contact_id FK
 }
 ```
 

@@ -73,7 +73,7 @@
         {
           "name": "emails",
           "type": "jsonb",
-          "nullable": true
+          "nullable": false
         }
       ],
       "indexes": [
@@ -405,6 +405,104 @@
           ]
         }
       ]
+    },
+    {
+      "name": "public.phone_canvass_to_contact_entity",
+      "type": "BASE TABLE",
+      "columns": [
+        {
+          "name": "id",
+          "type": "integer",
+          "nullable": false,
+          "default": "nextval('phone_canvass_to_contact_entity_id_seq'::regclass)"
+        },
+        {
+          "name": "phone_canvas_id",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "metadata",
+          "type": "jsonb",
+          "nullable": false
+        },
+        {
+          "name": "call_status",
+          "type": "varchar(255)",
+          "nullable": false
+        },
+        {
+          "name": "contact_id",
+          "type": "integer",
+          "nullable": false
+        }
+      ],
+      "indexes": [
+        {
+          "name": "phone_canvass_to_contact_entity_pkey",
+          "def": "CREATE UNIQUE INDEX phone_canvass_to_contact_entity_pkey ON public.phone_canvass_to_contact_entity USING btree (id)",
+          "table": "public.phone_canvass_to_contact_entity",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "phone_canvass_to_contact_entity_contact_id_unique",
+          "def": "CREATE UNIQUE INDEX phone_canvass_to_contact_entity_contact_id_unique ON public.phone_canvass_to_contact_entity USING btree (contact_id)",
+          "table": "public.phone_canvass_to_contact_entity",
+          "columns": [
+            "contact_id"
+          ]
+        }
+      ],
+      "constraints": [
+        {
+          "name": "phone_canvass_to_contact_entity_contact_id_foreign",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (contact_id) REFERENCES contact_entity(id) ON UPDATE CASCADE",
+          "table": "public.phone_canvass_to_contact_entity",
+          "referenced_table": "contact_entity",
+          "columns": [
+            "contact_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "phone_canvass_to_contact_entity_phone_canvas_id_foreign",
+          "type": "FOREIGN KEY",
+          "def": "FOREIGN KEY (phone_canvas_id) REFERENCES phone_canvass_entity(id) ON UPDATE CASCADE",
+          "table": "public.phone_canvass_to_contact_entity",
+          "referenced_table": "phone_canvass_entity",
+          "columns": [
+            "phone_canvas_id"
+          ],
+          "referenced_columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "phone_canvass_to_contact_entity_pkey",
+          "type": "PRIMARY KEY",
+          "def": "PRIMARY KEY (id)",
+          "table": "public.phone_canvass_to_contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "phone_canvass_to_contact_entity_contact_id_unique",
+          "type": "UNIQUE",
+          "def": "UNIQUE (contact_id)",
+          "table": "public.phone_canvass_to_contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "contact_id"
+          ]
+        }
+      ]
     }
   ],
   "relations": [
@@ -459,6 +557,32 @@
       ],
       "parent_cardinality": "exactly_one",
       "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE"
+    },
+    {
+      "table": "public.phone_canvass_to_contact_entity",
+      "columns": [
+        "contact_id"
+      ],
+      "cardinality": "zero_or_one",
+      "parent_table": "public.contact_entity",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (contact_id) REFERENCES contact_entity(id) ON UPDATE CASCADE"
+    },
+    {
+      "table": "public.phone_canvass_to_contact_entity",
+      "columns": [
+        "phone_canvas_id"
+      ],
+      "cardinality": "zero_or_more",
+      "parent_table": "public.phone_canvass_entity",
+      "parent_columns": [
+        "id"
+      ],
+      "parent_cardinality": "exactly_one",
+      "def": "FOREIGN KEY (phone_canvas_id) REFERENCES phone_canvass_entity(id) ON UPDATE CASCADE"
     }
   ],
   "driver": {
