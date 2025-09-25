@@ -13,6 +13,7 @@ import { Route as UsersRouteImport } from './routes/Users'
 import { Route as SharedSearchRouteImport } from './routes/SharedSearch'
 import { Route as SearchRouteImport } from './routes/Search'
 import { Route as MeRouteImport } from './routes/Me'
+import { Route as CreatePhoneCanvassRouteImport } from './routes/CreatePhoneCanvass'
 import { Route as CreateContactRouteImport } from './routes/CreateContact'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as OrganizationsOrganizationIdRouteImport } from './routes/Organizations/$organizationId'
@@ -37,6 +38,11 @@ const MeRoute = MeRouteImport.update({
   path: '/Me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreatePhoneCanvassRoute = CreatePhoneCanvassRouteImport.update({
+  id: '/CreatePhoneCanvass',
+  path: '/CreatePhoneCanvass',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CreateContactRoute = CreateContactRouteImport.update({
   id: '/CreateContact',
   path: '/CreateContact',
@@ -57,6 +63,7 @@ const OrganizationsOrganizationIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
+  '/CreatePhoneCanvass': typeof CreatePhoneCanvassRoute
   '/Me': typeof MeRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
+  '/CreatePhoneCanvass': typeof CreatePhoneCanvassRoute
   '/Me': typeof MeRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/CreateContact': typeof CreateContactRoute
+  '/CreatePhoneCanvass': typeof CreatePhoneCanvassRoute
   '/Me': typeof MeRoute
   '/Search': typeof SearchRoute
   '/SharedSearch': typeof SharedSearchRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/CreateContact'
+    | '/CreatePhoneCanvass'
     | '/Me'
     | '/Search'
     | '/SharedSearch'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/CreateContact'
+    | '/CreatePhoneCanvass'
     | '/Me'
     | '/Search'
     | '/SharedSearch'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/CreateContact'
+    | '/CreatePhoneCanvass'
     | '/Me'
     | '/Search'
     | '/SharedSearch'
@@ -115,6 +127,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CreateContactRoute: typeof CreateContactRoute
+  CreatePhoneCanvassRoute: typeof CreatePhoneCanvassRoute
   MeRoute: typeof MeRoute
   SearchRoute: typeof SearchRoute
   SharedSearchRoute: typeof SharedSearchRoute
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/CreatePhoneCanvass': {
+      id: '/CreatePhoneCanvass'
+      path: '/CreatePhoneCanvass'
+      fullPath: '/CreatePhoneCanvass'
+      preLoaderRoute: typeof CreatePhoneCanvassRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/CreateContact': {
       id: '/CreateContact'
       path: '/CreateContact'
@@ -179,6 +199,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CreateContactRoute: CreateContactRoute,
+  CreatePhoneCanvassRoute: CreatePhoneCanvassRoute,
   MeRoute: MeRoute,
   SearchRoute: SearchRoute,
   SharedSearchRoute: SharedSearchRoute,
