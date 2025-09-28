@@ -14,12 +14,17 @@
 
 ## Constraints
 
-| Name                                                    | Type        | Definition                                                                          |
-| ------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------- |
-| phone_canvass_to_contact_entity_contact_id_foreign      | FOREIGN KEY | FOREIGN KEY (contact_id) REFERENCES contact_entity(id) ON UPDATE CASCADE            |
-| phone_canvass_to_contact_entity_phone_canvas_id_foreign | FOREIGN KEY | FOREIGN KEY (phone_canvas_id) REFERENCES phone_canvass_entity(id) ON UPDATE CASCADE |
-| phone_canvass_to_contact_entity_pkey                    | PRIMARY KEY | PRIMARY KEY (id)                                                                    |
-| phone_canvass_to_contact_entity_contact_id_unique       | UNIQUE      | UNIQUE (contact_id)                                                                 |
+| Name                                                     | Type        | Definition                                                                          |
+| -------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------- |
+| phone_canvass_to_contact_entity_call_status_not_null     | n           | NOT NULL call_status                                                                |
+| phone_canvass_to_contact_entity_contact_id_not_null      | n           | NOT NULL contact_id                                                                 |
+| phone_canvass_to_contact_entity_id_not_null              | n           | NOT NULL id                                                                         |
+| phone_canvass_to_contact_entity_metadata_not_null        | n           | NOT NULL metadata                                                                   |
+| phone_canvass_to_contact_entity_phone_canvas_id_not_null | n           | NOT NULL phone_canvas_id                                                            |
+| phone_canvass_to_contact_entity_contact_id_foreign       | FOREIGN KEY | FOREIGN KEY (contact_id) REFERENCES contact_entity(id) ON UPDATE CASCADE            |
+| phone_canvass_to_contact_entity_phone_canvas_id_foreign  | FOREIGN KEY | FOREIGN KEY (phone_canvas_id) REFERENCES phone_canvass_entity(id) ON UPDATE CASCADE |
+| phone_canvass_to_contact_entity_pkey                     | PRIMARY KEY | PRIMARY KEY (id)                                                                    |
+| phone_canvass_to_contact_entity_contact_id_unique        | UNIQUE      | UNIQUE (contact_id)                                                                 |
 
 ## Indexes
 
