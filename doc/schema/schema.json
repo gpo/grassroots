@@ -35,6 +35,16 @@
       ],
       "constraints": [
         {
+          "name": "mikro_orm_migrations_id_not_null",
+          "type": "n",
+          "def": "NOT NULL id",
+          "table": "public.mikro_orm_migrations",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
           "name": "mikro_orm_migrations_pkey",
           "type": "PRIMARY KEY",
           "def": "PRIMARY KEY (id)",
@@ -87,6 +97,16 @@
         }
       ],
       "constraints": [
+        {
+          "name": "user_entity_email_not_null",
+          "type": "n",
+          "def": "NOT NULL id",
+          "table": "public.user_entity",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
         {
           "name": "user_entity_pkey",
           "type": "PRIMARY KEY",
@@ -157,6 +177,46 @@
         }
       ],
       "constraints": [
+        {
+          "name": "organization_entity_abbreviated_name_not_null",
+          "type": "n",
+          "def": "NOT NULL abbreviated_name",
+          "table": "public.organization_entity",
+          "referenced_table": "",
+          "columns": [
+            "abbreviated_name"
+          ]
+        },
+        {
+          "name": "organization_entity_description_not_null",
+          "type": "n",
+          "def": "NOT NULL description",
+          "table": "public.organization_entity",
+          "referenced_table": "",
+          "columns": [
+            "description"
+          ]
+        },
+        {
+          "name": "organization_entity_id_not_null",
+          "type": "n",
+          "def": "NOT NULL id",
+          "table": "public.organization_entity",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "organization_entity_name_not_null",
+          "type": "n",
+          "def": "NOT NULL name",
+          "table": "public.organization_entity",
+          "referenced_table": "",
+          "columns": [
+            "name"
+          ]
+        },
         {
           "name": "organization_entity_parent_id_foreign",
           "type": "FOREIGN KEY",
@@ -258,6 +318,66 @@
       ],
       "constraints": [
         {
+          "name": "contact_entity_email_not_null",
+          "type": "n",
+          "def": "NOT NULL email",
+          "table": "public.contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "email"
+          ]
+        },
+        {
+          "name": "contact_entity_first_name_not_null",
+          "type": "n",
+          "def": "NOT NULL first_name",
+          "table": "public.contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "first_name"
+          ]
+        },
+        {
+          "name": "contact_entity_id_not_null",
+          "type": "n",
+          "def": "NOT NULL id",
+          "table": "public.contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "contact_entity_last_name_not_null",
+          "type": "n",
+          "def": "NOT NULL last_name",
+          "table": "public.contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "last_name"
+          ]
+        },
+        {
+          "name": "contact_entity_organization_id_not_null",
+          "type": "n",
+          "def": "NOT NULL organization_id",
+          "table": "public.contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "organization_id"
+          ]
+        },
+        {
+          "name": "contact_entity_phone_number_not_null",
+          "type": "n",
+          "def": "NOT NULL phone_number",
+          "table": "public.contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "phone_number"
+          ]
+        },
+        {
           "name": "contact_entity_organization_id_foreign",
           "type": "FOREIGN KEY",
           "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE",
@@ -335,6 +455,56 @@
       ],
       "constraints": [
         {
+          "name": "user_role_entity__role_id_not_null",
+          "type": "n",
+          "def": "NOT NULL _role_id",
+          "table": "public.user_role_entity",
+          "referenced_table": "",
+          "columns": [
+            "_role_id"
+          ]
+        },
+        {
+          "name": "user_role_entity_id_not_null",
+          "type": "n",
+          "def": "NOT NULL id",
+          "table": "public.user_role_entity",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
+        {
+          "name": "user_role_entity_inherited_not_null",
+          "type": "n",
+          "def": "NOT NULL inherited",
+          "table": "public.user_role_entity",
+          "referenced_table": "",
+          "columns": [
+            "inherited"
+          ]
+        },
+        {
+          "name": "user_role_entity_organization_id_not_null",
+          "type": "n",
+          "def": "NOT NULL organization_id",
+          "table": "public.user_role_entity",
+          "referenced_table": "",
+          "columns": [
+            "organization_id"
+          ]
+        },
+        {
+          "name": "user_role_entity_user_id_not_null",
+          "type": "n",
+          "def": "NOT NULL user_id",
+          "table": "public.user_role_entity",
+          "referenced_table": "",
+          "columns": [
+            "user_id"
+          ]
+        },
+        {
           "name": "user_role_entity_user_id_foreign",
           "type": "FOREIGN KEY",
           "def": "FOREIGN KEY (user_id) REFERENCES user_entity(id) ON UPDATE CASCADE",
@@ -394,6 +564,16 @@
         }
       ],
       "constraints": [
+        {
+          "name": "phone_canvass_entity_id_not_null",
+          "type": "n",
+          "def": "NOT NULL id",
+          "table": "public.phone_canvass_entity",
+          "referenced_table": "",
+          "columns": [
+            "id"
+          ]
+        },
         {
           "name": "phone_canvass_entity_pkey",
           "type": "PRIMARY KEY",
@@ -463,7 +643,7 @@
   ],
   "driver": {
     "name": "postgres",
-    "database_version": "PostgreSQL 17.6 (Debian 17.6-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "database_version": "PostgreSQL 18.0 (Debian 18.0-1.pgdg13+3) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
     "meta": {
       "current_schema": "public",
       "search_paths": [

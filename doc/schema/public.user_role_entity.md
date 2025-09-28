@@ -14,11 +14,16 @@
 
 ## Constraints
 
-| Name                                     | Type        | Definition                                                                         |
-| ---------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
-| user_role_entity_user_id_foreign         | FOREIGN KEY | FOREIGN KEY (user_id) REFERENCES user_entity(id) ON UPDATE CASCADE                 |
-| user_role_entity_organization_id_foreign | FOREIGN KEY | FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE |
-| user_role_entity_pkey                    | PRIMARY KEY | PRIMARY KEY (id)                                                                   |
+| Name                                      | Type        | Definition                                                                         |
+| ----------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
+| user_role_entity\_\_role_id_not_null      | n           | NOT NULL \_role_id                                                                 |
+| user_role_entity_id_not_null              | n           | NOT NULL id                                                                        |
+| user_role_entity_inherited_not_null       | n           | NOT NULL inherited                                                                 |
+| user_role_entity_organization_id_not_null | n           | NOT NULL organization_id                                                           |
+| user_role_entity_user_id_not_null         | n           | NOT NULL user_id                                                                   |
+| user_role_entity_user_id_foreign          | FOREIGN KEY | FOREIGN KEY (user_id) REFERENCES user_entity(id) ON UPDATE CASCADE                 |
+| user_role_entity_organization_id_foreign  | FOREIGN KEY | FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE |
+| user_role_entity_pkey                     | PRIMARY KEY | PRIMARY KEY (id)                                                                   |
 
 ## Indexes
 

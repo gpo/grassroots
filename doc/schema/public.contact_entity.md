@@ -15,11 +15,17 @@
 
 ## Constraints
 
-| Name                                   | Type        | Definition                                                                         |
-| -------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
-| contact_entity_organization_id_foreign | FOREIGN KEY | FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE |
-| contact_entity_pkey                    | PRIMARY KEY | PRIMARY KEY (id)                                                                   |
-| contact_entity_email_unique            | UNIQUE      | UNIQUE (email)                                                                     |
+| Name                                    | Type        | Definition                                                                         |
+| --------------------------------------- | ----------- | ---------------------------------------------------------------------------------- |
+| contact_entity_email_not_null           | n           | NOT NULL email                                                                     |
+| contact_entity_first_name_not_null      | n           | NOT NULL first_name                                                                |
+| contact_entity_id_not_null              | n           | NOT NULL id                                                                        |
+| contact_entity_last_name_not_null       | n           | NOT NULL last_name                                                                 |
+| contact_entity_organization_id_not_null | n           | NOT NULL organization_id                                                           |
+| contact_entity_phone_number_not_null    | n           | NOT NULL phone_number                                                              |
+| contact_entity_organization_id_foreign  | FOREIGN KEY | FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE |
+| contact_entity_pkey                     | PRIMARY KEY | PRIMARY KEY (id)                                                                   |
+| contact_entity_email_unique             | UNIQUE      | UNIQUE (email)                                                                     |
 
 ## Indexes
 

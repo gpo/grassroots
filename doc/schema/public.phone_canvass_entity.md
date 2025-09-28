@@ -10,9 +10,10 @@
 
 ## Constraints
 
-| Name                      | Type        | Definition       |
-| ------------------------- | ----------- | ---------------- |
-| phone_canvass_entity_pkey | PRIMARY KEY | PRIMARY KEY (id) |
+| Name                             | Type        | Definition       |
+| -------------------------------- | ----------- | ---------------- |
+| phone_canvass_entity_id_not_null | n           | NOT NULL id      |
+| phone_canvass_entity_pkey        | PRIMARY KEY | PRIMARY KEY (id) |
 
 ## Indexes
 
