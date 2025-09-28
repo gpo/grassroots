@@ -22,7 +22,13 @@ ARG GID=1000
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y sudo
+# Get the twilio CLI, instruction here: https://www.twilio.com/docs/twilio-cli/quickstart
+RUN wget -qO- https://twilio-cli-prod.s3.amazonaws.com/twilio_pub.asc | apt-key add - && \
+  touch /etc/apt/sources.list.d/twilio.list && \
+  echo 'deb https://twilio-cli-prod.s3.amazonaws.com/apt/ /' | tee /etc/apt/sources.list.d/twilio.list && \
+  apt-get update && \
+  apt-get install -y sudo && \
+  apt install -y twilio
 
 # First remove the node user to avoid uid/gid conflicts, then we create our user.
 RUN deluser node --remove-home \

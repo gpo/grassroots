@@ -11,6 +11,7 @@ import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { PhoneCanvassModule } from "grassroots-backend/phone-canvass/PhoneCanvass.module";
 import { AuthModule } from "grassroots-backend/auth/Auth.module";
 import { UsersModule } from "grassroots-backend/users/Users.module";
+import { OrganizationEntity } from "grassroots-backend/organizations/Organization.entity";
 
 describe("PhoneCanvass (e2e)", () => {
   const getFixture = useE2ETestFixture({
@@ -20,6 +21,7 @@ describe("PhoneCanvass (e2e)", () => {
 
   it("should generate a uuid on creation", async () => {
     const f = getFixture();
+    await OrganizationEntity.ensureRootOrganization(f.app);
 
     const result = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass", {
@@ -61,5 +63,23 @@ describe("PhoneCanvass (e2e)", () => {
       }),
     );
     expect(progress.count).toBe(2);
+  });
+
+  it("should provide valid twiml from the webhook", async () => {
+    const f = getFixture();
+
+    const params = new URLSearchParams();
+    params.append("conference", "test");
+
+    const result = await f.grassrootsAPIRaw("/phone-canvass/twilio-voice", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+
+    const text = await result.text();
+    expect(text).toContain("<Conference>test</Conference>");
   });
 });

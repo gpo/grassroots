@@ -8,7 +8,7 @@ management.
 # Build process
 
 To build everything, run `turbo build`.
-For full watch-mode, run `turbo watcher` in the root, and `pnpm run start` in grassroots-backend and grassroots-frontend.
+For full watch-mode, run `pnpm run watcher` in the root, and `pnpm run start` in grassroots-backend and grassroots-frontend.
 
 # Recommended Development Setup
 

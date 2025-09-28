@@ -4,7 +4,7 @@ export function getEnvFilePaths(): string[] {
     return ["../.env.test.ci", "../.env.test"];
   }
   if (process.env.MODE == "test") {
-    return ["../.env.test"];
+    return ["../.env.test", "../.env.development.local", "../.env.development"];
   }
   return ["../.env.development.local", "../.env.development"];
 }

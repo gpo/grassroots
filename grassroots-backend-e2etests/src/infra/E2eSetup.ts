@@ -13,6 +13,7 @@ import {
 import { listenAndConfigureApp } from "grassroots-backend/app/App.module";
 import { OrganizationEntity } from "grassroots-backend/organizations/Organization.entity";
 
+// TODO: this doesn't allow any params.
 type GrassRootsAPIRaw = (
   path: keyof paths,
   options?: RequestInit,
@@ -53,7 +54,11 @@ export function useE2ETestFixture(
     const grassrootsAPIRaw: GrassRootsAPIRaw = (path, options) => {
       return fetch(baseUrl + String(path), options);
     };
-    fixture = new E2ETestFixture({ app, grassrootsAPI, grassrootsAPIRaw });
+    fixture = new E2ETestFixture({
+      app,
+      grassrootsAPI,
+      grassrootsAPIRaw,
+    });
   });
 
   afterAll(async () => {
