@@ -13,10 +13,10 @@ import {
 import { listenAndConfigureApp } from "grassroots-backend/app/App.module";
 import { OrganizationEntity } from "grassroots-backend/organizations/Organization.entity";
 
-// TODO: this doesn't allow any params.
+// Things like the body and method are part of RequestInit.
 type GrassRootsAPIRaw = (
   path: keyof paths,
-  options?: RequestInit,
+  request?: RequestInit,
 ) => Promise<Response>;
 
 type E2ETestFixtureProps = TestFixtureProps & {

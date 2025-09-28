@@ -38,7 +38,6 @@ async function connect(props: {
   const authToken = await getAuthToken();
   props.setToken(authToken);
 
-  console.log("Making new device");
   const device = new Device(authToken, {
     logLevel: 4,
     enableImprovedSignalingErrorPrecision: true,

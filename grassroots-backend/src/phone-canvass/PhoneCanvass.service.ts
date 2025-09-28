@@ -52,35 +52,28 @@ export class PhoneCanvassService {
   }
 
   async startCanvass(id: string): Promise<VoidDTO> {
-    const phoneCanvass = await this.repo.findOne({ id });
-    if (phoneCanvass === null) {
-      console.log("TODO: fail");
-      //throw new UnauthorizedException("Invalid phone canvass id");
-    }
+    await this.getPhoneCanvassByIdOrFail(id);
     await this.twilioService.startCanvass();
     return VoidDTO.from({});
   }
 
   async getAuthToken(id: string): Promise<PhoneCanvassAuthTokenResponseDTO> {
-    const phoneCanvass = await this.repo.findOne({ id });
-    if (phoneCanvass === null) {
-      console.log("TODO: fail");
-      //throw new UnauthorizedException("Invalid phone canvass id");
-    }
+    await this.getPhoneCanvassByIdOrFail(id);
     return this.twilioService.getAuthToken();
   }
 
-  async existsOrFail(id: string): Promise<void> {
+  async getPhoneCanvassByIdOrFail(id: string): Promise<PhoneCanvassEntity> {
     const phoneCanvass = await this.repo.findOne({ id });
     if (phoneCanvass === null) {
       throw new UnauthorizedException("Invalid phone canvass id");
     }
+    return phoneCanvass;
   }
 
   async getProgressInfo(
     id: string,
   ): Promise<PhoneCanvassProgressInfoResponseDTO> {
-    const canvass = await this.repo.findOneOrFail({ id });
+    const canvass = await this.getPhoneCanvassByIdOrFail(id);
     return PhoneCanvassProgressInfoResponseDTO.from({
       count: canvass.contacts.length,
     });
