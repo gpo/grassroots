@@ -35,6 +35,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
               Create Phone Canvass
             </RoutedLink>
           </AppShell.Section>
+          <AppShell.Section>
+            <RoutedLink to="/Me">Your Dashboard</RoutedLink>
+          </AppShell.Section>
           <AppShell.Section grow component={ScrollArea}></AppShell.Section>
         </AppShell.Navbar>
 

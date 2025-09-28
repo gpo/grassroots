@@ -9,6 +9,7 @@ grassroots-backend/src/metadata.ts
 .env.local
 .pnpm-store
 **/*.tsbuildinfo
+grassroots-frontend/.tanstack
 
 # CI
 eslint_report.json
