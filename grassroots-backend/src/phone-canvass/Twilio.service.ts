@@ -12,50 +12,51 @@ function getEnvStr(config: ConfigService, str: string): string {
 
 @Injectable()
 export class TwilioService {
-  TEST_APPROVED_PHONE_NUMBER: string;
-  TWILIO_OUTGOING_NUMBER: string;
-  TWILIO_SID: string;
-  TWILIO_AUTH_TOKEN: string;
-  TWILIO_API_KEY_SID: string;
-  TWILIO_API_KEY_SECRET: string;
-  TWILIO_APP_SID: string;
-
-  constructor(private config: ConfigService) {
-    this.TEST_APPROVED_PHONE_NUMBER = getEnvStr(
-      config,
-      "TEST_APPROVED_PHONE_NUMBER",
-    );
-    this.TWILIO_OUTGOING_NUMBER = getEnvStr(config, "TWILIO_OUTGOING_NUMBER");
-    this.TWILIO_SID = getEnvStr(config, "TWILIO_SID");
-    this.TWILIO_AUTH_TOKEN = getEnvStr(config, "TWILIO_AUTH_TOKEN");
-    this.TWILIO_API_KEY_SID = getEnvStr(config, "TWILIO_API_KEY_SID");
-    this.TWILIO_API_KEY_SECRET = getEnvStr(config, "TWILIO_API_KEY_SECRET");
-    this.TWILIO_APP_SID = getEnvStr(config, "TWILIO_APP_SID");
-  }
+  // Grabbing all the env vars once in the constructor might be a bit nicer, but it currently breaks ci,
+  // which doesn't define these env vars.
+  constructor(private config: ConfigService) {}
 
   async startCanvass(): Promise<void> {
+    const TEST_APPROVED_PHONE_NUMBER = getEnvStr(
+      this.config,
+      "TEST_APPROVED_PHONE_NUMBER",
+    );
+    const TWILIO_OUTGOING_NUMBER = getEnvStr(
+      this.config,
+      "TWILIO_OUTGOING_NUMBER",
+    );
+    const TWILIO_SID = getEnvStr(this.config, "TWILIO_SID");
+    const TWILIO_AUTH_TOKEN = getEnvStr(this.config, "TWILIO_AUTH_TOKEN");
+
     // TODO - this should actually be the callee id.
     const CALLEE_ID = 10;
-    const client = twilio(this.TWILIO_SID, this.TWILIO_AUTH_TOKEN);
+    const client = twilio(TWILIO_SID, TWILIO_AUTH_TOKEN);
 
     await client.calls.create({
-      to: this.TEST_APPROVED_PHONE_NUMBER,
-      from: this.TWILIO_OUTGOING_NUMBER,
+      to: TEST_APPROVED_PHONE_NUMBER,
+      from: TWILIO_OUTGOING_NUMBER,
       twiml: `<Response><Dial><Conference>${String(CALLEE_ID)}</Conference></Dial></Response>`,
     });
   }
 
   getAuthToken(): PhoneCanvassAuthTokenResponseDTO {
+    const TWILIO_SID = getEnvStr(this.config, "TWILIO_SID");
+    const TWILIO_API_KEY_SID = getEnvStr(this.config, "TWILIO_API_KEY_SID");
+    const TWILIO_API_KEY_SECRET = getEnvStr(
+      this.config,
+      "TWILIO_API_KEY_SECRET",
+    );
+    const TWILIO_APP_SID = getEnvStr(this.config, "TWILIO_APP_SID");
     const identity = "user";
 
     const voiceGrant = new AccessToken.VoiceGrant({
-      outgoingApplicationSid: this.TWILIO_APP_SID,
+      outgoingApplicationSid: TWILIO_APP_SID,
     });
 
     const token = new AccessToken(
-      this.TWILIO_SID,
-      this.TWILIO_API_KEY_SID,
-      this.TWILIO_API_KEY_SECRET,
+      TWILIO_SID,
+      TWILIO_API_KEY_SID,
+      TWILIO_API_KEY_SECRET,
       { identity: identity },
     );
     token.addGrant(voiceGrant);
