@@ -14,9 +14,10 @@
 
 ## Constraints
 
-| Name             | Type        | Definition       |
-| ---------------- | ----------- | ---------------- |
-| user_entity_pkey | PRIMARY KEY | PRIMARY KEY (id) |
+| Name                       | Type        | Definition       |
+| -------------------------- | ----------- | ---------------- |
+| user_entity_email_not_null | n           | NOT NULL id      |
+| user_entity_pkey           | PRIMARY KEY | PRIMARY KEY (id) |
 
 ## Indexes
 

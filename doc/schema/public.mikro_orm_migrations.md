@@ -12,9 +12,10 @@
 
 ## Constraints
 
-| Name                      | Type        | Definition       |
-| ------------------------- | ----------- | ---------------- |
-| mikro_orm_migrations_pkey | PRIMARY KEY | PRIMARY KEY (id) |
+| Name                             | Type        | Definition       |
+| -------------------------------- | ----------- | ---------------- |
+| mikro_orm_migrations_id_not_null | n           | NOT NULL id      |
+| mikro_orm_migrations_pkey        | PRIMARY KEY | PRIMARY KEY (id) |
 
 ## Indexes
 

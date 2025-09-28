@@ -14,12 +14,16 @@
 
 ## Constraints
 
-| Name                                        | Type        | Definition                                                                                      |
-| ------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
-| organization_entity_parent_id_foreign       | FOREIGN KEY | FOREIGN KEY (parent_id) REFERENCES organization_entity(id) ON UPDATE CASCADE ON DELETE SET NULL |
-| organization_entity_pkey                    | PRIMARY KEY | PRIMARY KEY (id)                                                                                |
-| organization_entity_name_unique             | UNIQUE      | UNIQUE (name)                                                                                   |
-| organization_entity_abbreviated_name_unique | UNIQUE      | UNIQUE (abbreviated_name)                                                                       |
+| Name                                          | Type        | Definition                                                                                      |
+| --------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------- |
+| organization_entity_abbreviated_name_not_null | n           | NOT NULL abbreviated_name                                                                       |
+| organization_entity_description_not_null      | n           | NOT NULL description                                                                            |
+| organization_entity_id_not_null               | n           | NOT NULL id                                                                                     |
+| organization_entity_name_not_null             | n           | NOT NULL name                                                                                   |
+| organization_entity_parent_id_foreign         | FOREIGN KEY | FOREIGN KEY (parent_id) REFERENCES organization_entity(id) ON UPDATE CASCADE ON DELETE SET NULL |
+| organization_entity_pkey                      | PRIMARY KEY | PRIMARY KEY (id)                                                                                |
+| organization_entity_name_unique               | UNIQUE      | UNIQUE (name)                                                                                   |
+| organization_entity_abbreviated_name_unique   | UNIQUE      | UNIQUE (abbreviated_name)                                                                       |
 
 ## Indexes
 

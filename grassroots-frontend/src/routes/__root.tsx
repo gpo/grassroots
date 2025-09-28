@@ -31,13 +31,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             <RoutedLink to="/">Home</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
-            <RoutedLink to="/CreateContact">Create Contact</RoutedLink>
-          </AppShell.Section>
-          <AppShell.Section>
-            <RoutedLink to="/Search">Search Contacts</RoutedLink>
-          </AppShell.Section>
-          <AppShell.Section>
-            <RoutedLink to="/Users">Users</RoutedLink>
+            <RoutedLink to="/CreatePhoneCanvass">
+              Create Phone Canvass
+            </RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
             <RoutedLink to="/Me">Your Dashboard</RoutedLink>
