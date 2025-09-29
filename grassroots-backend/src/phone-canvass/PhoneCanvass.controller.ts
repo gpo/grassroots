@@ -35,15 +35,6 @@ export class PhoneCanvassController {
   constructor(private readonly phoneCanvassService: PhoneCanvassService) {}
 
   @Post()
-  async create(
-    @Body() canvas: CreatePhoneCanvassRequestDTO,
-    @Request() req: GrassrootsRequest,
-  ): Promise<CreatePhoneCanvassResponseDTO> {
-    const email = getEmail(req);
-    return await this.phoneCanvassService.create(canvas, email);
-  }
-
-  @Post("create-csv")
   async createWithCSV(
     @Body() canvasData: CreatePhoneCanvasCSVRequestDTO,
     @Request() req: GrassrootsRequest,
@@ -63,6 +54,7 @@ export class PhoneCanvassController {
       transform: (v) => v.trim(),
     });
 
+    // TODO: validate data.
     const createDTO = CreatePhoneCanvassRequestDTO.from({
       name: canvasData.name,
       contacts: rows.data.map((contactRow) =>
