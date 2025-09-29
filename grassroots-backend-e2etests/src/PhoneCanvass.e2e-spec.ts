@@ -48,4 +48,22 @@ describe("PhoneCanvass (e2e)", () => {
     );
     expect(progress.count).toBe(3);
   });
+
+  it("should provide valid twiml from the webhook", async () => {
+    const f = getFixture();
+
+    const params = new URLSearchParams();
+    params.append("conference", "test");
+
+    const result = await f.grassrootsAPIRaw("/phone-canvass/twilio-voice", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: params.toString(),
+    });
+
+    const text = await result.text();
+    expect(text).toContain("<Conference>test</Conference>");
+  });
 });

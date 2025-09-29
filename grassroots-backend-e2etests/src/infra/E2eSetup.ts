@@ -12,9 +12,10 @@ import {
 } from "grassroots-backend/testing/GetTestApp";
 import { listenAndConfigureApp } from "grassroots-backend/app/App.module";
 
+// Things like the body and method are part of RequestInit.
 type GrassRootsAPIRaw = (
   path: keyof paths,
-  options?: RequestInit,
+  request?: RequestInit,
 ) => Promise<Response>;
 
 type E2ETestFixtureProps = TestFixtureProps & {
@@ -52,7 +53,11 @@ export function useE2ETestFixture(
     const grassrootsAPIRaw: GrassRootsAPIRaw = (path, options) => {
       return fetch(baseUrl + String(path), options);
     };
-    fixture = new E2ETestFixture({ app, grassrootsAPI, grassrootsAPIRaw });
+    fixture = new E2ETestFixture({
+      app,
+      grassrootsAPI,
+      grassrootsAPIRaw,
+    });
   });
 
   afterAll(async () => {
