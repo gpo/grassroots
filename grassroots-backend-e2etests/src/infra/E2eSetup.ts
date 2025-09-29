@@ -1,6 +1,6 @@
 import createClient, { Client } from "openapi-fetch";
 import { paths } from "openapi-paths/OpenAPI.gen";
-import { afterAll, afterEach, beforeAll, beforeEach } from "vitest";
+import { afterAll, beforeAll, beforeEach } from "vitest";
 import { EntityManager } from "@mikro-orm/postgresql";
 import {
   TestFixture,
@@ -11,7 +11,6 @@ import {
   TestSpecificDependencies,
 } from "grassroots-backend/testing/GetTestApp";
 import { listenAndConfigureApp } from "grassroots-backend/app/App.module";
-import { OrganizationEntity } from "grassroots-backend/organizations/Organization.entity";
 
 type GrassRootsAPIRaw = (
   path: keyof paths,
@@ -62,12 +61,8 @@ export function useE2ETestFixture(
   });
 
   beforeEach(async () => {
-    await fixture?.entityManager.begin();
-  });
-
-  afterEach(async () => {
-    await fixture?.entityManager.rollback();
-    await fixture?.entityManager.nativeDelete(OrganizationEntity, {});
+    await fixture?.orm.getSchemaGenerator().clearDatabase();
+    fixture?.entityManager.clear();
   });
 
   return () => {
