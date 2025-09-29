@@ -1,13 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { useE2ETestFixture } from "./infra/E2eSetup.js";
 import {
-  CreatePhoneCanvasContactRequestDTO,
-  CreatePhoneCanvassRequestDTO,
+  CreatePhoneCanvasCSVRequestDTO,
   CreatePhoneCanvassResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
-import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
-import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { PhoneCanvassModule } from "grassroots-backend/phone-canvass/PhoneCanvass.module";
 import { AuthModule } from "grassroots-backend/auth/Auth.module";
 import { UsersModule } from "grassroots-backend/users/Users.module";
@@ -19,35 +16,22 @@ describe("PhoneCanvass (e2e)", () => {
     overrideAuthGuard: true,
   });
 
-  it("should generate a uuid on creation", async () => {
+  it("should support create via csv", async () => {
     const f = getFixture();
+    await f.entityManager.nativeDelete(OrganizationEntity, {});
     await OrganizationEntity.ensureRootOrganization(f.app);
 
     const result = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass", {
-        body: CreatePhoneCanvassRequestDTO.from({
-          contacts: [
-            CreatePhoneCanvasContactRequestDTO.from({
-              contact: CreateContactRequestDTO.from({
-                email: "foo@foo.com",
-                firstName: "First Name",
-                lastName: "Last Name",
-                phoneNumber: "226-999-9999",
-                organizationId: ROOT_ORGANIZATION_ID,
-              }),
-              metadata: '{"test": "foo"}',
-            }),
-            CreatePhoneCanvasContactRequestDTO.from({
-              contact: CreateContactRequestDTO.from({
-                email: "foo2@foo.com",
-                firstName: "First Name",
-                lastName: "Last Name",
-                phoneNumber: "226-999-9998",
-                organizationId: ROOT_ORGANIZATION_ID,
-              }),
-              metadata: '{"test": "bar"}',
-            }),
-          ],
+        body: CreatePhoneCanvasCSVRequestDTO.from({
+          name: "test",
+          // https://www.ietf.org/rfc/rfc4180.txt: "If double-quotes are used to enclose fields,
+          // then a double-quote appearing inside a field must be escaped by preceding it with
+          // another double quote."
+          csv: `email, firstName, lastName, phoneNumber, metadata
+          "foo@foo.com", "First Name", "Last Name", "226-999-9999", "{""test"": ""foo""}"
+          "foo2@foo.com", "First Name", "Last Name", "226-999-9998", "{""test"": ""bar""}"
+          "foo3@foo.com", "First Name", "Last Name", "226-999-9998", "{""test"": ""bar""}"`,
         }),
       }),
     );
@@ -62,7 +46,7 @@ describe("PhoneCanvass (e2e)", () => {
         },
       }),
     );
-    expect(progress.count).toBe(2);
+    expect(progress.count).toBe(3);
   });
 
   it("should provide valid twiml from the webhook", async () => {

@@ -32,9 +32,22 @@ export class CreatePhoneCanvasContactRequestDTO extends createDTOBase(
 export class CreatePhoneCanvassRequestDTO extends createDTOBase(
   "CreatePhoneCanvassRequest",
 ) {
+  @IsString()
+  name!: string;
+
   @ValidateNested({ each: true })
   @Type(() => CreatePhoneCanvasContactRequestDTO)
   contacts!: CreatePhoneCanvasContactRequestDTO[];
+}
+
+export class CreatePhoneCanvasCSVRequestDTO extends createDTOBase(
+  "CreatePhoneCanvasCSVRequest",
+) {
+  @IsString()
+  name!: string;
+
+  @IsString()
+  csv!: string;
 }
 
 export class CreatePhoneCanvassResponseDTO extends createDTOBase(
