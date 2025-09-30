@@ -2,6 +2,7 @@ import {
   IsArray,
   IsJSON,
   IsNumber,
+  IsOptional,
   IsString,
   ValidateNested,
 } from "class-validator";
@@ -122,4 +123,21 @@ export class PaginatedPhoneCanvassContactResponseDTO extends createDTOBase(
       },
     });
   }
+}
+
+export class PhoneCanvassAuthTokenResponseDTO extends createDTOBase(
+  "PhoneCanvassAuthTokenResponse",
+) {
+  @IsString()
+  token!: string;
+}
+
+export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
+  "PhoneCanvasTwilioVoiceCallback",
+) {
+  // We require this to be present, but don't want to use default error handling with twilio responses, so
+  // we mark it optional and manually handle the case where it's missing.
+  @IsString()
+  @IsOptional()
+  conference?: string;
 }
