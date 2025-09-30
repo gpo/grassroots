@@ -12,6 +12,8 @@
 | last_name       | varchar(255) |                                            | false    |                                                                                     |                                                             |         |
 | phone_number    | varchar(255) |                                            | false    |                                                                                     |                                                             |         |
 | organization_id | integer      |                                            | false    |                                                                                     | [public.organization_entity](public.organization_entity.md) |         |
+| gvote_id        | varchar(255) |                                            | true     |                                                                                     |                                                             |         |
+| middle_name     | varchar(255) |                                            | true     |                                                                                     |                                                             |         |
 
 ## Constraints
 
@@ -26,13 +28,15 @@
 | contact_entity_organization_id_foreign  | FOREIGN KEY | FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE |
 | contact_entity_pkey                     | PRIMARY KEY | PRIMARY KEY (id)                                                                   |
 | contact_entity_email_unique             | UNIQUE      | UNIQUE (email)                                                                     |
+| contact_entity_gvote_id_unique          | UNIQUE      | UNIQUE (gvote_id)                                                                  |
 
 ## Indexes
 
-| Name                        | Definition                                                                                   |
-| --------------------------- | -------------------------------------------------------------------------------------------- |
-| contact_entity_pkey         | CREATE UNIQUE INDEX contact_entity_pkey ON public.contact_entity USING btree (id)            |
-| contact_entity_email_unique | CREATE UNIQUE INDEX contact_entity_email_unique ON public.contact_entity USING btree (email) |
+| Name                           | Definition                                                                                         |
+| ------------------------------ | -------------------------------------------------------------------------------------------------- |
+| contact_entity_pkey            | CREATE UNIQUE INDEX contact_entity_pkey ON public.contact_entity USING btree (id)                  |
+| contact_entity_email_unique    | CREATE UNIQUE INDEX contact_entity_email_unique ON public.contact_entity USING btree (email)       |
+| contact_entity_gvote_id_unique | CREATE UNIQUE INDEX contact_entity_gvote_id_unique ON public.contact_entity USING btree (gvote_id) |
 
 ## Relations
 
@@ -49,6 +53,8 @@ erDiagram
   varchar_255_ last_name
   varchar_255_ phone_number
   integer organization_id FK
+  varchar_255_ gvote_id
+  varchar_255_ middle_name
 }
 "public.phone_canvass_to_contact_entity" {
   integer id
