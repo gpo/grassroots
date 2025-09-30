@@ -1,10 +1,17 @@
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
-import { EntityManager, EntityRepository } from "@mikro-orm/core";
+import {
+  EntityManager,
+  EntityRepository,
+  RequiredEntityData,
+} from "@mikro-orm/core";
 import {
   CreatePhoneCanvassRequestDTO,
   CreatePhoneCanvassResponseDTO,
   PhoneCanvassAuthTokenResponseDTO,
+  PaginatedPhoneCanvassContactListRequestDTO,
+  PaginatedPhoneCanvassContactResponseDTO,
+  PhoneCanvassContactDTO,
   PhoneCanvassProgressInfoResponseDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
@@ -33,16 +40,22 @@ export class PhoneCanvassService {
     });
     await this.entityManager.flush();
 
-    canvass.contacts.forEach((canvasContact) => {
+    for (const canvasContact of canvass.contacts) {
+      let contact: RequiredEntityData<ContactEntity> | null =
+        await this.entityManager.findOne(ContactEntity, {
+          gvote_id: canvasContact.contact.gvote_id,
+        });
+      contact ??= ContactEntity.fromCreateContactRequestDTO(
+        canvasContact.contact,
+      );
+
       this.entityManager.create(PhoneCanvassToContactEntity, {
         phoneCanvas: canvassEntity,
         metadata: canvasContact.metadata,
         callStatus: "NOT_STARTED",
-        contact: ContactEntity.fromCreateContactRequestDTO(
-          canvasContact.contact,
-        ),
+        contact,
       });
-    });
+    }
 
     await this.entityManager.flush();
 
@@ -76,6 +89,33 @@ export class PhoneCanvassService {
     const canvass = await this.getPhoneCanvassByIdOrFail(id);
     return PhoneCanvassProgressInfoResponseDTO.from({
       count: canvass.contacts.length,
+    });
+  }
+
+  async list({
+    phoneCanvassId,
+    paginated,
+  }: PaginatedPhoneCanvassContactListRequestDTO): Promise<PaginatedPhoneCanvassContactResponseDTO> {
+    const [result, rowsTotal] = await this.entityManager.findAndCount(
+      PhoneCanvassToContactEntity,
+      { phoneCanvas: phoneCanvassId },
+      {
+        limit: paginated.rowsToTake,
+        offset: paginated.rowsToSkip,
+      },
+    );
+    return PaginatedPhoneCanvassContactResponseDTO.from({
+      contacts: result.map((x) =>
+        PhoneCanvassContactDTO.from({
+          contact: x.contact,
+          metadata: x.metadata,
+          callStatus: x.callStatus,
+        }),
+      ),
+      paginated: {
+        rowsSkipped: paginated.rowsToSkip,
+        rowsTotal,
+      },
     });
   }
 }

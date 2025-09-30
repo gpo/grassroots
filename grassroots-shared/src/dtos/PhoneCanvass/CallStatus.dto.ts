@@ -16,7 +16,7 @@ export type CallStatus = keyof typeof CallStatusEnum;
 
 export function CallStatusDecorator(): PropertyDecorator {
   return applyDecorators(
-    IsEnum(CallStatusEnum, { each: true }),
-    ApiProperty({ enum: CallStatusEnum, isArray: true }),
+    IsEnum(CallStatusEnum),
+    ApiProperty({ enum: CallStatusEnum }),
   );
 }

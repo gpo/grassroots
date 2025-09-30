@@ -20,12 +20,19 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   @PrimaryKey()
   id!: number;
 
+  @Property({ nullable: true })
+  @Unique()
+  gvote_id?: string;
+
   @Property()
   @Unique()
   email!: string;
 
   @Property()
   firstName!: string;
+
+  @Property({ nullable: true })
+  middleName?: string;
 
   @Property()
   lastName!: string;
@@ -39,6 +46,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   toDTO(): ContactDTO {
     return ContactDTO.from({
       id: this.id,
+      gvote_id: this.gvote_id,
       email: this.email,
       firstName: this.firstName,
       lastName: this.lastName,
@@ -52,6 +60,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   ): RequiredEntityData<ContactEntity> {
     return {
       email: contact.email,
+      gvote_id: contact.gvote_id,
       firstName: contact.firstName,
       lastName: contact.lastName,
       phoneNumber: contact.phoneNumber,

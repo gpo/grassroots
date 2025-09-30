@@ -6,6 +6,8 @@ import {
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
+  IsString,
+  Length,
   Min,
   ValidateNested,
 } from "class-validator";
@@ -18,11 +20,20 @@ export class ContactDTO extends createDTOBase("Contact") {
   @Min(1)
   id!: number;
 
+  @IsString()
+  @Length(24, 24)
+  @IsOptional()
+  gvote_id?: string;
+
   @IsEmail()
   email!: string;
 
   @IsNotEmpty()
   firstName!: string;
+
+  @IsString()
+  @IsOptional()
+  middleName?: string;
 
   @IsNotEmpty()
   lastName!: string;
@@ -49,8 +60,17 @@ export class CreateContactRequestDTO extends createDTOBase(
   @IsEmail()
   email!: string;
 
+  @IsString()
+  @IsOptional()
+  @Length(24, 24)
+  gvote_id?: string;
+
   @IsNotEmpty()
   firstName!: string;
+
+  @IsString()
+  @IsOptional()
+  middleName?: string;
 
   @IsNotEmpty()
   lastName!: string;
