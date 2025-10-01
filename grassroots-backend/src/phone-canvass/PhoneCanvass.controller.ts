@@ -49,7 +49,9 @@ export class PhoneCanvassController {
     @Body() canvasData: CreatePhoneCanvasCSVRequestDTO,
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
+    console.log(canvasData.csv);
     const email = getEmail(req);
+<<<<<<< HEAD
     const HANDLED_FIELDS = new Set([
       "id",
       "gvote_id",
@@ -69,12 +71,23 @@ export class PhoneCanvassController {
         phone: string;
       } & Record<string, string>
     >(canvasData.csv, {
+=======
+    const rows = Papa.parse<{
+      metadata: string;
+      email: string;
+      first_name: string;
+      middle_name: string;
+      last_name: string;
+      phone: string;
+    }>(canvasData.csv, {
+>>>>>>> Needs rebase
       header: true,
       dynamicTyping: false,
       skipEmptyLines: true,
       transformHeader: (h) => h.trim(),
       transform: (v) => v.trim(),
     });
+    console.log(rows);
 
     if (rows.errors.length > 0) {
       throw new BadRequestException(

@@ -50,9 +50,9 @@ export class AuthController {
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
   ): VoidDTO {
-    const host = this.configService.get<string>("FRONTEND_HOST");
+    const host = this.configService.get<string>("VITE_FRONTEND_HOST");
     if (host === undefined) {
-      throw new Error("Missing env variable for FRONTEND_HOST");
+      throw new Error("Missing env variable for VITE_FRONTEND_HOST");
     }
     if (!req.user) {
       throw new Error("No user found for login.");

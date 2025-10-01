@@ -39,6 +39,7 @@ export class GoogleOAuthStrategy extends PassportStrategy(
       clientSecret,
       callbackURL,
       scope: ["email", "profile"],
+      prompt: "login",
     } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
   }
 
