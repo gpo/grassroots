@@ -325,16 +325,6 @@
       "schema": "public",
       "indexes": [
         {
-          "columnNames": [
-            "contact_id"
-          ],
-          "composite": false,
-          "keyName": "phone_canvass_to_contact_entity_contact_id_unique",
-          "constraint": true,
-          "primary": false,
-          "unique": true
-        },
-        {
           "keyName": "phone_canvass_to_contact_entity_pkey",
           "columnNames": [
             "id"

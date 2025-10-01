@@ -54,11 +54,13 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
 
     const allContacts =
       PaginatedPhoneCanvassContactResponseDTO.fromFetchOrThrow(
-        await f.grassrootsAPI.GET("/phone-canvass/list/{phoneCanvassId}", {
-          params: {
-            path: {
-              phoneCanvassId: result.id,
+        await f.grassrootsAPI.POST("/phone-canvass/list", {
+          body: {
+            paginated: {
+              rowsToSkip: 0,
+              rowsToTake: 10,
             },
+            phoneCanvassId: result.id,
           },
         }),
       );

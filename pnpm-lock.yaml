@@ -406,7 +406,16 @@ importers:
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
+      vite-plugin-babel:
+        specifier: ^1.3.2
+        version: 1.3.2(@babel/core@7.28.4)(vite@6.3.6(@types/node@24.3.2)(sugarss@5.0.1(postcss@8.5.6))(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1))
     devDependencies:
+      "@babel/plugin-proposal-class-properties":
+        specifier: ^7.18.6
+        version: 7.18.6(@babel/core@7.28.4)
+      "@babel/plugin-proposal-decorators":
+        specifier: ^7.28.0
+        version: 7.28.0(@babel/core@7.28.4)
       "@hookform/resolvers":
         specifier: ^5.0.1
         version: 5.2.1(react-hook-form@7.62.0(react@19.1.1))
@@ -721,6 +730,34 @@ packages:
       }
     engines: { node: ">=6.0.0" }
     hasBin: true
+
+  "@babel/plugin-proposal-class-properties@7.18.6":
+    resolution:
+      {
+        integrity: sha512-cumfXOF0+nzZrrN8Rf0t7M+tF6sZc7vhQwYQck9q1/5w2OExlD+b4v4RpMJFaV1Z7WcDRgO6FqvxqxGlwo+RHQ==,
+      }
+    engines: { node: ">=6.9.0" }
+    deprecated: This proposal has been merged to the ECMAScript standard and thus this plugin is no longer maintained. Please use @babel/plugin-transform-class-properties instead.
+    peerDependencies:
+      "@babel/core": ^7.0.0-0
+
+  "@babel/plugin-proposal-decorators@7.28.0":
+    resolution:
+      {
+        integrity: sha512-zOiZqvANjWDUaUS9xMxbMcK/Zccztbe/6ikvUXaG9nsPH3w6qh5UaPGAnirI/WhIbZ8m3OHU0ReyPrknG+ZKeg==,
+      }
+    engines: { node: ">=6.9.0" }
+    peerDependencies:
+      "@babel/core": ^7.0.0-0
+
+  "@babel/plugin-syntax-decorators@7.27.1":
+    resolution:
+      {
+        integrity: sha512-YMq8Z87Lhl8EGkmb0MwYkt36QnxC+fzCgrl66ereamPlYToRpIk5nUjKUY3QKLWq8mwUB1BgbeXcTJhZOCDg5A==,
+      }
+    engines: { node: ">=6.9.0" }
+    peerDependencies:
+      "@babel/core": ^7.0.0-0
 
   "@babel/plugin-syntax-jsx@7.27.1":
     resolution:
@@ -9235,6 +9272,15 @@ packages:
     engines: { node: ^18.0.0 || ^20.0.0 || >=22.0.0 }
     hasBin: true
 
+  vite-plugin-babel@1.3.2:
+    resolution:
+      {
+        integrity: sha512-mEld4OVyuNs5+ISN+U5XyTnNcDwln/s2oER2m0PQ32YYPqPR25E3mfnhAA/RkZJxPuwFkprKWV405aZArE6kzA==,
+      }
+    peerDependencies:
+      "@babel/core": ^7.0.0
+      vite: ^2.7.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+
   vite@6.3.6:
     resolution:
       {
@@ -9727,6 +9773,28 @@ snapshots:
   "@babel/parser@7.28.4":
     dependencies:
       "@babel/types": 7.28.4
+
+  "@babel/plugin-proposal-class-properties@7.18.6(@babel/core@7.28.4)":
+    dependencies:
+      "@babel/core": 7.28.4
+      "@babel/helper-create-class-features-plugin": 7.28.3(@babel/core@7.28.4)
+      "@babel/helper-plugin-utils": 7.27.1
+    transitivePeerDependencies:
+      - supports-color
+
+  "@babel/plugin-proposal-decorators@7.28.0(@babel/core@7.28.4)":
+    dependencies:
+      "@babel/core": 7.28.4
+      "@babel/helper-create-class-features-plugin": 7.28.3(@babel/core@7.28.4)
+      "@babel/helper-plugin-utils": 7.27.1
+      "@babel/plugin-syntax-decorators": 7.27.1(@babel/core@7.28.4)
+    transitivePeerDependencies:
+      - supports-color
+
+  "@babel/plugin-syntax-decorators@7.27.1(@babel/core@7.28.4)":
+    dependencies:
+      "@babel/core": 7.28.4
+      "@babel/helper-plugin-utils": 7.27.1
 
   "@babel/plugin-syntax-jsx@7.27.1(@babel/core@7.28.4)":
     dependencies:
@@ -15147,6 +15215,11 @@ snapshots:
       - terser
       - tsx
       - yaml
+
+  vite-plugin-babel@1.3.2(@babel/core@7.28.4)(vite@6.3.6(@types/node@24.3.2)(sugarss@5.0.1(postcss@8.5.6))(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1)):
+    dependencies:
+      "@babel/core": 7.28.4
+      vite: 6.3.6(@types/node@24.3.2)(sugarss@5.0.1(postcss@8.5.6))(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1)
 
   vite@6.3.6(@types/node@24.3.2)(sugarss@5.0.1(postcss@8.5.6))(terser@5.44.0)(tsx@4.20.5)(yaml@2.8.1):
     dependencies:

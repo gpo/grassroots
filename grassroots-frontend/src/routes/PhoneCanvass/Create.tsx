@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { JSX, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -12,21 +12,16 @@ import {
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
 import { classValidatorResolver } from "@hookform/resolvers/class-validator";
 import { TextField } from "../../components/TextField.js";
-import { IsNotEmpty } from "class-validator";
 import { readFileAsText } from "../../util/ReadFileAsText.js";
 import { GRFileInput } from "../../components/GRFileInput.js";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
+import { CreatePhoneCanvassDataValidatedDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
-export const Route = createFileRoute("/PhoneCanvass/CreatePhoneCanvass")({
+export const Route = createFileRoute("/PhoneCanvass/Create")({
   component: CreatePhoneCanvass,
 });
 
-class CreatePhoneCanvassDataValidated {
-  @IsNotEmpty()
-  name!: string;
-}
-
-class CreatePhoneCanvassData extends CreatePhoneCanvassDataValidated {
+class CreatePhoneCanvassData extends CreatePhoneCanvassDataValidatedDTO {
   csv!: File;
 }
 
@@ -38,26 +33,26 @@ function isValid<T extends FieldValues>(
 }
 
 function CreatePhoneCanvass(): JSX.Element {
+  const navigate = useNavigate();
+
   const form = useForm<CreatePhoneCanvassData>({
     resolver: async (data, context, options) => {
       // If we pass classValidatorResolver a File, it explodes.
       // To avoid this, we pull out the files before validation.
       const { csv: csvProps, ...validated } = propsOf(data);
       void csvProps;
-      const csv = data.csv;
-      console.log(csv);
       const validatedResult = await classValidatorResolver(
-        CreatePhoneCanvassDataValidated,
+        CreatePhoneCanvassDataValidatedDTO,
       )(
-        validated,
+        CreatePhoneCanvassDataValidatedDTO.from(validated),
         context,
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        options as unknown as ResolverOptions<CreatePhoneCanvassDataValidated>,
+        options as unknown as ResolverOptions<CreatePhoneCanvassDataValidatedDTO>,
       );
 
       const result: ResolverResult<CreatePhoneCanvassData> = validatedResult;
       if (isValid(result)) {
-        result.values.csv = csv;
+        result.values.csv = data.csv;
       }
       // TODO: handle invalid files.
       return result;
@@ -68,7 +63,6 @@ function CreatePhoneCanvass(): JSX.Element {
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: async (phoneCanvass: CreatePhoneCanvassData) => {
-      console.log(phoneCanvass.csv);
       const csvText = await readFileAsText(phoneCanvass.csv);
 
       const result = await grassrootsAPI.POST("/phone-canvass", {
@@ -80,21 +74,21 @@ function CreatePhoneCanvass(): JSX.Element {
       if (!result.data) {
         throw new Error("Failed to create phone canvass.");
       }
-      console.log(result.data);
       return result.data;
     },
     retry: 1,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["contacts"] });
+      await queryClient.invalidateQueries({ queryKey: ["canvass"] });
     },
   });
 
   const onSubmit: SubmitHandler<CreatePhoneCanvassData> = useCallback(
     async (data) => {
-      console.log("SUBMIT!", data);
-
-      await mutateAsync(data);
-      form.reset();
+      const result = await mutateAsync(data);
+      await navigate({
+        to: "/PhoneCanvass/Manage/$phoneCanvassId",
+        params: { phoneCanvassId: result.id },
+      });
     },
     [],
   );
