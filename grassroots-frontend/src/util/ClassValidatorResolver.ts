@@ -30,16 +30,29 @@ function flattenErrors(
 
 export function classValidatorResolver<DTO extends object>(
   dto: ClassConstructor<DTO>,
+  additionalValidation?: (values: PropsOf<DTO>) => FormErrors,
 ): (values: PropsOf<DTO>) => FormErrors {
+  const allowedClasses = [File];
   return (values: PropsOf<DTO>): FormErrors => {
-    const instance = plainToInstance(dto, values);
+    const validate: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(values)) {
+      if (!allowedClasses.some((cls) => v instanceof cls)) {
+        validate[k] = v;
+      }
+    }
 
-    const errors = validateSync(instance, {
+    const instance = plainToInstance(dto, validate);
+
+    const classValidatorErrors = validateSync(instance, {
       skipMissingProperties: false,
       whitelist: false,
       forbidNonWhitelisted: false,
     });
 
-    return flattenErrors(errors);
+    const errors = flattenErrors(classValidatorErrors);
+    if (additionalValidation) {
+      Object.assign(errors, additionalValidation(values));
+    }
+    return errors;
   };
 }

@@ -7,56 +7,34 @@ import {
   CreatePhoneCanvassDataValidatedDTO,
   CreatePhoneCanvassResponseDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
-import { useForm, UseFormInput, UseFormReturnType } from "@mantine/form";
 import { classValidatorResolver } from "../../util/ClassValidatorResolver.js";
 import { FileInput, TextInput } from "@mantine/core";
-import { PropsOf } from "grassroots-shared/util/TypeUtils";
+import { useTypedForm } from "../../util/UseTypedForm.js";
+import { FieldErrors } from "react-hook-form";
 
 export const Route = createFileRoute("/PhoneCanvass/Create")({
   component: CreatePhoneCanvass,
 });
 
 class CreatePhoneCanvassData extends CreatePhoneCanvassDataValidatedDTO {
-  // TODO: can this be undefined?
-  csv!: File | null;
-
-  constructor(x: CreatePhoneCanvassDataValidatedDTO, csv: File) {
-    super();
-    Object.assign(this, x);
-    this.csv = csv;
-  }
-}
-
-type FormData = PropsOf<CreatePhoneCanvassData, File | null>;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function useTypedForm<T extends Record<string, any>>(
-  input: UseFormInput<T, (values: T) => T>,
-): Omit<UseFormReturnType<T>, "key" | "getInputProps"> & {
-  key: (field: keyof T & string) => string;
-  getInputProps: (
-    field: keyof T & string,
-  ) => ReturnType<UseFormReturnType<T>["getInputProps"]>;
-} {
-  const form = useForm<T>(input);
-  const result = {
-    ...form,
-    key: (field: keyof T & string) => form.key(field),
-    getInputProps: (field: keyof T & string) => form.getInputProps(field),
-  } as const;
-
-  return result;
+  csv!: File | undefined;
 }
 
 function CreatePhoneCanvass(): JSX.Element {
   const navigate = useNavigate();
 
-  const form = useTypedForm<FormData>({
-    validate: classValidatorResolver(CreatePhoneCanvassData),
-    initialValues: {
-      csv: null,
+  const form = useTypedForm<CreatePhoneCanvassData>({
+    validate: classValidatorResolver(CreatePhoneCanvassData, (values) => {
+      const errors: FieldErrors = {};
+      if (values.csv === undefined) {
+        Object.assign(errors, { csv: "Missing csv" });
+      }
+      return {};
+    }),
+    initialValues: CreatePhoneCanvassData.from({
+      csv: undefined,
       name: "",
-    } as const,
+    }),
   });
 
   const queryClient = useQueryClient();
@@ -82,16 +60,12 @@ function CreatePhoneCanvass(): JSX.Element {
     },
   });
 
-  const onSubmit = useCallback(async (data: FormData) => {
+  const onSubmit = useCallback(async (data: CreatePhoneCanvassData) => {
     if (!data.csv) {
       throw new Error("Form submitted without csv present.");
     }
-    const dto = new CreatePhoneCanvassData(
-      CreatePhoneCanvassDataValidatedDTO.from(data),
-      data.csv,
-    );
 
-    const result = await mutateAsync(dto);
+    const result = await mutateAsync(data);
     await navigate({
       to: "/PhoneCanvass/Manage/$phoneCanvassId",
       params: { phoneCanvassId: result.id },
