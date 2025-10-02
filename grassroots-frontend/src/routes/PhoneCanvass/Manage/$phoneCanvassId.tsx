@@ -30,8 +30,6 @@ function ManagePhoneCanvass(): JSX.Element {
       }),
     ).data ?? PaginatedPhoneCanvassContactResponseDTO.empty();
 
-  console.log(JSON.stringify(paginatedPhoneCanvassContacts.contacts, null, 2));
-
   return (
     <>
       <h1> Manage your phone canvass </h1>
