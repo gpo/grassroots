@@ -1,80 +1,80 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { JSX, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  FieldValues,
-  FormProvider,
-  ResolverOptions,
-  ResolverResult,
-  SubmitHandler,
-  useForm,
-} from "react-hook-form";
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
-import { classValidatorResolver } from "@hookform/resolvers/class-validator";
-import { TextField } from "../../components/TextField.js";
 import { readFileAsText } from "../../util/ReadFileAsText.js";
-import { GRFileInput } from "../../components/GRFileInput.js";
-import { propsOf } from "grassroots-shared/util/TypeUtils";
-import { CreatePhoneCanvassDataValidatedDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import {
+  CreatePhoneCanvassDataValidatedDTO,
+  CreatePhoneCanvassResponseDTO,
+} from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { useForm, UseFormInput, UseFormReturnType } from "@mantine/form";
+import { classValidatorResolver } from "../../util/ClassValidatorResolver.js";
+import { FileInput, TextInput } from "@mantine/core";
+import { PropsOf } from "grassroots-shared/util/TypeUtils";
 
 export const Route = createFileRoute("/PhoneCanvass/Create")({
   component: CreatePhoneCanvass,
 });
 
 class CreatePhoneCanvassData extends CreatePhoneCanvassDataValidatedDTO {
-  csv!: File;
+  // TODO: can this be undefined?
+  csv!: File | null;
+
+  constructor(x: CreatePhoneCanvassDataValidatedDTO, csv: File) {
+    super();
+    Object.assign(this, x);
+    this.csv = csv;
+  }
 }
 
-function isValid<T extends FieldValues>(
-  result: ResolverResult<T>,
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
-): result is { values: T; errors: {} } {
-  return Object.keys(result.errors).length === 0;
+type FormData = PropsOf<CreatePhoneCanvassData, File | null>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function useTypedForm<T extends Record<string, any>>(
+  input: UseFormInput<T, (values: T) => T>,
+): Omit<UseFormReturnType<T>, "key" | "getInputProps"> & {
+  key: (field: keyof T & string) => string;
+  getInputProps: (
+    field: keyof T & string,
+  ) => ReturnType<UseFormReturnType<T>["getInputProps"]>;
+} {
+  const form = useForm<T>(input);
+  const result = {
+    ...form,
+    key: (field: keyof T & string) => form.key(field),
+    getInputProps: (field: keyof T & string) => form.getInputProps(field),
+  } as const;
+
+  return result;
 }
 
 function CreatePhoneCanvass(): JSX.Element {
   const navigate = useNavigate();
 
-  const form = useForm<CreatePhoneCanvassData>({
-    resolver: async (data, context, options) => {
-      // If we pass classValidatorResolver a File, it explodes.
-      // To avoid this, we pull out the files before validation.
-      const { csv: csvProps, ...validated } = propsOf(data);
-      void csvProps;
-      const validatedResult = await classValidatorResolver(
-        CreatePhoneCanvassDataValidatedDTO,
-      )(
-        CreatePhoneCanvassDataValidatedDTO.from(validated),
-        context,
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        options as unknown as ResolverOptions<CreatePhoneCanvassDataValidatedDTO>,
-      );
-
-      const result: ResolverResult<CreatePhoneCanvassData> = validatedResult;
-      if (isValid(result)) {
-        result.values.csv = data.csv;
-      }
-      // TODO: handle invalid files.
-      return result;
-    },
-    mode: "onBlur",
+  const form = useTypedForm<FormData>({
+    validate: classValidatorResolver(CreatePhoneCanvassData),
+    initialValues: {
+      csv: null,
+      name: "",
+    } as const,
   });
 
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
     mutationFn: async (phoneCanvass: CreatePhoneCanvassData) => {
+      if (!phoneCanvass.csv) {
+        throw new Error("Form submitted without csv present.");
+      }
       const csvText = await readFileAsText(phoneCanvass.csv);
 
-      const result = await grassrootsAPI.POST("/phone-canvass", {
-        body: {
-          csv: csvText,
-          name: phoneCanvass.name,
-        },
-      });
-      if (!result.data) {
-        throw new Error("Failed to create phone canvass.");
-      }
-      return result.data;
+      return CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
+        await grassrootsAPI.POST("/phone-canvass", {
+          body: {
+            csv: csvText,
+            name: phoneCanvass.name,
+          },
+        }),
+      );
     },
     retry: 1,
     onSuccess: async () => {
@@ -82,35 +82,38 @@ function CreatePhoneCanvass(): JSX.Element {
     },
   });
 
-  const onSubmit: SubmitHandler<CreatePhoneCanvassData> = useCallback(
-    async (data) => {
-      const result = await mutateAsync(data);
-      await navigate({
-        to: "/PhoneCanvass/Manage/$phoneCanvassId",
-        params: { phoneCanvassId: result.id },
-      });
-    },
-    [],
-  );
+  const onSubmit = useCallback(async (data: FormData) => {
+    if (!data.csv) {
+      throw new Error("Form submitted without csv present.");
+    }
+    const dto = new CreatePhoneCanvassData(
+      CreatePhoneCanvassDataValidatedDTO.from(data),
+      data.csv,
+    );
+
+    const result = await mutateAsync(dto);
+    await navigate({
+      to: "/PhoneCanvass/Manage/$phoneCanvassId",
+      params: { phoneCanvassId: result.id },
+    });
+  }, []);
 
   return (
-    <FormProvider {...form}>
-      {/* This little typescript dance is required to make eslint happy.  */}
-      <form onSubmit={(...args) => void form.handleSubmit(onSubmit)(...args)}>
-        <TextField<{ name: string }>
-          defaultValue=""
-          label="Phone Canvass Name"
-          name="name"
-        ></TextField>
-        <GRFileInput
-          label="Contact List CSV"
-          description="CSV from GVote containing list of people to phone"
-          placeholder="Contact List CSV"
-          accept=".csv"
-          name="csv"
-        ></GRFileInput>
-        <input type="submit" />
-      </form>
-    </FormProvider>
+    <form onSubmit={form.onSubmit(onSubmit)}>
+      <TextInput
+        label="Phone Canvass Name"
+        key={form.key("name")}
+        {...form.getInputProps("name")}
+      ></TextInput>
+      <FileInput
+        label="Contact List CSV"
+        description="CSV from GVote containing list of people to phone"
+        placeholder="Contact List CSV"
+        accept=".csv"
+        key={form.key("csv")}
+        {...form.getInputProps("csv")}
+      ></FileInput>
+      <input type="submit" />
+    </form>
   );
 }

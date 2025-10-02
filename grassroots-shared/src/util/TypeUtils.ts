@@ -114,8 +114,10 @@ type ExcludedKeys = "__DTOBrand" | "__entityBrand" | "__caslSubjectType";
 // We need to make sure that any type union is "distributed".
 // That means PropsOf<a | b> = PropsOf<a> | PropsOf<b>.
 // The "X extends infer A extends X" is a handy way to force distribution.
-export type PropsOf<Undistributed> = Undistributed extends infer A extends
-  Undistributed
+export type PropsOf<
+  Undistributed,
+  PreservedClasses = never,
+> = Undistributed extends infer A extends Undistributed
   ? {
       [k in keyof A as If<
         // Exclude functions.
@@ -123,7 +125,12 @@ export type PropsOf<Undistributed> = Undistributed extends infer A extends
         never,
         // Exclude excluded keys
         If<IsAssignableTo<k, ExcludedKeys>, never, k>
-      >]: ValueToValueProps<A[k]>;
+      >]: If<
+        IsAssignableTo<A[k], PreservedClasses>,
+        // Keep PreservedClasses as is.
+        A[k],
+        ValueToValueProps<A[k], PreservedClasses>
+      >;
     }
   : never;
 
@@ -132,22 +139,22 @@ export function propsOf<T>(t: T): PropsOf<T> {
   return t;
 }
 
-type ValueToValueProps<Undistributed> = Undistributed extends infer A extends
-  Undistributed
-  ? // If it's an array, recurse.
-    // We need to check for arrays before objects, as arrays are objects.
-    If<
-      IsArray<A>,
-      PropsOf<GetArrayItemType<A>>[],
-      // If it's an object, recurse.
+type ValueToValueProps<Undistributed, PreservedClasses> =
+  Undistributed extends infer A extends Undistributed
+    ? // If it's an array, recurse.
+      // We need to check for arrays before objects, as arrays are objects.
       If<
-        IsAssignableTo<A, object>,
-        PropsOf<A>,
-        // Otherwise, it's a primitive, leave it alone.
-        A
+        IsArray<A>,
+        PropsOf<GetArrayItemType<A>, PreservedClasses>[],
+        // If it's an object, recurse.
+        If<
+          IsAssignableTo<A, object>,
+          PropsOf<A, PreservedClasses>,
+          // Otherwise, it's a primitive, leave it alone.
+          A
+        >
       >
-    >
-  : never;
+    : never;
 
 function TestPropsOf(): void {
   class WrapperWithMethod<T> {
@@ -222,6 +229,39 @@ function TestPropsOf(): void {
 
   type TestArrayExcludedKeys = Assert<
     Equals<PropsOf<{ x: { __DTOBrand: 2; a: 1 }[] }>, { x: { a: 1 }[] }>
+  >;
+
+  class A {
+    a!: number;
+    f(): number {
+      return 2;
+    }
+  }
+
+  class B {
+    b!: number;
+    f(): number {
+      return 2;
+    }
+  }
+
+  class NestedPreserved {
+    a!: A;
+  }
+
+  type Foo = PropsOf<
+    { a: A; b: B; nested: NestedPreserved; as: A[]; optional?: A },
+    A | B | NestedPreserved | A[] | undefined
+  >;
+
+  type TestPreservedClasses = Assert<
+    Equals<
+      PropsOf<
+        { a: A; b: B; as: A[]; nested: NestedPreserved },
+        A | B | A[] | NestedPreserved
+      >,
+      { a: A; b: B; nested: NestedPreserved; as: A[] }
+    >
   >;
 }
 
