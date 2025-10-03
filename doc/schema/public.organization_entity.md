@@ -56,6 +56,8 @@ erDiagram
   varchar_255_ last_name
   varchar_255_ phone_number
   integer organization_id FK
+  varchar_255_ gvote_id
+  varchar_255_ middle_name
 }
 "public.user_role_entity" {
   integer id

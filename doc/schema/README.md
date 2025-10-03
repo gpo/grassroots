@@ -7,7 +7,7 @@
 | [public.mikro_orm_migrations](public.mikro_orm_migrations.md)                       | 3       |         | BASE TABLE |
 | [public.user_entity](public.user_entity.md)                                         | 5       |         | BASE TABLE |
 | [public.organization_entity](public.organization_entity.md)                         | 5       |         | BASE TABLE |
-| [public.contact_entity](public.contact_entity.md)                                   | 6       |         | BASE TABLE |
+| [public.contact_entity](public.contact_entity.md)                                   | 8       |         | BASE TABLE |
 | [public.user_role_entity](public.user_role_entity.md)                               | 5       |         | BASE TABLE |
 | [public.phone_canvass_entity](public.phone_canvass_entity.md)                       | 1       |         | BASE TABLE |
 | [public.phone_canvass_to_contact_entity](public.phone_canvass_to_contact_entity.md) | 5       |         | BASE TABLE |
@@ -50,6 +50,8 @@ erDiagram
   varchar_255_ last_name
   varchar_255_ phone_number
   integer organization_id FK
+  varchar_255_ gvote_id
+  varchar_255_ middle_name
 }
 "public.user_role_entity" {
   integer id

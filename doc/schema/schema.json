@@ -306,6 +306,16 @@
           "name": "organization_id",
           "type": "integer",
           "nullable": false
+        },
+        {
+          "name": "gvote_id",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "middle_name",
+          "type": "varchar(255)",
+          "nullable": true
         }
       ],
       "indexes": [
@@ -323,6 +333,14 @@
           "table": "public.contact_entity",
           "columns": [
             "email"
+          ]
+        },
+        {
+          "name": "contact_entity_gvote_id_unique",
+          "def": "CREATE UNIQUE INDEX contact_entity_gvote_id_unique ON public.contact_entity USING btree (gvote_id)",
+          "table": "public.contact_entity",
+          "columns": [
+            "gvote_id"
           ]
         }
       ],
@@ -418,6 +436,16 @@
           "referenced_table": "",
           "columns": [
             "email"
+          ]
+        },
+        {
+          "name": "contact_entity_gvote_id_unique",
+          "type": "UNIQUE",
+          "def": "UNIQUE (gvote_id)",
+          "table": "public.contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "gvote_id"
           ]
         }
       ]

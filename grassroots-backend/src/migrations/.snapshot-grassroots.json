@@ -119,6 +119,16 @@
           "nullable": false,
           "mappedType": "integer"
         },
+        "gvote_id": {
+          "name": "gvote_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
         "email": {
           "name": "email",
           "type": "varchar(255)",
@@ -136,6 +146,16 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "middle_name": {
+          "name": "middle_name",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "length": 255,
           "mappedType": "string"
         },
@@ -172,6 +192,16 @@
       "name": "contact_entity",
       "schema": "public",
       "indexes": [
+        {
+          "columnNames": [
+            "gvote_id"
+          ],
+          "composite": false,
+          "keyName": "contact_entity_gvote_id_unique",
+          "constraint": true,
+          "primary": false,
+          "unique": true
+        },
         {
           "columnNames": [
             "email"

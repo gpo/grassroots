@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsJSON,
   IsNumber,
   IsOptional,
@@ -9,6 +10,7 @@ import { createDTOBase } from "../../util/CreateDTOBase.js";
 import { CallStatus, CallStatusDecorator } from "./CallStatus.dto.js";
 import { Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
+import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
 
 export class PhoneCanvassDTO extends createDTOBase("PhoneCanvass") {
   @IsString()
@@ -66,6 +68,12 @@ export class PhoneCanvassContactDTO extends createDTOBase(
   @IsJSON()
   metadata!: string;
 
+  getMetadataByKey(key: string): undefined | string | string[] {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const metadata = JSON.parse(this.metadata) as [string, string | string[]][];
+    return metadata.find((x) => x[0] == key)?.[1];
+  }
+
   // eslint-disable-next-line @darraghor/nestjs-typed/all-properties-are-whitelisted, @darraghor/nestjs-typed/all-properties-have-explicit-defined
   @CallStatusDecorator()
   callStatus!: CallStatus;
@@ -83,6 +91,40 @@ export class PhoneCanvassProgressInfoResponseDTO extends createDTOBase(
   count!: number;
 }
 
+export class PaginatedPhoneCanvassContactListRequestDTO extends createDTOBase(
+  "PaginatedPhoneCanvassContactListRequest",
+) {
+  @IsString()
+  phoneCanvassId!: string;
+
+  @ValidateNested()
+  @Type(() => PaginatedRequestDTO)
+  paginated!: PaginatedRequestDTO;
+}
+
+export class PaginatedPhoneCanvassContactResponseDTO extends createDTOBase(
+  "PaginatedPhoneCanvassContactResponse",
+) {
+  @ValidateNested({ each: true })
+  @Type(() => PhoneCanvassContactDTO)
+  @IsArray()
+  contacts!: PhoneCanvassContactDTO[];
+
+  @ValidateNested()
+  @Type(() => PaginatedResponseDTO)
+  paginated!: PaginatedResponseDTO;
+
+  static empty(): PaginatedPhoneCanvassContactResponseDTO {
+    return PaginatedPhoneCanvassContactResponseDTO.from({
+      contacts: [],
+      paginated: {
+        rowsSkipped: 0,
+        rowsTotal: 0,
+      },
+    });
+  }
+}
+
 export class PhoneCanvassAuthTokenResponseDTO extends createDTOBase(
   "PhoneCanvassAuthTokenResponse",
 ) {
@@ -93,9 +135,9 @@ export class PhoneCanvassAuthTokenResponseDTO extends createDTOBase(
 export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
   "PhoneCanvasTwilioVoiceCallback",
 ) {
-  @IsString()
   // We require this to be present, but don't want to use default error handling with twilio responses, so
   // we mark it optional and manually handle the case where it's missing.
+  @IsString()
   @IsOptional()
   conference?: string;
 }
