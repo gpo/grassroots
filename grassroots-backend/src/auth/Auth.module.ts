@@ -7,10 +7,39 @@ import { AuthController } from "./Auth.controller.js";
 import { APP_GUARD } from "@nestjs/core";
 import { SessionGuard } from "./Session.guard.js";
 import { OrganizationsModule } from "../organizations/Organizations.module.js";
+import { UsersService } from "src/users/Users.service.js";
+import { getEnvironmentVariables } from "src/GetEnvironmentVariables.js";
 
 @Module({
   providers: [
-    GoogleOAuthStrategy,
+    {
+      provide: GoogleOAuthStrategy,
+      useFactory: async (
+        userService: UsersService,
+      ): Promise<GoogleOAuthStrategy> => {
+        const envVars = await getEnvironmentVariables();
+
+        const clientId = envVars.GOOGLE_CLIENT_ID;
+        const clientSecret = envVars.GOOGLE_CLIENT_SECRET;
+        const callbackURL =
+          envVars.GOOGLE_AUTH_CALLBACK_URL ?? "/auth/google/callback";
+
+        if (clientId === undefined || clientId === "") {
+          throw new Error("Missing environment variable GOOGLE_CLIENT_ID");
+        }
+        if (clientSecret === undefined || clientSecret === "") {
+          throw new Error("Missing environment variable GOOGLE_CLIENT_SECRET");
+        }
+
+        return new GoogleOAuthStrategy(
+          userService,
+          clientId,
+          clientSecret,
+          callbackURL,
+        );
+      },
+      inject: [UsersService],
+    },
     // This pattern of providing this and then using useExisting is a bit weird, but required for
     // overriding the DefaultAuthGuard in tests.
     // https://stackoverflow.com/a/78448040

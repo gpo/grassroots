@@ -19,25 +19,15 @@ export class GoogleOAuthStrategy extends PassportStrategy(
   DEFAULT_PASSPORT_STRATEGY_NAME,
 ) {
   constructor(
-    private config: ConfigService,
     private userService: UsersService,
+    clientId: string,
+    clientSecret: string,
+    callbackURL: string,
   ) {
-    const clientID = config.get<string>("GOOGLE_CLIENT_ID");
-    if (clientID === undefined) {
-      throw new Error("Missing environment variable GOOGLE_CLIENT_ID");
-    }
-    const clientSecret = config.get<string>("GOOGLE_CLIENT_SECRET");
-    if (clientSecret === undefined) {
-      throw new Error("Missing environment variable GOOGLE_CLIENT_SECRET");
-    }
-    const callbackURL = config.get<string>("GOOGLE_AUTH_CALLBACK_URL");
-    if (callbackURL === undefined) {
-      throw new Error("Missing environment variable GOOGLE_AUTH_CALLBACK_URL");
-    }
     super({
-      clientID,
-      clientSecret,
-      callbackURL,
+      clientID: clientId,
+      clientSecret: clientSecret,
+      callbackURL: callbackURL,
       scope: ["email", "profile"],
     } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
   }
