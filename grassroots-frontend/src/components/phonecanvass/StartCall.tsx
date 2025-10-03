@@ -25,18 +25,19 @@ async function connect(props: {
   phoneCanvassId: string;
   calleeId: number;
 }): Promise<void> {
+  const { phoneCanvassId, setToken, calleeId } = props;
   void VoidDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/start-canvass/{id}", {
       params: {
         path: {
-          id: props.phoneCanvassId,
+          id: phoneCanvassId,
         },
       },
     }),
   );
 
-  const authToken = await getAuthToken(props.phoneCanvassId);
-  props.setToken(authToken);
+  const authToken = await getAuthToken(phoneCanvassId);
+  setToken(authToken);
 
   const device = new Device(authToken, {
     logLevel: 4,
@@ -55,7 +56,7 @@ async function connect(props: {
 
   const call = await device.connect({
     // These get passed to the controller.
-    params: { conference: String(props.calleeId) },
+    params: { conference: String(calleeId) },
   });
 
   call.on("accept", () => {
