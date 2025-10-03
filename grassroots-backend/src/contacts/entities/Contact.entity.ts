@@ -51,7 +51,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       firstName: this.firstName,
       lastName: this.lastName,
       phoneNumber: this.phoneNumber,
-      organization: this.organization.toDTO(),
+      organization: this.organization,
     });
   }
 

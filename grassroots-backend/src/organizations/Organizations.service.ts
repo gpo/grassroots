@@ -37,7 +37,7 @@ export class OrganizationsService {
 
   async findAll(): Promise<OrganizationsDTO> {
     return OrganizationsDTO.from({
-      organizations: (await this.repo.find({})).map((x) => x.toDTO()),
+      organizations: await this.repo.find({}),
     });
   }
 
@@ -51,8 +51,7 @@ export class OrganizationsService {
   }
 
   async getAncestors(organizationID: number): Promise<OrganizationsDTO> {
-    const organizationEntities = await this.repo.getAncestors(organizationID);
-    const organizationDTOs = organizationEntities.map((x) => x.toDTO());
-    return OrganizationsDTO.from({ organizations: organizationDTOs });
+    const organizations = await this.repo.getAncestors(organizationID);
+    return OrganizationsDTO.from({ organizations });
   }
 }
