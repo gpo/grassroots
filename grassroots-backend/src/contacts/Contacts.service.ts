@@ -81,7 +81,7 @@ export class ContactsService {
       offset: paginated.rowsToSkip,
     });
     return PaginatedContactResponseDTO.from({
-      contacts: result.map((x) => x.toDTO()),
+      contacts: result,
       paginated: {
         rowsSkipped: paginated.rowsToSkip,
         rowsTotal,
