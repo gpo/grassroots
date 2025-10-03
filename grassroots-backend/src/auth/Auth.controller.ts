@@ -23,6 +23,7 @@ import {
   OrganizationReferenceDTO,
 } from "grassroots-shared/dtos/Organization.dto";
 import { OrganizationsService } from "../organizations/Organizations.service.js";
+import { getEnvironmentVariables } from "src/GetEnvironmentVariables.js";
 
 @Controller("auth")
 export class AuthController {
@@ -46,11 +47,13 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   @PublicRoute()
   @ApiProperty()
-  googleAuthRedirect(
+  async googleAuthRedirect(
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
-  ): VoidDTO {
-    const host = this.configService.get<string>("FRONTEND_HOST");
+  ): Promise<VoidDTO> {
+    const envVars = await getEnvironmentVariables();
+
+    const host = envVars.FRONTEND_HOST;
     if (host === undefined) {
       throw new Error("Missing env variable for FRONTEND_HOST");
     }

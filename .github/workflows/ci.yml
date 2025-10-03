@@ -106,6 +106,9 @@ jobs:
       - name: Build everything
         run: pnpm exec turbo build --env-mode=loose
 
+      - name: Type check (all packages)
+        run: pnpm exec turbo run type-check --env-mode=loose
+
       - name: Run tstyche
         run: cd grassroots-backend && pnpm run test:tstyche
 
