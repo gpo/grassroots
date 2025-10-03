@@ -40,10 +40,12 @@ export function navigateToBackendRoute<
     path = "api" + path + "?" + new URLSearchParams(query).toString();
   }
 
+  const absolute_path = new URL(path, import.meta.env.VITE_FRONTEND_HOST).href;
+
   // Use a tanstack router redirect to avoid races.
   // eslint-disable-next-line @typescript-eslint/only-throw-error
   throw redirect({
-    href: path,
+    href: absolute_path,
     reloadDocument: true,
   });
 }

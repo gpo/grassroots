@@ -28,7 +28,6 @@ import Papa from "papaparse";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
-import { PaginatedRequestDTO } from "grassroots-shared/dtos/Paginated.dto";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -99,6 +98,7 @@ export class PhoneCanvassController {
             .filter((x) => x.length > 0);
           return [field, tags];
         });
+
         const dto = CreatePhoneCanvasContactRequestDTO.from({
           contact: CreateContactRequestDTO.from({
             gvote_id: contactRow.id,
@@ -121,7 +121,6 @@ export class PhoneCanvassController {
     });
 
     if (validationErrors.length > 0) {
-      console.log(validationErrors);
       throw new BadRequestException(
         "CSV values invalid: " +
           JSON.stringify(
@@ -180,18 +179,11 @@ export class PhoneCanvassController {
     return await this.phoneCanvassService.getProgressInfo(id);
   }
 
-  @Get("list/:phoneCanvassId")
+  @Post("list")
   async list(
-    @Param("phoneCanvassId") phoneCanvassId: string,
+    @Body()
+    request: PaginatedPhoneCanvassContactListRequestDTO,
   ): Promise<PaginatedPhoneCanvassContactResponseDTO> {
-    return await this.phoneCanvassService.list(
-      PaginatedPhoneCanvassContactListRequestDTO.from({
-        phoneCanvassId: phoneCanvassId,
-        paginated: PaginatedRequestDTO.from({
-          rowsToSkip: 0,
-          rowsToTake: 10,
-        }),
-      }),
-    );
+    return await this.phoneCanvassService.list(request);
   }
 }

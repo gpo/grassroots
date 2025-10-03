@@ -24,14 +24,12 @@
 | phone_canvass_to_contact_entity_contact_id_foreign       | FOREIGN KEY | FOREIGN KEY (contact_id) REFERENCES contact_entity(id) ON UPDATE CASCADE            |
 | phone_canvass_to_contact_entity_phone_canvas_id_foreign  | FOREIGN KEY | FOREIGN KEY (phone_canvas_id) REFERENCES phone_canvass_entity(id) ON UPDATE CASCADE |
 | phone_canvass_to_contact_entity_pkey                     | PRIMARY KEY | PRIMARY KEY (id)                                                                    |
-| phone_canvass_to_contact_entity_contact_id_unique        | UNIQUE      | UNIQUE (contact_id)                                                                 |
 
 ## Indexes
 
-| Name                                              | Definition                                                                                                                               |
-| ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| phone_canvass_to_contact_entity_pkey              | CREATE UNIQUE INDEX phone_canvass_to_contact_entity_pkey ON public.phone_canvass_to_contact_entity USING btree (id)                      |
-| phone_canvass_to_contact_entity_contact_id_unique | CREATE UNIQUE INDEX phone_canvass_to_contact_entity_contact_id_unique ON public.phone_canvass_to_contact_entity USING btree (contact_id) |
+| Name                                 | Definition                                                                                                          |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| phone_canvass_to_contact_entity_pkey | CREATE UNIQUE INDEX phone_canvass_to_contact_entity_pkey ON public.phone_canvass_to_contact_entity USING btree (id) |
 
 ## Relations
 
@@ -39,7 +37,7 @@
 erDiagram
 
 "public.phone_canvass_to_contact_entity" }o--|| "public.phone_canvass_entity" : ""
-"public.phone_canvass_to_contact_entity" |o--|| "public.contact_entity" : ""
+"public.phone_canvass_to_contact_entity" }o--|| "public.contact_entity" : ""
 
 "public.phone_canvass_to_contact_entity" {
   integer id

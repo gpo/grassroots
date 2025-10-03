@@ -1,10 +1,4 @@
-import {
-  Entity,
-  ManyToOne,
-  OneToOne,
-  PrimaryKey,
-  Property,
-} from "@mikro-orm/core";
+import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
 
 import type { Rel } from "@mikro-orm/core";
 import { createEntityBase } from "../../util/CreateEntityBase.js";
@@ -30,6 +24,6 @@ export class PhoneCanvassToContactEntity extends createEntityBase<
   @Property()
   callStatus!: CallStatus;
 
-  @OneToOne()
+  @ManyToOne()
   contact!: ContactEntity;
 }

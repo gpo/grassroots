@@ -663,14 +663,6 @@
           "columns": [
             "id"
           ]
-        },
-        {
-          "name": "phone_canvass_to_contact_entity_contact_id_unique",
-          "def": "CREATE UNIQUE INDEX phone_canvass_to_contact_entity_contact_id_unique ON public.phone_canvass_to_contact_entity USING btree (contact_id)",
-          "table": "public.phone_canvass_to_contact_entity",
-          "columns": [
-            "contact_id"
-          ]
         }
       ],
       "constraints": [
@@ -759,16 +751,6 @@
           "columns": [
             "id"
           ]
-        },
-        {
-          "name": "phone_canvass_to_contact_entity_contact_id_unique",
-          "type": "UNIQUE",
-          "def": "UNIQUE (contact_id)",
-          "table": "public.phone_canvass_to_contact_entity",
-          "referenced_table": "",
-          "columns": [
-            "contact_id"
-          ]
         }
       ]
     }
@@ -831,7 +813,7 @@
       "columns": [
         "contact_id"
       ],
-      "cardinality": "zero_or_one",
+      "cardinality": "zero_or_more",
       "parent_table": "public.contact_entity",
       "parent_columns": [
         "id"

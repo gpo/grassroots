@@ -6,6 +6,7 @@ interface ViteTypeOptions {
 
 interface ImportMetaEnv {
   readonly VITE_BACKEND_HOST: string;
+  readonly VITE_FRONTEND_HOST: string;
 }
 
 interface ImportMeta {

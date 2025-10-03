@@ -21,7 +21,7 @@ erDiagram
 "public.contact_entity" }o--|| "public.organization_entity" : ""
 "public.user_role_entity" }o--|| "public.user_entity" : ""
 "public.user_role_entity" }o--|| "public.organization_entity" : ""
-"public.phone_canvass_to_contact_entity" |o--|| "public.contact_entity" : ""
+"public.phone_canvass_to_contact_entity" }o--|| "public.contact_entity" : ""
 "public.phone_canvass_to_contact_entity" }o--|| "public.phone_canvass_entity" : ""
 
 "public.mikro_orm_migrations" {

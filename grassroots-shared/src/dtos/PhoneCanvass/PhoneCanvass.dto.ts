@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsJSON,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -40,6 +41,15 @@ export class CreatePhoneCanvassRequestDTO extends createDTOBase(
   @ValidateNested({ each: true })
   @Type(() => CreatePhoneCanvasContactRequestDTO)
   contacts!: CreatePhoneCanvasContactRequestDTO[];
+}
+
+// This needs to live outside the route or the babel transformer gets confused by the decorator.
+// We don't actually touch this in the backend.
+export class CreatePhoneCanvassDataValidatedDTO extends createDTOBase(
+  "CreatePhoneCanvassDataValidated",
+) {
+  @IsNotEmpty()
+  name!: string;
 }
 
 export class CreatePhoneCanvasCSVRequestDTO extends createDTOBase(

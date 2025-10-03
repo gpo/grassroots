@@ -97,12 +97,14 @@ export class PhoneCanvassService {
       {
         limit: paginated.rowsToTake,
         offset: paginated.rowsToSkip,
+        populate: ["contact"],
       },
     );
+
     return PaginatedPhoneCanvassContactResponseDTO.from({
       contacts: result.map((x) =>
         PhoneCanvassContactDTO.from({
-          contact: x.contact,
+          contact: x.contact.toDTO(),
           metadata: x.metadata,
           callStatus: x.callStatus,
         }),

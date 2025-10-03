@@ -31,7 +31,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
             <RoutedLink to="/">Home</RoutedLink>
           </AppShell.Section>
           <AppShell.Section>
-            <RoutedLink to="/CreatePhoneCanvass">
+            <RoutedLink to="/PhoneCanvass/Create">
               Create Phone Canvass
             </RoutedLink>
           </AppShell.Section>

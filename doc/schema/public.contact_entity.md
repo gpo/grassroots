@@ -43,7 +43,7 @@
 ```mermaid
 erDiagram
 
-"public.phone_canvass_to_contact_entity" |o--|| "public.contact_entity" : ""
+"public.phone_canvass_to_contact_entity" }o--|| "public.contact_entity" : ""
 "public.contact_entity" }o--|| "public.organization_entity" : ""
 
 "public.contact_entity" {
