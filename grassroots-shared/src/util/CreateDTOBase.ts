@@ -33,6 +33,19 @@ export interface FetchResponse<T, E> {
   response: Response;
 }
 
+interface DTOConvertible {
+  toDTO(): unknown;
+}
+
+function hasToDTO(value: unknown): value is DTOConvertible {
+  return (
+    value !== null &&
+    typeof value === "object" &&
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+    typeof (value as any).toDTO === "function"
+  );
+}
+
 // We don't explicitly type this function because it's super gnarly.
 // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 export function createDTOBase<TBrand extends string>(brand: TBrand) {
@@ -48,7 +61,22 @@ export function createDTOBase<TBrand extends string>(brand: TBrand) {
       this: new () => T,
       props: PropsOf<T>,
     ): T {
-      return plainToInstance(this, props);
+      const entitiesConvertedToDTOs: Record<string, unknown> = {};
+
+      for (const [k, v] of Object.entries(props)) {
+        if (hasToDTO(v)) {
+          entitiesConvertedToDTOs[k] = v.toDTO();
+        } else if (Array.isArray(v)) {
+          entitiesConvertedToDTOs[k] = v.map((item) =>
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            hasToDTO(item) ? item.toDTO() : item,
+          );
+        } else {
+          entitiesConvertedToDTOs[k] = v;
+        }
+      }
+
+      return plainToInstance(this, entitiesConvertedToDTOs);
     }
 
     static fromFetchOrThrow<T extends Branded, E>(
