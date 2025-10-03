@@ -16,26 +16,26 @@ Flow is:
 
 // Just a placeholder for now.
 interface StartCallProps {
-  dummy: number;
+  phoneCanvassId: string;
+  calleeId: number;
 }
-
-const TMP_PHONE_CANVAS_ID = "3b359bc1-71a5-478b-905a-3bf88b051d3a";
-const TMP_CALLEE_ID = 10;
 
 async function connect(props: {
   setToken: Dispatch<SetStateAction<string | undefined>>;
+  phoneCanvassId: string;
+  calleeId: number;
 }): Promise<void> {
   void VoidDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/start-canvass/{id}", {
       params: {
         path: {
-          id: TMP_PHONE_CANVAS_ID,
+          id: props.phoneCanvassId,
         },
       },
     }),
   );
 
-  const authToken = await getAuthToken();
+  const authToken = await getAuthToken(props.phoneCanvassId);
   props.setToken(authToken);
 
   const device = new Device(authToken, {
@@ -55,7 +55,7 @@ async function connect(props: {
 
   const call = await device.connect({
     // These get passed to the controller.
-    params: { conference: String(TMP_CALLEE_ID) },
+    params: { conference: String(props.calleeId) },
   });
 
   call.on("accept", () => {
@@ -67,13 +67,12 @@ async function connect(props: {
   });
 }
 
-async function getAuthToken(): Promise<string> {
+async function getAuthToken(phoneCanvassId: string): Promise<string> {
   const { token } = PhoneCanvassAuthTokenResponseDTO.fromFetchOrThrow(
     await grassrootsAPI.GET("/phone-canvass/auth-token/{id}", {
       params: {
         path: {
-          // TODO
-          id: TMP_PHONE_CANVAS_ID,
+          id: phoneCanvassId,
         },
       },
     }),
@@ -89,7 +88,10 @@ export function StartCall(props: StartCallProps): JSX.Element {
   return (
     <Button
       onClick={() => {
-        void connect({ setToken });
+        void connect({
+          setToken,
+          ...props,
+        });
       }}
     >
       Start Call

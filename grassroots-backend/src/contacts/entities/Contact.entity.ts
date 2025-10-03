@@ -1,10 +1,4 @@
-import {
-  Entity,
-  ManyToOne,
-  PrimaryKey,
-  Property,
-  Unique,
-} from "@mikro-orm/core";
+import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
 import type { Rel, RequiredEntityData } from "@mikro-orm/core";
 import {
   ContactDTO,
@@ -21,11 +15,9 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   id!: number;
 
   @Property({ nullable: true })
-  @Unique()
   gvote_id?: string;
 
   @Property()
-  @Unique()
   email!: string;
 
   @Property()
