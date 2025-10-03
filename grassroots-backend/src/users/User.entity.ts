@@ -32,7 +32,7 @@ export class UserEntity extends createEntityBase<"User", UserDTO>("User") {
       firstName: this.firstName,
       lastName: this.lastName,
       displayName: this.displayName,
-      userRoles: this.userRoles,
+      userRoles: this.userRoles.map((x) => x.toDTO()),
     });
   }
 }

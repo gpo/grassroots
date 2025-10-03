@@ -6,8 +6,10 @@ import { describe, expect, it } from "vitest";
 
 class AConvertable {
   a!: string;
-  toDTO(): void {
-    this.a = "converted";
+  toDTO(): { a: string } {
+    return {
+      a: "converted",
+    };
   }
   constructor() {
     this.a = "unconverted";
@@ -16,8 +18,10 @@ class AConvertable {
 
 class BConvertable {
   b!: string;
-  toDTO(): void {
-    this.b = "converted";
+  toDTO(): { b: string } {
+    return {
+      b: "converted",
+    };
   }
   constructor() {
     this.b = "unconverted";
