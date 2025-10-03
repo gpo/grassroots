@@ -41,13 +41,8 @@ export class PhoneCanvassService {
     await this.entityManager.flush();
 
     for (const canvasContact of canvass.contacts) {
-      let contact: RequiredEntityData<ContactEntity> | null =
-        await this.entityManager.findOne(ContactEntity, {
-          gvote_id: canvasContact.contact.gvote_id,
-        });
-      contact ??= ContactEntity.fromCreateContactRequestDTO(
-        canvasContact.contact,
-      );
+      const contact: RequiredEntityData<ContactEntity> =
+        ContactEntity.fromCreateContactRequestDTO(canvasContact.contact);
 
       this.entityManager.create(PhoneCanvassToContactEntity, {
         phoneCanvas: canvassEntity,

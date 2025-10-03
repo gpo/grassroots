@@ -21,7 +21,7 @@ export class ContactDTO extends createDTOBase("Contact") {
   id!: number;
 
   @IsString()
-  @Length(24, 24)
+  @Length(24, 32)
   @IsOptional()
   gvote_id?: string;
 
@@ -62,7 +62,7 @@ export class CreateContactRequestDTO extends createDTOBase(
 
   @IsString()
   @IsOptional()
-  @Length(24, 24)
+  @Length(24, 32)
   gvote_id?: string;
 
   @IsNotEmpty()
