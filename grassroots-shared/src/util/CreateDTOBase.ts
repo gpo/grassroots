@@ -56,6 +56,10 @@ export function createDTOBase<TBrand extends string>(brand: TBrand) {
     // Used for CASL to identify object types.
     readonly __caslSubjectType: string = brand;
 
+    // This lets us easily construct DTOs from a mixture of explicit values and entities.
+    // We magically convert entities to DTOs at runtime. This isn't reflected in the type signature,
+    // which is mostly okay because entities and DTOs typically have similar properties.
+    // Raw properties are just passed to class-transformer to produce an instance of the target DTO class.
     static from<T extends Branded>(
       // The this parameter must be named "this", and is magically populated with the class constructor.
       this: new () => T,
