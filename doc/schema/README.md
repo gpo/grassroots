@@ -2,15 +2,15 @@
 
 ## Tables
 
-| Name                                                                                | Columns | Comment | Type       |
-| ----------------------------------------------------------------------------------- | ------- | ------- | ---------- |
-| [public.mikro_orm_migrations](public.mikro_orm_migrations.md)                       | 3       |         | BASE TABLE |
-| [public.user_entity](public.user_entity.md)                                         | 5       |         | BASE TABLE |
-| [public.organization_entity](public.organization_entity.md)                         | 5       |         | BASE TABLE |
-| [public.contact_entity](public.contact_entity.md)                                   | 8       |         | BASE TABLE |
-| [public.user_role_entity](public.user_role_entity.md)                               | 5       |         | BASE TABLE |
-| [public.phone_canvass_entity](public.phone_canvass_entity.md)                       | 1       |         | BASE TABLE |
-| [public.phone_canvass_to_contact_entity](public.phone_canvass_to_contact_entity.md) | 5       |         | BASE TABLE |
+| Name                                                                          | Columns | Comment | Type       |
+| ----------------------------------------------------------------------------- | ------- | ------- | ---------- |
+| [public.mikro_orm_migrations](public.mikro_orm_migrations.md)                 | 3       |         | BASE TABLE |
+| [public.user_entity](public.user_entity.md)                                   | 5       |         | BASE TABLE |
+| [public.organization_entity](public.organization_entity.md)                   | 5       |         | BASE TABLE |
+| [public.contact_entity](public.contact_entity.md)                             | 8       |         | BASE TABLE |
+| [public.user_role_entity](public.user_role_entity.md)                         | 5       |         | BASE TABLE |
+| [public.phone_canvass_entity](public.phone_canvass_entity.md)                 | 1       |         | BASE TABLE |
+| [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) | 5       |         | BASE TABLE |
 
 ## Relations
 
@@ -21,8 +21,8 @@ erDiagram
 "public.contact_entity" }o--|| "public.organization_entity" : ""
 "public.user_role_entity" }o--|| "public.user_entity" : ""
 "public.user_role_entity" }o--|| "public.organization_entity" : ""
-"public.phone_canvass_to_contact_entity" }o--|| "public.contact_entity" : ""
-"public.phone_canvass_to_contact_entity" }o--|| "public.phone_canvass_entity" : ""
+"public.phone_canvass_contact_entity" }o--|| "public.contact_entity" : ""
+"public.phone_canvass_contact_entity" }o--|| "public.phone_canvass_entity" : ""
 
 "public.mikro_orm_migrations" {
   integer id
@@ -63,7 +63,7 @@ erDiagram
 "public.phone_canvass_entity" {
   uuid id
 }
-"public.phone_canvass_to_contact_entity" {
+"public.phone_canvass_contact_entity" {
   integer id
   uuid phone_canvas_id FK
   jsonb metadata
