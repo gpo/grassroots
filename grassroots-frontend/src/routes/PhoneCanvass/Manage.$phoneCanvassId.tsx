@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useState } from "react";
 import { usePhoneCanvassContactList } from "../../hooks/usePhoneCanvassContactList.js";
 import {
@@ -8,7 +8,7 @@ import {
 import { PaginatedContacts } from "../../components/PaginatedContacts.js";
 import { PaginatedContactResponseDTO } from "grassroots-shared/dtos/Contact.dto";
 import { PaginatedRequestDTO } from "grassroots-shared/dtos/Paginated.dto";
-import { Button } from "@mantine/core";
+import { LinkButton } from "../../components/LinkButton.js";
 
 export const Route = createFileRoute("/PhoneCanvass/Manage/$phoneCanvassId")({
   component: ManagePhoneCanvass,
@@ -34,12 +34,13 @@ function ManagePhoneCanvass(): JSX.Element {
   return (
     <>
       <h1> Manage your phone canvass </h1>
-      <Link
+      <LinkButton
         to="/PhoneCanvass/$phoneCanvassId"
         params={{ phoneCanvassId: phoneCanvassId }}
+        variant="filled"
       >
-        <Button>Participate</Button>
-      </Link>
+        Participate
+      </LinkButton>
       <PaginatedContacts
         paginatedContactResponse={PaginatedContactResponseDTO.from({
           contacts: paginatedPhoneCanvassContacts.contacts.map(
