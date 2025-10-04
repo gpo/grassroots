@@ -16,8 +16,9 @@ import { Route as MeRouteImport } from './routes/Me'
 import { Route as CreateContactRouteImport } from './routes/CreateContact'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PhoneCanvassCreateRouteImport } from './routes/PhoneCanvass/Create'
+import { Route as PhoneCanvassPhoneCanvassIdRouteImport } from './routes/PhoneCanvass/$phoneCanvassId'
 import { Route as OrganizationsOrganizationIdRouteImport } from './routes/Organizations/$organizationId'
-import { Route as PhoneCanvassManagePhoneCanvassIdRouteImport } from './routes/PhoneCanvass/Manage/$phoneCanvassId'
+import { Route as PhoneCanvassManagePhoneCanvassIdRouteImport } from './routes/PhoneCanvass/Manage.$phoneCanvassId'
 
 const UsersRoute = UsersRouteImport.update({
   id: '/Users',
@@ -54,6 +55,12 @@ const PhoneCanvassCreateRoute = PhoneCanvassCreateRouteImport.update({
   path: '/PhoneCanvass/Create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PhoneCanvassPhoneCanvassIdRoute =
+  PhoneCanvassPhoneCanvassIdRouteImport.update({
+    id: '/PhoneCanvass/$phoneCanvassId',
+    path: '/PhoneCanvass/$phoneCanvassId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const OrganizationsOrganizationIdRoute =
   OrganizationsOrganizationIdRouteImport.update({
     id: '/Organizations/$organizationId',
@@ -75,6 +82,7 @@ export interface FileRoutesByFullPath {
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
   '/Organizations/$organizationId': typeof OrganizationsOrganizationIdRoute
+  '/PhoneCanvass/$phoneCanvassId': typeof PhoneCanvassPhoneCanvassIdRoute
   '/PhoneCanvass/Create': typeof PhoneCanvassCreateRoute
   '/PhoneCanvass/Manage/$phoneCanvassId': typeof PhoneCanvassManagePhoneCanvassIdRoute
 }
@@ -86,6 +94,7 @@ export interface FileRoutesByTo {
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
   '/Organizations/$organizationId': typeof OrganizationsOrganizationIdRoute
+  '/PhoneCanvass/$phoneCanvassId': typeof PhoneCanvassPhoneCanvassIdRoute
   '/PhoneCanvass/Create': typeof PhoneCanvassCreateRoute
   '/PhoneCanvass/Manage/$phoneCanvassId': typeof PhoneCanvassManagePhoneCanvassIdRoute
 }
@@ -98,6 +107,7 @@ export interface FileRoutesById {
   '/SharedSearch': typeof SharedSearchRoute
   '/Users': typeof UsersRoute
   '/Organizations/$organizationId': typeof OrganizationsOrganizationIdRoute
+  '/PhoneCanvass/$phoneCanvassId': typeof PhoneCanvassPhoneCanvassIdRoute
   '/PhoneCanvass/Create': typeof PhoneCanvassCreateRoute
   '/PhoneCanvass/Manage/$phoneCanvassId': typeof PhoneCanvassManagePhoneCanvassIdRoute
 }
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/SharedSearch'
     | '/Users'
     | '/Organizations/$organizationId'
+    | '/PhoneCanvass/$phoneCanvassId'
     | '/PhoneCanvass/Create'
     | '/PhoneCanvass/Manage/$phoneCanvassId'
   fileRoutesByTo: FileRoutesByTo
@@ -122,6 +133,7 @@ export interface FileRouteTypes {
     | '/SharedSearch'
     | '/Users'
     | '/Organizations/$organizationId'
+    | '/PhoneCanvass/$phoneCanvassId'
     | '/PhoneCanvass/Create'
     | '/PhoneCanvass/Manage/$phoneCanvassId'
   id:
@@ -133,6 +145,7 @@ export interface FileRouteTypes {
     | '/SharedSearch'
     | '/Users'
     | '/Organizations/$organizationId'
+    | '/PhoneCanvass/$phoneCanvassId'
     | '/PhoneCanvass/Create'
     | '/PhoneCanvass/Manage/$phoneCanvassId'
   fileRoutesById: FileRoutesById
@@ -145,6 +158,7 @@ export interface RootRouteChildren {
   SharedSearchRoute: typeof SharedSearchRoute
   UsersRoute: typeof UsersRoute
   OrganizationsOrganizationIdRoute: typeof OrganizationsOrganizationIdRoute
+  PhoneCanvassPhoneCanvassIdRoute: typeof PhoneCanvassPhoneCanvassIdRoute
   PhoneCanvassCreateRoute: typeof PhoneCanvassCreateRoute
   PhoneCanvassManagePhoneCanvassIdRoute: typeof PhoneCanvassManagePhoneCanvassIdRoute
 }
@@ -200,6 +214,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PhoneCanvassCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/PhoneCanvass/$phoneCanvassId': {
+      id: '/PhoneCanvass/$phoneCanvassId'
+      path: '/PhoneCanvass/$phoneCanvassId'
+      fullPath: '/PhoneCanvass/$phoneCanvassId'
+      preLoaderRoute: typeof PhoneCanvassPhoneCanvassIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/Organizations/$organizationId': {
       id: '/Organizations/$organizationId'
       path: '/Organizations/$organizationId'
@@ -225,6 +246,7 @@ const rootRouteChildren: RootRouteChildren = {
   SharedSearchRoute: SharedSearchRoute,
   UsersRoute: UsersRoute,
   OrganizationsOrganizationIdRoute: OrganizationsOrganizationIdRoute,
+  PhoneCanvassPhoneCanvassIdRoute: PhoneCanvassPhoneCanvassIdRoute,
   PhoneCanvassCreateRoute: PhoneCanvassCreateRoute,
   PhoneCanvassManagePhoneCanvassIdRoute: PhoneCanvassManagePhoneCanvassIdRoute,
 }

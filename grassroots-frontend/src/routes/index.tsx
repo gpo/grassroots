@@ -2,7 +2,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useContext, useState } from "react";
 import { LoginState, LoginStateContext } from "../context/LoginStateContext.js";
-import { StartCall } from "../components/phonecanvass/StartCall.js";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -24,7 +23,6 @@ function Index(): JSX.Element {
   return (
     <>
       <h1>Temporary auth tools</h1>
-      <StartCall dummy={0}></StartCall>
       <p>
         {loginState?.user ? (
           <button
