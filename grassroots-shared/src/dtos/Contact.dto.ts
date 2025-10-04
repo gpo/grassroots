@@ -38,6 +38,13 @@ export class ContactDTO extends createDTOBase("Contact") {
   @IsNotEmpty()
   lastName!: string;
 
+  formatName(): string {
+    if (this.middleName !== undefined) {
+      return `${this.firstName} ${this.middleName} ${this.lastName}`;
+    }
+    return `${this.firstName} ${this.lastName}`;
+  }
+
   @Type(() => OrganizationDTO)
   @ValidateNested()
   // This should always be populated in the database, but we don't always need it on the frontend.

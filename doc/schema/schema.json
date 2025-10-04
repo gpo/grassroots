@@ -589,14 +589,14 @@
       ]
     },
     {
-      "name": "public.phone_canvass_to_contact_entity",
+      "name": "public.phone_canvass_contact_entity",
       "type": "BASE TABLE",
       "columns": [
         {
           "name": "id",
           "type": "integer",
           "nullable": false,
-          "default": "nextval('phone_canvass_to_contact_entity_id_seq'::regclass)"
+          "default": "nextval('phone_canvass_contact_entity_id_seq'::regclass)"
         },
         {
           "name": "phone_canvas_id",
@@ -621,9 +621,9 @@
       ],
       "indexes": [
         {
-          "name": "phone_canvass_to_contact_entity_pkey",
-          "def": "CREATE UNIQUE INDEX phone_canvass_to_contact_entity_pkey ON public.phone_canvass_to_contact_entity USING btree (id)",
-          "table": "public.phone_canvass_to_contact_entity",
+          "name": "phone_canvass_contact_entity_pkey",
+          "def": "CREATE UNIQUE INDEX phone_canvass_contact_entity_pkey ON public.phone_canvass_contact_entity USING btree (id)",
+          "table": "public.phone_canvass_contact_entity",
           "columns": [
             "id"
           ]
@@ -631,60 +631,60 @@
       ],
       "constraints": [
         {
-          "name": "phone_canvass_to_contact_entity_call_status_not_null",
+          "name": "phone_canvass_contact_entity_call_status_not_null",
           "type": "n",
           "def": "NOT NULL call_status",
-          "table": "public.phone_canvass_to_contact_entity",
+          "table": "public.phone_canvass_contact_entity",
           "referenced_table": "",
           "columns": [
             "call_status"
           ]
         },
         {
-          "name": "phone_canvass_to_contact_entity_contact_id_not_null",
+          "name": "phone_canvass_contact_entity_contact_id_not_null",
           "type": "n",
           "def": "NOT NULL contact_id",
-          "table": "public.phone_canvass_to_contact_entity",
+          "table": "public.phone_canvass_contact_entity",
           "referenced_table": "",
           "columns": [
             "contact_id"
           ]
         },
         {
-          "name": "phone_canvass_to_contact_entity_id_not_null",
+          "name": "phone_canvass_contact_entity_id_not_null",
           "type": "n",
           "def": "NOT NULL id",
-          "table": "public.phone_canvass_to_contact_entity",
+          "table": "public.phone_canvass_contact_entity",
           "referenced_table": "",
           "columns": [
             "id"
           ]
         },
         {
-          "name": "phone_canvass_to_contact_entity_metadata_not_null",
+          "name": "phone_canvass_contact_entity_metadata_not_null",
           "type": "n",
           "def": "NOT NULL metadata",
-          "table": "public.phone_canvass_to_contact_entity",
+          "table": "public.phone_canvass_contact_entity",
           "referenced_table": "",
           "columns": [
             "metadata"
           ]
         },
         {
-          "name": "phone_canvass_to_contact_entity_phone_canvas_id_not_null",
+          "name": "phone_canvass_contact_entity_phone_canvas_id_not_null",
           "type": "n",
           "def": "NOT NULL phone_canvas_id",
-          "table": "public.phone_canvass_to_contact_entity",
+          "table": "public.phone_canvass_contact_entity",
           "referenced_table": "",
           "columns": [
             "phone_canvas_id"
           ]
         },
         {
-          "name": "phone_canvass_to_contact_entity_contact_id_foreign",
+          "name": "phone_canvass_contact_entity_contact_id_foreign",
           "type": "FOREIGN KEY",
           "def": "FOREIGN KEY (contact_id) REFERENCES contact_entity(id) ON UPDATE CASCADE",
-          "table": "public.phone_canvass_to_contact_entity",
+          "table": "public.phone_canvass_contact_entity",
           "referenced_table": "contact_entity",
           "columns": [
             "contact_id"
@@ -694,10 +694,10 @@
           ]
         },
         {
-          "name": "phone_canvass_to_contact_entity_phone_canvas_id_foreign",
+          "name": "phone_canvass_contact_entity_phone_canvas_id_foreign",
           "type": "FOREIGN KEY",
           "def": "FOREIGN KEY (phone_canvas_id) REFERENCES phone_canvass_entity(id) ON UPDATE CASCADE",
-          "table": "public.phone_canvass_to_contact_entity",
+          "table": "public.phone_canvass_contact_entity",
           "referenced_table": "phone_canvass_entity",
           "columns": [
             "phone_canvas_id"
@@ -707,10 +707,10 @@
           ]
         },
         {
-          "name": "phone_canvass_to_contact_entity_pkey",
+          "name": "phone_canvass_contact_entity_pkey",
           "type": "PRIMARY KEY",
           "def": "PRIMARY KEY (id)",
-          "table": "public.phone_canvass_to_contact_entity",
+          "table": "public.phone_canvass_contact_entity",
           "referenced_table": "",
           "columns": [
             "id"
@@ -773,7 +773,7 @@
       "def": "FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE"
     },
     {
-      "table": "public.phone_canvass_to_contact_entity",
+      "table": "public.phone_canvass_contact_entity",
       "columns": [
         "contact_id"
       ],
@@ -786,7 +786,7 @@
       "def": "FOREIGN KEY (contact_id) REFERENCES contact_entity(id) ON UPDATE CASCADE"
     },
     {
-      "table": "public.phone_canvass_to_contact_entity",
+      "table": "public.phone_canvass_contact_entity",
       "columns": [
         "phone_canvas_id"
       ],

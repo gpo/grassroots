@@ -301,11 +301,11 @@
           "mappedType": "integer"
         }
       },
-      "name": "phone_canvass_to_contact_entity",
+      "name": "phone_canvass_contact_entity",
       "schema": "public",
       "indexes": [
         {
-          "keyName": "phone_canvass_to_contact_entity_pkey",
+          "keyName": "phone_canvass_contact_entity_pkey",
           "columnNames": [
             "id"
           ],
@@ -317,12 +317,12 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "phone_canvass_to_contact_entity_phone_canvas_id_foreign": {
-          "constraintName": "phone_canvass_to_contact_entity_phone_canvas_id_foreign",
+        "phone_canvass_contact_entity_phone_canvas_id_foreign": {
+          "constraintName": "phone_canvass_contact_entity_phone_canvas_id_foreign",
           "columnNames": [
             "phone_canvas_id"
           ],
-          "localTableName": "public.phone_canvass_to_contact_entity",
+          "localTableName": "public.phone_canvass_contact_entity",
           "referencedColumnNames": [
             "id"
           ],
@@ -330,12 +330,12 @@
           "createForeignKeyConstraint": true,
           "updateRule": "cascade"
         },
-        "phone_canvass_to_contact_entity_contact_id_foreign": {
-          "constraintName": "phone_canvass_to_contact_entity_contact_id_foreign",
+        "phone_canvass_contact_entity_contact_id_foreign": {
+          "constraintName": "phone_canvass_contact_entity_contact_id_foreign",
           "columnNames": [
             "contact_id"
           ],
-          "localTableName": "public.phone_canvass_to_contact_entity",
+          "localTableName": "public.phone_canvass_contact_entity",
           "referencedColumnNames": [
             "id"
           ],
