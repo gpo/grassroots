@@ -5,13 +5,13 @@ import { createEntityBase } from "../../util/CreateEntityBase.js";
 import { PhoneCanvassEntity } from "./PhoneCanvass.entity.js";
 import { ContactEntity } from "../../contacts/entities/Contact.entity.js";
 import type { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import type { PhoneCanvassToContactDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { PhoneCanvassContactDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 @Entity()
-export class PhoneCanvassToContactEntity extends createEntityBase<
-  "PhoneCanvassToContact",
-  PhoneCanvassToContactDTO
->("PhoneCanvassToContact") {
+export class PhoneCanvassContactEntity extends createEntityBase<
+  "PhoneCanvassContact",
+  PhoneCanvassContactDTO
+>("PhoneCanvassContact") {
   @PrimaryKey()
   id!: number;
 
@@ -26,4 +26,12 @@ export class PhoneCanvassToContactEntity extends createEntityBase<
 
   @ManyToOne()
   contact!: ContactEntity;
+
+  toDTO(): PhoneCanvassContactDTO {
+    return PhoneCanvassContactDTO.from({
+      contact: this.contact.toDTO(),
+      metadata: this.metadata,
+      callStatus: this.callStatus,
+    });
+  }
 }
