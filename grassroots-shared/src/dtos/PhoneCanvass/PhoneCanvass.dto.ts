@@ -90,11 +90,6 @@ export class PhoneCanvassContactDTO extends createDTOBase(
   callStatus!: CallStatus;
 }
 
-// We don't ever actually use this class, but the entity needs a DTO to references.
-export class PhoneCanvassToContactDTO extends createDTOBase(
-  "PhoneCanvassToContact",
-) {}
-
 export class PhoneCanvassProgressInfoResponseDTO extends createDTOBase(
   "PhoneCanvassProgressInfoResponse",
 ) {
