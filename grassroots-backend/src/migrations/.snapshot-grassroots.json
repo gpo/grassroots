@@ -193,26 +193,6 @@
       "schema": "public",
       "indexes": [
         {
-          "columnNames": [
-            "gvote_id"
-          ],
-          "composite": false,
-          "keyName": "contact_entity_gvote_id_unique",
-          "constraint": true,
-          "primary": false,
-          "unique": true
-        },
-        {
-          "columnNames": [
-            "email"
-          ],
-          "composite": false,
-          "keyName": "contact_entity_email_unique",
-          "constraint": true,
-          "primary": false,
-          "unique": true
-        },
-        {
           "keyName": "contact_entity_pkey",
           "columnNames": [
             "id"

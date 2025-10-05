@@ -1,5 +1,4 @@
 import { JSX, useState } from "react";
-import { useParams } from "@tanstack/react-router";
 import { Route as OrgRoute } from "../../routes/Organizations/$organizationId.js";
 import { useContactSearch } from "../../hooks/useContactSearch.js";
 import {
@@ -11,7 +10,7 @@ import { PaginatedContacts } from "../../components/PaginatedContacts.js";
 const ROWS_PER_PAGE = 10;
 
 export function OrganizationDashboard(): JSX.Element {
-  const { organizationId } = useParams({ from: OrgRoute.id });
+  const { organizationId } = OrgRoute.useParams();
   const [rowsToSkip, setRowsToSkip] = useState<number>(0);
 
   const useContactSearchResults =
