@@ -8,6 +8,7 @@ import {
   Param,
   Header,
   BadRequestException,
+  Session,
 } from "@nestjs/common";
 import {
   CreatePhoneCanvasContactRequestDTO,
@@ -19,6 +20,7 @@ import {
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
   PhoneCanvasTwilioVoiceCallbackDTO,
+  SetIdDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -28,6 +30,9 @@ import Papa from "papaparse";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
+import expressSession from "express-session";
+import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
+import { propsOf } from "grassroots-shared/util/TypeUtils";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -41,7 +46,10 @@ function getEmail(req: GrassrootsRequest): string {
 
 @Controller("phone-canvass")
 export class PhoneCanvassController {
-  constructor(private readonly phoneCanvassService: PhoneCanvassService) {}
+  constructor(
+    private readonly phoneCanvassService: PhoneCanvassService,
+    private readonly globalState: PhoneCanvassGlobalStateService,
+  ) {}
 
   @Post()
   async create(
@@ -185,5 +193,22 @@ export class PhoneCanvassController {
     request: PaginatedPhoneCanvassContactListRequestDTO,
   ): Promise<PaginatedPhoneCanvassContactResponseDTO> {
     return await this.phoneCanvassService.list(request);
+  }
+
+  @Post("set-display-name")
+  setDisplayName(
+    @Body() setDisplayNameDTO: SetIdDTO,
+    @Session() session: expressSession.SessionData,
+  ): SetIdDTO {
+    const { activePhoneCanvassId, displayName } = propsOf(setDisplayNameDTO);
+    this.globalState.addParticipant(activePhoneCanvassId, displayName);
+    session.phoneCanvassData = {
+      activePhoneCanvassId: setDisplayNameDTO.activePhoneCanvassId,
+      participantIdentity: {
+        displayName: setDisplayNameDTO.displayName,
+        email: setDisplayNameDTO.email,
+      },
+    };
+    return setDisplayNameDTO;
   }
 }

@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsEmail,
   IsJSON,
   IsNotEmpty,
   IsNumber,
@@ -146,4 +147,15 @@ export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
   @IsString()
   @IsOptional()
   conference?: string;
+}
+
+export class SetIdDTO extends createDTOBase("SetId") {
+  @IsNotEmpty()
+  displayName!: string;
+
+  @IsEmail()
+  email!: string;
+
+  @IsNotEmpty()
+  activePhoneCanvassId!: string;
 }

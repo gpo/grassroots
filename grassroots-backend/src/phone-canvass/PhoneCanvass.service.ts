@@ -18,6 +18,7 @@ import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
+import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
 
 @Injectable()
 export class PhoneCanvassService {
@@ -25,6 +26,7 @@ export class PhoneCanvassService {
   constructor(
     private readonly entityManager: EntityManager,
     private twilioService: TwilioService,
+    private readonly globalState: PhoneCanvassGlobalStateService,
   ) {
     this.repo =
       entityManager.getRepository<PhoneCanvassEntity>(PhoneCanvassEntity);
@@ -66,7 +68,11 @@ export class PhoneCanvassService {
       return x.toDTO();
     });
 
-    await this.twilioService.startCanvass(id, contacts);
+    await this.twilioService.startCanvass(
+      id,
+      contacts,
+      this.globalState.listParticipants(id),
+    );
     return VoidDTO.from({});
   }
 
