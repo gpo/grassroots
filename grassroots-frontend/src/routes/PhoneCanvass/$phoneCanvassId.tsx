@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX } from "react";
-import { StartCall } from "../../components/phonecanvass/StartCall.js";
+import { StartCall } from "../../components/PhoneCanvass/StartCall.js";
 export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
   component: ParticipateInPhoneCanvass,
 });
