@@ -111,7 +111,7 @@ export class TwilioService {
         .services(TWILIO_SYNC_SERVICE_SID)
         .documents(phoneCanvassId)
         .update({ data });
-      console.log("SUCCESSFUL UPDATE");
+      console.log("SUCCESSFUL UPDATE", doc.uniqueName, doc.sid);
     } catch {
       doc = await client.sync.v1
         .services(TWILIO_SYNC_SERVICE_SID)

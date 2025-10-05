@@ -25,15 +25,16 @@ function ParticipateInPhoneCanvass(): JSX.Element {
       displayName: "",
       email: "",
       activePhoneCanvassId: phoneCanvassId,
+      ready: false,
     }),
   });
 
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: async (setId: PhoneCanvassParticipantIdentityDTO) => {
+    mutationFn: async (identity: PhoneCanvassParticipantIdentityDTO) => {
       return PhoneCanvassParticipantIdentityDTO.fromFetchOrThrow(
-        await grassrootsAPI.POST("/phone-canvass/set-participant-identity", {
-          body: setId,
+        await grassrootsAPI.POST("/phone-canvass/add-participant", {
+          body: identity,
         }),
       );
     },
@@ -44,6 +45,7 @@ function ParticipateInPhoneCanvass(): JSX.Element {
           displayName: setId.displayName,
           email: setId.email,
           activePhoneCanvassId: phoneCanvassId,
+          ready: false,
         }),
       );
       await queryClient.invalidateQueries({ queryKey: ["canvass"] });
@@ -86,7 +88,7 @@ function ParticipateInPhoneCanvass(): JSX.Element {
       <h1> Call Party </h1>
       <h2> Welcome {phoneCanvassParticipantStore.identity.displayName}</h2>
       <StartCall
-        phoneCanvassId={phoneCanvassId}
+        callerIdentity={phoneCanvassParticipantStore.identity}
         calleeId={CALLEE_ID}
       ></StartCall>
     </>

@@ -17,7 +17,6 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
-import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
 import { partition } from "grassroots-shared/util/Partition";
@@ -66,11 +65,6 @@ export class PhoneCanvassService {
     return CreatePhoneCanvassResponseDTO.from({
       id: canvassEntity.id,
     });
-  }
-
-  startCanvass(id: string): VoidDTO {
-    void id;
-    return VoidDTO.from({});
   }
 
   async getAuthToken(id: string): Promise<PhoneCanvassAuthTokenResponseDTO> {
@@ -184,6 +178,14 @@ export class PhoneCanvassService {
     this.globalState.addParticipant(identity);
     await this.updateSyncData(identity.activePhoneCanvassId);
     console.log("Done updating sync data");
+    return identity;
+  }
+
+  async setParticipantReady(
+    identity: PhoneCanvassParticipantIdentityDTO,
+  ): Promise<PhoneCanvassParticipantIdentityDTO> {
+    this.globalState.updateParticipant(identity);
+    await this.updateSyncData(identity.activePhoneCanvassId);
     return identity;
   }
 }

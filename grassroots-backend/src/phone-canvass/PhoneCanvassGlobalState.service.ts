@@ -1,4 +1,8 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 @Injectable()
@@ -27,6 +31,20 @@ export class PhoneCanvassGlobalStateService {
       identity.activePhoneCanvassId,
       participants,
     );
+  }
+
+  updateParticipant(identity: PhoneCanvassParticipantIdentityDTO): void {
+    const participants =
+      this.#phoneCanvassIdToParticipantDisplayName.get(
+        identity.activePhoneCanvassId,
+      ) ?? [];
+    const participant = participants.find(
+      (participant) => participant.displayName === identity.displayName,
+    );
+    if (participant === undefined) {
+      throw new NotFoundException("Invalid participant");
+    }
+    Object.assign(participant, identity);
   }
 
   listParticipants(

@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsBoolean,
   IsEmail,
   IsJSON,
   IsNotEmpty,
@@ -150,6 +151,7 @@ export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
   conference?: string;
 }
 
+// Note that (displayName, activePhoneCanvassId) is globally unique.
 export class PhoneCanvassParticipantIdentityDTO extends createDTOBase(
   "PhoneCanvassParticipantIdentity",
 ) {
@@ -162,4 +164,7 @@ export class PhoneCanvassParticipantIdentityDTO extends createDTOBase(
 
   @IsNotEmpty()
   activePhoneCanvassId!: string;
+
+  @IsBoolean()
+  ready!: boolean;
 }

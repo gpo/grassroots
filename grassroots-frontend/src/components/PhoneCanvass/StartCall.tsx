@@ -1,12 +1,18 @@
 import { Button, List, ListItem } from "@mantine/core";
-import { PhoneCanvassAuthTokenResponseDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import {
+  PhoneCanvassAuthTokenResponseDTO,
+  PhoneCanvassParticipantIdentityDTO,
+} from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
-import { Dispatch, JSX, SetStateAction, useState } from "react";
+import { Dispatch, JSX, SetStateAction, useEffect, useState } from "react";
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
 import { Device } from "@twilio/voice-sdk";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { SyncClient } from "twilio-sync";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
+import { fail } from "grassroots-shared/util/Fail";
+import { propsOf } from "grassroots-shared/util/TypeUtils";
+import { useQuery, UseQueryResult } from "@tanstack/react-query";
 
 /*
 Flow is:
@@ -16,61 +22,52 @@ Flow is:
 4. Wait for sync push matching you with someone, call in.
 */
 
-interface StartCallProps {
-  phoneCanvassId: string;
-  calleeId: number;
-}
-
-interface ConnectProps {
+interface ConnectParams {
   setSyncData: Dispatch<SetStateAction<PhoneCanvassSyncData>>;
-  phoneCanvassId: string;
+  callerIdentity: PhoneCanvassParticipantIdentityDTO;
   calleeId: number;
+  authToken: string;
 }
 
-type AuthenticatedConnectProps = ConnectProps & { authToken: string };
-
-async function connect(props: ConnectProps): Promise<void> {
-  const { phoneCanvassId } = props;
-  void VoidDTO.fromFetchOrThrow(
-    await grassrootsAPI.POST("/phone-canvass/start-canvass/{id}", {
-      params: {
-        path: {
-          id: phoneCanvassId,
-        },
-      },
-    }),
-  );
-
-  const authToken = await getAuthToken(phoneCanvassId);
-
-  await joinSync({ ...props, authToken });
-  await startCall({ ...props, authToken });
-}
-
-async function joinSync(props: AuthenticatedConnectProps): Promise<void> {
-  const { authToken, setSyncData, phoneCanvassId } = props;
+async function joinSync(connectParams: ConnectParams): Promise<void> {
+  const { setSyncData, callerIdentity, authToken } = connectParams;
   const syncClient = new SyncClient(authToken);
 
   syncClient.on("connectionStateChanged", (state) => {
     console.log("Sync connection state:", state);
   });
 
-  const doc = await syncClient.document(phoneCanvassId);
+  const doc = await syncClient.document(callerIdentity.activePhoneCanvassId);
+  console.log("GOT DOC: ", doc.uniqueName, doc.sid);
+  console.log(performance.now());
+
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const data = doc.data as PhoneCanvassSyncData;
   setSyncData(data);
 
   doc.on("updated", (event) => {
     console.log("UPDATED");
+    console.log(performance.now());
     console.log(JSON.stringify(event.data));
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const data = event.data as PhoneCanvassSyncData;
+    const data = doc.data as PhoneCanvassSyncData;
     setSyncData(data);
   });
 }
 
-async function startCall(props: AuthenticatedConnectProps): Promise<void> {
-  const { authToken, calleeId } = props;
+async function startCall(connectParams: ConnectParams): Promise<void> {
+  const { callerIdentity, calleeId, authToken } = connectParams;
+  console.log("START CALL TIME: ", performance.now());
+
+  void VoidDTO.fromFetchOrThrow(
+    await grassrootsAPI.POST("/phone-canvass/update-participant", {
+      body: PhoneCanvassParticipantIdentityDTO.from({
+        ...propsOf(callerIdentity),
+        ready: true,
+      }),
+    }),
+  );
+
   const device = new Device(authToken, {
     logLevel: 4,
     enableImprovedSignalingErrorPrecision: true,
@@ -100,25 +97,57 @@ async function startCall(props: AuthenticatedConnectProps): Promise<void> {
   });
 }
 
-async function getAuthToken(phoneCanvassId: string): Promise<string> {
-  const { token } = PhoneCanvassAuthTokenResponseDTO.fromFetchOrThrow(
-    await grassrootsAPI.GET("/phone-canvass/auth-token/{id}", {
-      params: {
-        path: {
-          id: phoneCanvassId,
-        },
-      },
-    }),
-  );
-  return token;
+function useAuthToken(phoneCanvassId: string): UseQueryResult<string> {
+  return useQuery<string>({
+    queryKey: ["authtoken", phoneCanvassId],
+    queryFn: async () => {
+      const { token } = PhoneCanvassAuthTokenResponseDTO.fromFetchOrThrow(
+        await grassrootsAPI.GET("/phone-canvass/auth-token/{id}", {
+          params: {
+            path: {
+              id: phoneCanvassId,
+            },
+          },
+        }),
+      );
+      return token;
+    },
+  });
+}
+
+interface StartCallProps {
+  callerIdentity: PhoneCanvassParticipantIdentityDTO;
+  calleeId: number;
 }
 
 export function StartCall(props: StartCallProps): JSX.Element {
+  const { callerIdentity } = props;
+  const phoneCanvassId = callerIdentity.activePhoneCanvassId;
   const [syncData, setSyncData] = useState<PhoneCanvassSyncData>({
     participants: [],
     activeCalls: [],
     pendingCalls: [],
   } satisfies PhoneCanvassSyncData);
+
+  const authToken = useAuthToken(phoneCanvassId).data;
+
+  const connectParams: ConnectParams | undefined =
+    authToken === undefined
+      ? undefined
+      : {
+          ...props,
+          authToken,
+          setSyncData,
+        };
+
+  useEffect(() => {
+    void (async (): Promise<void> => {
+      if (connectParams === undefined) {
+        return;
+      }
+      await joinSync(connectParams);
+    })();
+  }, [authToken]);
 
   const participants = syncData.participants.map((x) => (
     <ListItem key={x}>{x}</ListItem>
@@ -134,15 +163,11 @@ export function StartCall(props: StartCallProps): JSX.Element {
     <>
       <Button
         onClick={() => {
-          void connect({
-            setSyncData,
-            ...props,
-          });
+          void startCall(connectParams ?? fail("Missing auth token"));
         }}
       >
         Start Call
       </Button>
-      <h1> Placeholder data </h1>
       <h2> Participants </h2>
       <List>{participants}</List>
       <h2> Active Calls </h2>
