@@ -27,7 +27,7 @@ function CreateContact(): JSX.Element {
       const result = await grassrootsAPI.POST("/contacts", {
         body: contact,
       });
-      if (!result.data) {
+      if (result.data === undefined) {
         throw new Error("Failed to create contact.");
       }
       return result.data;

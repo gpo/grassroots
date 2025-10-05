@@ -13,12 +13,18 @@ import {
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
   PhoneCanvassContactDTO,
+  PhoneCanvassParticipantIdentityDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
+import { partition } from "grassroots-shared/util/Partition";
+import {
+  ActiveCall,
+  PendingCall,
+} from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 
 @Injectable()
 export class PhoneCanvassService {
@@ -55,24 +61,15 @@ export class PhoneCanvassService {
     }
 
     await this.entityManager.flush();
+    await this.updateSyncData(canvassEntity.id);
 
     return CreatePhoneCanvassResponseDTO.from({
       id: canvassEntity.id,
     });
   }
 
-  async startCanvass(id: string): Promise<VoidDTO> {
-    const canvass = await this.getPhoneCanvassByIdOrFail(id);
-    await canvass.contacts.init({ populate: ["contact"] });
-    const contacts = canvass.contacts.map((x) => {
-      return x.toDTO();
-    });
-
-    await this.twilioService.startCanvass(
-      id,
-      contacts,
-      this.globalState.listParticipants(id),
-    );
+  startCanvass(id: string): VoidDTO {
+    void id;
     return VoidDTO.from({});
   }
 
@@ -87,6 +84,16 @@ export class PhoneCanvassService {
       throw new UnauthorizedException("Invalid phone canvass id");
     }
     return phoneCanvass;
+  }
+
+  async getPhoneCanvassContacts(id: string): Promise<PhoneCanvassContactDTO[]> {
+    console.log("ID IS " + id);
+    const canvass = await this.getPhoneCanvassByIdOrFail(id);
+    console.log("AFTER GPCBID");
+    await canvass.contacts.init({ populate: ["contact"] });
+    return canvass.contacts.map((x) => {
+      return x.toDTO();
+    });
   }
 
   async getProgressInfo(
@@ -125,5 +132,58 @@ export class PhoneCanvassService {
         rowsTotal,
       },
     });
+  }
+
+  async updateSyncData(phoneCanvassId: string): Promise<void> {
+    console.log("updateSyncData");
+    const contacts = await this.getPhoneCanvassContacts(phoneCanvassId);
+
+    const partitionedContacts = partition(contacts, (contact) => {
+      if (contact.callStatus === "NOT_STARTED") {
+        return "NOT_STARTED";
+      } else if (contact.callStatus === "STARTED") {
+        return "STARTED";
+      }
+      return "COMPLETE";
+    });
+    console.log("DONE PARTITION");
+
+    const activeCalls: ActiveCall[] = (
+      partitionedContacts.get("STARTED") ?? []
+    ).map((contact) => {
+      return {
+        calleeDisplayName: contact.contact.formatName(),
+        calleeId: contact.contact.id,
+        callerName: "TODO",
+      };
+    });
+    const pendingCalls: PendingCall[] = (
+      partitionedContacts.get("NOT_STARTED") ?? []
+    ).map((contact) => {
+      return {
+        calleeDisplayName: contact.contact.formatName(),
+        calleeId: contact.contact.id,
+      };
+    });
+
+    console.log("ABOUT TO CALL setSyncData");
+
+    await this.twilioService.setSyncData(phoneCanvassId, {
+      participants: this.globalState
+        .listParticipants(phoneCanvassId)
+        .map((x) => x.displayName),
+      activeCalls,
+      pendingCalls,
+    });
+  }
+
+  async addParticipant(
+    identity: PhoneCanvassParticipantIdentityDTO,
+  ): Promise<PhoneCanvassParticipantIdentityDTO> {
+    console.log("SERVICE addParticipant");
+    this.globalState.addParticipant(identity);
+    await this.updateSyncData(identity.activePhoneCanvassId);
+    console.log("Done updating sync data");
+    return identity;
   }
 }

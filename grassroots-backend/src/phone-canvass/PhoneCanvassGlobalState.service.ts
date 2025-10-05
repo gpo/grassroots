@@ -1,26 +1,37 @@
 import { ConflictException, Injectable } from "@nestjs/common";
+import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 @Injectable()
 export class PhoneCanvassGlobalStateService {
-  // Map from phoneCanvassId to participant display names.
-  #phoneCanvassIdToParticipantDisplayName = new Map<string, string[]>();
+  // Map from phoneCanvassId to participant identities.
+  #phoneCanvassIdToParticipantDisplayName = new Map<
+    string,
+    PhoneCanvassParticipantIdentityDTO[]
+  >();
 
-  addParticipant(phoneCanvassId: string, displayName: string): void {
-    displayName = displayName.trim();
+  addParticipant(identity: PhoneCanvassParticipantIdentityDTO): void {
     const participants =
-      this.#phoneCanvassIdToParticipantDisplayName.get(phoneCanvassId) ?? [];
+      this.#phoneCanvassIdToParticipantDisplayName.get(
+        identity.activePhoneCanvassId,
+      ) ?? [];
 
-    if (participants.includes(displayName)) {
+    if (
+      participants.some(
+        (participant) => participant.displayName === identity.displayName,
+      )
+    ) {
       throw new ConflictException("Display name already taken.");
     }
-    participants.push(displayName);
+    participants.push(identity);
     this.#phoneCanvassIdToParticipantDisplayName.set(
-      phoneCanvassId,
+      identity.activePhoneCanvassId,
       participants,
     );
   }
 
-  listParticipants(phoneCanvassId: string): string[] {
+  listParticipants(
+    phoneCanvassId: string,
+  ): PhoneCanvassParticipantIdentityDTO[] {
     return (
       this.#phoneCanvassIdToParticipantDisplayName.get(phoneCanvassId) ?? []
     );

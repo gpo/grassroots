@@ -5,7 +5,7 @@ import { usePhoneCanvassParticipantStore } from "../../context/PhoneCanvassParti
 import { TextInput } from "@mantine/core";
 import { useTypedForm } from "../../util/UseTypedForm.js";
 import { classValidatorResolver } from "../../util/ClassValidatorResolver.js";
-import { SetIdDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
 
@@ -19,9 +19,9 @@ function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = Route.useParams();
   const phoneCanvassParticipantStore = usePhoneCanvassParticipantStore();
 
-  const identityForm = useTypedForm<SetIdDTO>({
-    validate: classValidatorResolver(SetIdDTO),
-    initialValues: SetIdDTO.from({
+  const identityForm = useTypedForm<PhoneCanvassParticipantIdentityDTO>({
+    validate: classValidatorResolver(PhoneCanvassParticipantIdentityDTO),
+    initialValues: PhoneCanvassParticipantIdentityDTO.from({
       displayName: "",
       email: "",
       activePhoneCanvassId: phoneCanvassId,
@@ -30,28 +30,37 @@ function ParticipateInPhoneCanvass(): JSX.Element {
 
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
-    mutationFn: async (setId: SetIdDTO) => {
-      return SetIdDTO.fromFetchOrThrow(
-        await grassrootsAPI.POST("/phone-canvass/set-display-name", {
+    mutationFn: async (setId: PhoneCanvassParticipantIdentityDTO) => {
+      return PhoneCanvassParticipantIdentityDTO.fromFetchOrThrow(
+        await grassrootsAPI.POST("/phone-canvass/set-participant-identity", {
           body: setId,
         }),
       );
     },
     retry: 1,
-    onSuccess: async (setId: SetIdDTO) => {
-      phoneCanvassParticipantStore.setParticipantIdentity({
-        displayName: setId.displayName,
-        email: setId.email,
-      });
+    onSuccess: async (setId: PhoneCanvassParticipantIdentityDTO) => {
+      phoneCanvassParticipantStore.setParticipantIdentity(
+        PhoneCanvassParticipantIdentityDTO.from({
+          displayName: setId.displayName,
+          email: setId.email,
+          activePhoneCanvassId: phoneCanvassId,
+        }),
+      );
       await queryClient.invalidateQueries({ queryKey: ["canvass"] });
     },
   });
 
-  const onSubmit = useCallback(async (data: SetIdDTO) => {
-    await mutateAsync(data);
-  }, []);
+  const onSubmit = useCallback(
+    async (data: PhoneCanvassParticipantIdentityDTO) => {
+      await mutateAsync(data);
+    },
+    [],
+  );
 
-  if (phoneCanvassParticipantStore.identity === undefined) {
+  if (
+    phoneCanvassParticipantStore.identity === undefined ||
+    phoneCanvassParticipantStore.identity.activePhoneCanvassId != phoneCanvassId
+  ) {
     return (
       <>
         <h1>Welcome to the Party</h1>

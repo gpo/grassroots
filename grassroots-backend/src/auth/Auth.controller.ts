@@ -8,6 +8,7 @@ import {
   Query,
   Body,
   Session,
+  NotFoundException,
 } from "@nestjs/common";
 import type { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -108,6 +109,9 @@ export class AuthController {
   async getActiveOrg(
     @Session() session: SessionData,
   ): Promise<OrganizationDTO> {
+    if (session.activeOrganizationId == undefined) {
+      throw new NotFoundException("No active organization.");
+    }
     return this.organizationService.findOneById(session.activeOrganizationId);
   }
 }

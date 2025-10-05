@@ -14,6 +14,7 @@ import { CallStatusDecorator } from "./CallStatus.dto.js";
 import { Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
+import { Trim } from "../../decorators/Trim.decorator.js";
 
 export class PhoneCanvassDTO extends createDTOBase("PhoneCanvass") {
   @IsString()
@@ -149,7 +150,10 @@ export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
   conference?: string;
 }
 
-export class SetIdDTO extends createDTOBase("SetId") {
+export class PhoneCanvassParticipantIdentityDTO extends createDTOBase(
+  "PhoneCanvassParticipantIdentity",
+) {
+  @Trim()
   @IsNotEmpty()
   displayName!: string;
 

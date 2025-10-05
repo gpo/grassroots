@@ -1,10 +1,10 @@
+import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import { ParticipantIdentity } from "grassroots-shared/PhoneCanvass/ParticipantIdentity";
 
 interface PhoneCanvassParticipantState {
-  identity: ParticipantIdentity | undefined;
-  setParticipantIdentity: (id: ParticipantIdentity) => void;
+  identity: PhoneCanvassParticipantIdentityDTO | undefined;
+  setParticipantIdentity: (id: PhoneCanvassParticipantIdentityDTO) => void;
 }
 
 export const usePhoneCanvassParticipantStore =
@@ -13,8 +13,9 @@ export const usePhoneCanvassParticipantStore =
       persist(
         (set) => ({
           identity: undefined,
-          setParticipantIdentity: (id: ParticipantIdentity): void =>
-            void set(() => ({ identity: id })),
+          setParticipantIdentity: (
+            id: PhoneCanvassParticipantIdentityDTO,
+          ): void => void set(() => ({ identity: id })),
         }),
         {
           name: "phonecanvass-participant-store",

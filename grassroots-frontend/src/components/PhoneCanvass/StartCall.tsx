@@ -6,7 +6,7 @@ import { grassrootsAPI } from "../../GrassRootsAPI.js";
 import { Device } from "@twilio/voice-sdk";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { SyncClient } from "twilio-sync";
-import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvassSyncData";
+import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 
 /*
 Flow is:
@@ -61,6 +61,8 @@ async function joinSync(props: AuthenticatedConnectProps): Promise<void> {
   setSyncData(data);
 
   doc.on("updated", (event) => {
+    console.log("UPDATED");
+    console.log(JSON.stringify(event.data));
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const data = event.data as PhoneCanvassSyncData;
     setSyncData(data);

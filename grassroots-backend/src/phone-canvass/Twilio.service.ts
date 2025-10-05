@@ -2,10 +2,7 @@ import twilio from "twilio";
 
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import {
-  PhoneCanvassAuthTokenResponseDTO,
-  PhoneCanvassContactDTO,
-} from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { PhoneCanvassAuthTokenResponseDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import AccessToken from "twilio/lib/jwt/AccessToken.js";
 import { fail } from "grassroots-shared/util/Fail";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
@@ -31,23 +28,6 @@ export class TwilioService {
     const TWILIO_SID = getEnvStr(this.config, "TWILIO_SID");
     return twilio(TWILIO_API_KEY_SID, TWILIO_API_KEY_SECRET, {
       accountSid: TWILIO_SID,
-    });
-  }
-
-  async startCanvass(
-    phoneCanvassId: string,
-    contacts: PhoneCanvassContactDTO[],
-    participants: string[],
-  ): Promise<void> {
-    await this.setSyncData(phoneCanvassId, {
-      participants,
-      activeCalls: [],
-      pendingCalls: contacts.map((x) => {
-        return {
-          calleeDisplayName: x.contact.formatName(),
-          calleeId: x.contact.id,
-        };
-      }),
     });
   }
 
@@ -112,12 +92,15 @@ export class TwilioService {
     phoneCanvassId: string,
     data: PhoneCanvassSyncData,
   ): Promise<DocumentInstance> {
+    console.log("SET SYNC DATA");
+    console.log(JSON.stringify(data, null, 2));
     const TWILIO_SYNC_SERVICE_SID = getEnvStr(
       this.config,
       "TWILIO_SYNC_SERVICE_SID",
     );
 
     const client = this.getClient();
+    console.log("GOT CLIENT");
 
     let doc: undefined | DocumentInstance;
     try {
@@ -128,6 +111,7 @@ export class TwilioService {
         .services(TWILIO_SYNC_SERVICE_SID)
         .documents(phoneCanvassId)
         .update({ data });
+      console.log("SUCCESSFUL UPDATE");
     } catch {
       doc = await client.sync.v1
         .services(TWILIO_SYNC_SERVICE_SID)
