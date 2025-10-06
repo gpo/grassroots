@@ -19,7 +19,7 @@ export const Route = createFileRoute("/PhoneCanvass/Create")({
 
 class CreatePhoneCanvassData extends CreatePhoneCanvassDataValidatedDTO {
   csv!: File | undefined;
-  audio!: File | undefined;  
+  audio!: File | undefined;
 }
 
 function CreatePhoneCanvass(): JSX.Element {
