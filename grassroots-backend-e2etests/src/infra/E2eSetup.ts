@@ -1,6 +1,6 @@
 import createClient, { Client } from "openapi-fetch";
 import { paths } from "openapi-paths/OpenAPI.gen";
-import { afterAll, beforeAll, beforeEach } from "vitest";
+import { afterAll, beforeAll, beforeEach, vi } from "vitest";
 import { EntityManager } from "@mikro-orm/postgresql";
 import {
   TestFixture,
@@ -68,6 +68,7 @@ export function useE2ETestFixture(
   beforeEach(async () => {
     await fixture?.orm.getSchemaGenerator().clearDatabase();
     fixture?.entityManager.clear();
+    vi.clearAllMocks();
   });
 
   return () => {

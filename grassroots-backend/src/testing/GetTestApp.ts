@@ -1,6 +1,6 @@
 import { Test } from "@nestjs/testing";
 import { NestExpressApplication } from "@nestjs/platform-express";
-import { Type } from "@nestjs/common";
+import { Provider, Type } from "@nestjs/common";
 import { PassportModuleImport } from "../auth/PassportModuleImport.js";
 import { PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { MikroOrmModule, MikroOrmModuleOptions } from "@mikro-orm/nestjs";
@@ -14,6 +14,7 @@ let app: NestExpressApplication | undefined = undefined;
 
 export interface TestSpecificDependencies {
   imports?: Type[];
+  mockProviders?: { provide: Provider; useClass: Provider }[];
   overrideAuthGuard?: boolean;
 }
 
@@ -48,6 +49,11 @@ export async function getTestApp(
       ...(dependencies.imports ?? []),
     ],
   });
+  for (const mockProvider of dependencies.mockProviders ?? []) {
+    builder
+      .overrideProvider(mockProvider.provide)
+      .useClass(mockProvider.useClass);
+  }
   builder = overrideEntityManagerForTest(builder);
   if (dependencies.overrideAuthGuard === true) {
     builder = builder.overrideProvider(SessionGuard).useClass(MockSessionGuard);
