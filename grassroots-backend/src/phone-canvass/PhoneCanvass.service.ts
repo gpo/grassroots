@@ -81,9 +81,7 @@ export class PhoneCanvassService {
   }
 
   async getPhoneCanvassContacts(id: string): Promise<PhoneCanvassContactDTO[]> {
-    console.log("ID IS " + id);
     const canvass = await this.getPhoneCanvassByIdOrFail(id);
-    console.log("AFTER GPCBID");
     await canvass.contacts.init({ populate: ["contact"] });
     return canvass.contacts.map((x) => {
       return x.toDTO();
@@ -129,7 +127,6 @@ export class PhoneCanvassService {
   }
 
   async updateSyncData(phoneCanvassId: string): Promise<void> {
-    console.log("updateSyncData");
     const contacts = await this.getPhoneCanvassContacts(phoneCanvassId);
 
     const partitionedContacts = partition(contacts, (contact) => {
@@ -140,7 +137,6 @@ export class PhoneCanvassService {
       }
       return "COMPLETE";
     });
-    console.log("DONE PARTITION");
 
     const activeCalls: ActiveCall[] = (
       partitionedContacts.get("STARTED") ?? []
@@ -160,12 +156,12 @@ export class PhoneCanvassService {
       };
     });
 
-    console.log("ABOUT TO CALL setSyncData");
-
     await this.twilioService.setSyncData(phoneCanvassId, {
       participants: this.globalState
         .listParticipants(phoneCanvassId)
-        .map((x) => x.displayName),
+        .map((x) => {
+          return { displayName: x.displayName, ready: x.ready };
+        }),
       activeCalls,
       pendingCalls,
     });
@@ -174,10 +170,8 @@ export class PhoneCanvassService {
   async addParticipant(
     identity: PhoneCanvassParticipantIdentityDTO,
   ): Promise<PhoneCanvassParticipantIdentityDTO> {
-    console.log("SERVICE addParticipant");
     this.globalState.addParticipant(identity);
     await this.updateSyncData(identity.activePhoneCanvassId);
-    console.log("Done updating sync data");
     return identity;
   }
 

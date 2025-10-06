@@ -92,15 +92,12 @@ export class TwilioService {
     phoneCanvassId: string,
     data: PhoneCanvassSyncData,
   ): Promise<DocumentInstance> {
-    console.log("SET SYNC DATA", performance.now());
-    console.log(JSON.stringify(data, null, 2));
     const TWILIO_SYNC_SERVICE_SID = getEnvStr(
       this.config,
       "TWILIO_SYNC_SERVICE_SID",
     );
 
     const client = this.getClient();
-    console.log("GOT CLIENT");
 
     let doc: undefined | DocumentInstance;
     try {
@@ -111,7 +108,6 @@ export class TwilioService {
         .services(TWILIO_SYNC_SERVICE_SID)
         .documents(phoneCanvassId)
         .update({ data });
-      console.log("SUCCESSFUL UPDATE", doc.uniqueName, doc.sid);
     } catch {
       doc = await client.sync.v1
         .services(TWILIO_SYNC_SERVICE_SID)

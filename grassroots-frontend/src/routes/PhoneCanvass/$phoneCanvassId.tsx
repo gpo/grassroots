@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useCallback } from "react";
-import { StartCall } from "../../components/phonecanvass/StartCall.js";
+import { StartCall } from "../../components/PhoneCanvass/StartCall.js";
 import { usePhoneCanvassParticipantStore } from "../../context/PhoneCanvassParticipantStore.js";
 import { TextInput } from "@mantine/core";
 import { useTypedForm } from "../../util/UseTypedForm.js";

@@ -38,17 +38,12 @@ async function joinSync(connectParams: ConnectParams): Promise<void> {
   });
 
   const doc = await syncClient.document(callerIdentity.activePhoneCanvassId);
-  console.log("GOT DOC: ", doc.uniqueName, doc.sid);
-  console.log(performance.now());
 
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const data = doc.data as PhoneCanvassSyncData;
   setSyncData(data);
 
-  doc.on("updated", (event) => {
-    console.log("UPDATED");
-    console.log(performance.now());
-    console.log(JSON.stringify(event.data));
+  doc.on("updated", () => {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const data = doc.data as PhoneCanvassSyncData;
     setSyncData(data);
@@ -57,7 +52,6 @@ async function joinSync(connectParams: ConnectParams): Promise<void> {
 
 async function startCall(connectParams: ConnectParams): Promise<void> {
   const { callerIdentity, calleeId, authToken } = connectParams;
-  console.log("START CALL TIME: ", performance.now());
 
   void VoidDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/update-participant", {
@@ -150,7 +144,9 @@ export function StartCall(props: StartCallProps): JSX.Element {
   }, [authToken]);
 
   const participants = syncData.participants.map((x) => (
-    <ListItem key={x}>{x}</ListItem>
+    <ListItem key={x.displayName}>
+      {x.displayName} is {x.ready ? "ready" : "not ready"}
+    </ListItem>
   ));
   const activeCalls = syncData.activeCalls.map((x) => (
     <ListItem key={x.calleeId}>{x.calleeDisplayName}</ListItem>
