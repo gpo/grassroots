@@ -20,6 +20,7 @@ export const Route = createFileRoute("/PhoneCanvass/Create")({
 
 class CreatePhoneCanvassData extends CreatePhoneCanvassDataValidatedDTO {
   csv!: File | undefined;
+  audio!: File | undefined;  
 }
 
 function CreatePhoneCanvass(): JSX.Element {
@@ -37,6 +38,7 @@ function CreatePhoneCanvass(): JSX.Element {
     initialValues: CreatePhoneCanvassData.from({
       csv: undefined,
       name: "",
+      audio: undefined,
     }),
   });
 
@@ -55,6 +57,7 @@ function CreatePhoneCanvass(): JSX.Element {
           body: {
             csv: csvText,
             name: phoneCanvass.name,
+            // Note: audio field not yet sent to backend (will be implemented in PR #3)
           },
         }),
       );
