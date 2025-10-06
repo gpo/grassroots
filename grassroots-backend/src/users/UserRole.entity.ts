@@ -48,7 +48,7 @@ export class UserRoleEntity extends createEntityBase<"UserRole", UserRoleDTO>(
     return UserRoleDTO.from({
       id: this.id,
       userId: this.user.id,
-      role: this.role.toDTO(),
+      role: this.role,
       organizationId: this.organization.id,
       inherited: this.inherited,
     });
