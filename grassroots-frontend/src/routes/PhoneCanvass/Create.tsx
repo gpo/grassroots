@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { JSX, useCallback, useState} from "react";
+import { JSX, useCallback, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
 import { readFileAsText } from "../../util/ReadFileAsText.js";
@@ -13,7 +13,6 @@ import { useTypedForm } from "../../util/UseTypedForm.js";
 import { FieldErrors } from "react-hook-form";
 import { AudioFile, AudioPreview } from "../../components/AudioPreview.js";
 
-
 export const Route = createFileRoute("/PhoneCanvass/Create")({
   component: CreatePhoneCanvass,
 });
@@ -24,7 +23,6 @@ class CreatePhoneCanvassData extends CreatePhoneCanvassDataValidatedDTO {
 }
 
 function CreatePhoneCanvass(): JSX.Element {
-  
   const navigate = useNavigate();
 
   const form = useTypedForm<CreatePhoneCanvassData>({
@@ -80,31 +78,31 @@ function CreatePhoneCanvass(): JSX.Element {
     });
   }, []);
 
- const handleAudioChange = useCallback((file: File | null) => {
+  const handleAudioChange = useCallback(
+    (file: File | null) => {
+      if (!file) {
+        setUploadedAudio(null);
+        return;
+      }
 
-  
-  if (!file) {
-    setUploadedAudio(null);
-    return;
-  }
+      if (uploadedAudio) {
+        URL.revokeObjectURL(uploadedAudio.url);
+      }
 
-  if (uploadedAudio) {
-    URL.revokeObjectURL(uploadedAudio.url);
-  }
-  
-  const audioFile: AudioFile = {
-    id: Date.now().toString(),
-    blob: file,
-    url: URL.createObjectURL(file),
-    name: file.name,
-    size: file.size,
-    type: file.type,
-  };
+      const audioFile: AudioFile = {
+        id: Date.now().toString(),
+        blob: file,
+        url: URL.createObjectURL(file),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      };
 
- 
-  setUploadedAudio(audioFile);
-  form.setFieldValue('audio', file);
-}, [uploadedAudio, form]);
+      setUploadedAudio(audioFile);
+      form.setFieldValue("audio", file);
+    },
+    [uploadedAudio, form],
+  );
 
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
@@ -127,26 +125,19 @@ function CreatePhoneCanvass(): JSX.Element {
         placeholder="Audio File"
         accept="audio/*"
         key={form.key("audio")}
-         onChange={handleAudioChange}
-      >
-      </FileInput>
-       {uploadedAudio && (
-      <AudioPreview
-        audioFile={uploadedAudio}
-        onRemove={() => {
-          URL.revokeObjectURL(uploadedAudio.url);
-          setUploadedAudio(null);
-          form.setFieldValue('audio', null);
-        }}
-      />
-    )}
+        onChange={handleAudioChange}
+      ></FileInput>
+      {uploadedAudio && (
+        <AudioPreview
+          audioFile={uploadedAudio}
+          onRemove={() => {
+            URL.revokeObjectURL(uploadedAudio.url);
+            setUploadedAudio(null);
+            form.setFieldValue("audio", null);
+          }}
+        />
+      )}
       <input type="submit" />
     </form>
-
-
-
-
   );
-
-  
 }
