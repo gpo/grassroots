@@ -3,5 +3,5 @@
   "compilerOptions": {
     "outDir": "./dist"
   },
-  "include": ["src", "../grassroots-backend/src/testing/CreateDTOBase.spec.ts"]
+  "include": ["src"]
 }
