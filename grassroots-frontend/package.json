@@ -28,7 +28,8 @@
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.1",
-    "reflect-metadata": "^0.2.2"
+    "reflect-metadata": "^0.2.2",
+    "twilio-sync": "^3.3.9"
   },
   "devDependencies": {
     "@hookform/resolvers": "^5.0.1",

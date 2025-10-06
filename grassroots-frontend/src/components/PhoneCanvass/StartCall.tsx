@@ -1,10 +1,12 @@
-import { Button } from "@mantine/core";
+import { Button, List, ListItem } from "@mantine/core";
 import { PhoneCanvassAuthTokenResponseDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 import { Dispatch, JSX, SetStateAction, useState } from "react";
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
 import { Device } from "@twilio/voice-sdk";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
+import { SyncClient } from "twilio-sync";
+import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvassSyncData";
 
 /*
 Flow is:
@@ -14,18 +16,21 @@ Flow is:
 4. Wait for sync push matching you with someone, call in.
 */
 
-// Just a placeholder for now.
 interface StartCallProps {
   phoneCanvassId: string;
   calleeId: number;
 }
 
-async function connect(props: {
-  setToken: Dispatch<SetStateAction<string | undefined>>;
+interface ConnectProps {
+  setSyncData: Dispatch<SetStateAction<PhoneCanvassSyncData>>;
   phoneCanvassId: string;
   calleeId: number;
-}): Promise<void> {
-  const { phoneCanvassId, setToken, calleeId } = props;
+}
+
+type AuthenticatedConnectProps = ConnectProps & { authToken: string };
+
+async function connect(props: ConnectProps): Promise<void> {
+  const { phoneCanvassId } = props;
   void VoidDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/start-canvass/{id}", {
       params: {
@@ -37,8 +42,33 @@ async function connect(props: {
   );
 
   const authToken = await getAuthToken(phoneCanvassId);
-  setToken(authToken);
 
+  await joinSync({ ...props, authToken });
+  await startCall({ ...props, authToken });
+}
+
+async function joinSync(props: AuthenticatedConnectProps): Promise<void> {
+  const { authToken, setSyncData, phoneCanvassId } = props;
+  const syncClient = new SyncClient(authToken);
+
+  syncClient.on("connectionStateChanged", (state) => {
+    console.log("Sync connection state:", state);
+  });
+
+  const doc = await syncClient.document(phoneCanvassId);
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const data = doc.data as PhoneCanvassSyncData;
+  setSyncData(data);
+
+  doc.on("updated", (event) => {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const data = event.data as PhoneCanvassSyncData;
+    setSyncData(data);
+  });
+}
+
+async function startCall(props: AuthenticatedConnectProps): Promise<void> {
+  const { authToken, calleeId } = props;
   const device = new Device(authToken, {
     logLevel: 4,
     enableImprovedSignalingErrorPrecision: true,
@@ -82,20 +112,41 @@ async function getAuthToken(phoneCanvassId: string): Promise<string> {
 }
 
 export function StartCall(props: StartCallProps): JSX.Element {
-  void props;
+  const [syncData, setSyncData] = useState<PhoneCanvassSyncData>({
+    participants: [],
+    activeCalls: [],
+    pendingCalls: [],
+  } satisfies PhoneCanvassSyncData);
 
-  const [token, setToken] = useState<string | undefined>(undefined);
-  void token;
+  const participants = syncData.participants.map((x) => (
+    <ListItem key={x}>{x}</ListItem>
+  ));
+  const activeCalls = syncData.activeCalls.map((x) => (
+    <ListItem key={x.calleeId}>{x.calleeDisplayName}</ListItem>
+  ));
+  const pendingCalls = syncData.pendingCalls.map((x) => (
+    <ListItem key={x.calleeId}>{x.calleeDisplayName}</ListItem>
+  ));
+
   return (
-    <Button
-      onClick={() => {
-        void connect({
-          setToken,
-          ...props,
-        });
-      }}
-    >
-      Start Call
-    </Button>
+    <>
+      <Button
+        onClick={() => {
+          void connect({
+            setSyncData,
+            ...props,
+          });
+        }}
+      >
+        Start Call
+      </Button>
+      <h1> Placeholder data </h1>
+      <h2> Participants </h2>
+      <List>{participants}</List>
+      <h2> Active Calls </h2>
+      <List>{activeCalls}</List>
+      <h2> Pending Calls </h2>
+      <List>{pendingCalls}</List>
+    </>
   );
 }

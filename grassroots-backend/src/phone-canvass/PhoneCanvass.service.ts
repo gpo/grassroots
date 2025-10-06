@@ -11,13 +11,13 @@ import {
   PhoneCanvassAuthTokenResponseDTO,
   PaginatedPhoneCanvassContactListRequestDTO,
   PaginatedPhoneCanvassContactResponseDTO,
-  PhoneCanvassContactDTO,
   PhoneCanvassProgressInfoResponseDTO,
+  PhoneCanvassContactDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
-import { PhoneCanvassToContactEntity } from "./entities/PhoneCanvassToContact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
+import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
 
 @Injectable()
 export class PhoneCanvassService {
@@ -44,7 +44,7 @@ export class PhoneCanvassService {
       const contact: RequiredEntityData<ContactEntity> =
         ContactEntity.fromCreateContactRequestDTO(canvasContact.contact);
 
-      this.entityManager.create(PhoneCanvassToContactEntity, {
+      this.entityManager.create(PhoneCanvassContactEntity, {
         phoneCanvas: canvassEntity,
         metadata: canvasContact.metadata,
         callStatus: "NOT_STARTED",
@@ -60,8 +60,13 @@ export class PhoneCanvassService {
   }
 
   async startCanvass(id: string): Promise<VoidDTO> {
-    await this.getPhoneCanvassByIdOrFail(id);
-    await this.twilioService.startCanvass();
+    const canvass = await this.getPhoneCanvassByIdOrFail(id);
+    await canvass.contacts.init({ populate: ["contact"] });
+    const contacts = canvass.contacts.map((x) => {
+      return x.toDTO();
+    });
+
+    await this.twilioService.startCanvass(id, contacts);
     return VoidDTO.from({});
   }
 
@@ -92,7 +97,7 @@ export class PhoneCanvassService {
     paginated,
   }: PaginatedPhoneCanvassContactListRequestDTO): Promise<PaginatedPhoneCanvassContactResponseDTO> {
     const [result, rowsTotal] = await this.entityManager.findAndCount(
-      PhoneCanvassToContactEntity,
+      PhoneCanvassContactEntity,
       { phoneCanvas: phoneCanvassId },
       {
         limit: paginated.rowsToTake,
