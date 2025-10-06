@@ -102,34 +102,25 @@ async function createMikroORMMigration(
 
 async function bootstrap(port: number): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  await writeOpenAPI(app);
+  if (genFilesOnly) {
+    await app.close();
+    return;
+  }
   await listenAndConfigureApp(app, port);
 
-  console.time("generate files");
-
   const postStartupTasks = [
-    writeOpenAPI(app),
     writeFormatted({
       filePath: "../docs/DependencyGraph.md",
       text: graphDependencies(app),
     }),
+    (async (): Promise<void> => {
+      await createMikroORMMigration(app);
+      await OrganizationEntity.ensureRootOrganization(app);
+    })(),
   ];
 
-  if (!genFilesOnly) {
-    postStartupTasks.push(
-      (async (): Promise<void> => {
-        await createMikroORMMigration(app);
-        await OrganizationEntity.ensureRootOrganization(app);
-      })(),
-    );
-  }
-
   await Promise.all(postStartupTasks);
-
-  console.timeEnd("generate files");
-
-  if (genFilesOnly) {
-    await app.close();
-  }
 }
 
 const port = process.env.PORT !== undefined ? parseInt(process.env.PORT) : 3000;
