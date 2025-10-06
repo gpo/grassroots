@@ -92,7 +92,7 @@ export class TwilioService {
     phoneCanvassId: string,
     data: PhoneCanvassSyncData,
   ): Promise<DocumentInstance> {
-    console.log("SET SYNC DATA");
+    console.log("SET SYNC DATA", performance.now());
     console.log(JSON.stringify(data, null, 2));
     const TWILIO_SYNC_SERVICE_SID = getEnvStr(
       this.config,
