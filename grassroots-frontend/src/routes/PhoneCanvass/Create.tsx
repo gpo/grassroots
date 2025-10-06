@@ -133,7 +133,7 @@ function CreatePhoneCanvass(): JSX.Element {
           onRemove={() => {
             URL.revokeObjectURL(uploadedAudio.url);
             setUploadedAudio(null);
-            form.setFieldValue("audio", null);
+            form.setFieldValue("audio", undefined);
           }}
         />
       )}
