@@ -29,7 +29,7 @@ interface ConnectParams {
   authToken: string;
 }
 
-async function joinSync(connectParams: ConnectParams): Promise<void> {
+async function joinSyncGroup(connectParams: ConnectParams): Promise<void> {
   const { setSyncData, callerIdentity, authToken } = connectParams;
   const syncClient = new SyncClient(authToken);
 
@@ -50,7 +50,7 @@ async function joinSync(connectParams: ConnectParams): Promise<void> {
   });
 }
 
-async function startCall(connectParams: ConnectParams): Promise<void> {
+async function enableCalls(connectParams: ConnectParams): Promise<void> {
   const { callerIdentity, calleeId, authToken } = connectParams;
 
   void VoidDTO.fromFetchOrThrow(
@@ -139,7 +139,7 @@ export function StartCall(props: StartCallProps): JSX.Element {
       if (connectParams === undefined) {
         return;
       }
-      await joinSync(connectParams);
+      await joinSyncGroup(connectParams);
     })();
   }, [authToken]);
 
@@ -159,7 +159,7 @@ export function StartCall(props: StartCallProps): JSX.Element {
     <>
       <Button
         onClick={() => {
-          void startCall(connectParams ?? fail("Missing auth token"));
+          void enableCalls(connectParams ?? fail("Missing auth token"));
         }}
       >
         Start Call

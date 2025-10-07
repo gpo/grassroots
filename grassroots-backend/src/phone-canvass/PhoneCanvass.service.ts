@@ -175,7 +175,7 @@ export class PhoneCanvassService {
     return identity;
   }
 
-  async setParticipantReady(
+  async updateParticipant(
     identity: PhoneCanvassParticipantIdentityDTO,
   ): Promise<PhoneCanvassParticipantIdentityDTO> {
     this.globalState.updateParticipant(identity);

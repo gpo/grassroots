@@ -200,7 +200,7 @@ export class PhoneCanvassController {
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassParticipantIdentityDTO> {
     participantIdentity =
-      await this.phoneCanvassService.setParticipantReady(participantIdentity);
+      await this.phoneCanvassService.updateParticipant(participantIdentity);
     session.phoneCanvassParticipantIdentity = participantIdentity;
     return participantIdentity;
   }
