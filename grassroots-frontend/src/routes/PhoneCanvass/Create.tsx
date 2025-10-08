@@ -59,9 +59,9 @@ function CreatePhoneCanvass(): JSX.Element {
 
       return CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
         await grassrootsAPI.POST("/phone-canvass", {
-            // Note: using formData here instead of JSON because of file upload.
-             // @ts-expect-error - openapi-fetch supports FormData but types don't reflect it
-            body: formData,
+          // Note: using formData here instead of JSON because of file upload.
+          // @ts-expect-error - openapi-fetch supports FormData but types don't reflect it
+          body: formData,
         }),
       );
     },

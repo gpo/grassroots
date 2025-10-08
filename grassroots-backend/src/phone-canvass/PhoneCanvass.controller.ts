@@ -30,8 +30,8 @@ import Papa from "papaparse";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
-import { FileInterceptor } from '@nestjs/platform-express'
-import { Express } from "express";;
+import { FileInterceptor } from "@nestjs/platform-express";
+import { Express } from "express";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -48,29 +48,28 @@ export class PhoneCanvassController {
   constructor(private readonly phoneCanvassService: PhoneCanvassService) {}
 
   @Post()
-@UseInterceptors(FileInterceptor('audio')) 
-async create(
-  @Body() body: any,
-  @UploadedFile() audioFile: Express.Multer.File | undefined,
-  @Request() req: GrassrootsRequest,
-): Promise<CreatePhoneCanvassResponseDTO> {
-  const email = getEmail(req);
-  console.log('Received request body:', req.body);
-  
-  // Log the audio file to see if it's being received
-  if (audioFile) {
-    console.log('Audio file received:', {
-      filename: audioFile.originalname,
-      size: audioFile.size,
-      mimetype: audioFile.mimetype,
+  @UseInterceptors(FileInterceptor("audio"))
+  async create(
+    @Body() body: any,
+    @UploadedFile() audioFile: Express.Multer.File | undefined,
+    @Request() req: GrassrootsRequest,
+  ): Promise<CreatePhoneCanvassResponseDTO> {
+    const email = getEmail(req);
+    console.log("Received request body:", req.body);
+
+    // Log the audio file to see if it's being received
+    if (audioFile) {
+      console.log("Audio file received:", {
+        filename: audioFile.originalname,
+        size: audioFile.size,
+        mimetype: audioFile.mimetype,
+      });
+    }
+
+    const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
+      name: req.body.name,
+      csv: req.body.csv,
     });
-  }
-
-  const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
-    name: req.body.name,
-    csv: req.body.csv,
-  });
-
 
     const HANDLED_FIELDS = new Set([
       "id",
@@ -152,7 +151,7 @@ async create(
       );
     }
 
-    return await this.phoneCanvassService.create(createDTO, email,audioFile);
+    return await this.phoneCanvassService.create(createDTO, email, audioFile);
   }
 
   @Get("auth-token/:id")

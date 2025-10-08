@@ -20,7 +20,6 @@ import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
 import { Express } from "express";
 
-
 @Injectable()
 export class PhoneCanvassService {
   repo: EntityRepository<PhoneCanvassEntity>;
@@ -35,9 +34,12 @@ export class PhoneCanvassService {
   async create(
     canvass: CreatePhoneCanvassRequestDTO,
     creatorEmail: string,
-    audioFile?: Express.Multer.File | undefined,
+    audioFile?: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    console.log('Service create called with audioFile:', audioFile ? 'YES' : 'NO');
+    console.log(
+      "Service create called with audioFile:",
+      audioFile ? "YES" : "NO",
+    );
     const canvassEntity = this.repo.create({
       creatorEmail,
       contacts: [],
@@ -45,7 +47,11 @@ export class PhoneCanvassService {
     await this.entityManager.flush();
 
     if (audioFile != null && audioFile != undefined) {
-      console.log('Service received audio file:', audioFile.originalname, audioFile.size);
+      console.log(
+        "Service received audio file:",
+        audioFile.originalname,
+        audioFile.size,
+      );
     }
 
     for (const canvasContact of canvass.contacts) {
@@ -66,8 +72,6 @@ export class PhoneCanvassService {
       id: canvassEntity.id,
     });
   }
-
-  
 
   async startCanvass(id: string): Promise<VoidDTO> {
     const canvass = await this.getPhoneCanvassByIdOrFail(id);
