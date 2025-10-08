@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { JSX, useCallback } from "react";
+import { JSX, useCallback, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
 import { readFileAsText } from "../../util/ReadFileAsText.js";
@@ -11,6 +11,7 @@ import { classValidatorResolver } from "../../util/ClassValidatorResolver.js";
 import { FileInput, TextInput } from "@mantine/core";
 import { useTypedForm } from "../../util/UseTypedForm.js";
 import { FieldErrors } from "react-hook-form";
+import { AudioFile, AudioPreview } from "../../components/AudioPreview.js";
 
 export const Route = createFileRoute("/PhoneCanvass/Create")({
   component: CreatePhoneCanvass,
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/PhoneCanvass/Create")({
 
 class CreatePhoneCanvassData extends CreatePhoneCanvassDataValidatedDTO {
   csv!: File | undefined;
+  audio!: File | undefined;
 }
 
 function CreatePhoneCanvass(): JSX.Element {
@@ -34,8 +36,11 @@ function CreatePhoneCanvass(): JSX.Element {
     initialValues: CreatePhoneCanvassData.from({
       csv: undefined,
       name: "",
+      audio: undefined,
     }),
   });
+
+  const [uploadedAudio, setUploadedAudio] = useState<AudioFile | null>(null);
 
   const queryClient = useQueryClient();
   const { mutateAsync } = useMutation({
@@ -50,6 +55,7 @@ function CreatePhoneCanvass(): JSX.Element {
           body: {
             csv: csvText,
             name: phoneCanvass.name,
+            // Note: audio field not yet sent to backend (will be implemented in PR #3)
           },
         }),
       );
@@ -72,6 +78,32 @@ function CreatePhoneCanvass(): JSX.Element {
     });
   }, []);
 
+  const handleAudioChange = useCallback(
+    (file: File | null) => {
+      if (!file) {
+        setUploadedAudio(null);
+        return;
+      }
+
+      if (uploadedAudio) {
+        URL.revokeObjectURL(uploadedAudio.url);
+      }
+
+      const audioFile: AudioFile = {
+        id: Date.now().toString(),
+        blob: file,
+        url: URL.createObjectURL(file),
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      };
+
+      setUploadedAudio(audioFile);
+      form.setFieldValue("audio", file);
+    },
+    [uploadedAudio, form],
+  );
+
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
       <TextInput
@@ -87,6 +119,24 @@ function CreatePhoneCanvass(): JSX.Element {
         key={form.key("csv")}
         {...form.getInputProps("csv")}
       ></FileInput>
+      <FileInput
+        label="Audio Uplaod"
+        description="Audio file to play"
+        placeholder="Audio File"
+        accept="audio/*"
+        key={form.key("audio")}
+        onChange={handleAudioChange}
+      ></FileInput>
+      {uploadedAudio && (
+        <AudioPreview
+          audioFile={uploadedAudio}
+          onRemove={() => {
+            URL.revokeObjectURL(uploadedAudio.url);
+            setUploadedAudio(null);
+            form.setFieldValue("audio", undefined);
+          }}
+        />
+      )}
       <input type="submit" />
     </form>
   );
