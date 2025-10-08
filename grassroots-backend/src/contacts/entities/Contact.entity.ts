@@ -1,4 +1,10 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Entity,
+  ManyToOne,
+  PrimaryKey,
+  Property,
+  Unique,
+} from "@mikro-orm/core";
 import type { Rel, RequiredEntityData } from "@mikro-orm/core";
 import {
   ContactDTO,
@@ -15,9 +21,11 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   id!: number;
 
   @Property({ nullable: true })
+  @Unique()
   gvote_id?: string;
 
   @Property()
+  @Unique()
   email!: string;
 
   @Property()
@@ -43,11 +51,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       firstName: this.firstName,
       lastName: this.lastName,
       phoneNumber: this.phoneNumber,
-      // Organization will always be defined in the database, but won't always be populated.
-      // It might be better to defined toDTO on Loaded<Entity>'s, but that's a bit tricky.
-      // See https://github.com/gpo/grassroots/issues/228.
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      organization: this.organization?.toDTO(),
+      organization: this.organization,
     });
   }
 
