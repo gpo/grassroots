@@ -5,11 +5,11 @@ import {
   Profile,
 } from "passport-google-oidc";
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "../users/Users.service.js";
 import OpenIDConnectStrategy from "passport-openidconnect";
 import { UserDTO } from "grassroots-shared/dtos/User.dto";
+import { Environment } from "../GetEnvVars.js";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
 
@@ -19,25 +19,13 @@ export class GoogleOAuthStrategy extends PassportStrategy(
   DEFAULT_PASSPORT_STRATEGY_NAME,
 ) {
   constructor(
-    private config: ConfigService,
     private userService: UsersService,
+    envVars: Environment,
   ) {
-    const clientID = config.get<string>("GOOGLE_CLIENT_ID");
-    if (clientID === undefined) {
-      throw new Error("Missing environment variable GOOGLE_CLIENT_ID");
-    }
-    const clientSecret = config.get<string>("GOOGLE_CLIENT_SECRET");
-    if (clientSecret === undefined) {
-      throw new Error("Missing environment variable GOOGLE_CLIENT_SECRET");
-    }
-    const callbackURL = config.get<string>("GOOGLE_AUTH_CALLBACK_URL");
-    if (callbackURL === undefined) {
-      throw new Error("Missing environment variable GOOGLE_AUTH_CALLBACK_URL");
-    }
     super({
-      clientID,
-      clientSecret,
-      callbackURL,
+      clientID: envVars.GOOGLE_CLIENT_ID,
+      clientSecret: envVars.GOOGLE_CLIENT_SECRET,
+      callbackURL: envVars.GOOGLE_AUTH_CALLBACK_URL,
       scope: ["email", "profile"],
       prompt: "login",
     } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
