@@ -31,7 +31,7 @@ import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
 import { FileInterceptor } from '@nestjs/platform-express'
-import { Express } from "express";;
+import type { File as MulterFile } from 'multer';
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -51,7 +51,7 @@ export class PhoneCanvassController {
 @UseInterceptors(FileInterceptor('audio')) 
 async create(
   @Body() body: any,
-  @UploadedFile() audioFile: Express.Multer.File | undefined,
+  @UploadedFile() audioFile: MulterFile | undefined,
   @Request() req: GrassrootsRequest,
 ): Promise<CreatePhoneCanvassResponseDTO> {
   const email = getEmail(req);
