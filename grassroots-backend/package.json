@@ -71,6 +71,7 @@
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
+    "@types/multer": "^2.0.0",
     "@types/node": "^24.3.2",
     "@types/passport": "^1.0.17",
     "@types/passport-local": "^1.0.38",
