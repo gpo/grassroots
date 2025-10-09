@@ -46,28 +46,29 @@ function getEmail(req: GrassrootsRequest): string {
 export class PhoneCanvassController {
   constructor(private readonly phoneCanvassService: PhoneCanvassService) {}
 
-@Post()
-@UseInterceptors(
-  FileInterceptor('voiceMailAudioFile', {
-    fileFilter: (req, file, cb) => {
-      console.log('Incoming file field:', file.fieldname);
-      if (!file.mimetype.startsWith('audio/')) {
-        return cb(new BadRequestException('Only audio files are allowed!'), false);
-      }
-      cb(null, true);
-    },
-    limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
-  }),
-)
-async create(
-   @Body() body: CreatePhoneCanvassMultipartBody,
-  @UploadedFile() voiceMailAudioFile: Express.Multer.File,
-  @Request() req: GrassrootsRequest,
-): Promise<CreatePhoneCanvassResponseDTO> {
-  const email = getEmail(req);
-  console.log('Received request body:', req.body);
-   // Log the entire body coming from the client
-  console.log('Received request body:', body);
+  @Post()
+  @UseInterceptors(
+    FileInterceptor("voiceMailAudioFile", {
+      fileFilter: (req, file, cb) => {
+        console.log("Incoming file field:", file.fieldname);
+        if (!file.mimetype.startsWith("audio/")) {
+          cb(new BadRequestException("Only audio files are allowed!"), false);
+          return;
+        }
+        cb(null, true);
+      },
+      limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+    }),
+  )
+  async create(
+    @Body() body: CreatePhoneCanvassMultipartBody,
+    @UploadedFile() voiceMailAudioFile: Express.Multer.File,
+    @Request() req: GrassrootsRequest,
+  ): Promise<CreatePhoneCanvassResponseDTO> {
+    const email = getEmail(req);
+    console.log("Received request body:", req.body);
+    // Log the entire body coming from the client
+    console.log("Received request body:", body);
 
     // Log the raw request body for extra debugging
     console.log("Raw req.body:", req.body);
@@ -227,7 +228,6 @@ async create(
   ): Promise<PaginatedPhoneCanvassContactResponseDTO> {
     return await this.phoneCanvassService.list(request);
   }
-  
 }
 
 interface CreatePhoneCanvassMultipartBody {
