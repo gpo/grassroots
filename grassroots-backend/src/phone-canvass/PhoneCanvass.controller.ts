@@ -60,7 +60,7 @@ export class PhoneCanvassController {
   }),
 )
 async create(
-  @Body() body: any,
+   @Body() body: CreatePhoneCanvassMultipartBody,
   @UploadedFile() voiceMailAudioFile: Express.Multer.File,
   @Request() req: GrassrootsRequest,
 ): Promise<CreatePhoneCanvassResponseDTO> {
@@ -223,4 +223,10 @@ async create(
   ): Promise<PaginatedPhoneCanvassContactResponseDTO> {
     return await this.phoneCanvassService.list(request);
   }
+  
+}
+
+interface CreatePhoneCanvassMultipartBody {
+  name: string;
+  csv: string;
 }
