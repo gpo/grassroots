@@ -101,16 +101,13 @@ async function readSingleEnvironmentFile(
 // Cache environment variables.
 let envVariables: Environment | undefined = undefined;
 
-/**
- * Loads environment variables from multiple .env files in parallel
- * Earlier files in the list take priority over later files
- */
 export async function getEnvVars(): Promise<Environment> {
   if (envVariables) {
     return envVariables;
   }
 
-  const environmentFilePaths = getEnvFilePaths();
+  // We want earlier files to take priority, so process them last.
+  const environmentFilePaths = getEnvFilePaths().reverse();
 
   // Read all files in parallel using Promise.all
   const filePromises = environmentFilePaths.map(async (filePath) => {
