@@ -67,7 +67,7 @@ export class PhoneCanvassController {
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
     const email = getEmail(req);
-    
+
     const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
       name: body.name,
       csv: body.csv,
