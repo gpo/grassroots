@@ -8,6 +8,8 @@ import {
   Param,
   Header,
   BadRequestException,
+  UseInterceptors,
+  UploadedFile,
 } from "@nestjs/common";
 import {
   CreatePhoneCanvasContactRequestDTO,
@@ -28,6 +30,8 @@ import Papa from "papaparse";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
+import { FileInterceptor } from "@nestjs/platform-express";
+import type { Express } from "express";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -44,11 +48,31 @@ export class PhoneCanvassController {
   constructor(private readonly phoneCanvassService: PhoneCanvassService) {}
 
   @Post()
+  @UseInterceptors(
+    FileInterceptor("voiceMailAudioFile", {
+      fileFilter: (req, file, cb) => {
+        console.log("Incoming file field:", file.fieldname);
+        if (!file.mimetype.startsWith("audio/")) {
+          cb(new BadRequestException("Only audio files are allowed!"), false);
+          return;
+        }
+        cb(null, true);
+      },
+      limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+    }),
+  )
   async create(
-    @Body() canvasData: CreatePhoneCanvasCSVRequestDTO,
+    @Body() body: CreatePhoneCanvassMultipartBody,
+    @UploadedFile() voiceMailAudioFile: Express.Multer.File,
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
     const email = getEmail(req);
+
+    const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
+      name: body.name,
+      csv: body.csv,
+    });
+
     const HANDLED_FIELDS = new Set([
       "id",
       "gvote_id",
@@ -129,7 +153,11 @@ export class PhoneCanvassController {
       );
     }
 
-    return await this.phoneCanvassService.create(createDTO, email);
+    return await this.phoneCanvassService.create(
+      createDTO,
+      email,
+      voiceMailAudioFile,
+    );
   }
 
   @Get("auth-token/:id")
@@ -186,4 +214,9 @@ export class PhoneCanvassController {
   ): Promise<PaginatedPhoneCanvassContactResponseDTO> {
     return await this.phoneCanvassService.list(request);
   }
+}
+
+interface CreatePhoneCanvassMultipartBody {
+  name: string;
+  csv: string;
 }
