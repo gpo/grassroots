@@ -33,6 +33,7 @@ import { validateSync, ValidationError } from "class-validator";
 import { FileInterceptor } from '@nestjs/platform-express'
 import type { File as MulterFile } from 'multer';
 
+
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
   if (email === undefined) {
@@ -47,30 +48,45 @@ function getEmail(req: GrassrootsRequest): string {
 export class PhoneCanvassController {
   constructor(private readonly phoneCanvassService: PhoneCanvassService) {}
 
-  @Post()
-@UseInterceptors(FileInterceptor('audio')) 
+@Post()
+@UseInterceptors(
+  FileInterceptor('voiceMailAudioFile', {
+    fileFilter: (req, file, cb) => {
+      console.log('Incoming file field:', file.fieldname);
+      if (!file.mimetype.startsWith('audio/')) {
+        return cb(new BadRequestException('Only audio files are allowed!'), false);
+      }
+      cb(null, true);
+    },
+    limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
+  }),
+)
 async create(
   @Body() body: any,
-  @UploadedFile() audioFile: MulterFile | undefined,
+  @UploadedFile() voiceMailAudioFile: Express.Multer.File,
   @Request() req: GrassrootsRequest,
 ): Promise<CreatePhoneCanvassResponseDTO> {
   const email = getEmail(req);
   console.log('Received request body:', req.body);
-  
+   // Log the entire body coming from the client
+  console.log('Received request body:', body);
+
+  // Log the raw request body for extra debugging
+  console.log('Raw req.body:', req.body);
+
   // Log the audio file to see if it's being received
-  if (audioFile) {
+  if (voiceMailAudioFile) {
     console.log('Audio file received:', {
-      filename: audioFile.originalname,
-      size: audioFile.size,
-      mimetype: audioFile.mimetype,
+      filename: voiceMailAudioFile.originalname,
+      size: voiceMailAudioFile.size,
+      mimetype: voiceMailAudioFile.mimetype,
     });
   }
 
   const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
-    name: req.body.name,
-    csv: req.body.csv,
+    name: body.name,
+    csv: body.csv,
   });
-
 
     const HANDLED_FIELDS = new Set([
       "id",
@@ -152,7 +168,7 @@ async create(
       );
     }
 
-    return await this.phoneCanvassService.create(createDTO, email,audioFile);
+    return await this.phoneCanvassService.create(createDTO, email, voiceMailAudioFile);
   }
 
   @Get("auth-token/:id")

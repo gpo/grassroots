@@ -54,14 +54,14 @@ function CreatePhoneCanvass(): JSX.Element {
       formData.append("name", phoneCanvass.name);
       formData.append("csv", csvText);
       if (phoneCanvass.audio) {
-        formData.append("audio", phoneCanvass.audio);
+        formData.append("voiceMailAudioFile", phoneCanvass.audio);
       }
 
       return CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
         await grassrootsAPI.POST("/phone-canvass", {
-            // Note: using formData here instead of JSON because of file upload.
-             // @ts-expect-error - openapi-fetch supports FormData but types don't reflect it
-            body: formData,
+          // Note: using formData here instead of JSON because of file upload.
+          // @ts-expect-error - openapi-fetch supports FormData but types don't reflect it
+          body: formData,
         }),
       );
     },
@@ -125,9 +125,9 @@ function CreatePhoneCanvass(): JSX.Element {
         {...form.getInputProps("csv")}
       ></FileInput>
       <FileInput
-        label="Audio Upload"
-        description="Audio file to play"
-        placeholder="Audio File"
+        label=" Voicemail Audio Upload"
+        description=" Voicemail audio to play"
+        placeholder="Voicemail Audio File"
         accept="audio/*"
         key={form.key("audio")}
         onChange={handleAudioChange}
