@@ -30,7 +30,7 @@ import Papa from "papaparse";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
-import { FileInterceptor } from '@nestjs/platform-express'
+import { FileInterceptor } from "@nestjs/platform-express";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -69,22 +69,22 @@ async create(
    // Log the entire body coming from the client
   console.log('Received request body:', body);
 
-  // Log the raw request body for extra debugging
-  console.log('Raw req.body:', req.body);
+    // Log the raw request body for extra debugging
+    console.log("Raw req.body:", req.body);
 
-  // Log the audio file to see if it's being received
-  if (voiceMailAudioFile) {
-    console.log('Audio file received:', {
-      filename: voiceMailAudioFile.originalname,
-      size: voiceMailAudioFile.size,
-      mimetype: voiceMailAudioFile.mimetype,
+    // Log the audio file to see if it's being received
+    if (voiceMailAudioFile) {
+      console.log("Audio file received:", {
+        filename: voiceMailAudioFile.originalname,
+        size: voiceMailAudioFile.size,
+        mimetype: voiceMailAudioFile.mimetype,
+      });
+    }
+
+    const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
+      name: body.name,
+      csv: body.csv,
     });
-  }
-
-  const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
-    name: body.name,
-    csv: body.csv,
-  });
 
     const HANDLED_FIELDS = new Set([
       "id",
@@ -166,7 +166,11 @@ async create(
       );
     }
 
-    return await this.phoneCanvassService.create(createDTO, email, voiceMailAudioFile);
+    return await this.phoneCanvassService.create(
+      createDTO,
+      email,
+      voiceMailAudioFile,
+    );
   }
 
   @Get("auth-token/:id")
