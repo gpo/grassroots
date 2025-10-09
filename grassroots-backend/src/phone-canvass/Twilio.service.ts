@@ -1,85 +1,53 @@
 import twilio from "twilio";
 
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { PhoneCanvassAuthTokenResponseDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import AccessToken from "twilio/lib/jwt/AccessToken.js";
-import { fail } from "grassroots-shared/util/Fail";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
-
-function getEnvStr(config: ConfigService, str: string): string {
-  return config.get<string>(str) ?? fail("Missing " + str);
-}
+import { getEnvVars } from "../GetEnvVars.js";
 
 @Injectable()
 export class TwilioService {
-  // Grabbing all the env vars once in the constructor might be a bit nicer, but it currently breaks ci,
-  // which doesn't define these env vars.
-  constructor(private config: ConfigService) {}
-
-  #getClient(): twilio.Twilio {
-    const TWILIO_API_KEY_SID = getEnvStr(this.config, "TWILIO_API_KEY_SID");
-    const TWILIO_API_KEY_SECRET = getEnvStr(
-      this.config,
-      "TWILIO_API_KEY_SECRET",
-    );
-    const TWILIO_SID = getEnvStr(this.config, "TWILIO_SID");
-    return twilio(TWILIO_API_KEY_SID, TWILIO_API_KEY_SECRET, {
-      accountSid: TWILIO_SID,
+  async #getClient(): Promise<twilio.Twilio> {
+    const envVars = await getEnvVars();
+    return twilio(envVars.TWILIO_API_KEY_SID, envVars.TWILIO_API_KEY_SECRET, {
+      accountSid: envVars.TWILIO_SID,
     });
   }
 
   async makeCall(): Promise<void> {
-    const TEST_APPROVED_PHONE_NUMBER = getEnvStr(
-      this.config,
-      "TEST_APPROVED_PHONE_NUMBER",
-    );
-    const TWILIO_OUTGOING_NUMBER = getEnvStr(
-      this.config,
-      "TWILIO_OUTGOING_NUMBER",
-    );
+    const envVars = await getEnvVars();
 
     // TODO - this should actually be the callee id.
     const CALLEE_ID = 10;
-    const client = this.#getClient();
+    const client = await this.#getClient();
 
     await client.calls.create({
-      to: TEST_APPROVED_PHONE_NUMBER,
-      from: TWILIO_OUTGOING_NUMBER,
+      to: envVars.TEST_APPROVED_PHONE_NUMBER,
+      from: envVars.TWILIO_OUTGOING_NUMBER,
       twiml: `<Response><Dial><Conference>${String(CALLEE_ID)}</Conference></Dial></Response>`,
     });
   }
 
-  getAuthToken(): PhoneCanvassAuthTokenResponseDTO {
-    const TWILIO_SID = getEnvStr(this.config, "TWILIO_SID");
-    const TWILIO_API_KEY_SID = getEnvStr(this.config, "TWILIO_API_KEY_SID");
-    const TWILIO_API_KEY_SECRET = getEnvStr(
-      this.config,
-      "TWILIO_API_KEY_SECRET",
-    );
-    const TWILIO_APP_SID = getEnvStr(this.config, "TWILIO_APP_SID");
-    const TWILIO_SYNC_SERVICE_SID = getEnvStr(
-      this.config,
-      "TWILIO_SYNC_SERVICE_SID",
-    );
-
+  async getAuthToken(): Promise<PhoneCanvassAuthTokenResponseDTO> {
+    const envVars = await getEnvVars();
     const identity = "user";
 
     const token = new AccessToken(
-      TWILIO_SID,
-      TWILIO_API_KEY_SID,
-      TWILIO_API_KEY_SECRET,
+      envVars.TWILIO_SID,
+      envVars.TWILIO_API_KEY_SID,
+      envVars.TWILIO_API_KEY_SECRET,
       { identity: identity },
     );
     token.addGrant(
       new AccessToken.VoiceGrant({
-        outgoingApplicationSid: TWILIO_APP_SID,
+        outgoingApplicationSid: envVars.TWILIO_APP_SID,
       }),
     );
 
     token.addGrant(
       new AccessToken.SyncGrant({
-        serviceSid: TWILIO_SYNC_SERVICE_SID,
+        serviceSid: envVars.TWILIO_SYNC_SERVICE_SID,
       }),
     );
 
@@ -90,24 +58,20 @@ export class TwilioService {
     phoneCanvassId: string,
     data: PhoneCanvassSyncData,
   ): Promise<void> {
-    const TWILIO_SYNC_SERVICE_SID = getEnvStr(
-      this.config,
-      "TWILIO_SYNC_SERVICE_SID",
-    );
-
-    const client = this.#getClient();
+    const envVars = await getEnvVars();
+    const client = await this.#getClient();
 
     try {
       // This fails if the document doesn't already exist. Checking if it exists first introduces
       // an extra unnecessary round trip and some complexity.
       // Instead we just try to update it, and if that fails, create it instead.
       await client.sync.v1
-        .services(TWILIO_SYNC_SERVICE_SID)
+        .services(envVars.TWILIO_SYNC_SERVICE_SID)
         .documents(phoneCanvassId)
         .update({ data });
     } catch {
       await client.sync.v1
-        .services(TWILIO_SYNC_SERVICE_SID)
+        .services(envVars.TWILIO_SYNC_SERVICE_SID)
         .documents.create({ uniqueName: phoneCanvassId, data });
     }
   }
