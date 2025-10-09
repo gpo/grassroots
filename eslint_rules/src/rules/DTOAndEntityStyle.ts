@@ -158,8 +158,10 @@ export const rule = createRule({
           return;
         }
         const name = identifier.name;
+        // Case insensitive since FooDto and FooDTO both seem reasonable.
         const isDTO = /dto/i.exec(name);
-        const isEntity = /entity/i.exec(name);
+        // Case sensitive to avoid false positives like FooIdentityDTO.
+        const isEntity = /Entity/.exec(name);
         if (!isDTO && !isEntity) {
           return;
         }

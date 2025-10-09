@@ -8,6 +8,7 @@ import {
   Param,
   Header,
   BadRequestException,
+  Session,
 } from "@nestjs/common";
 import {
   CreatePhoneCanvasContactRequestDTO,
@@ -19,15 +20,16 @@ import {
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
   PhoneCanvasTwilioVoiceCallbackDTO,
+  PhoneCanvassParticipantIdentityDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
 import { PublicRoute } from "../../src/auth/PublicRoute.decorator.js";
-import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import Papa from "papaparse";
 import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
+import expressSession from "express-session";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -166,12 +168,6 @@ export class PhoneCanvassController {
     `;
   }
 
-  @Post("start-canvass/:id")
-  @PublicRoute()
-  async startCanvass(@Param("id") id: string): Promise<VoidDTO> {
-    return this.phoneCanvassService.startCanvass(id);
-  }
-
   @Get("progress/:id")
   async getProgressInfo(
     @Param("id") id: string,
@@ -185,5 +181,27 @@ export class PhoneCanvassController {
     request: PaginatedPhoneCanvassContactListRequestDTO,
   ): Promise<PaginatedPhoneCanvassContactResponseDTO> {
     return await this.phoneCanvassService.list(request);
+  }
+
+  @Post("add-participant")
+  async addParticipant(
+    @Body() participantIdentity: PhoneCanvassParticipantIdentityDTO,
+    @Session() session: expressSession.SessionData,
+  ): Promise<PhoneCanvassParticipantIdentityDTO> {
+    participantIdentity =
+      await this.phoneCanvassService.addParticipant(participantIdentity);
+    session.phoneCanvassParticipantIdentity = participantIdentity;
+    return participantIdentity;
+  }
+
+  @Post("update-participant")
+  async updateParticipant(
+    @Body() participantIdentity: PhoneCanvassParticipantIdentityDTO,
+    @Session() session: expressSession.SessionData,
+  ): Promise<PhoneCanvassParticipantIdentityDTO> {
+    participantIdentity =
+      await this.phoneCanvassService.updateParticipant(participantIdentity);
+    session.phoneCanvassParticipantIdentity = participantIdentity;
+    return participantIdentity;
   }
 }

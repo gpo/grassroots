@@ -8,7 +8,7 @@
     "build": "vite build",
     "type-check": "tsc -b --noEmit",
     "test": "echo \"TODO: test frontend\" && exit 0",
-    "preview": "vite preview"
+    "preview": "vite build && vite preview --host --port=5173"
   },
   "dependencies": {
     "@faker-js/faker": "^9.9.0",
@@ -29,7 +29,8 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.56.1",
     "reflect-metadata": "^0.2.2",
-    "twilio-sync": "^3.3.9"
+    "twilio-sync": "^3.3.9",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@hookform/resolvers": "^5.0.1",
