@@ -46,7 +46,7 @@ export class PhoneCanvassService {
     });
     await this.entityManager.flush();
 
-    if (audioFile != null && audioFile != undefined) {
+    if (audioFile != null) {
       console.log(
         "Service received audio file:",
         audioFile.originalname,

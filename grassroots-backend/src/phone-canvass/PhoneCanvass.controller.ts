@@ -67,22 +67,7 @@ export class PhoneCanvassController {
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
     const email = getEmail(req);
-    console.log("Received request body:", req.body);
-    // Log the entire body coming from the client
-    console.log("Received request body:", body);
-
-    // Log the raw request body for extra debugging
-    console.log("Raw req.body:", req.body);
-
-    // Log the audio file to see if it's being received
-    if (voiceMailAudioFile) {
-      console.log("Audio file received:", {
-        filename: voiceMailAudioFile.originalname,
-        size: voiceMailAudioFile.size,
-        mimetype: voiceMailAudioFile.mimetype,
-      });
-    }
-
+    
     const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
       name: body.name,
       csv: body.csv,
