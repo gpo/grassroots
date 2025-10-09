@@ -31,6 +31,7 @@ import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
 import { FileInterceptor } from "@nestjs/platform-express";
+import type { Express } from "express";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];

@@ -18,7 +18,7 @@ import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
-import { Express } from "express";
+import type { Express } from "express";
 
 @Injectable()
 export class PhoneCanvassService {
