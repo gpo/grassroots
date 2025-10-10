@@ -11,7 +11,10 @@ import { classValidatorResolver } from "../../util/ClassValidatorResolver.js";
 import { FileInput, TextInput } from "@mantine/core";
 import { useTypedForm } from "../../util/UseTypedForm.js";
 import { FieldErrors } from "react-hook-form";
-import { AudioFile, AudioPreview } from "../../components/AudioPreview.js";
+import {
+  AudioFile,
+  AudioPreview,
+} from "../../PhoneCanvass/components/AudioPreview.js";
 
 export const Route = createFileRoute("/PhoneCanvass/Create")({
   component: CreatePhoneCanvass,

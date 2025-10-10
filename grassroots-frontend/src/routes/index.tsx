@@ -1,7 +1,7 @@
 /* eslint-disable check-file/no-index */
 import { createFileRoute } from "@tanstack/react-router";
 import { JSX, useContext, useState } from "react";
-import { LoginState, LoginStateContext } from "../context/LoginStateContext.js";
+import { LoginState, LoginStateContext } from "../auth/LoginStateContext.js";
 
 export const Route = createFileRoute("/")({
   component: Index,

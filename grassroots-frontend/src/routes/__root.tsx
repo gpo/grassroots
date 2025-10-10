@@ -5,7 +5,7 @@ import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
 import { RoutedLink } from "../components/RoutedLink.js";
 import { navigateToBackendRoute } from "../GrassRootsAPI.js";
-import { LoginState } from "../context/LoginStateContext.js";
+import { LoginState } from "../auth/LoginStateContext.js";
 import { DevTools } from "../components/devtools/DevTools.js";
 
 interface RouterContext {
