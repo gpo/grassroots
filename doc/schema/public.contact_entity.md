@@ -27,12 +27,16 @@
 | contact_entity_phone_number_not_null    | n           | NOT NULL phone_number                                                              |
 | contact_entity_organization_id_foreign  | FOREIGN KEY | FOREIGN KEY (organization_id) REFERENCES organization_entity(id) ON UPDATE CASCADE |
 | contact_entity_pkey                     | PRIMARY KEY | PRIMARY KEY (id)                                                                   |
+| contact_entity_gvote_id_unique          | UNIQUE      | UNIQUE (gvote_id)                                                                  |
+| contact_entity_email_unique             | UNIQUE      | UNIQUE (email)                                                                     |
 
 ## Indexes
 
-| Name                | Definition                                                                        |
-| ------------------- | --------------------------------------------------------------------------------- |
-| contact_entity_pkey | CREATE UNIQUE INDEX contact_entity_pkey ON public.contact_entity USING btree (id) |
+| Name                           | Definition                                                                                         |
+| ------------------------------ | -------------------------------------------------------------------------------------------------- |
+| contact_entity_pkey            | CREATE UNIQUE INDEX contact_entity_pkey ON public.contact_entity USING btree (id)                  |
+| contact_entity_gvote_id_unique | CREATE UNIQUE INDEX contact_entity_gvote_id_unique ON public.contact_entity USING btree (gvote_id) |
+| contact_entity_email_unique    | CREATE UNIQUE INDEX contact_entity_email_unique ON public.contact_entity USING btree (email)       |
 
 ## Relations
 

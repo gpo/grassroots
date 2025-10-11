@@ -1,0 +1,32 @@
+import { createContext } from "react";
+import { grassrootsAPI } from "../../../GrassRootsAPI.js";
+import { UserDTO } from "grassroots-shared/dtos/User.dto";
+
+export interface LoginState {
+  user: UserDTO;
+  logout: () => Promise<void>;
+}
+
+export const LoginStateContext = createContext<Promise<LoginState | undefined>>(
+  Promise.resolve(undefined),
+);
+
+// We don't use tanstack query here because this value never mutates.
+// Each page load we're either logged in or we're not.
+export async function getLoginState(): Promise<LoginState | undefined> {
+  const is_authenticated = await grassrootsAPI.GET("/auth/is_authenticated");
+  const user = is_authenticated.data?.user;
+  if (!user) {
+    return undefined;
+  }
+
+  const logout = async (): Promise<void> => {
+    await grassrootsAPI.POST("/auth/logout", {});
+    window.location.reload();
+  };
+
+  return {
+    user: UserDTO.from(user),
+    logout,
+  };
+}
