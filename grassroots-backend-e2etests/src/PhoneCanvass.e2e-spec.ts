@@ -1,24 +1,40 @@
 import { describe, expect, it } from "vitest";
-import { useE2ETestFixture } from "./infra/E2eSetup.js";
+import { E2ETestFixture, useE2ETestFixture } from "./infra/E2eSetup.js";
 import {
   CreatePhoneCanvassResponseDTO,
   PaginatedPhoneCanvassContactResponseDTO,
+  PhoneCanvassParticipantIdentityDTO,
   PhoneCanvassProgressInfoResponseDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassModule } from "grassroots-backend/phone-canvass/PhoneCanvass.module";
 import { AuthModule } from "grassroots-backend/auth/Auth.module";
 import { UsersModule } from "grassroots-backend/users/Users.module";
 import { OrganizationEntity } from "grassroots-backend/organizations/Organization.entity";
+import { TwilioService } from "grassroots-backend/phone-canvass/Twilio.service";
+import { TwilioServiceMock } from "grassroots-backend/phone-canvass/Twilio.service.mock";
 
 describe("PhoneCanvass (e2e)", () => {
   const getFixture = useE2ETestFixture({
     imports: [AuthModule, UsersModule, PhoneCanvassModule],
+    mockProviders: [{ provide: TwilioService, useClass: TwilioServiceMock }],
     overrideAuthGuard: true,
   });
 
+  function useTwilioMock(): {
+    fixture: E2ETestFixture;
+    mock: TwilioServiceMock;
+  } {
+    const fixture = getFixture();
+    const mock = fixture.app.get<TwilioServiceMock>(TwilioService);
+
+    return {
+      fixture,
+      mock,
+    };
+  }
+
   it("should support create via csv", async () => {
-    const f = getFixture();
-    await f.entityManager.nativeDelete(OrganizationEntity, {});
+    const { fixture: f, mock } = useTwilioMock();
     await OrganizationEntity.ensureRootOrganization(f.app);
 
     // Create a mock audio file
@@ -48,6 +64,17 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
     );
 
     expect(result.id.length).toBe(36);
+    expect(mock.setSyncData).toBeCalledWith(
+      result.id,
+      expect.objectContaining({
+        activeCalls: [],
+        participants: [],
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        pendingCalls: expect.toSatisfy(
+          (arr: unknown) => Array.isArray(arr) && arr.length === 4,
+        ),
+      }),
+    );
 
     const progress = PhoneCanvassProgressInfoResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.GET("/phone-canvass/progress/{id}", {
@@ -102,5 +129,53 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
 
     const text = await result.text();
     expect(text).toContain("<Conference>test</Conference>");
+  });
+
+  it("should sync participant data", async () => {
+    const { fixture: f, mock } = useTwilioMock();
+
+    const canvass = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/phone-canvass", {
+        body: CreatePhoneCanvasCSVRequestDTO.from({
+          name: "test",
+          csv: `id,civi_id,voter_id,seq_id,district_num,district,poll,first_name,middle_name,last_name,language_pref,unit_num,bldg_num,bldg_num_sfx,street_name,street_type,street_dir,address,town,postal_code,province,phone,do_not_phone,do_not_mail,do_not_email,support_level,party_support,volunteer_status,volunteer_tasks,volunteer_notes,description,membership_status,membership_join_date,membership_expiry_date,voted,election_voted_in,tags,email,merge_tag_token`,
+        }),
+      }),
+    );
+
+    PhoneCanvassParticipantIdentityDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/phone-canvass/add-participant", {
+        body: {
+          activePhoneCanvassId: canvass.id,
+          displayName: "A",
+          email: "A@A.com",
+          ready: false,
+        },
+      }),
+    );
+
+    PhoneCanvassParticipantIdentityDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/phone-canvass/add-participant", {
+        body: {
+          activePhoneCanvassId: canvass.id,
+          displayName: "B",
+          email: "B@B.com",
+          ready: false,
+        },
+      }),
+    );
+
+    expect(mock.setSyncData).toBeCalledTimes(3);
+    expect(mock.setSyncData).toHaveBeenLastCalledWith(
+      canvass.id,
+      expect.objectContaining({
+        activeCalls: [],
+        participants: [
+          { displayName: "A", ready: false },
+          { displayName: "B", ready: false },
+        ],
+        pendingCalls: [],
+      }),
+    );
   });
 });

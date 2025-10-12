@@ -1,5 +1,7 @@
 import {
   IsArray,
+  IsBoolean,
+  IsEmail,
   IsJSON,
   IsNotEmpty,
   IsNumber,
@@ -13,6 +15,7 @@ import { CallStatusDecorator } from "./CallStatus.dto.js";
 import { Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
+import { Trim } from "../../decorators/Trim.decorator.js";
 
 export class PhoneCanvassDTO extends createDTOBase("PhoneCanvass") {
   @IsString()
@@ -146,4 +149,22 @@ export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
   @IsString()
   @IsOptional()
   conference?: string;
+}
+
+// Note that (displayName, activePhoneCanvassId) is globally unique.
+export class PhoneCanvassParticipantIdentityDTO extends createDTOBase(
+  "PhoneCanvassParticipantIdentity",
+) {
+  @Trim()
+  @IsNotEmpty()
+  displayName!: string;
+
+  @IsEmail()
+  email!: string;
+
+  @IsNotEmpty()
+  activePhoneCanvassId!: string;
+
+  @IsBoolean()
+  ready!: boolean;
 }

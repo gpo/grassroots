@@ -8,10 +8,10 @@ import {
   Query,
   Body,
   Session,
+  NotFoundException,
 } from "@nestjs/common";
 import type { Response as ExpressResponse } from "express";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
-import { ConfigService } from "@nestjs/config";
 import { LoginStateDTO } from "grassroots-shared/dtos/LoginState.dto";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { ApiProperty, ApiQuery, ApiResponse } from "@nestjs/swagger";
@@ -23,13 +23,11 @@ import {
   OrganizationReferenceDTO,
 } from "grassroots-shared/dtos/Organization.dto";
 import { OrganizationsService } from "../organizations/Organizations.service.js";
+import { getEnvVars } from "../GetEnvVars.js";
 
 @Controller("auth")
 export class AuthController {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly organizationService: OrganizationsService,
-  ) {}
+  constructor(private readonly organizationService: OrganizationsService) {}
 
   // The frontend can redirect here to trigger login.
   @Get("login")
@@ -46,20 +44,17 @@ export class AuthController {
   @UseGuards(OAuthGuard)
   @PublicRoute()
   @ApiProperty()
-  googleAuthRedirect(
+  async googleAuthRedirect(
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
-  ): VoidDTO {
-    const host = this.configService.get<string>("VITE_FRONTEND_HOST");
-    if (host === undefined) {
-      throw new Error("Missing env variable for VITE_FRONTEND_HOST");
-    }
+  ): Promise<VoidDTO> {
     if (!req.user) {
       throw new Error("No user found for login.");
     }
     // The session doesn't contain the redirect path by the time req.login is called,
     // so make sure to stash it here.
-    const redirectPath = req.session.redirect_path ?? host;
+    const redirectPath =
+      req.session.redirect_path ?? (await getEnvVars()).VITE_FRONTEND_HOST;
     // To prevent a redirect path accidentally being used multiple times, clear this
     // as soon as it's read.
     req.session.redirect_path = undefined;
@@ -114,6 +109,9 @@ export class AuthController {
   async getActiveOrg(
     @Session() session: SessionData,
   ): Promise<OrganizationDTO> {
+    if (session.activeOrganizationId == undefined) {
+      throw new NotFoundException("No active organization.");
+    }
     return this.organizationService.findOneById(session.activeOrganizationId);
   }
 }

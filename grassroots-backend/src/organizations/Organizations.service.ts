@@ -27,7 +27,7 @@ export class OrganizationsService {
         id: parentID,
       });
       if (parent === null) {
-        throw new Error("Invalid parent organization");
+        throw new Error(`Invalid parent organization ${String(parentID)}`);
       }
       newOrganization.parent = parent;
     }

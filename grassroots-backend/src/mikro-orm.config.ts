@@ -3,23 +3,31 @@ import { defineConfig, PostgreSqlDriver } from "@mikro-orm/postgresql";
 import { UserEntity } from "./users/User.entity.js";
 import { ContactEntity } from "./contacts/entities/Contact.entity.js";
 
-import dotenvFlow from "dotenv-flow";
-import { getEnvFilePaths } from "./GetEnvFilePaths.js";
 import { OrganizationEntity } from "./organizations/Organization.entity.js";
 import { PhoneCanvassEntity } from "./phone-canvass/entities/PhoneCanvass.entity.js";
-dotenvFlow.config({
-  // Reversed so that earlier files take priority, to align with the ConfigModule.
-  files: getEnvFilePaths().reverse(),
-});
+import { getEnvVars } from "./GetEnvVars.js";
 
-export default defineConfig({
-  metadataCache: { enabled: false },
-  driver: PostgreSqlDriver,
-  entities: [ContactEntity, UserEntity, OrganizationEntity, PhoneCanvassEntity],
-  host: process.env.POSTGRES_HOST,
-  port: Number(process.env.POSTGRES_PORT),
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-  dbName: process.env.POSTGRES_DATABASE,
-  debug: true,
-});
+async function createMikroOrmConfig(): Promise<
+  ReturnType<typeof defineConfig>
+> {
+  const envVars = await getEnvVars();
+
+  return defineConfig({
+    metadataCache: { enabled: false },
+    driver: PostgreSqlDriver,
+    entities: [
+      ContactEntity,
+      UserEntity,
+      OrganizationEntity,
+      PhoneCanvassEntity,
+    ],
+    host: envVars.POSTGRES_HOST,
+    port: Number(envVars.POSTGRES_PORT),
+    user: envVars.POSTGRES_USER,
+    password: envVars.POSTGRES_PASSWORD,
+    dbName: envVars.POSTGRES_DATABASE,
+    debug: true,
+  });
+}
+
+export default await createMikroOrmConfig();
