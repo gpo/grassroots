@@ -51,7 +51,6 @@ export class PhoneCanvassController {
   @UseInterceptors(
     FileInterceptor("voiceMailAudioFile", {
       fileFilter: (req, file, cb) => {
-        console.log("Incoming file field:", file.fieldname);
         if (!file.mimetype.startsWith("audio/")) {
           cb(new BadRequestException("Only audio files are allowed!"), false);
           return;

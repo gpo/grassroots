@@ -37,10 +37,6 @@ export class PhoneCanvassService {
     creatorEmail: string,
     audioFile?: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    console.log(
-      "Service create called with audioFile:",
-      audioFile ? "YES" : "NO",
-    );
     const canvassEntity = this.repo.create({
       creatorEmail,
       contacts: [],
