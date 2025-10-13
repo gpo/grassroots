@@ -1,15 +1,14 @@
-import { faker } from "@faker-js/faker";
 import {
   UseMutationResult,
   useQueryClient,
   useMutation,
 } from "@tanstack/react-query";
 import { createOrganizationTree } from "grassroots-shared-net/devtools/CreateOrganizationTree";
-import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
+import { grassrootsAPI } from "../../../GrassRootsAPI.js";
 
 // Returns the list of organization details. An entry will be undefined if it wasn't successfully created, likely
 // because it already existed.
-function useAddFakeOrganizations(): UseMutationResult<
+export function useAddFakeOrganizations(): UseMutationResult<
   | {
       id: number;
       name: string;
