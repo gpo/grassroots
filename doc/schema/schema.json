@@ -326,22 +326,6 @@
           "columns": [
             "id"
           ]
-        },
-        {
-          "name": "contact_entity_gvote_id_unique",
-          "def": "CREATE UNIQUE INDEX contact_entity_gvote_id_unique ON public.contact_entity USING btree (gvote_id)",
-          "table": "public.contact_entity",
-          "columns": [
-            "gvote_id"
-          ]
-        },
-        {
-          "name": "contact_entity_email_unique",
-          "def": "CREATE UNIQUE INDEX contact_entity_email_unique ON public.contact_entity USING btree (email)",
-          "table": "public.contact_entity",
-          "columns": [
-            "email"
-          ]
         }
       ],
       "constraints": [
@@ -426,26 +410,6 @@
           "referenced_table": "",
           "columns": [
             "id"
-          ]
-        },
-        {
-          "name": "contact_entity_gvote_id_unique",
-          "type": "UNIQUE",
-          "def": "UNIQUE (gvote_id)",
-          "table": "public.contact_entity",
-          "referenced_table": "",
-          "columns": [
-            "gvote_id"
-          ]
-        },
-        {
-          "name": "contact_entity_email_unique",
-          "type": "UNIQUE",
-          "def": "UNIQUE (email)",
-          "table": "public.contact_entity",
-          "referenced_table": "",
-          "columns": [
-            "email"
           ]
         }
       ]
