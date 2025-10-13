@@ -1,4 +1,4 @@
-import { JSX, useCallback } from "react";
+import { JSX, useCallback, useRef } from "react";
 import { MarkReadyForCallsButton } from "./MarkReadyForCallsButton.js";
 import { createPhoneCanvassIdentityStore } from "../Logic/PhoneCanvassIdentityStore.js";
 import { List, ListItem, TextInput } from "@mantine/core";
@@ -16,8 +16,16 @@ const CALLEE_ID = 10;
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
-  const phoneCanvassIdentityStore = useStore(createPhoneCanvassIdentityStore());
-  const callPartyStateStore = useStore(createCallPartyStateStore());
+  const phoneCanvassIdentityStoreRef = useRef(
+    createPhoneCanvassIdentityStore(),
+  );
+  const phoneCanvassIdentityStore = useStore(
+    phoneCanvassIdentityStoreRef.current,
+    (s) => s,
+  );
+
+  const callPartyStateStoreRef = useRef(createCallPartyStateStore());
+  const callPartyStateStore = useStore(callPartyStateStoreRef.current);
 
   const authToken = useAuthToken(phoneCanvassId).data;
 
@@ -33,7 +41,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const addParticipant = useAddParticipant({
     phoneCanvassId,
-    phoneCanvassIdentityStore,
+    phoneCanvassIdentityStore: phoneCanvassIdentityStore,
   });
 
   const onSubmit = useCallback(
