@@ -31,7 +31,6 @@ export function useAddParticipant(
     },
     retry: 1,
     onSuccess: async (setId: PhoneCanvassParticipantIdentityDTO) => {
-      console.log("SETTING IDENTITY");
       phoneCanvassIdentityStore.setParticipantIdentity(
         PhoneCanvassParticipantIdentityDTO.from({
           displayName: setId.displayName,

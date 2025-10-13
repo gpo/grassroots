@@ -15,13 +15,9 @@ export function CreatePhoneCanvass(): JSX.Element {
 
   const createPhoneCanvass = useCreatePhoneCanvass();
 
-  console.log("CREATING PAGE");
-  // TODO(MVP): verify that validation is still working.
   const form = useTypedForm<CreatePhoneCanvassData>({
     validate: classValidatorResolver(CreatePhoneCanvassData, (values) => {
-      console.log("TEST");
       const errors: FormErrors = {};
-      console.log(values.csv);
       if (values.csv === undefined) {
         Object.assign(errors, { csv: "Missing csv" });
       }
