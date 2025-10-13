@@ -32,6 +32,7 @@ export async function markReadyForCalls(
     }),
   );
 
+  // TODO(MVP): this should happen when we're actually matched with a callee.
   const device = new Device(authToken, {
     logLevel: 4,
     enableImprovedSignalingErrorPrecision: true,

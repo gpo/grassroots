@@ -1,7 +1,7 @@
 import { JSX, useCallback } from "react";
-import { StartCall } from "./StartCall.js";
+import { MarkReadyForCallsButton } from "./MarkReadyForCallsButton.js";
 import { createPhoneCanvassIdentityStore } from "../Logic/PhoneCanvassIdentityStore.js";
-import { TextInput } from "@mantine/core";
+import { List, ListItem, TextInput } from "@mantine/core";
 import { useTypedForm } from "../../../Logic/UseTypedForm.js";
 import { classValidatorResolver } from "../../../Logic/ClassValidatorResolver.js";
 import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
@@ -9,14 +9,17 @@ import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$ph
 import { useStore } from "zustand";
 import { useAddParticipant } from "../Logic/UseAddParticipant.js";
 import { useAuthToken } from "../Logic/UseAuthToken.js";
+import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
 
-// TODO: replace with real ID.
+// TODO(MVP): replace with real ID.
 const CALLEE_ID = 10;
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
   const phoneCanvassIdentityStore = useStore(createPhoneCanvassIdentityStore());
-  const authToken = useAuthToken(phoneCanvassId);
+  const callPartyStateStore = useStore(createCallPartyStateStore());
+
+  const authToken = useAuthToken(phoneCanvassId).data;
 
   const identityForm = useTypedForm<PhoneCanvassParticipantIdentityDTO>({
     validate: classValidatorResolver(PhoneCanvassParticipantIdentityDTO),
@@ -40,7 +43,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     [],
   );
 
-  // TODO: use a redirect here.
+  // TODO(MVP): use a redirect here.
   if (
     phoneCanvassIdentityStore.identity === undefined ||
     phoneCanvassIdentityStore.identity.activePhoneCanvassId != phoneCanvassId
@@ -65,15 +68,40 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     );
   }
 
+  const participants = callPartyStateStore.participants.map((x) => (
+    <ListItem key={x.displayName}>
+      {x.displayName} is {x.ready ? "ready" : "not ready"}
+    </ListItem>
+  ));
+  const activeCalls = callPartyStateStore.activeCalls.map((x) => (
+    <ListItem key={x.calleeId}>{x.calleeDisplayName}</ListItem>
+  ));
+  const pendingCalls = callPartyStateStore.pendingCalls.map((x) => (
+    <ListItem key={x.calleeId}>{x.calleeDisplayName}</ListItem>
+  ));
+
   return (
     <>
       <h1> Call Party </h1>
       <h2> Welcome {phoneCanvassIdentityStore.identity.displayName}</h2>
-      <StartCall
-        authToken={authToken}
-        identity={phoneCanvassIdentityStore.identity}
-        calleeId={CALLEE_ID}
-      ></StartCall>
+      {authToken === undefined ? (
+        <h1>Logging in</h1>
+      ) : (
+        <>
+          <MarkReadyForCallsButton
+            authToken={authToken}
+            identity={phoneCanvassIdentityStore.identity}
+            calleeId={CALLEE_ID}
+            callPartyStateStore={callPartyStateStore}
+          ></MarkReadyForCallsButton>
+          <h2> Participants </h2>
+          <List>{participants}</List>
+          <h2> Active Calls </h2>
+          <List>{activeCalls}</List>
+          <h2> Pending Calls </h2>
+          <List>{pendingCalls}</List>
+        </>
+      )}
     </>
   );
 }

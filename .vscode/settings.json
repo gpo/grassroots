@@ -10,9 +10,12 @@
   },
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.preferences.quoteStyle": "double",
+  "typescript.preferences.importModuleSpecifierEnding": "js",
+  "javascript.preferences.importModuleSpecifierEnding": "js",
   "js/ts.implicitProjectConfig.experimentalDecorators": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[typescriptreact]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
-  }
+  },
+  "typescript.preferences.importModuleSpecifier": "relative"
 }
