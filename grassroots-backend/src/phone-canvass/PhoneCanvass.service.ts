@@ -18,7 +18,14 @@ import {
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
+import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
+import { partition } from "grassroots-shared/util/Partition";
+import {
+  ActiveCall,
+  PendingCall,
+} from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import type { Express } from "express";
+
 
 @Injectable()
 export class PhoneCanvassService {
@@ -133,7 +140,7 @@ export class PhoneCanvassService {
   async updateSyncData(phoneCanvassId: string): Promise<void> {
     const contacts = await this.getPhoneCanvassContacts(phoneCanvassId);
 
-    const partitionedContacts = partition(contacts, (contact) => {
+    const partitionedContacts = partition(contacts, (contact: PhoneCanvassContactDTO) => {
       if (contact.callStatus === "NOT_STARTED") {
         return "NOT_STARTED";
       } else if (contact.callStatus === "STARTED") {
@@ -144,7 +151,7 @@ export class PhoneCanvassService {
 
     const activeCalls: ActiveCall[] = (
       partitionedContacts.get("STARTED") ?? []
-    ).map((contact) => {
+   ).map((contact: PhoneCanvassContactDTO) => {
       return {
         calleeDisplayName: contact.contact.formatName(),
         calleeId: contact.contact.id,
@@ -153,7 +160,7 @@ export class PhoneCanvassService {
     });
     const pendingCalls: PendingCall[] = (
       partitionedContacts.get("NOT_STARTED") ?? []
-    ).map((contact) => {
+    ).map((contact: PhoneCanvassContactDTO) => {
       return {
         calleeDisplayName: contact.contact.formatName(),
         calleeId: contact.contact.id,
