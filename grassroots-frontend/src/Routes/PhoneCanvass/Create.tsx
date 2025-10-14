@@ -53,13 +53,18 @@ function CreatePhoneCanvass(): JSX.Element {
       }
       const csvText = await readFileAsText(phoneCanvass.csv);
 
+      const formData = new FormData();
+      formData.append("name", phoneCanvass.name);
+      formData.append("csv", csvText);
+      if (phoneCanvass.audio) {
+        formData.append("voiceMailAudioFile", phoneCanvass.audio);
+      }
+
       return CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
         await grassrootsAPI.POST("/phone-canvass", {
-          body: {
-            csv: csvText,
-            name: phoneCanvass.name,
-            // Note: audio field not yet sent to backend (will be implemented in PR #3)
-          },
+          // Note: using formData here instead of JSON because of file upload.
+          // @ts-expect-error - openapi-fetch supports FormData but types don't reflect it
+          body: formData,
         }),
       );
     },
@@ -123,9 +128,9 @@ function CreatePhoneCanvass(): JSX.Element {
         {...form.getInputProps("csv")}
       ></FileInput>
       <FileInput
-        label="Audio Upload"
-        description="Audio file to play"
-        placeholder="Audio File"
+        label=" Voicemail Audio Upload"
+        description=" Voicemail audio to play"
+        placeholder="Voicemail Audio File"
         accept="audio/*"
         key={form.key("audio")}
         onChange={handleAudioChange}

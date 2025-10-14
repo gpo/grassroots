@@ -24,6 +24,7 @@ import {
   ActiveCall,
   PendingCall,
 } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
+import type { Express } from "express";
 
 @Injectable()
 export class PhoneCanvassService {
@@ -40,12 +41,21 @@ export class PhoneCanvassService {
   async create(
     canvass: CreatePhoneCanvassRequestDTO,
     creatorEmail: string,
+    audioFile?: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
     const canvassEntity = this.repo.create({
       creatorEmail,
       contacts: [],
     });
     await this.entityManager.flush();
+
+    if (audioFile != null) {
+      console.log(
+        "Service received audio file:",
+        audioFile.originalname,
+        audioFile.size,
+      );
+    }
 
     for (const canvasContact of canvass.contacts) {
       const contact: RequiredEntityData<ContactEntity> =
@@ -129,18 +139,21 @@ export class PhoneCanvassService {
   async updateSyncData(phoneCanvassId: string): Promise<void> {
     const contacts = await this.getPhoneCanvassContacts(phoneCanvassId);
 
-    const partitionedContacts = partition(contacts, (contact) => {
-      if (contact.callStatus === "NOT_STARTED") {
-        return "NOT_STARTED";
-      } else if (contact.callStatus === "STARTED") {
-        return "STARTED";
-      }
-      return "COMPLETE";
-    });
+    const partitionedContacts = partition(
+      contacts,
+      (contact: PhoneCanvassContactDTO) => {
+        if (contact.callStatus === "NOT_STARTED") {
+          return "NOT_STARTED";
+        } else if (contact.callStatus === "STARTED") {
+          return "STARTED";
+        }
+        return "COMPLETE";
+      },
+    );
 
     const activeCalls: ActiveCall[] = (
       partitionedContacts.get("STARTED") ?? []
-    ).map((contact) => {
+    ).map((contact: PhoneCanvassContactDTO) => {
       return {
         calleeDisplayName: contact.contact.formatName(),
         calleeId: contact.contact.id,
@@ -149,7 +162,7 @@ export class PhoneCanvassService {
     });
     const pendingCalls: PendingCall[] = (
       partitionedContacts.get("NOT_STARTED") ?? []
-    ).map((contact) => {
+    ).map((contact: PhoneCanvassContactDTO) => {
       return {
         calleeDisplayName: contact.contact.formatName(),
         calleeId: contact.contact.id,
