@@ -26,7 +26,6 @@ import {
 } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import type { Express } from "express";
 
-
 @Injectable()
 export class PhoneCanvassService {
   repo: EntityRepository<PhoneCanvassEntity>;
@@ -140,18 +139,21 @@ export class PhoneCanvassService {
   async updateSyncData(phoneCanvassId: string): Promise<void> {
     const contacts = await this.getPhoneCanvassContacts(phoneCanvassId);
 
-    const partitionedContacts = partition(contacts, (contact: PhoneCanvassContactDTO) => {
-      if (contact.callStatus === "NOT_STARTED") {
-        return "NOT_STARTED";
-      } else if (contact.callStatus === "STARTED") {
-        return "STARTED";
-      }
-      return "COMPLETE";
-    });
+    const partitionedContacts = partition(
+      contacts,
+      (contact: PhoneCanvassContactDTO) => {
+        if (contact.callStatus === "NOT_STARTED") {
+          return "NOT_STARTED";
+        } else if (contact.callStatus === "STARTED") {
+          return "STARTED";
+        }
+        return "COMPLETE";
+      },
+    );
 
     const activeCalls: ActiveCall[] = (
       partitionedContacts.get("STARTED") ?? []
-   ).map((contact: PhoneCanvassContactDTO) => {
+    ).map((contact: PhoneCanvassContactDTO) => {
       return {
         calleeDisplayName: contact.contact.formatName(),
         calleeId: contact.contact.id,
