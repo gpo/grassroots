@@ -136,14 +136,17 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
     const { fixture: f, mock } = useTwilioMock();
 
     const formData = new FormData();
-formData.append("name", "test");
-formData.append("csv", `id,civi_id,voter_id,seq_id,district_num,district,poll,first_name,middle_name,last_name,language_pref,unit_num,bldg_num,bldg_num_sfx,street_name,street_type,street_dir,address,town,postal_code,province,phone,do_not_phone,do_not_mail,do_not_email,support_level,party_support,volunteer_status,volunteer_tasks,volunteer_notes,description,membership_status,membership_join_date,membership_expiry_date,voted,election_voted_in,tags,email,merge_tag_token`);
-const canvass = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
-  await f.grassrootsAPI.POST("/phone-canvass", {
-    // @ts-expect-error - FormData is supported but not in types
-    body: formData,
-  }),
-);
+    formData.append("name", "test");
+    formData.append(
+      "csv",
+      `id,civi_id,voter_id,seq_id,district_num,district,poll,first_name,middle_name,last_name,language_pref,unit_num,bldg_num,bldg_num_sfx,street_name,street_type,street_dir,address,town,postal_code,province,phone,do_not_phone,do_not_mail,do_not_email,support_level,party_support,volunteer_status,volunteer_tasks,volunteer_notes,description,membership_status,membership_join_date,membership_expiry_date,voted,election_voted_in,tags,email,merge_tag_token`,
+    );
+    const canvass = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/phone-canvass", {
+        // @ts-expect-error - FormData is supported but not in types
+        body: formData,
+      }),
+    );
 
     PhoneCanvassParticipantIdentityDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass/add-participant", {
