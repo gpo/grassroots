@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import { E2ETestFixture, useE2ETestFixture } from "./infra/E2eSetup.js";
 import {
   CreatePhoneCanvassResponseDTO,
-  CreatePhoneCanvasCSVRequestDTO,
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassParticipantIdentityDTO,
   PhoneCanvassProgressInfoResponseDTO,
