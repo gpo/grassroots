@@ -63,16 +63,11 @@ export class PhoneCanvassController {
     }),
   )
   async create(
-    @Body() body: CreatePhoneCanvassMultipartBody,
+    @Body() body: CreatePhoneCanvasCSVRequestDTO,
     @UploadedFile() voiceMailAudioFile: Express.Multer.File,
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
     const email = getEmail(req);
-
-    const canvasData = CreatePhoneCanvasCSVRequestDTO.from({
-      name: body.name,
-      csv: body.csv,
-    });
 
     const HANDLED_FIELDS = new Set([
       "id",
@@ -92,7 +87,7 @@ export class PhoneCanvassController {
         last_name: string;
         phone: string;
       } & Record<string, string>
-    >(canvasData.csv, {
+    >(body.csv, {
       header: true,
       dynamicTyping: false,
       skipEmptyLines: true,
@@ -110,7 +105,7 @@ export class PhoneCanvassController {
 
     const validationErrors: ValidationError[][] = [];
     const createDTO = CreatePhoneCanvassRequestDTO.from({
-      name: canvasData.name,
+      name: body.name,
       contacts: rows.data.map((contactRow) => {
         const metadata = unhandledFields?.map((field) => {
           if (field !== "tags") {
@@ -231,9 +226,4 @@ export class PhoneCanvassController {
     session.phoneCanvassParticipantIdentity = participantIdentity;
     return participantIdentity;
   }
-}
-
-interface CreatePhoneCanvassMultipartBody {
-  name: string;
-  csv: string;
 }
