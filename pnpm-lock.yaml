@@ -246,6 +246,9 @@ importers:
       "@types/connect-pg-simple":
         specifier: ^7.0.3
         version: 7.0.3
+      "@types/dotenv":
+        specifier: ^8.2.3
+        version: 8.2.3
       "@types/express":
         specifier: ^5.0.3
         version: 5.0.3
@@ -2664,6 +2667,13 @@ packages:
       {
         integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==,
       }
+
+  "@types/dotenv@8.2.3":
+    resolution:
+      {
+        integrity: sha512-g2FXjlDX/cYuc5CiQvyU/6kkbP1JtmGzh0obW50zD7OKeILVL0NSpPWLXVfqoAGQjom2/SLLx9zHq0KXvD6mbw==,
+      }
+    deprecated: This is a stub types definition. dotenv provides its own type definitions, so you do not need this installed.
 
   "@types/eslint-scope@3.7.7":
     resolution:
@@ -11122,6 +11132,10 @@ snapshots:
   "@types/cookiejar@2.1.5": {}
 
   "@types/deep-eql@4.0.2": {}
+
+  "@types/dotenv@8.2.3":
+    dependencies:
+      dotenv: 17.2.3
 
   "@types/eslint-scope@3.7.7":
     dependencies:
