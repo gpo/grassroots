@@ -1,0 +1,65 @@
+import { BehaviorSubject, combineLatest, map, Observable, Subject } from "rxjs";
+import { Call, CompletedCall } from "./PhoneCanvassCall.js";
+import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassScheduler.js";
+
+export class PhoneCanvassMetricsLogger {
+  #endingCallsObservable = new Subject<CompletedCall>();
+  #callerCountObservable = new BehaviorSubject<number>(0);
+  #committedCallerCountObservable = new BehaviorSubject<number>(0);
+
+  readonly #idleCallerCountObservable: Observable<number>;
+
+  get endingCalls(): Observable<CompletedCall> {
+    return this.endingCalls;
+  }
+
+  get callerCountObservable(): Observable<number> {
+    return this.#callerCountObservable;
+  }
+
+  get committedCallerCountObservable(): Observable<number> {
+    return this.#committedCallerCountObservable;
+  }
+
+  get idleCallerCountObservable(): Observable<number> {
+    return this.#idleCallerCountObservable;
+  }
+
+  constructor() {
+    this.#idleCallerCountObservable = combineLatest([
+      this.#callerCountObservable,
+      this.#committedCallerCountObservable,
+    ]).pipe(
+      map(
+        ([callerCount, committedCallerCount]) =>
+          callerCount - committedCallerCount,
+      ),
+    );
+
+    this.#endingCallsObservable.subscribe((call: Call) => {
+      console.log(`Recording metrics about ${String(call.id)}`);
+    });
+  }
+
+  onEndingCall(call: CompletedCall): void {
+    this.#endingCallsObservable.next(call);
+  }
+
+  onCallsByStatusUpdate(
+    callsByStatus: InstanceType<
+      typeof PhoneCanvassSchedulerImpl
+    >["callsByStatus"],
+  ): void {
+    this.#committedCallerCountObservable.next(
+      callsByStatus.NOT_STARTED.size +
+        callsByStatus.INITIATED.size +
+        callsByStatus.QUEUED.size +
+        callsByStatus.RINGING.size +
+        callsByStatus.IN_PROGRESS.size,
+    );
+  }
+
+  onCallerCountUpdate(callerCount: number): void {
+    this.#callerCountObservable.next(callerCount);
+  }
+}
