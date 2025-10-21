@@ -41,4 +41,21 @@ export function CallResultDecorator(): PropertyDecorator {
     IsEnum(CallResultEnum),
     ApiProperty({ enum: CallResultEnum }),
   );
+export const TwilioCallStatuses = [
+  "queued",
+  "initiated",
+  "ringing",
+  "in-progress",
+  "completed",
+  "busy",
+  "failed",
+  "no-answer",
+  "canceled",
+];
+export type TwilioCallStatus = (typeof TwilioCallStatuses)[number];
+
+export function twilioCallstatusToCallStatus(
+  twilioCallStatus: TwilioCallStatus,
+): { callStatus: CallStatus; callResult: CallResult } {
+  return;
 }

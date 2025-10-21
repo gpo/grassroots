@@ -61,6 +61,9 @@ export class Environment {
 
   @IsNotEmpty()
   TWILIO_SYNC_SERVICE_SID!: string;
+
+  @IsNotEmpty()
+  WEBHOOK_URL!: string;
 }
 
 // Earlier files take priority.

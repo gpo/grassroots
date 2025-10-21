@@ -24,6 +24,7 @@ import {
   PhoneCanvasTwilioVoiceCallbackDTO,
   PhoneCanvassCallerDTO,
   CreatePhoneCanvassCallerDTO,
+  PhoneCanvasTwilioCallStatusCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -169,7 +170,7 @@ export class PhoneCanvassController {
   // as it needs to be a public url on the web. Instead we're using a
   // GCP cloud function.
   // eslint-disable-next-line grassroots/controller-routes-return-dtos
-  @Post("twilio-voice")
+  @Post("/webhooks/twilio-voice")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
   twilioVoiceCallback(@Body() body: PhoneCanvasTwilioVoiceCallbackDTO): string {
@@ -189,6 +190,17 @@ export class PhoneCanvassController {
         </Dial>
       </Response>
     `;
+  }
+
+  // eslint-disable-next-line grassroots/controller-routes-return-dtos
+  @Post("/webhooks/twilio-callstatus")
+  @PublicRoute()
+  @Header("Content-Type", "text/xml")
+  twilioCallStatusCallback(
+    @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
+  ): void {
+    console.log("GOT BODY", body);
+    console.log(body.CallStatus);
   }
 
   @Get("progress/:id")

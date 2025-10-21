@@ -1,6 +1,7 @@
 import {
   IsArray,
   IsBoolean,
+  IsDate,
   IsEmail,
   IsJSON,
   IsNotEmpty,
@@ -10,9 +11,9 @@ import {
   ValidateNested,
 } from "class-validator";
 import { createDTOBase } from "../../util/CreateDTOBase.js";
-import type { CallStatus } from "./CallStatus.dto.js";
+import type { CallStatus, TwilioCallStatus } from "./CallStatus.dto.js";
 import { CallStatusDecorator } from "./CallStatus.dto.js";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
 import { Trim } from "../../decorators/Trim.decorator.js";
@@ -149,6 +150,28 @@ export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
   @IsString()
   @IsOptional()
   conference?: string;
+}
+
+export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
+  "PhoneCanvasTwilioCallStatusCallback",
+) {
+  @IsString()
+  CallSid!: string;
+  @IsString()
+  CallStatus!: TwilioCallStatus;
+
+  @IsOptional()
+  CallDuration?: number;
+
+  /**
+   * Convert RFC 2822 timestamp to a ms since epoch
+   */
+  @Transform(({ value }: { value: string }) => {
+    const time = Date.parse(value);
+    return Number.isNaN(time) ? undefined : time;
+  })
+  @IsDate()
+  Timestamp!: number;
 }
 
 // (displayName, activePhoneCanvassId) is globally unique.

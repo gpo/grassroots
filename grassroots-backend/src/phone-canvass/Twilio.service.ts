@@ -25,6 +25,14 @@ export class TwilioService {
     await client.calls.create({
       to: envVars.TEST_APPROVED_PHONE_NUMBER,
       from: envVars.TWILIO_OUTGOING_NUMBER,
+      statusCallback: (await getEnvVars()).WEBHOOK_URL,
+      statusCallbackEvent: [
+        "initiated",
+        "ringing",
+        "answered",
+        "completed",
+        "queued",
+      ],
       twiml: `<Response><Dial><Conference>${String(CALLEE_ID)}</Conference></Dial></Response>`,
     });
   }

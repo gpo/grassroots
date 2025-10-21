@@ -38,3 +38,19 @@ services:
     ports:
       - "5173:5173"
       - "3000:3000"
+
+  ngrok:
+    container_name: ngrok
+    network_mode: host
+    stdin_open: true
+    tty: true
+    env_file:
+      # Last file wins.
+      - ../.env.development
+      - ../.env.development.local
+    image: ngrok/ngrok:latest
+    volumes:
+      - ./ngrok/traffic-policy.yml:/etc/traffic-policy.yml
+    command: http grassroots_dev:3000 --traffic-policy-file /etc/traffic-policy.yml
+    profiles:
+      - ngrok
