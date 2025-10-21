@@ -123,7 +123,8 @@ describe("PhoneCanvassScheduler", () => {
         currentTime: 4,
       })
       .advanceStatusToInProgress({
-        callerId: scheduler.getNextIdleCallerId(),
+        callerId:
+          scheduler.getNextIdleCallerId() ?? fail("Missing next caller id"),
         currentTime: 5,
       });
 

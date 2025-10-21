@@ -27,7 +27,7 @@ export class PhoneCanvassContactEntity extends createEntityBase<
   @Property()
   callStatus!: CallStatus;
 
-  @Property()
+  @Property({ nullable: true })
   callResult?: CallResult;
 
   @Property()

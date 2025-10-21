@@ -6,17 +6,6 @@ import {
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassScheduler.js";
 
-// Various failure modes can jump the status direct to "COMPLETED".
-// Otherwise the status moves fairly linearly.
-export const CALL_STATUS_VALID_TRANSITIONS = {
-  NOT_STARTED: ["QUEUED", "INITIATED"],
-  QUEUED: ["INITIATED"],
-  INITIATED: ["RINGING", "COMPLETED"],
-  RINGING: ["IN_PROGRESS", "COMPLETED"],
-  IN_PROGRESS: ["COMPLETED"],
-  COMPLETED: [],
-} as const satisfies Record<CallStatus, CallStatus[]>;
-
 export type Call =
   | NotStartedCall
   | QueuedCall
@@ -51,20 +40,14 @@ abstract class AbstractCall<STATUS extends CallStatus> {
 
   abstract get status(): STATUS;
 
-  unregisterSelfFromScheduler(): void {
+  protected advanceStatusTo<CallTypeTo extends Call>(
+    call: CallTypeTo,
+  ): CallTypeTo {
     if (
       !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)
     ) {
       throw new Error(`Couldn't remove call with id ${String(this.state.id)}`);
     }
-  }
-
-  protected advanceStatusTo<
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
-    T extends CallStatus,
-    CallTypeTo extends Call & { status: T },
-  >(call: CallTypeTo): CallTypeTo {
-    this.unregisterSelfFromScheduler();
 
     // Sadly typescript has a rough time deducing these types.
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -96,7 +79,7 @@ export class NotStartedCall extends AbstractCall<"NOT_STARTED"> {
       ...params,
       id: ++NotStartedCall.#currentId,
       transitionTimestamps: {
-        NOT_STARTED: undefined,
+        NOT_STARTED: params.currentTime,
         QUEUED: undefined,
         INITIATED: undefined,
         RINGING: undefined,
@@ -104,7 +87,6 @@ export class NotStartedCall extends AbstractCall<"NOT_STARTED"> {
         COMPLETED: undefined,
       },
     });
-    this.state.transitionTimestamps.NOT_STARTED = params.currentTime;
   }
 
   advanceStatusToInitiated(params: { currentTime: number }): InitiatedCall {

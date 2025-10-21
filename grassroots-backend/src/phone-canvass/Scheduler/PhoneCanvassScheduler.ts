@@ -1,13 +1,6 @@
 /* eslint-disable grassroots/entity-use */
 
-import { fail } from "assert";
-import {
-  BehaviorSubject,
-  filter,
-  firstValueFrom,
-  Observable,
-  Subject,
-} from "rxjs";
+import { filter, firstValueFrom, Observable, Subject } from "rxjs";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import {
   InProgressCall as InProgressCall,
@@ -33,7 +26,7 @@ export interface PhoneCanvassScheduler {
   addCaller(id: number): void;
   removeCaller(id: number): void;
   waitForIdleForTest(): Promise<void>;
-  getNextIdleCallerId(): number;
+  getNextIdleCallerId(): number | undefined;
 }
 
 export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
@@ -54,9 +47,6 @@ export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
   // From caller id.
   #callers = new Map<number, Caller>();
 
-  // TODO: why do we need this?
-  #numberOfPendingCallsObservable = new BehaviorSubject<number>(0);
-
   #running = false;
   #pendingContacts: PhoneCanvassContactEntity[];
 
@@ -73,26 +63,6 @@ export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
     });
     this.metricsTracker = new PhoneCanvassMetricsTracker();
     this.#strategy = new NoOvercallingStrategy(this.metricsTracker);
-
-    this.#logObservables();
-  }
-
-  #logObservables(): void {
-    this.metricsTracker.idleCallerCountObservable.subscribe((v) => {
-      console.info("number of idle callers", v);
-    });
-
-    this.metricsTracker.callerCountObservable.subscribe((v) => {
-      console.info("number of callers", v);
-    });
-
-    this.metricsTracker.committedCallerCountObservable.subscribe((v) => {
-      console.info("number of committed (non-idle) callers", v);
-    });
-
-    this.#numberOfPendingCallsObservable.subscribe((v) => {
-      console.info("number of pending calls", v);
-    });
   }
 
   async start(): Promise<void> {
@@ -138,24 +108,28 @@ export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
     );
   }
 
-  getNextIdleCallerId(): number {
+  getNextIdleCallerId(): number | undefined {
     const busyCallerIds = new Set(
       [...this.callsByStatus.IN_PROGRESS.values()].map((x) => x.callerId),
     );
 
     // Find the idle caller who has been available for the longest time.
-    const availableCallerIds = [...this.#callers.keys()].filter((callerId) => {
-      return !busyCallerIds.has(callerId);
+    const availableCallers = [...this.#callers.values()].filter((caller) => {
+      return !busyCallerIds.has(caller.id);
     });
 
-    const oldestAvailableCaller = availableCallerIds.reduce(
-      (oldest: Caller, currentId: number) => {
-        const current = this.#callers.get(currentId) ?? fail();
+    const firstAvailableCaller = availableCallers.pop();
+    if (firstAvailableCaller === undefined) {
+      return undefined;
+    }
+
+    const oldestAvailableCaller = availableCallers.reduce(
+      (oldest: Caller, current: Caller) => {
         return oldest.availabilityStartTime < current.availabilityStartTime
           ? oldest
           : current;
       },
-      this.#callers.get(availableCallerIds[0] ?? fail()) ?? fail(),
+      firstAvailableCaller,
     );
 
     return oldestAvailableCaller.id;
