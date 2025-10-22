@@ -1,8 +1,8 @@
-import { PhoneCanvassMetricsLogger } from "../PhoneCanvassMetricsTracker.js";
+import { PhoneCanvassMetricsTracker } from "../PhoneCanvassMetricsTracker.js";
 
 export abstract class PhoneCanvassSchedulerStrategy {
-  protected metricsLogger: PhoneCanvassMetricsLogger;
-  constructor(metricsLogger: PhoneCanvassMetricsLogger) {
+  protected metricsLogger: PhoneCanvassMetricsTracker;
+  constructor(metricsLogger: PhoneCanvassMetricsTracker) {
     this.metricsLogger = metricsLogger;
   }
   abstract waitForNextCall(): Promise<void>;

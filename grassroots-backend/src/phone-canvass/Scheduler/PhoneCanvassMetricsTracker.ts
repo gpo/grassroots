@@ -2,7 +2,7 @@ import { BehaviorSubject, combineLatest, map, Observable, Subject } from "rxjs";
 import { Call, CompletedCall } from "./PhoneCanvassCall.js";
 import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassScheduler.js";
 
-export class PhoneCanvassMetricsLogger {
+export class PhoneCanvassMetricsTracker {
   #endingCallsObservable = new Subject<CompletedCall>();
   #callerCountObservable = new BehaviorSubject<number>(0);
   #committedCallerCountObservable = new BehaviorSubject<number>(0);

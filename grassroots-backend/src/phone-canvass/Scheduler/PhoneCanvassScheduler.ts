@@ -9,7 +9,7 @@ import {
   RingingCall as RingingCall,
   InitiatedCall,
 } from "./PhoneCanvassCall.js";
-import { PhoneCanvassMetricsLogger as PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
+import { PhoneCanvassMetricsTracker as PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { PhoneCanvassSchedulerStrategy } from "./Strategies/PhoneCanvassSchedulerStrategy.js";
 import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
