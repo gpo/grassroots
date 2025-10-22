@@ -3,6 +3,8 @@ import { PhoneCanvassController } from "./PhoneCanvass.controller.js";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import { TwilioService } from "./Twilio.service.js";
 import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
+import { PhoneCanvassSchedulerImpl } from "./Scheduler/PhoneCanvassScheduler.js";
+import { NoOvercallingStrategy } from "./Scheduler/Strategies/NoOvercallingStrategy.js";
 
 @Module({
   controllers: [PhoneCanvassController],
@@ -10,6 +12,8 @@ import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.servic
     PhoneCanvassService,
     TwilioService,
     PhoneCanvassGlobalStateService,
+    PhoneCanvassSchedulerImpl,
+    NoOvercallingStrategy,
   ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

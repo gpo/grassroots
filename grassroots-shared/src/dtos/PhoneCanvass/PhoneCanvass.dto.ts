@@ -1,7 +1,6 @@
 import {
   IsArray,
   IsBoolean,
-  IsDate,
   IsEmail,
   IsJSON,
   IsNotEmpty,
@@ -145,16 +144,6 @@ export class PhoneCanvassAuthTokenResponseDTO extends createDTOBase(
   token!: string;
 }
 
-export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
-  "PhoneCanvasTwilioVoiceCallback",
-) {
-  // We require this to be present, but don't want to use default error handling with twilio responses, so
-  // we mark it optional and manually handle the case where it's missing.
-  @IsString()
-  @IsOptional()
-  conference?: string;
-}
-
 export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
   "PhoneCanvasTwilioCallStatusCallback",
 ) {
@@ -174,7 +163,7 @@ export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
     const time = Date.parse(value);
     return Number.isNaN(time) ? undefined : time;
   })
-  @IsDate()
+  @IsNumber()
   Timestamp!: number;
 }
 

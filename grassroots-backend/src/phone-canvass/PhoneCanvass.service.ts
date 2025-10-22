@@ -26,6 +26,10 @@ import {
   PendingCall,
 } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import type { Express } from "express";
+import {
+  CallResult,
+  CallStatus,
+} from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 
 @Injectable()
 export class PhoneCanvassService {
@@ -198,5 +202,12 @@ export class PhoneCanvassService {
     this.globalState.updateCaller(caller);
     await this.updateSyncData(caller.activePhoneCanvassId);
     return caller;
+  }
+
+  async updateCall(
+    sid: string,
+    state: { status: CallStatus; result?: CallResult },
+  ): Promise<void> {
+    this.calls;
   }
 }

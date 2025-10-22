@@ -25,7 +25,9 @@ export class TwilioService {
     await client.calls.create({
       to: envVars.TEST_APPROVED_PHONE_NUMBER,
       from: envVars.TWILIO_OUTGOING_NUMBER,
-      statusCallback: (await getEnvVars()).WEBHOOK_URL,
+      statusCallback:
+        (await getEnvVars()).WEBHOOK_HOST +
+        "/phone-canvass/webhooks/twilio-callstatus",
       statusCallbackEvent: [
         "initiated",
         "ringing",
@@ -58,6 +60,8 @@ export class TwilioService {
         serviceSid: envVars.TWILIO_SYNC_SERVICE_SID,
       }),
     );
+
+    await this.makeCall();
 
     return PhoneCanvassAuthTokenResponseDTO.from({ token: token.toJwt() });
   }

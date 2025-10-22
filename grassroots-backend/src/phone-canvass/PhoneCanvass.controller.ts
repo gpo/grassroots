@@ -21,7 +21,6 @@ import {
   PaginatedPhoneCanvassContactListRequestDTO,
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
-  PhoneCanvasTwilioVoiceCallbackDTO,
   PhoneCanvassCallerDTO,
   CreatePhoneCanvassCallerDTO,
   PhoneCanvasTwilioCallStatusCallbackDTO,
@@ -37,6 +36,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import type { Express } from "express";
 import type * as expressSession from "express-session";
 import { twilioCallStatusToCallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
+import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -167,44 +167,15 @@ export class PhoneCanvassController {
     return this.phoneCanvassService.getAuthToken(id);
   }
 
-  // This needs to return xml. Note that we aren't using this in dev,
-  // as it needs to be a public url on the web. Instead we're using a
-  // GCP cloud function.
-  // eslint-disable-next-line grassroots/controller-routes-return-dtos
-  @Post("/webhooks/twilio-voice")
+  @Post("webhooks/twilio-callstatus")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
-  twilioVoiceCallback(@Body() body: PhoneCanvasTwilioVoiceCallbackDTO): string {
-    const conferenceName = body.conference;
-
-    if (conferenceName === undefined) {
-      return `
-        <Response>
-          <Say voice="alice">Sorry, no conference was specified. Goodbye.</Say>
-          <Hangup/>
-        </Response>`;
-    }
-    return `
-      <Response>
-        <Dial>
-          <Conference>${conferenceName}</Conference>
-        </Dial>
-      </Response>
-    `;
-  }
-
-  // eslint-disable-next-line grassroots/controller-routes-return-dtos
-  @Post("/webhooks/twilio-callstatus")
-  @PublicRoute()
-  @Header("Content-Type", "text/xml")
-  twilioCallStatusCallback(
+  async twilioCallStatusCallback(
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
-  ): void {
-    console.log("GOT BODY", body);
-    console.log(body.CallStatus);
-    const { status, result } = twilioCallStatusToCallStatus(body.CallStatus);
-    console.log("status", status);
-    console.log("result", result);
+  ): Promise<VoidDTO> {
+    const status = twilioCallStatusToCallStatus(body.CallStatus);
+    await this.phoneCanvassService.updateCall(body.CallSid, status);
+    return VoidDTO.from({});
   }
 
   @Get("progress/:id")

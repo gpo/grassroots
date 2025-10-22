@@ -27,6 +27,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
+      # For ngrok.
+      - "3003:3003"
 
   grassroots_dev:
     container_name: grassroots_dev
@@ -51,6 +53,6 @@ services:
     image: ngrok/ngrok:latest
     volumes:
       - ./ngrok/traffic-policy.yml:/etc/traffic-policy.yml
-    command: http grassroots_dev:3000 --traffic-policy-file /etc/traffic-policy.yml
+    command: http localhost:3003 --traffic-policy-file /etc/traffic-policy.yml
     profiles:
       - ngrok

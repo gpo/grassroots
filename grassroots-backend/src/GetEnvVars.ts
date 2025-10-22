@@ -63,7 +63,7 @@ export class Environment {
   TWILIO_SYNC_SERVICE_SID!: string;
 
   @IsNotEmpty()
-  WEBHOOK_URL!: string;
+  WEBHOOK_HOST!: string;
 }
 
 // Earlier files take priority.

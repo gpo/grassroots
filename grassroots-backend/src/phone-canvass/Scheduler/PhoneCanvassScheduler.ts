@@ -13,6 +13,7 @@ import { PhoneCanvassMetricsTracker as PhoneCanvassMetricsTracker } from "./Phon
 import { PhoneCanvassSchedulerStrategy } from "./Strategies/PhoneCanvassSchedulerStrategy.js";
 import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
+import { Injectable } from "@nestjs/common";
 
 export interface Caller {
   id: number;
@@ -35,6 +36,7 @@ type PhoneCanvassSchedulerCallsByStatus = InstanceType<
   typeof PhoneCanvassSchedulerImpl
 >["callsByStatus"];
 
+@Injectable()
 export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
   #callsObservable = new Subject<NotStartedCall>();
   // Clients subscribe to this list of calls which need to be placed.
@@ -62,12 +64,15 @@ export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
     return Date.now();
   }
 
-  constructor(contacts: PhoneCanvassContactEntity[]) {
+  constructor(
+    strategy: NoOvercallingStrategy,
+    contacts: PhoneCanvassContactEntity[],
+  ) {
     this.#pendingContacts = contacts.filter((contact) => {
       return contact.callStatus === "NOT_STARTED";
     });
     this.metricsTracker = new PhoneCanvassMetricsTracker();
-    this.#strategy = new NoOvercallingStrategy(this.metricsTracker);
+    this.#strategy = strategy;
   }
 
   async start(): Promise<void> {

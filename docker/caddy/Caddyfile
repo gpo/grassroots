@@ -15,12 +15,12 @@ http://grassroots.org {
     redir https://grassroots.org{uri} permanent
 }
 
-:80 {
-	# Only forward /api and /webhooks to your app
-	handle_path /webhooks/* {
-		reverse_proxy localhost:3000
+:3003 {
+	handle /phone-canvass/webhooks/* {
+		reverse_proxy grassroots_dev:3000
 	}
 
-	# Everything else is blocked or returns 404
-	respond "Not available via ngrok" 404
+  respond "Not available via ngrok" 404
 }
+
+
