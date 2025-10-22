@@ -27,7 +27,7 @@ export function CallStatusDecorator(): PropertyDecorator {
 }
 
 enum CallResultEnum {
-  CANCELED = "CANCELED",
+  CANCELLED = "CANCELLED",
   COMPLETED = "COMPLETED",
   BUSY = "BUSY",
   NO_ANSWER = "NO_ANSWER",
@@ -41,21 +41,45 @@ export function CallResultDecorator(): PropertyDecorator {
     IsEnum(CallResultEnum),
     ApiProperty({ enum: CallResultEnum }),
   );
-export const TwilioCallStatuses = [
-  "queued",
-  "initiated",
-  "ringing",
-  "in-progress",
-  "completed",
-  "busy",
-  "failed",
-  "no-answer",
-  "canceled",
-];
-export type TwilioCallStatus = (typeof TwilioCallStatuses)[number];
+}
 
-export function twilioCallstatusToCallStatus(
+enum TwilioCallStatusEnum {
+  queued = "queued",
+  initiated = "initiated",
+  ringing = "ringing",
+  "in-progress" = "in-progress",
+  completed = "completed",
+  busy = "busy",
+  failed = "failed",
+  "no-answer" = "no-answer",
+  cancelled = "cancelled",
+}
+export type TwilioCallStatus = keyof typeof TwilioCallStatusEnum;
+
+export function TwilioCallStatusDecorator(): PropertyDecorator {
+  return applyDecorators(
+    IsEnum(TwilioCallStatusEnum),
+    ApiProperty({ enum: TwilioCallStatusEnum }),
+  );
+}
+
+const TWILIO_CALL_STATUS_TO_CALL_STATUS_AND_RESULT = {
+  queued: { status: "QUEUED" },
+  initiated: { status: "INITIATED" },
+  ringing: { status: "RINGING" },
+  "in-progress": { status: "IN_PROGRESS" },
+  completed: { status: "COMPLETED", result: "COMPLETED" },
+  busy: { status: "COMPLETED", result: "BUSY" },
+  failed: { status: "COMPLETED", result: "FAILED" },
+  "no-answer": { status: "COMPLETED", result: "NO_ANSWER" },
+  cancelled: { status: "COMPLETED", result: "CANCELLED" },
+} as const satisfies Record<
+  TwilioCallStatus,
+  { status: CallStatus; result?: CallResult }
+>;
+
+export function twilioCallStatusToCallStatus(
   twilioCallStatus: TwilioCallStatus,
-): { callStatus: CallStatus; callResult: CallResult } {
-  return;
+): { status: CallStatus; result?: CallResult } {
+  return TWILIO_CALL_STATUS_TO_CALL_STATUS_AND_RESULT[twilioCallStatus];
 }

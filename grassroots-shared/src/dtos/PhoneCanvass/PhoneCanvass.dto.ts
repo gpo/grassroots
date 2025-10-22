@@ -12,7 +12,10 @@ import {
 } from "class-validator";
 import { createDTOBase } from "../../util/CreateDTOBase.js";
 import type { CallStatus, TwilioCallStatus } from "./CallStatus.dto.js";
-import { CallStatusDecorator } from "./CallStatus.dto.js";
+import {
+  CallStatusDecorator,
+  TwilioCallStatusDecorator,
+} from "./CallStatus.dto.js";
 import { Transform, Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
@@ -157,7 +160,8 @@ export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
 ) {
   @IsString()
   CallSid!: string;
-  @IsString()
+  // eslint-disable-next-line @darraghor/nestjs-typed/all-properties-are-whitelisted, @darraghor/nestjs-typed/all-properties-have-explicit-defined
+  @TwilioCallStatusDecorator()
   CallStatus!: TwilioCallStatus;
 
   @IsOptional()

@@ -36,6 +36,7 @@ import { validateSync, ValidationError } from "class-validator";
 import { FileInterceptor } from "@nestjs/platform-express";
 import type { Express } from "express";
 import type * as expressSession from "express-session";
+import { twilioCallStatusToCallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -201,6 +202,9 @@ export class PhoneCanvassController {
   ): void {
     console.log("GOT BODY", body);
     console.log(body.CallStatus);
+    const { status, result } = twilioCallStatusToCallStatus(body.CallStatus);
+    console.log("status", status);
+    console.log("result", result);
   }
 
   @Get("progress/:id")
