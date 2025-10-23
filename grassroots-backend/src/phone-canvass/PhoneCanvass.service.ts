@@ -142,17 +142,22 @@ export class PhoneCanvassService {
     const partitionedContacts = partition(
       contacts,
       (contact: PhoneCanvassContactDTO) => {
-        if (contact.callStatus === "NOT_STARTED") {
+        if (
+          contact.callStatus === "NOT_STARTED" ||
+          contact.callStatus === "INITIATED" ||
+          contact.callStatus === "QUEUED" ||
+          contact.callStatus === "RINGING"
+        ) {
           return "NOT_STARTED";
-        } else if (contact.callStatus === "STARTED") {
-          return "STARTED";
+        } else if (contact.callStatus === "IN_PROGRESS") {
+          return "IN_PROGRESS";
         }
         return "COMPLETE";
       },
     );
 
     const activeCalls: ActiveCall[] = (
-      partitionedContacts.get("STARTED") ?? []
+      partitionedContacts.get("IN_PROGRESS") ?? []
     ).map((contact: PhoneCanvassContactDTO) => {
       return {
         calleeDisplayName: contact.contact.formatName(),
