@@ -5,6 +5,12 @@ import { PhoneCanvassAuthTokenResponseDTO } from "grassroots-shared/dtos/PhoneCa
 import AccessToken from "twilio/lib/jwt/AccessToken.js";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { getEnvVars } from "../GetEnvVars.js";
+import { NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
+import {
+  CallStatus,
+  TwilioCallStatus,
+  twilioCallStatusToCallStatus,
+} from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 
 @Injectable()
 export class TwilioService {
@@ -15,14 +21,20 @@ export class TwilioService {
     });
   }
 
-  async makeCall(): Promise<void> {
+  // Returns the call SID.
+  async makeCall(call: NotStartedCall): Promise<{
+    sid: string;
+    status: CallStatus;
+    timestamp: number;
+  }> {
+    const now = Date.now();
+
     const envVars = await getEnvVars();
 
-    // TODO - this should actually be the callee id.
-    const CALLEE_ID = 10;
     const client = await this.#getClient();
 
-    await client.calls.create({
+    const callInstance = await client.calls.create({
+      // TODO(mvp): use the actual phone number.
       to: envVars.TEST_APPROVED_PHONE_NUMBER,
       from: envVars.TWILIO_OUTGOING_NUMBER,
       statusCallback:
@@ -35,8 +47,14 @@ export class TwilioService {
         "completed",
         "queued",
       ],
-      twiml: `<Response><Dial><Conference>${String(CALLEE_ID)}</Conference></Dial></Response>`,
+      twiml: `<Response><Dial><Conference>${String(call.contactId())}</Conference></Dial></Response>`,
     });
+
+    return {
+      sid: callInstance.sid,
+      status: twilioCallStatusToCallStatus(callInstance.status),
+      timestamp: now,
+    };
   }
 
   async getAuthToken(): Promise<PhoneCanvassAuthTokenResponseDTO> {

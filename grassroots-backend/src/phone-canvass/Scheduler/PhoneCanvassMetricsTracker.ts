@@ -1,7 +1,9 @@
 import { BehaviorSubject, combineLatest, map, Observable, Subject } from "rxjs";
 import { Call, CompletedCall } from "./PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class PhoneCanvassMetricsTracker {
   #endingCallsObservable = new Subject<CompletedCall>();
   #callerCountObservable = new BehaviorSubject<number>(0);

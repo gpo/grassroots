@@ -27,7 +27,7 @@ export function CallStatusDecorator(): PropertyDecorator {
 }
 
 enum CallResultEnum {
-  CANCELLED = "CANCELLED",
+  CANCELED = "CANCELED",
   COMPLETED = "COMPLETED",
   BUSY = "BUSY",
   NO_ANSWER = "NO_ANSWER",
@@ -52,7 +52,7 @@ enum TwilioCallStatusEnum {
   busy = "busy",
   failed = "failed",
   "no-answer" = "no-answer",
-  cancelled = "cancelled",
+  canceled = "canceled",
 }
 export type TwilioCallStatus = keyof typeof TwilioCallStatusEnum;
 
@@ -72,7 +72,7 @@ const TWILIO_CALL_STATUS_TO_CALL_STATUS_AND_RESULT = {
   busy: { status: "COMPLETED", result: "BUSY" },
   failed: { status: "COMPLETED", result: "FAILED" },
   "no-answer": { status: "COMPLETED", result: "NO_ANSWER" },
-  cancelled: { status: "COMPLETED", result: "CANCELLED" },
+  canceled: { status: "COMPLETED", result: "CANCELED" },
 } as const satisfies Record<
   TwilioCallStatus,
   { status: CallStatus; result?: CallResult }

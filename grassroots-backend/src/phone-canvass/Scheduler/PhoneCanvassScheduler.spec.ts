@@ -50,7 +50,7 @@ describe("PhoneCanvassScheduler", () => {
     scheduler.calls.subscribe((call) => calls.push(call));
 
     expect(calls).toHaveLength(0);
-    void scheduler.start();
+    void scheduler.startIfNeeded();
 
     currentTime = 11;
     scheduler.addCaller(1);
@@ -102,7 +102,7 @@ describe("PhoneCanvassScheduler", () => {
     const calls: NotStartedCall[] = [];
     scheduler.calls.subscribe((call) => calls.push(call));
 
-    void scheduler.start();
+    void scheduler.startIfNeeded();
     scheduler.addCaller(CALLER_ID);
     await scheduler.waitForIdleForTest();
 

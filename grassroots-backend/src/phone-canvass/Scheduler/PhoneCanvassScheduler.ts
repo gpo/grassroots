@@ -22,7 +22,7 @@ export interface Caller {
 
 export interface PhoneCanvassScheduler {
   readonly calls: Observable<NotStartedCall>;
-  start(): Promise<void>;
+  startIfNeeded(): Promise<void>;
   stop(): void;
   addCaller(id: number): void;
   removeCaller(id: number): void;
@@ -75,9 +75,9 @@ export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
     this.#strategy = strategy;
   }
 
-  async start(): Promise<void> {
+  async startIfNeeded(): Promise<void> {
     if (this.#running) {
-      throw new Error("Call to startScheduler when scheduler already running.");
+      return;
     }
     this.#running = true;
     while (true) {

@@ -30,17 +30,57 @@ import {
   CallResult,
   CallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
+import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
+import { Call } from "./Scheduler/PhoneCanvassCall.js";
+import { mergeMap } from "rxjs";
 
 @Injectable()
 export class PhoneCanvassService {
   repo: EntityRepository<PhoneCanvassEntity>;
+  callsBySid = new Map<string, Call>();
   constructor(
     private readonly entityManager: EntityManager,
     private twilioService: TwilioService,
     private readonly globalState: PhoneCanvassGlobalStateService,
+    private readonly scheduler: PhoneCanvassScheduler,
   ) {
     this.repo =
       entityManager.getRepository<PhoneCanvassEntity>(PhoneCanvassEntity);
+    scheduler.calls
+      .pipe(
+        // mergeMap is the easiest way to run async code per call.
+        mergeMap(async (call) => {
+          const { sid, timestamp, status } =
+            await this.twilioService.makeCall(call);
+
+          switch (status) {
+            case "QUEUED": {
+              const queuedCall = call.advanceStatusToQueued({
+                currentTime: timestamp,
+                twilioSid: sid,
+              });
+              this.callsBySid.set(sid, queuedCall);
+              break;
+            }
+            case "INITIATED": {
+              const initiatedCall = call.advanceStatusToInitiated({
+                currentTime: timestamp,
+                twilioSid: sid,
+              });
+              this.callsBySid.set(sid, initiatedCall);
+              break;
+            }
+            default: {
+              throw new Error("Calls can only start as queued or initiated.");
+            }
+          }
+        }),
+      )
+      .subscribe({
+        complete: () => {
+          console.log("TODO(mvp) handle running out of calls.");
+        },
+      });
   }
   // Returns the id of the new phone canvass.
   async create(
@@ -193,6 +233,8 @@ export class PhoneCanvassService {
   ): Promise<PhoneCanvassCallerDTO> {
     const newCaller = this.globalState.addCaller(caller);
     await this.updateSyncData(caller.activePhoneCanvassId);
+    void this.scheduler.startIfNeeded();
+
     return newCaller;
   }
 
@@ -204,10 +246,58 @@ export class PhoneCanvassService {
     return caller;
   }
 
-  async updateCall(
-    sid: string,
-    state: { status: CallStatus; result?: CallResult },
-  ): Promise<void> {
-    this.calls;
+  async updateCall(params: {
+    sid: string;
+    status: CallStatus;
+    result?: CallResult;
+    timestamp: number;
+  }): Promise<void> {
+    const { sid, status, result, timestamp } = params;
+    const call = this.callsBySid.get(sid);
+    if (call === undefined) {
+      throw new Error(`Unable to update call. sid ${sid} doesn't exist.`);
+    }
+
+    const newCallParams = {
+      currentTime: timestamp,
+      twilioSid: sid,
+    };
+
+    switch (call.status) {
+      case "NOT_STARTED": {
+        throw new Error(
+          "Calls can't be updated until they've been queued or initiated.",
+        );
+      }
+      case "QUEUED": {
+        if (status !== "INITIATED") {
+          throw new Error("Invalid transition");
+        }
+        call.advanceStatusToInitiated(newCallParams);
+        break;
+      }
+      case "INITIATED": {
+        if (status !== "RINGING") {
+          throw new Error("Invalid transition");
+        }
+        call.advanceStatusToRinging(newCallParams);
+        break;
+      }
+      case "RINGING": {
+        const callerId = this.scheduler.getNextIdleCallerId();
+        if (callerId === undefined) {
+          throw new Error("TODO(mvp) handle overcalling");
+        }
+        call.advanceStatusToInProgress({ ...newCallParams, callerId });
+        break;
+      }
+      case "IN_PROGRESS": {
+        call.advanceStatusToCompleted();
+        break;
+      }
+      case "COMPLETED": {
+        break;
+      }
+    }
   }
 }

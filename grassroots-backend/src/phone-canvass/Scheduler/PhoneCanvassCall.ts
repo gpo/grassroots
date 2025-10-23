@@ -15,6 +15,7 @@ export type Call =
   | CompletedCall;
 
 interface CommonCallState {
+  // Unique ID which exists throughout call lifetime, including before the twilio call is created.
   id: number;
   scheduler: PhoneCanvassScheduler;
   contact: PhoneCanvassContactEntity;
@@ -26,6 +27,19 @@ interface CommonCallState {
 type CommonCallConstructorParams = CommonCallState & {
   currentTime: number;
 };
+
+interface SID {
+  // Call SID, provided by twilio.
+  twilioSid: string;
+}
+
+interface CallerId {
+  callerId: number;
+}
+
+interface CurrentTime {
+  currentTime: number;
+}
 
 export function resetPhoneCanvasCallIdsForTest(): void {
   NotStartedCall.resetIdsForTest();
@@ -39,6 +53,9 @@ abstract class AbstractCall<STATUS extends CallStatus> {
   }
 
   abstract get status(): STATUS;
+  contactId(): number {
+    return this.state.contact.id;
+  }
 
   protected advanceStatusTo<CallTypeTo extends Call>(
     call: CallTypeTo,
@@ -89,19 +106,21 @@ export class NotStartedCall extends AbstractCall<"NOT_STARTED"> {
     });
   }
 
-  advanceStatusToInitiated(params: { currentTime: number }): InitiatedCall {
+  advanceStatusToInitiated(params: CurrentTime & SID): InitiatedCall {
     return this.advanceStatusTo(
       new InitiatedCall({
         ...this.state,
+        twilioSid: params.twilioSid,
         currentTime: params.currentTime,
       }),
     );
   }
 
-  advanceStatusToQueued(params: { currentTime: number }): QueuedCall {
+  advanceStatusToQueued(params: CurrentTime & SID): QueuedCall {
     return this.advanceStatusTo(
       new QueuedCall({
         ...this.state,
+        twilioSid: params.twilioSid,
         currentTime: params.currentTime,
       }),
     );
@@ -114,16 +133,19 @@ export class NotStartedCall extends AbstractCall<"NOT_STARTED"> {
 
 export class QueuedCall extends AbstractCall<"QUEUED"> {
   status = "QUEUED" as const;
+  readonly twilioSid: string;
 
-  constructor(params: CommonCallConstructorParams) {
+  constructor(params: CommonCallConstructorParams & SID) {
     super(params);
+    this.twilioSid = params.twilioSid;
     this.state.transitionTimestamps.QUEUED = params.currentTime;
   }
 
-  advanceStatusToInitiated(params: { currentTime: number }): InitiatedCall {
+  advanceStatusToInitiated(params: CurrentTime & SID): InitiatedCall {
     return this.advanceStatusTo(
       new InitiatedCall({
         ...this.state,
+        twilioSid: params.twilioSid,
         currentTime: params.currentTime,
       }),
     );
@@ -132,16 +154,22 @@ export class QueuedCall extends AbstractCall<"QUEUED"> {
 
 export class InitiatedCall extends AbstractCall<"INITIATED"> {
   status = "INITIATED" as const;
+  readonly twilioSid: string;
 
-  constructor(params: CommonCallConstructorParams) {
+  constructor(params: CommonCallConstructorParams & SID) {
     super(params);
+    this.twilioSid = params.twilioSid;
     this.state.transitionTimestamps.INITIATED = params.currentTime;
   }
 
-  advanceStatusToRinging(params: { currentTime: number }): RingingCall {
+  advanceStatusToRinging(params: {
+    currentTime: number;
+    twilioSid: string;
+  }): RingingCall {
     return this.advanceStatusTo(
       new RingingCall({
         ...this.state,
+        twilioSid: params.twilioSid,
         currentTime: params.currentTime,
       }),
     );
@@ -150,19 +178,21 @@ export class InitiatedCall extends AbstractCall<"INITIATED"> {
 
 export class RingingCall extends AbstractCall<"RINGING"> {
   status = "RINGING" as const;
+  twilioSid: string;
 
-  constructor(params: CommonCallConstructorParams) {
+  constructor(params: CommonCallConstructorParams & SID) {
     super(params);
+    this.twilioSid = params.twilioSid;
     this.state.transitionTimestamps.RINGING = params.currentTime;
   }
 
-  advanceStatusToInProgress(params: {
-    currentTime: number;
-    callerId: number;
-  }): InProgressCall {
+  advanceStatusToInProgress(
+    params: CurrentTime & CallerId & SID,
+  ): InProgressCall {
     return this.advanceStatusTo(
       new InProgressCall({
         ...this.state,
+        twilioSid: params.twilioSid,
         callerId: params.callerId,
         currentTime: params.currentTime,
       }),
@@ -174,7 +204,7 @@ export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
   status = "IN_PROGRESS" as const;
   #callerId: number;
 
-  constructor(params: CommonCallConstructorParams & { callerId: number }) {
+  constructor(params: CommonCallConstructorParams & CallerId & SID) {
     super(params);
     this.#callerId = params.callerId;
     this.state.transitionTimestamps.IN_PROGRESS = params.currentTime;
@@ -184,15 +214,19 @@ export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
     return this.#callerId;
   }
 
-  advanceStatusToCompleted(params: {
-    result: CallResult;
-    currentTime: number;
-  }): CompletedCall {
+  advanceStatusToCompleted(
+    params: {
+      result: CallResult;
+    } & CurrentTime &
+      CallerId &
+      SID,
+  ): CompletedCall {
     return this.advanceStatusTo(
       new CompletedCall({
         ...this.state,
         callerId: this.#callerId,
         currentTime: params.currentTime,
+        twilioSid: params.twilioSid,
         result: params.result,
       }),
     );
@@ -203,15 +237,18 @@ export class CompletedCall extends AbstractCall<"COMPLETED"> {
   status = "COMPLETED" as const;
   #result: CallResult;
   #callerId: number | undefined;
+  readonly twilioSid: string;
 
   constructor(
     params: CommonCallConstructorParams & {
       result: CallResult;
       callerId: number | undefined;
-    },
+    } & CallerId &
+      SID,
   ) {
     super(params);
     this.#callerId = params.callerId;
+    this.twilioSid = params.twilioSid;
     this.state.transitionTimestamps.COMPLETED = params.currentTime;
     this.#result = params.result;
     this.state.scheduler.metricsTracker.onEndingCall(this);
