@@ -27,7 +27,13 @@ export interface PhoneCanvassScheduler {
   removeCaller(id: number): void;
   waitForIdleForTest(): Promise<void>;
   getNextIdleCallerId(): number | undefined;
+  get metricsTracker(): PhoneCanvassMetricsTracker;
+  get callsByStatus(): PhoneCanvassSchedulerCallsByStatus;
 }
+
+type PhoneCanvassSchedulerCallsByStatus = InstanceType<
+  typeof PhoneCanvassSchedulerImpl
+>["callsByStatus"];
 
 export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
   #callsObservable = new Subject<NotStartedCall>();
@@ -58,7 +64,6 @@ export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
 
   constructor(contacts: PhoneCanvassContactEntity[]) {
     this.#pendingContacts = contacts.filter((contact) => {
-      // TODO(MVP): should this include "UNABLE_TO_CONTACT"?
       return contact.callStatus === "NOT_STARTED";
     });
     this.metricsTracker = new PhoneCanvassMetricsTracker();
@@ -70,8 +75,13 @@ export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
       throw new Error("Call to startScheduler when scheduler already running.");
     }
     this.#running = true;
-    while (this.#running) {
+    while (true) {
       await this.#strategy.waitForNextCall();
+      // This could change while waiting for the next call.
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      if (!this.#running) {
+        break;
+      }
 
       const contact = this.#pendingContacts.shift();
       if (contact === undefined) {

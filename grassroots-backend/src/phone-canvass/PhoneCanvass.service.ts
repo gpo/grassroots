@@ -66,7 +66,6 @@ export class PhoneCanvassService {
         metadata: canvasContact.metadata,
         callStatus: "NOT_STARTED",
         contact,
-        playedVoicemail: false,
       });
     }
 

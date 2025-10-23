@@ -1,11 +1,11 @@
 import { BehaviorSubject, combineLatest, map, Observable, Subject } from "rxjs";
 import { Call, CompletedCall } from "./PhoneCanvassCall.js";
-import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassScheduler.js";
+import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 
 export class PhoneCanvassMetricsTracker {
   #endingCallsObservable = new Subject<CompletedCall>();
   #callerCountObservable = new BehaviorSubject<number>(0);
-  #committedCallerCountObservable = new BehaviorSubject<number>(0);
+  #committedCallsCountObservable = new BehaviorSubject<number>(0);
 
   readonly #idleCallerCountObservable: Observable<number>;
 
@@ -18,7 +18,7 @@ export class PhoneCanvassMetricsTracker {
   }
 
   get committedCallerCountObservable(): Observable<number> {
-    return this.#committedCallerCountObservable;
+    return this.#committedCallsCountObservable;
   }
 
   get idleCallerCountObservable(): Observable<number> {
@@ -28,11 +28,11 @@ export class PhoneCanvassMetricsTracker {
   constructor() {
     this.#idleCallerCountObservable = combineLatest([
       this.#callerCountObservable,
-      this.#committedCallerCountObservable,
+      this.#committedCallsCountObservable,
     ]).pipe(
       map(
-        ([callerCount, committedCallerCount]) =>
-          callerCount - committedCallerCount,
+        ([callerCount, committedCallsCount]) =>
+          callerCount - committedCallsCount,
       ),
     );
 
@@ -46,11 +46,9 @@ export class PhoneCanvassMetricsTracker {
   }
 
   onCallsByStatusUpdate(
-    callsByStatus: InstanceType<
-      typeof PhoneCanvassSchedulerImpl
-    >["callsByStatus"],
+    callsByStatus: PhoneCanvassScheduler["callsByStatus"],
   ): void {
-    this.#committedCallerCountObservable.next(
+    this.#committedCallsCountObservable.next(
       callsByStatus.NOT_STARTED.size +
         callsByStatus.INITIATED.size +
         callsByStatus.QUEUED.size +

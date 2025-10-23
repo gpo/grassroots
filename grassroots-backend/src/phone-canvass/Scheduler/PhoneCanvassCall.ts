@@ -4,7 +4,7 @@ import {
   CallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
-import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassScheduler.js";
+import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 
 export type Call =
   | NotStartedCall
@@ -16,7 +16,7 @@ export type Call =
 
 interface CommonCallState {
   id: number;
-  scheduler: PhoneCanvassSchedulerImpl;
+  scheduler: PhoneCanvassScheduler;
   contact: PhoneCanvassContactEntity;
   // Timestamps provided by Twilio when available.
   // Otherwise, we use Date.now().

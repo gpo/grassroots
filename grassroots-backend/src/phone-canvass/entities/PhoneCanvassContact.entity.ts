@@ -1,6 +1,6 @@
 import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
 
-import type { Rel } from "@mikro-orm/core";
+import type { Opt, Rel } from "@mikro-orm/core";
 import { createEntityBase } from "../../util/CreateEntityBase.js";
 import { PhoneCanvassEntity } from "./PhoneCanvass.entity.js";
 import { ContactEntity } from "../../contacts/entities/Contact.entity.js";
@@ -31,7 +31,7 @@ export class PhoneCanvassContactEntity extends createEntityBase<
   callResult?: CallResult;
 
   @Property()
-  playedVoicemail!: boolean;
+  playedVoicemail: boolean & Opt = false;
 
   @ManyToOne()
   contact!: ContactEntity;
