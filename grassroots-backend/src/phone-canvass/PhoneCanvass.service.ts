@@ -30,7 +30,10 @@ import {
   CallResult,
   CallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
+import type {
+  PhoneCanvassScheduler,
+  PhoneCanvassSchedulerImpl,
+} from "./Scheduler/PhoneCanvassScheduler.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { mergeMap } from "rxjs";
 
@@ -42,7 +45,7 @@ export class PhoneCanvassService {
     private readonly entityManager: EntityManager,
     private twilioService: TwilioService,
     private readonly globalState: PhoneCanvassGlobalStateService,
-    private readonly scheduler: PhoneCanvassScheduler,
+    private readonly scheduler: PhoneCanvassSchedulerImpl,
   ) {
     this.repo =
       entityManager.getRepository<PhoneCanvassEntity>(PhoneCanvassEntity);
@@ -246,12 +249,12 @@ export class PhoneCanvassService {
     return caller;
   }
 
-  async updateCall(params: {
+  updateCall(params: {
     sid: string;
     status: CallStatus;
     result?: CallResult;
     timestamp: number;
-  }): Promise<void> {
+  }): void {
     const { sid, status, result, timestamp } = params;
     const call = this.callsBySid.get(sid);
     if (call === undefined) {
@@ -284,6 +287,9 @@ export class PhoneCanvassService {
         break;
       }
       case "RINGING": {
+        if (status !== "IN_PROGRESS") {
+          throw new Error("Invalid transition");
+        }
         const callerId = this.scheduler.getNextIdleCallerId();
         if (callerId === undefined) {
           throw new Error("TODO(mvp) handle overcalling");
@@ -292,10 +298,20 @@ export class PhoneCanvassService {
         break;
       }
       case "IN_PROGRESS": {
-        call.advanceStatusToCompleted();
+        if (status !== "COMPLETED") {
+          throw new Error("Invalid transition");
+        }
+        if (result === undefined) {
+          throw new Error("Missing result for completed call");
+        }
+        call.advanceStatusToCompleted({
+          ...newCallParams,
+          result,
+        });
         break;
       }
       case "COMPLETED": {
+        throw new Error("Can't update a completed call.");
         break;
       }
     }

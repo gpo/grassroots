@@ -170,11 +170,15 @@ export class PhoneCanvassController {
   @Post("webhooks/twilio-callstatus")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
-  async twilioCallStatusCallback(
+  twilioCallStatusCallback(
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
-  ): Promise<VoidDTO> {
+  ): VoidDTO {
     const status = twilioCallStatusToCallStatus(body.CallStatus);
-    await this.phoneCanvassService.updateCall(body.CallSid, status);
+    this.phoneCanvassService.updateCall({
+      ...status,
+      sid: body.CallSid,
+      timestamp: body.Timestamp,
+    });
     return VoidDTO.from({});
   }
 

@@ -11,6 +11,8 @@ import {
   PhoneCanvassScheduler,
   PhoneCanvassSchedulerImpl,
 } from "./PhoneCanvassScheduler.js";
+import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
+import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
@@ -31,7 +33,12 @@ const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
 let currentTime = -1;
 
 function getScheduler(): PhoneCanvassScheduler {
-  const scheduler = new PhoneCanvassSchedulerImpl(FAKE_CONTACTS);
+  const metricsTracker = new PhoneCanvassMetricsTracker();
+  const scheduler = new PhoneCanvassSchedulerImpl(
+    new NoOvercallingStrategy(metricsTracker),
+    metricsTracker,
+    FAKE_CONTACTS,
+  );
 
   const currentTimeMock = vi.fn(() => {
     return currentTime;
@@ -115,7 +122,10 @@ describe("PhoneCanvassScheduler", () => {
     expect(call.id).toBe(1);
 
     const callInProgress = call
-      .advanceStatusToQueued({ currentTime: 2 })
+      .advanceStatusToQueued({
+        currentTime: 2,
+        twilioSid: "Test",
+      })
       .advanceStatusToInitiated({
         currentTime: 3,
       })

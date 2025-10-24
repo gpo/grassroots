@@ -8,7 +8,6 @@ import { getEnvVars } from "../GetEnvVars.js";
 import { NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
 import {
   CallStatus,
-  TwilioCallStatus,
   twilioCallStatusToCallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 
@@ -21,7 +20,6 @@ export class TwilioService {
     });
   }
 
-  // Returns the call SID.
   async makeCall(call: NotStartedCall): Promise<{
     sid: string;
     status: CallStatus;
@@ -52,7 +50,7 @@ export class TwilioService {
 
     return {
       sid: callInstance.sid,
-      status: twilioCallStatusToCallStatus(callInstance.status),
+      status: twilioCallStatusToCallStatus(callInstance.status).status,
       timestamp: now,
     };
   }
@@ -78,8 +76,6 @@ export class TwilioService {
         serviceSid: envVars.TWILIO_SYNC_SERVICE_SID,
       }),
     );
-
-    await this.makeCall();
 
     return PhoneCanvassAuthTokenResponseDTO.from({ token: token.toJwt() });
   }

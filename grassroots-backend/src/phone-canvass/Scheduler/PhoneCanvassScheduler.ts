@@ -20,16 +20,17 @@ export interface Caller {
   availabilityStartTime: number /* Relative to Date.now()*/;
 }
 
-export interface PhoneCanvassScheduler {
-  readonly calls: Observable<NotStartedCall>;
-  startIfNeeded(): Promise<void>;
-  stop(): void;
-  addCaller(id: number): void;
-  removeCaller(id: number): void;
-  waitForIdleForTest(): Promise<void>;
-  getNextIdleCallerId(): number | undefined;
-  get metricsTracker(): PhoneCanvassMetricsTracker;
-  get callsByStatus(): PhoneCanvassSchedulerCallsByStatus;
+@Injectable()
+export abstract class PhoneCanvassScheduler {
+  abstract readonly calls: Observable<NotStartedCall>;
+  abstract startIfNeeded(): Promise<void>;
+  abstract stop(): void;
+  abstract addCaller(id: number): void;
+  abstract removeCaller(id: number): void;
+  abstract waitForIdleForTest(): Promise<void>;
+  abstract getNextIdleCallerId(): number | undefined;
+  abstract get metricsTracker(): PhoneCanvassMetricsTracker;
+  abstract get callsByStatus(): PhoneCanvassSchedulerCallsByStatus;
 }
 
 type PhoneCanvassSchedulerCallsByStatus = InstanceType<
@@ -37,7 +38,7 @@ type PhoneCanvassSchedulerCallsByStatus = InstanceType<
 >["callsByStatus"];
 
 @Injectable()
-export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
+export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   #callsObservable = new Subject<NotStartedCall>();
   // Clients subscribe to this list of calls which need to be placed.
   readonly calls = this.#callsObservable.asObservable();
@@ -58,20 +59,19 @@ export class PhoneCanvassSchedulerImpl implements PhoneCanvassScheduler {
   #running = false;
   #pendingContacts: PhoneCanvassContactEntity[];
 
-  metricsTracker: PhoneCanvassMetricsTracker;
-
   getCurrentTime(): number {
     return Date.now();
   }
 
   constructor(
     strategy: NoOvercallingStrategy,
+    public metricsTracker: PhoneCanvassMetricsTracker,
     contacts: PhoneCanvassContactEntity[],
   ) {
+    super();
     this.#pendingContacts = contacts.filter((contact) => {
       return contact.callStatus === "NOT_STARTED";
     });
-    this.metricsTracker = new PhoneCanvassMetricsTracker();
     this.#strategy = strategy;
   }
 
