@@ -1,5 +1,5 @@
 import { Device } from "@twilio/voice-sdk";
-import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
 import { grassrootsAPI } from "../../../GrassRootsAPI.js";
@@ -13,7 +13,7 @@ Flow is:
 */
 
 export interface MarkReadyForCallsParams {
-  callerIdentity: PhoneCanvassParticipantIdentityDTO;
+  callerIdentity: PhoneCanvassCallerDTO;
   calleeId: number;
   authToken: string;
 }
@@ -25,7 +25,7 @@ export async function markReadyForCalls(
 
   VoidDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/update-participant", {
-      body: PhoneCanvassParticipantIdentityDTO.from({
+      body: PhoneCanvassCallerDTO.from({
         ...propsOf(callerIdentity),
         ready: true,
       }),

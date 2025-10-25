@@ -3,17 +3,17 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 @Injectable()
 export class PhoneCanvassGlobalStateService {
   // Map from phoneCanvassId to participant identities.
   #phoneCanvassIdToParticipantDisplayName = new Map<
     string,
-    PhoneCanvassParticipantIdentityDTO[]
+    PhoneCanvassCallerDTO[]
   >();
 
-  addParticipant(identity: PhoneCanvassParticipantIdentityDTO): void {
+  addParticipant(identity: PhoneCanvassCallerDTO): void {
     const participants =
       this.#phoneCanvassIdToParticipantDisplayName.get(
         identity.activePhoneCanvassId,
@@ -33,7 +33,7 @@ export class PhoneCanvassGlobalStateService {
     );
   }
 
-  updateParticipant(identity: PhoneCanvassParticipantIdentityDTO): void {
+  updateParticipant(identity: PhoneCanvassCallerDTO): void {
     const participants =
       this.#phoneCanvassIdToParticipantDisplayName.get(
         identity.activePhoneCanvassId,
@@ -47,9 +47,7 @@ export class PhoneCanvassGlobalStateService {
     Object.assign(participant, identity);
   }
 
-  listParticipants(
-    phoneCanvassId: string,
-  ): PhoneCanvassParticipantIdentityDTO[] {
+  listCallers(phoneCanvassId: string): PhoneCanvassCallerDTO[] {
     return (
       this.#phoneCanvassIdToParticipantDisplayName.get(phoneCanvassId) ?? []
     );

@@ -151,10 +151,29 @@ export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
   conference?: string;
 }
 
-// Note that (displayName, activePhoneCanvassId) is globally unique.
-export class PhoneCanvassParticipantIdentityDTO extends createDTOBase(
-  "PhoneCanvassParticipantIdentity",
+// (displayName, activePhoneCanvassId) is globally unique.
+export class CreatePhoneCanvassCallerDTO extends createDTOBase(
+  "CreatePhoneCanvassCaller",
 ) {
+  @Trim()
+  @IsNotEmpty()
+  displayName!: string;
+
+  @IsEmail()
+  email!: string;
+
+  @IsNotEmpty()
+  activePhoneCanvassId!: string;
+
+  @IsBoolean()
+  ready!: boolean;
+}
+
+// (displayName, activePhoneCanvassId) is globally unique.
+export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
+  @IsNumber()
+  id!: number;
+
   @Trim()
   @IsNotEmpty()
   displayName!: string;

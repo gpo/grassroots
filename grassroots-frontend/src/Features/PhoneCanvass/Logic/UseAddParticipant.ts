@@ -3,42 +3,38 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
-import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import {
+  CreatePhoneCanvassCallerDTO,
+  PhoneCanvassCallerDTO,
+} from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { grassrootsAPI } from "../../../GrassRootsAPI.js";
-import { PhoneCanvassIdentityStore } from "./PhoneCanvassIdentityStore.js";
+import { PhoneCanvassCallerStore } from "./PhoneCanvassIdentityStore.js";
 
-export interface UseAddParticipantParams {
+export interface UseAddCallerParams {
   phoneCanvassId: string;
-  phoneCanvassIdentityStore: PhoneCanvassIdentityStore;
+  phoneCanvassCallerStore: PhoneCanvassCallerStore;
 }
 
-export function useAddParticipant(
-  params: UseAddParticipantParams,
+export function useAddCaller(
+  params: UseAddCallerParams,
 ): UseMutateAsyncFunction<
-  PhoneCanvassParticipantIdentityDTO,
+  CreatePhoneCanvassCallerDTO,
   Error,
-  PhoneCanvassParticipantIdentityDTO
+  PhoneCanvassCallerDTO
 > {
   const queryClient = useQueryClient();
-  const { phoneCanvassId, phoneCanvassIdentityStore } = params;
+  const { phoneCanvassCallerStore } = params;
   const { mutateAsync } = useMutation({
-    mutationFn: async (identity: PhoneCanvassParticipantIdentityDTO) => {
-      return PhoneCanvassParticipantIdentityDTO.fromFetchOrThrow(
-        await grassrootsAPI.POST("/phone-canvass/add-participant", {
-          body: identity,
+    mutationFn: async (caller: CreatePhoneCanvassCallerDTO) => {
+      return PhoneCanvassCallerDTO.fromFetchOrThrow(
+        await grassrootsAPI.POST("/phone-canvass/add-caller", {
+          body: caller,
         }),
       );
     },
     retry: 1,
-    onSuccess: async (setId: PhoneCanvassParticipantIdentityDTO) => {
-      phoneCanvassIdentityStore.setParticipantIdentity(
-        PhoneCanvassParticipantIdentityDTO.from({
-          displayName: setId.displayName,
-          email: setId.email,
-          activePhoneCanvassId: phoneCanvassId,
-          ready: false,
-        }),
-      );
+    onSuccess: async (caller: PhoneCanvassCallerDTO) => {
+      phoneCanvassCallerStore.setCaller(PhoneCanvassCallerDTO.from(caller));
       await queryClient.invalidateQueries({ queryKey: ["canvass"] });
     },
   });
