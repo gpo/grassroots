@@ -9,7 +9,7 @@ export class PhoneCanvassMetricsTracker {
   #callerCountObservable = new BehaviorSubject<number>(0);
   #committedCallsCountObservable = new BehaviorSubject<number>(0);
 
-  readonly #idleCallerCountObservable: Observable<number>;
+  readonly #idleCallerCountObservable = new Observable<number>();
 
   get endingCalls(): Observable<CompletedCall> {
     return this.endingCalls;

@@ -1,4 +1,4 @@
-import { NestFactory, PartialGraphHost } from "@nestjs/core";
+import { NestFactory } from "@nestjs/core";
 import { AppModule, listenAndConfigureApp } from "./app/App.module.js";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import openapiTS, { astToString } from "openapi-typescript";
@@ -22,7 +22,6 @@ import metadata from "./FormattedMetadata.gen.js";
 import { mkdir } from "fs/promises";
 import { dirname } from "path";
 import { OrganizationEntity } from "./organizations/Organization.entity.js";
-import { writeFileSync } from "fs";
 
 const watching = argv.includes("--watch") || argv.includes("-w");
 const genFilesOnly = argv.includes("--gen-files-only");
@@ -102,18 +101,12 @@ async function createMikroORMMigration(
 }
 
 async function bootstrap(port: number): Promise<void> {
-  let app: NestExpressApplication;
-  try {
-    console.log("BEFORE");
-    app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      snapshot: true,
+  const app: NestExpressApplication =
+    await NestFactory.create<NestExpressApplication>(AppModule, {
+      snapshot: false,
       abortOnError: false,
     });
-    console.log("AFTER");
-  } catch {
-    writeFileSync("graph.json", PartialGraphHost.toString());
-    throw new Error("Wrote partial graph");
-  }
+
   await writeOpenAPI(app);
   if (genFilesOnly) {
     await app.close();
@@ -121,7 +114,6 @@ async function bootstrap(port: number): Promise<void> {
   }
   await listenAndConfigureApp(app, port);
 
-  console.log("APP IS CONFIGURED");
   const postStartupTasks = [
     writeFormatted({
       filePath: "../docs/DependencyGraph.md",

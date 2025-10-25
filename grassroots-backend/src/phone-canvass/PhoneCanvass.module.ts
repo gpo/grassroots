@@ -3,12 +3,7 @@ import { PhoneCanvassController } from "./PhoneCanvass.controller.js";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import { TwilioService } from "./Twilio.service.js";
 import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
-import {
-  PhoneCanvassScheduler,
-  PhoneCanvassSchedulerImpl,
-} from "./Scheduler/PhoneCanvassScheduler.js";
-import { NoOvercallingStrategy } from "./Scheduler/Strategies/NoOvercallingStrategy.js";
-import { PhoneCanvassSchedulerStrategy } from "./Scheduler/Strategies/PhoneCanvassSchedulerStrategy.js";
+import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
 
 @Module({
   controllers: [PhoneCanvassController],
@@ -16,9 +11,7 @@ import { PhoneCanvassSchedulerStrategy } from "./Scheduler/Strategies/PhoneCanva
     PhoneCanvassService,
     TwilioService,
     PhoneCanvassGlobalStateService,
-    PhoneCanvassSchedulerImpl,
-    //{ provide: PhoneCanvassScheduler, useClass: PhoneCanvassSchedulerImpl },
-    { provide: PhoneCanvassSchedulerStrategy, useClass: NoOvercallingStrategy },
+    PhoneCanvassSchedulerFactory,
   ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class

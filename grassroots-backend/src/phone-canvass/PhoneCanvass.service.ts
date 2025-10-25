@@ -30,25 +30,29 @@ import {
   CallResult,
   CallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import type {
-  PhoneCanvassScheduler,
-  PhoneCanvassSchedulerImpl,
-} from "./Scheduler/PhoneCanvassScheduler.js";
+import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { mergeMap } from "rxjs";
+import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
 
 @Injectable()
 export class PhoneCanvassService {
   repo: EntityRepository<PhoneCanvassEntity>;
   callsBySid = new Map<string, Call>();
+  // From phone canvass id.
+  schedulers = new Map<string, PhoneCanvassScheduler>();
+
   constructor(
     private readonly entityManager: EntityManager,
     private twilioService: TwilioService,
     private readonly globalState: PhoneCanvassGlobalStateService,
-    private readonly scheduler: PhoneCanvassSchedulerImpl,
+    private readonly schedulerFactory: PhoneCanvassSchedulerFactory,
   ) {
     this.repo =
       entityManager.getRepository<PhoneCanvassEntity>(PhoneCanvassEntity);
+  }
+
+  watchSchedulerForCalls(scheduler: PhoneCanvassScheduler): void {
     scheduler.calls
       .pipe(
         // mergeMap is the easiest way to run async code per call.
@@ -85,6 +89,7 @@ export class PhoneCanvassService {
         },
       });
   }
+
   // Returns the id of the new phone canvass.
   async create(
     canvass: CreatePhoneCanvassRequestDTO,
@@ -231,14 +236,36 @@ export class PhoneCanvassService {
     });
   }
 
+  async #getInitializedScheduler(params: {
+    phoneCanvassId: string;
+  }): Promise<PhoneCanvassScheduler> {
+    const { phoneCanvassId } = params;
+    let scheduler = this.schedulers.get(phoneCanvassId);
+    if (scheduler === undefined) {
+      const canvass = await this.getPhoneCanvassByIdOrFail(phoneCanvassId);
+      scheduler = this.schedulerFactory.createScheduler({
+        contacts: canvass.contacts.getItems(),
+        phoneCanvassId: canvass.id,
+      });
+      this.schedulers.set(phoneCanvassId, scheduler);
+    }
+
+    void scheduler.startIfNeeded();
+    return scheduler;
+  }
+
   async addCaller(
     caller: CreatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
-    const newCaller = this.globalState.addCaller(caller);
+    this.globalState.addCaller(caller);
+    console.log("ADD PARTICIPANT");
     await this.updateSyncData(caller.activePhoneCanvassId);
-    void this.scheduler.startIfNeeded();
+    const scheduler = await this.#getInitializedScheduler({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
+    scheduler.addCaller(caller);
 
-    return newCaller;
+    return caller;
   }
 
   async updateCaller(
@@ -290,7 +317,11 @@ export class PhoneCanvassService {
         if (status !== "IN_PROGRESS") {
           throw new Error("Invalid transition");
         }
-        const callerId = this.scheduler.getNextIdleCallerId();
+        const scheduler = this.schedulers.get(call.canvassId());
+        if (scheduler === undefined) {
+          throw new Error("Missing scheduler.");
+        }
+        const callerId = scheduler.getNextIdleCallerId();
         if (callerId === undefined) {
           throw new Error("TODO(mvp) handle overcalling");
         }

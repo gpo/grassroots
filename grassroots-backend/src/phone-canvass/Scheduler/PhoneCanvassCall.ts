@@ -53,8 +53,13 @@ abstract class AbstractCall<STATUS extends CallStatus> {
   }
 
   abstract get status(): STATUS;
+
   contactId(): number {
     return this.state.contact.id;
+  }
+
+  canvassId(): string {
+    return this.state.scheduler.phoneCanvassId;
   }
 
   protected advanceStatusTo<CallTypeTo extends Call>(

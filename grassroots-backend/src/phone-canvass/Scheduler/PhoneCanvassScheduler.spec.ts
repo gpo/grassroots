@@ -7,12 +7,10 @@ import {
   resetPhoneCanvasCallIdsForTest,
 } from "./PhoneCanvassCall.js";
 import { fail } from "assert";
-import {
-  PhoneCanvassScheduler,
-  PhoneCanvassSchedulerImpl,
-} from "./PhoneCanvassScheduler.js";
+import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
+import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
@@ -37,7 +35,7 @@ function getScheduler(): PhoneCanvassScheduler {
   const scheduler = new PhoneCanvassSchedulerImpl(
     new NoOvercallingStrategy(metricsTracker),
     metricsTracker,
-    FAKE_CONTACTS,
+    { contacts: FAKE_CONTACTS, phoneCanvassId: "fake phone canvass id" },
   );
 
   const currentTimeMock = vi.fn(() => {
