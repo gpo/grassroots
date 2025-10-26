@@ -617,6 +617,17 @@
           "name": "contact_id",
           "type": "integer",
           "nullable": false
+        },
+        {
+          "name": "call_result",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "played_voicemail",
+          "type": "boolean",
+          "nullable": false,
+          "default": "false"
         }
       ],
       "indexes": [
@@ -678,6 +689,16 @@
           "referenced_table": "",
           "columns": [
             "phone_canvas_id"
+          ]
+        },
+        {
+          "name": "phone_canvass_contact_entity_played_voicemail_not_null",
+          "type": "n",
+          "def": "NOT NULL played_voicemail",
+          "table": "public.phone_canvass_contact_entity",
+          "referenced_table": "",
+          "columns": [
+            "played_voicemail"
           ]
         },
         {

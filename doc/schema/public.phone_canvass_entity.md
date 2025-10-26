@@ -37,6 +37,8 @@ erDiagram
   jsonb metadata
   varchar_255_ call_status
   integer contact_id FK
+  varchar_255_ call_result
+  boolean played_voicemail
 }
 ```
 

@@ -10,7 +10,7 @@
 | [public.contact_entity](public.contact_entity.md)                             | 8       |         | BASE TABLE |
 | [public.user_role_entity](public.user_role_entity.md)                         | 5       |         | BASE TABLE |
 | [public.phone_canvass_entity](public.phone_canvass_entity.md)                 | 1       |         | BASE TABLE |
-| [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) | 5       |         | BASE TABLE |
+| [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) | 7       |         | BASE TABLE |
 
 ## Relations
 
@@ -69,6 +69,8 @@ erDiagram
   jsonb metadata
   varchar_255_ call_status
   integer contact_id FK
+  varchar_255_ call_result
+  boolean played_voicemail
 }
 ```
 
