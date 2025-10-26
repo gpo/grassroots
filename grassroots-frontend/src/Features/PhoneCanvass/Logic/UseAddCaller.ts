@@ -18,9 +18,9 @@ export interface UseAddCallerParams {
 export function useAddCaller(
   params: UseAddCallerParams,
 ): UseMutateAsyncFunction<
-  CreatePhoneCanvassCallerDTO,
+  PhoneCanvassCallerDTO,
   Error,
-  PhoneCanvassCallerDTO
+  CreatePhoneCanvassCallerDTO
 > {
   const queryClient = useQueryClient();
   const { phoneCanvassCallerStore } = params;

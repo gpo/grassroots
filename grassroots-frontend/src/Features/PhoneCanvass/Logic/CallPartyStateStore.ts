@@ -10,7 +10,7 @@ export function createCallPartyStateStore(): StoreApi<CallPartyStateStore> {
   return createStore<CallPartyStateStore>()(
     devtools(
       (set) => ({
-        participants: [],
+        callers: [],
         activeCalls: [],
         pendingCalls: [],
         // Data comes from twilio sync, which provides an untyped JSON blob.
@@ -20,7 +20,7 @@ export function createCallPartyStateStore(): StoreApi<CallPartyStateStore> {
         },
       }),
       {
-        name: "phonecanvass-participant-store",
+        name: "phonecanvass-caller-store",
       },
     ),
   );

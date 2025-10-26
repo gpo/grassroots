@@ -24,7 +24,7 @@ export async function markReadyForCalls(
   const { callerIdentity, calleeId, authToken } = params;
 
   VoidDTO.fromFetchOrThrow(
-    await grassrootsAPI.POST("/phone-canvass/update-participant", {
+    await grassrootsAPI.POST("/phone-canvass/update-caller", {
       body: PhoneCanvassCallerDTO.from({
         ...propsOf(callerIdentity),
         ready: true,

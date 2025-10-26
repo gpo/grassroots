@@ -7,7 +7,7 @@ import { classValidatorResolver } from "../../../Logic/ClassValidatorResolver.js
 import { CreatePhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
-import { useAddCaller } from "../Logic/UseAddParticipant.js";
+import { useAddCaller } from "../Logic/UseAddCaller.js";
 import { useAuthToken } from "../Logic/UseAuthToken.js";
 import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
 
@@ -37,13 +37,13 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     }),
   });
 
-  const addParticipant = useAddCaller({
+  const addCaller = useAddCaller({
     phoneCanvassId,
     phoneCanvassCallerStore: phoneCanvassIdentityStore,
   });
 
   const onSubmit = useCallback(async (data: CreatePhoneCanvassCallerDTO) => {
-    await addParticipant(data);
+    await addCaller(data);
   }, []);
 
   // TODO(MVP): use a redirect here.

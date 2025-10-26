@@ -3,53 +3,51 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
-import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import {
+  CreatePhoneCanvassCallerDTO,
+  PhoneCanvassCallerDTO,
+} from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { propsOf } from "grassroots-shared/util/TypeUtils";
 
 @Injectable()
 export class PhoneCanvassGlobalStateService {
-  // Map from phoneCanvassId to participant identities.
-  #phoneCanvassIdToParticipantDisplayName = new Map<
-    string,
-    PhoneCanvassCallerDTO[]
-  >();
+  #phoneCanvassIdToCaller = new Map<string, PhoneCanvassCallerDTO[]>();
+  #nextId = 0;
 
-  addParticipant(identity: PhoneCanvassCallerDTO): void {
-    const participants =
-      this.#phoneCanvassIdToParticipantDisplayName.get(
-        identity.activePhoneCanvassId,
-      ) ?? [];
+  addCaller(caller: CreatePhoneCanvassCallerDTO): PhoneCanvassCallerDTO {
+    const callers =
+      this.#phoneCanvassIdToCaller.get(caller.activePhoneCanvassId) ?? [];
 
     if (
-      participants.some(
-        (participant) => participant.displayName === identity.displayName,
+      callers.some(
+        (existingCaller) => caller.displayName === existingCaller.displayName,
       )
     ) {
       throw new ConflictException("Display name already taken.");
     }
-    participants.push(identity);
-    this.#phoneCanvassIdToParticipantDisplayName.set(
-      identity.activePhoneCanvassId,
-      participants,
-    );
+
+    const withId = PhoneCanvassCallerDTO.from({
+      ...propsOf(caller),
+      id: ++this.#nextId,
+    });
+
+    callers.push(withId);
+    this.#phoneCanvassIdToCaller.set(caller.activePhoneCanvassId, callers);
+    return withId;
   }
 
-  updateParticipant(identity: PhoneCanvassCallerDTO): void {
-    const participants =
-      this.#phoneCanvassIdToParticipantDisplayName.get(
-        identity.activePhoneCanvassId,
-      ) ?? [];
-    const participant = participants.find(
-      (participant) => participant.displayName === identity.displayName,
-    );
-    if (participant === undefined) {
-      throw new NotFoundException("Invalid participant");
+  updateCaller(updatedCaller: PhoneCanvassCallerDTO): void {
+    const callers =
+      this.#phoneCanvassIdToCaller.get(updatedCaller.activePhoneCanvassId) ??
+      [];
+    const caller = callers.find((callers) => callers.id === updatedCaller.id);
+    if (caller === undefined) {
+      throw new NotFoundException("Invalid caller");
     }
-    Object.assign(participant, identity);
+    Object.assign(caller, updatedCaller);
   }
 
   listCallers(phoneCanvassId: string): PhoneCanvassCallerDTO[] {
-    return (
-      this.#phoneCanvassIdToParticipantDisplayName.get(phoneCanvassId) ?? []
-    );
+    return this.#phoneCanvassIdToCaller.get(phoneCanvassId) ?? [];
   }
 }

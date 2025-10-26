@@ -23,6 +23,7 @@ import {
   PhoneCanvassProgressInfoResponseDTO,
   PhoneCanvasTwilioVoiceCallbackDTO,
   PhoneCanvassCallerDTO,
+  CreatePhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -207,12 +208,12 @@ export class PhoneCanvassController {
 
   @Post("add-caller")
   async addCaller(
-    @Body() caller: PhoneCanvassCallerDTO,
+    @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    caller = await this.phoneCanvassService.caller(caller);
-    session.phoneCanvassCaller = caller;
-    return caller;
+    const newCaller = await this.phoneCanvassService.addCaller(caller);
+    session.phoneCanvassCaller = newCaller;
+    return newCaller;
   }
 
   @Post("update-caller")
