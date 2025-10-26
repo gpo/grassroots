@@ -257,15 +257,15 @@ export class PhoneCanvassService {
   async addCaller(
     caller: CreatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
-    this.globalState.addCaller(caller);
+    const newCaller = this.globalState.addCaller(caller);
     console.log("ADD PARTICIPANT");
     await this.updateSyncData(caller.activePhoneCanvassId);
     const scheduler = await this.#getInitializedScheduler({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
-    scheduler.addCaller(caller);
+    scheduler.addCaller(newCaller.id);
 
-    return caller;
+    return newCaller;
   }
 
   async updateCaller(
