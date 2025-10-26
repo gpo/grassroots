@@ -57,6 +57,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   }
 
   async startIfNeeded(): Promise<void> {
+    console.log("STARTING SCHEDULER");
     if (this.#running) {
       return;
     }

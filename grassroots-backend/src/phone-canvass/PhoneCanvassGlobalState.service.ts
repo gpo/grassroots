@@ -17,6 +17,7 @@ export class PhoneCanvassGlobalStateService {
   addCaller(caller: CreatePhoneCanvassCallerDTO): PhoneCanvassCallerDTO {
     const callers =
       this.#phoneCanvassIdToCaller.get(caller.activePhoneCanvassId) ?? [];
+    console.log("callers: ", callers);
 
     if (
       callers.some(
