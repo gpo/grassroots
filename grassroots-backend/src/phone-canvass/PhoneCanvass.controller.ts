@@ -22,7 +22,8 @@ import {
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
   PhoneCanvasTwilioVoiceCallbackDTO,
-  PhoneCanvassParticipantIdentityDTO,
+  PhoneCanvassCallerDTO,
+  CreatePhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -205,25 +206,23 @@ export class PhoneCanvassController {
     return await this.phoneCanvassService.list(request);
   }
 
-  @Post("add-participant")
-  async addParticipant(
-    @Body() participantIdentity: PhoneCanvassParticipantIdentityDTO,
+  @Post("add-caller")
+  async addCaller(
+    @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
-  ): Promise<PhoneCanvassParticipantIdentityDTO> {
-    participantIdentity =
-      await this.phoneCanvassService.addParticipant(participantIdentity);
-    session.phoneCanvassParticipantIdentity = participantIdentity;
-    return participantIdentity;
+  ): Promise<PhoneCanvassCallerDTO> {
+    const newCaller = await this.phoneCanvassService.addCaller(caller);
+    session.phoneCanvassCaller = newCaller;
+    return newCaller;
   }
 
-  @Post("update-participant")
-  async updateParticipant(
-    @Body() participantIdentity: PhoneCanvassParticipantIdentityDTO,
+  @Post("update-caller")
+  async updateCaller(
+    @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
-  ): Promise<PhoneCanvassParticipantIdentityDTO> {
-    participantIdentity =
-      await this.phoneCanvassService.updateParticipant(participantIdentity);
-    session.phoneCanvassParticipantIdentity = participantIdentity;
-    return participantIdentity;
+  ): Promise<PhoneCanvassCallerDTO> {
+    caller = await this.phoneCanvassService.updateCaller(caller);
+    session.phoneCanvassCaller = caller;
+    return caller;
   }
 }

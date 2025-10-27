@@ -13,7 +13,8 @@ import {
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
   PhoneCanvassContactDTO,
-  PhoneCanvassParticipantIdentityDTO,
+  PhoneCanvassCallerDTO,
+  CreatePhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -175,29 +176,27 @@ export class PhoneCanvassService {
     });
 
     await this.twilioService.setSyncData(phoneCanvassId, {
-      participants: this.globalState
-        .listParticipants(phoneCanvassId)
-        .map((x) => {
-          return { displayName: x.displayName, ready: x.ready };
-        }),
+      callers: this.globalState.listCallers(phoneCanvassId).map((x) => {
+        return { displayName: x.displayName, ready: x.ready };
+      }),
       activeCalls,
       pendingCalls,
     });
   }
 
-  async addParticipant(
-    identity: PhoneCanvassParticipantIdentityDTO,
-  ): Promise<PhoneCanvassParticipantIdentityDTO> {
-    this.globalState.addParticipant(identity);
-    await this.updateSyncData(identity.activePhoneCanvassId);
-    return identity;
+  async addCaller(
+    caller: CreatePhoneCanvassCallerDTO,
+  ): Promise<PhoneCanvassCallerDTO> {
+    const newCaller = this.globalState.addCaller(caller);
+    await this.updateSyncData(caller.activePhoneCanvassId);
+    return newCaller;
   }
 
-  async updateParticipant(
-    identity: PhoneCanvassParticipantIdentityDTO,
-  ): Promise<PhoneCanvassParticipantIdentityDTO> {
-    this.globalState.updateParticipant(identity);
-    await this.updateSyncData(identity.activePhoneCanvassId);
-    return identity;
+  async updateCaller(
+    caller: PhoneCanvassCallerDTO,
+  ): Promise<PhoneCanvassCallerDTO> {
+    this.globalState.updateCaller(caller);
+    await this.updateSyncData(caller.activePhoneCanvassId);
+    return caller;
   }
 }

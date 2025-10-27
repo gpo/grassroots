@@ -1,5 +1,5 @@
 import { Button } from "@mantine/core";
-import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 import { JSX, useEffect } from "react";
 import { CallPartyStateStore } from "../Logic/CallPartyStateStore.js";
@@ -10,7 +10,7 @@ import {
 } from "../Logic/MarkReadyForCalls.js";
 
 interface MarkReadyForCallsButtonProps {
-  identity: PhoneCanvassParticipantIdentityDTO;
+  identity: PhoneCanvassCallerDTO;
   callPartyStateStore: CallPartyStateStore;
   calleeId: number;
   authToken: string;
@@ -30,7 +30,7 @@ export function MarkReadyForCallsButton(
   useEffect(() => {
     void (async (): Promise<void> => {
       await joinSyncGroup({
-        identity: new PhoneCanvassParticipantIdentityDTO(),
+        identity: new PhoneCanvassCallerDTO(),
         callPartyStateStore: callPartyStateStore,
         authToken: authToken,
       });

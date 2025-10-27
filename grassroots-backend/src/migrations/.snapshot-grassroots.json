@@ -291,6 +291,26 @@
           "length": 255,
           "mappedType": "string"
         },
+        "call_result": {
+          "name": "call_result",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 255,
+          "mappedType": "string"
+        },
+        "played_voicemail": {
+          "name": "played_voicemail",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
+        },
         "contact_id": {
           "name": "contact_id",
           "type": "int",

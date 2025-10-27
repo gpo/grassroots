@@ -1,13 +1,13 @@
 import { JSX, useCallback, useRef } from "react";
 import { MarkReadyForCallsButton } from "./MarkReadyForCallsButton.js";
-import { createPhoneCanvassIdentityStore } from "../Logic/PhoneCanvassIdentityStore.js";
+import { createPhoneCanvassCallerStore } from "../Logic/PhoneCanvassIdentityStore.js";
 import { List, ListItem, TextInput } from "@mantine/core";
 import { useTypedForm } from "../../../Logic/UseTypedForm.js";
 import { classValidatorResolver } from "../../../Logic/ClassValidatorResolver.js";
-import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { CreatePhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
-import { useAddParticipant } from "../Logic/UseAddParticipant.js";
+import { useAddCaller } from "../Logic/UseAddCaller.js";
 import { useAuthToken } from "../Logic/UseAuthToken.js";
 import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
 
@@ -16,9 +16,7 @@ const CALLEE_ID = 10;
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
-  const phoneCanvassIdentityStoreRef = useRef(
-    createPhoneCanvassIdentityStore(),
-  );
+  const phoneCanvassIdentityStoreRef = useRef(createPhoneCanvassCallerStore());
   const phoneCanvassIdentityStore = useStore(
     phoneCanvassIdentityStoreRef.current,
     (s) => s,
@@ -29,9 +27,9 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const authToken = useAuthToken(phoneCanvassId).data;
 
-  const identityForm = useTypedForm<PhoneCanvassParticipantIdentityDTO>({
-    validate: classValidatorResolver(PhoneCanvassParticipantIdentityDTO),
-    initialValues: PhoneCanvassParticipantIdentityDTO.from({
+  const identityForm = useTypedForm<CreatePhoneCanvassCallerDTO>({
+    validate: classValidatorResolver(CreatePhoneCanvassCallerDTO),
+    initialValues: CreatePhoneCanvassCallerDTO.from({
       displayName: "",
       email: "",
       activePhoneCanvassId: phoneCanvassId,
@@ -39,22 +37,19 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     }),
   });
 
-  const addParticipant = useAddParticipant({
+  const addCaller = useAddCaller({
     phoneCanvassId,
-    phoneCanvassIdentityStore: phoneCanvassIdentityStore,
+    phoneCanvassCallerStore: phoneCanvassIdentityStore,
   });
 
-  const onSubmit = useCallback(
-    async (data: PhoneCanvassParticipantIdentityDTO) => {
-      await addParticipant(data);
-    },
-    [],
-  );
+  const onSubmit = useCallback(async (data: CreatePhoneCanvassCallerDTO) => {
+    await addCaller(data);
+  }, []);
 
   // TODO(MVP): use a redirect here.
   if (
-    phoneCanvassIdentityStore.identity === undefined ||
-    phoneCanvassIdentityStore.identity.activePhoneCanvassId != phoneCanvassId
+    phoneCanvassIdentityStore.caller === undefined ||
+    phoneCanvassIdentityStore.caller.activePhoneCanvassId != phoneCanvassId
   ) {
     return (
       <>
@@ -76,7 +71,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     );
   }
 
-  const participants = callPartyStateStore.participants.map((x) => (
+  const callers = callPartyStateStore.callers.map((x) => (
     <ListItem key={x.displayName}>
       {x.displayName} is {x.ready ? "ready" : "not ready"}
     </ListItem>
@@ -91,19 +86,19 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   return (
     <>
       <h1> Call Party </h1>
-      <h2> Welcome {phoneCanvassIdentityStore.identity.displayName}</h2>
+      <h2> Welcome {phoneCanvassIdentityStore.caller.displayName}</h2>
       {authToken === undefined ? (
         <h1>Logging in</h1>
       ) : (
         <>
           <MarkReadyForCallsButton
             authToken={authToken}
-            identity={phoneCanvassIdentityStore.identity}
+            identity={phoneCanvassIdentityStore.caller}
             calleeId={CALLEE_ID}
             callPartyStateStore={callPartyStateStore}
           ></MarkReadyForCallsButton>
           <h2> Participants </h2>
-          <List>{participants}</List>
+          <List>{callers}</List>
           <h2> Active Calls </h2>
           <List>{activeCalls}</List>
           <h2> Pending Calls </h2>

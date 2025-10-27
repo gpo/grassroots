@@ -7,13 +7,13 @@ export type ActiveCall = PendingCall & {
   callerName: string;
 };
 
-export interface ParticipantSummary {
+export interface CallerSummary {
   displayName: string;
   ready: boolean;
 }
 
 export interface PhoneCanvassSyncData {
-  participants: ParticipantSummary[];
+  callers: CallerSummary[];
   activeCalls: ActiveCall[];
   pendingCalls: PendingCall[];
 }

@@ -1,6 +1,6 @@
 # Phone Canvas Sync Information Flow
 
-When a new participant joins a phone canvass:
+When a new caller joins a phone canvass:
 
 1. it tells the PhoneCanvassController.
 2. PhoneCanvassController tells the PhoneCanvassService

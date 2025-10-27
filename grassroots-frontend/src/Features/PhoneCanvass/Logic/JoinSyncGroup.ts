@@ -1,9 +1,9 @@
 import { SyncClient } from "twilio-sync";
 import { CallPartyStateStore } from "./CallPartyStateStore.js";
-import { PhoneCanvassParticipantIdentityDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 interface JoinSyncGroupParams {
-  identity: PhoneCanvassParticipantIdentityDTO;
+  identity: PhoneCanvassCallerDTO;
   callPartyStateStore: CallPartyStateStore;
   authToken: string;
 }

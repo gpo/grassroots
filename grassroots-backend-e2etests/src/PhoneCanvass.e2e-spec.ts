@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { E2ETestFixture, useE2ETestFixture } from "./infra/E2eSetup.js";
 import {
+  CreatePhoneCanvassCallerDTO,
   CreatePhoneCanvassResponseDTO,
   PaginatedPhoneCanvassContactResponseDTO,
-  PhoneCanvassParticipantIdentityDTO,
   PhoneCanvassProgressInfoResponseDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassModule } from "grassroots-backend/phone-canvass/PhoneCanvass.module";
@@ -68,7 +68,7 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
       result.id,
       expect.objectContaining({
         activeCalls: [],
-        participants: [],
+        callers: [],
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         pendingCalls: expect.toSatisfy(
           (arr: unknown) => Array.isArray(arr) && arr.length === 4,
@@ -131,7 +131,7 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
     expect(text).toContain("<Conference>test</Conference>");
   });
 
-  it("should sync participant data", async () => {
+  it("should sync caller data", async () => {
     const { fixture: f, mock } = useTwilioMock();
 
     const formData = new FormData();
@@ -147,8 +147,8 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
       }),
     );
 
-    PhoneCanvassParticipantIdentityDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/add-participant", {
+    CreatePhoneCanvassCallerDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/phone-canvass/add-caller", {
         body: {
           activePhoneCanvassId: canvass.id,
           displayName: "A",
@@ -158,8 +158,8 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
       }),
     );
 
-    PhoneCanvassParticipantIdentityDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/add-participant", {
+    CreatePhoneCanvassCallerDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/phone-canvass/add-caller", {
         body: {
           activePhoneCanvassId: canvass.id,
           displayName: "B",
@@ -174,7 +174,7 @@ e2abnzfhayfnlkc8galofnz5,3,3,,3,Kitchener Centre,400,Cassy,Casey,Clever,en,1,1,,
       canvass.id,
       expect.objectContaining({
         activeCalls: [],
-        participants: [
+        callers: [
           { displayName: "A", ready: false },
           { displayName: "B", ready: false },
         ],
