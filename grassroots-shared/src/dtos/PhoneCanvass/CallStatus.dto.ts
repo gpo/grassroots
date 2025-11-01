@@ -42,3 +42,44 @@ export function CallResultDecorator(): PropertyDecorator {
     ApiProperty({ enum: CallResultEnum }),
   );
 }
+
+enum TwilioCallStatusEnum {
+  queued = "queued",
+  initiated = "initiated",
+  ringing = "ringing",
+  "in-progress" = "in-progress",
+  completed = "completed",
+  busy = "busy",
+  failed = "failed",
+  "no-answer" = "no-answer",
+  canceled = "canceled",
+}
+export type TwilioCallStatus = keyof typeof TwilioCallStatusEnum;
+
+export function TwilioCallStatusDecorator(): PropertyDecorator {
+  return applyDecorators(
+    IsEnum(TwilioCallStatusEnum),
+    ApiProperty({ enum: TwilioCallStatusEnum }),
+  );
+}
+
+const TWILIO_CALL_STATUS_TO_CALL_STATUS_AND_RESULT = {
+  queued: { status: "QUEUED" },
+  initiated: { status: "INITIATED" },
+  ringing: { status: "RINGING" },
+  "in-progress": { status: "IN_PROGRESS" },
+  completed: { status: "COMPLETED", result: "COMPLETED" },
+  busy: { status: "COMPLETED", result: "BUSY" },
+  failed: { status: "COMPLETED", result: "FAILED" },
+  "no-answer": { status: "COMPLETED", result: "NO_ANSWER" },
+  canceled: { status: "COMPLETED", result: "CANCELED" },
+} as const satisfies Record<
+  TwilioCallStatus,
+  { status: CallStatus; result?: CallResult }
+>;
+
+export function twilioCallStatusToCallStatus(
+  twilioCallStatus: TwilioCallStatus,
+): { status: CallStatus; result?: CallResult } {
+  return TWILIO_CALL_STATUS_TO_CALL_STATUS_AND_RESULT[twilioCallStatus];
+}

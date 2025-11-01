@@ -1,13 +1,15 @@
 import { BehaviorSubject, combineLatest, map, Observable, Subject } from "rxjs";
 import { Call, CompletedCall } from "./PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class PhoneCanvassMetricsTracker {
   #endingCallsObservable = new Subject<CompletedCall>();
   #callerCountObservable = new BehaviorSubject<number>(0);
   #committedCallsCountObservable = new BehaviorSubject<number>(0);
 
-  readonly #idleCallerCountObservable: Observable<number>;
+  readonly #idleCallerCountObservable = new Observable<number>();
 
   get endingCalls(): Observable<CompletedCall> {
     return this.endingCalls;

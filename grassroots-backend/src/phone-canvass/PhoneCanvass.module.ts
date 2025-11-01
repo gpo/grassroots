@@ -3,6 +3,7 @@ import { PhoneCanvassController } from "./PhoneCanvass.controller.js";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import { TwilioService } from "./Twilio.service.js";
 import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
+import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
 
 @Module({
   controllers: [PhoneCanvassController],
@@ -10,6 +11,7 @@ import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.servic
     PhoneCanvassService,
     TwilioService,
     PhoneCanvassGlobalStateService,
+    PhoneCanvassSchedulerFactory,
   ],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
