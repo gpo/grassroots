@@ -15,7 +15,7 @@ export interface Caller {
 
 export abstract class PhoneCanvassScheduler {
   abstract readonly calls: Observable<NotStartedCall>;
-  abstract startIfNeeded(): Promise<void>;
+  abstract startIfNeeded(): { started: boolean };
   abstract stop(): void;
   abstract addCaller(id: number): void;
   abstract removeCaller(id: number): void;

@@ -3,6 +3,7 @@ import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
 import {
   EntityManager,
   EntityRepository,
+  Loaded,
   RequiredEntityData,
 } from "@mikro-orm/core";
 import {
@@ -32,7 +33,7 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
-import { mergeMap } from "rxjs";
+import { mergeMap, tap } from "rxjs";
 import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
 
 @Injectable()
@@ -55,10 +56,15 @@ export class PhoneCanvassService {
   watchSchedulerForCalls(scheduler: PhoneCanvassScheduler): void {
     scheduler.calls
       .pipe(
+        tap((call) => {
+          console.log("CALL EMITTED", call);
+        }),
         // mergeMap is the easiest way to run async code per call.
         mergeMap(async (call) => {
+          console.log("MERGEMAP");
           const { sid, timestamp, status } =
             await this.twilioService.makeCall(call);
+          console.log(status);
 
           switch (status) {
             case "QUEUED": {
@@ -135,7 +141,9 @@ export class PhoneCanvassService {
     return this.twilioService.getAuthToken();
   }
 
-  async getPhoneCanvassByIdOrFail(id: string): Promise<PhoneCanvassEntity> {
+  async getPhoneCanvassByIdOrFail(
+    id: string,
+  ): Promise<Loaded<PhoneCanvassEntity>> {
     const phoneCanvass = await this.repo.findOne({ id });
     if (phoneCanvass === null) {
       throw new UnauthorizedException("Invalid phone canvass id");
@@ -143,12 +151,17 @@ export class PhoneCanvassService {
     return phoneCanvass;
   }
 
-  async getPhoneCanvassContacts(id: string): Promise<PhoneCanvassContactDTO[]> {
-    const canvass = await this.getPhoneCanvassByIdOrFail(id);
-    await canvass.contacts.init({ populate: ["contact"] });
-    return canvass.contacts.map((x) => {
-      return x.toDTO();
-    });
+  async getPhoneCanvassContacts(
+    id: string,
+  ): Promise<Loaded<PhoneCanvassContactEntity, "contact">[]> {
+    const phoneCanvass = await this.repo.findOne(
+      { id },
+      { populate: ["contacts.contact"] },
+    );
+    if (phoneCanvass === null) {
+      throw new UnauthorizedException("Invalid phone canvass id");
+    }
+    return phoneCanvass.contacts.getItems();
   }
 
   async getProgressInfo(
@@ -190,7 +203,11 @@ export class PhoneCanvassService {
   }
 
   async updateSyncData(phoneCanvassId: string): Promise<void> {
-    const contacts = await this.getPhoneCanvassContacts(phoneCanvassId);
+    const contacts = (await this.getPhoneCanvassContacts(phoneCanvassId)).map(
+      (x) => {
+        return x.toDTO();
+      },
+    );
 
     const partitionedContacts = partition(
       contacts,
@@ -242,15 +259,18 @@ export class PhoneCanvassService {
     const { phoneCanvassId } = params;
     let scheduler = this.schedulers.get(phoneCanvassId);
     if (scheduler === undefined) {
-      const canvass = await this.getPhoneCanvassByIdOrFail(phoneCanvassId);
+      const contacts = await this.getPhoneCanvassContacts(phoneCanvassId);
       scheduler = this.schedulerFactory.createScheduler({
-        contacts: canvass.contacts.getItems(),
-        phoneCanvassId: canvass.id,
+        contacts: contacts,
+        phoneCanvassId: phoneCanvassId,
       });
       this.schedulers.set(phoneCanvassId, scheduler);
     }
 
-    void scheduler.startIfNeeded();
+    const { started } = scheduler.startIfNeeded();
+    if (started) {
+      this.watchSchedulerForCalls(scheduler);
+    }
     return scheduler;
   }
 
@@ -258,13 +278,7 @@ export class PhoneCanvassService {
     caller: CreatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     const newCaller = this.globalState.addCaller(caller);
-    console.log("ADD PARTICIPANT");
     await this.updateSyncData(caller.activePhoneCanvassId);
-    const scheduler = await this.#getInitializedScheduler({
-      phoneCanvassId: caller.activePhoneCanvassId,
-    });
-    scheduler.addCaller(newCaller.id);
-
     return newCaller;
   }
 
@@ -272,6 +286,15 @@ export class PhoneCanvassService {
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     this.globalState.updateCaller(caller);
+    const scheduler = await this.#getInitializedScheduler({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
+    if (caller.ready) {
+      scheduler.addCaller(caller.id);
+    } else {
+      scheduler.removeCaller(caller.id);
+    }
+
     await this.updateSyncData(caller.activePhoneCanvassId);
     return caller;
   }
@@ -288,10 +311,16 @@ export class PhoneCanvassService {
       throw new Error(`Unable to update call. sid ${sid} doesn't exist.`);
     }
 
+    console.log(
+      `Updating call with sid ${sid}, current status ${call.status} and new status ${status}`,
+    );
+
     const newCallParams = {
       currentTime: timestamp,
       twilioSid: sid,
     };
+
+    let newCall: Call | undefined = undefined;
 
     switch (call.status) {
       case "NOT_STARTED": {
@@ -301,16 +330,16 @@ export class PhoneCanvassService {
       }
       case "QUEUED": {
         if (status !== "INITIATED") {
-          throw new Error("Invalid transition");
+          throw new Error(`Invalid transition to ${status}`);
         }
-        call.advanceStatusToInitiated(newCallParams);
+        newCall = call.advanceStatusToInitiated(newCallParams);
         break;
       }
       case "INITIATED": {
         if (status !== "RINGING") {
           throw new Error("Invalid transition");
         }
-        call.advanceStatusToRinging(newCallParams);
+        newCall = call.advanceStatusToRinging(newCallParams);
         break;
       }
       case "RINGING": {
@@ -325,7 +354,10 @@ export class PhoneCanvassService {
         if (callerId === undefined) {
           throw new Error("TODO(mvp) handle overcalling");
         }
-        call.advanceStatusToInProgress({ ...newCallParams, callerId });
+        newCall = call.advanceStatusToInProgress({
+          ...newCallParams,
+          callerId,
+        });
         break;
       }
       case "IN_PROGRESS": {
@@ -335,7 +367,7 @@ export class PhoneCanvassService {
         if (result === undefined) {
           throw new Error("Missing result for completed call");
         }
-        call.advanceStatusToCompleted({
+        newCall = call.advanceStatusToCompleted({
           ...newCallParams,
           result,
         });
@@ -346,5 +378,6 @@ export class PhoneCanvassService {
         break;
       }
     }
+    this.callsBySid.set(sid, newCall);
   }
 }

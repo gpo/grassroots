@@ -65,10 +65,22 @@ abstract class AbstractCall<STATUS extends CallStatus> {
   protected advanceStatusTo<CallTypeTo extends Call>(
     call: CallTypeTo,
   ): CallTypeTo {
+    for (const [key, m] of Object.entries(this.state.scheduler.callsByStatus)) {
+      for (const [id, call] of m) {
+        console.log(`${String(id)} : ${call.status}`);
+      }
+    }
+
     if (
       !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)
     ) {
-      throw new Error(`Couldn't remove call with id ${String(this.state.id)}`);
+      throw new Error(
+        `Couldn't remove call with id ${String(this.state.id)} and status ${this.status}`,
+      );
+    } else {
+      console.log(
+        `Removed call with id ${String(this.state.id)} and status ${this.status}`,
+      );
     }
 
     // Sadly typescript has a rough time deducing these types.
@@ -77,7 +89,16 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       number,
       CallTypeTo
     >;
+    console.log(
+      `Adding call with id ${String(this.state.id)} and status ${call.status}`,
+    );
     calls.set(call.state.id, call);
+
+    for (const [key, m] of Object.entries(this.state.scheduler.callsByStatus)) {
+      for (const [id, call] of m) {
+        console.log(`${String(id)} : ${call.status}`);
+      }
+    }
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
       this.state.scheduler.callsByStatus,
     );
@@ -168,6 +189,7 @@ export class InitiatedCall extends AbstractCall<"INITIATED"> {
   }
 
   advanceStatusToRinging(params: { currentTime: number }): RingingCall {
+    console.log("Initiated call has status ", this.status);
     return this.advanceStatusTo(
       new RingingCall({
         ...this.state,

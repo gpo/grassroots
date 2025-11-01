@@ -56,36 +56,43 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     });
   }
 
-  async startIfNeeded(): Promise<void> {
+  startIfNeeded(): { started: boolean } {
     console.log("STARTING SCHEDULER");
     if (this.#running) {
-      return;
+      return { started: false };
     }
     this.#running = true;
-    while (true) {
-      await this.#strategy.waitForNextCall();
-      // This could change while waiting for the next call.
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-      if (!this.#running) {
-        break;
-      }
+    void (async (): Promise<void> => {
+      while (true) {
+        console.log("WAITING FOR NEXT CALL");
+        await this.#strategy.waitForNextCall();
+        console.log("GOT A CALL");
+        // This could change while waiting for the next call.
+        if (!this.#running) {
+          console.log("NOT RUNNING");
+          break;
+        }
 
-      const contact = this.#pendingContacts.shift();
-      if (contact === undefined) {
-        // We've called all contacts. We're done!
-        this.#callsObservable.complete();
-        break;
-      }
+        const contact = this.#pendingContacts.shift();
+        if (contact === undefined) {
+          console.log("OUT OF CONTACTS");
+          // We've called all contacts. We're done!
+          this.#callsObservable.complete();
+          break;
+        }
 
-      const notStartedCall = new NotStartedCall({
-        scheduler: this,
-        currentTime: this.getCurrentTime(),
-        contact,
-      });
-      this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
-      this.#callsObservable.next(notStartedCall);
-      this.metricsTracker.onCallsByStatusUpdate(this.callsByStatus);
-    }
+        const notStartedCall = new NotStartedCall({
+          scheduler: this,
+          currentTime: this.getCurrentTime(),
+          contact,
+        });
+        this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
+        console.log("CALLING NEXT", this.#callsObservable);
+        this.#callsObservable.next(notStartedCall);
+        this.metricsTracker.onCallsByStatusUpdate(this.callsByStatus);
+      }
+    })();
+    return { started: true };
   }
 
   stop(): void {

@@ -36,7 +36,6 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import type { Express } from "express";
 import type * as expressSession from "express-session";
 import { twilioCallStatusToCallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -167,19 +166,20 @@ export class PhoneCanvassController {
     return this.phoneCanvassService.getAuthToken(id);
   }
 
+  // eslint-disable-next-line grassroots/controller-routes-return-dtos
   @Post("webhooks/twilio-callstatus")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
   twilioCallStatusCallback(
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
-  ): VoidDTO {
+  ): string {
     const status = twilioCallStatusToCallStatus(body.CallStatus);
     this.phoneCanvassService.updateCall({
       ...status,
       sid: body.CallSid,
       timestamp: body.Timestamp,
     });
-    return VoidDTO.from({});
+    return `<Response></Response>`;
   }
 
   @Get("progress/:id")
