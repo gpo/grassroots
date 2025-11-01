@@ -33,7 +33,7 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
-import { mergeMap, tap } from "rxjs";
+import { mergeMap } from "rxjs";
 import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
 
 @Injectable()
@@ -56,15 +56,10 @@ export class PhoneCanvassService {
   watchSchedulerForCalls(scheduler: PhoneCanvassScheduler): void {
     scheduler.calls
       .pipe(
-        tap((call) => {
-          console.log("CALL EMITTED", call);
-        }),
         // mergeMap is the easiest way to run async code per call.
         mergeMap(async (call) => {
-          console.log("MERGEMAP");
           const { sid, timestamp, status } =
             await this.twilioService.makeCall(call);
-          console.log(status);
 
           switch (status) {
             case "QUEUED": {
@@ -75,16 +70,8 @@ export class PhoneCanvassService {
               this.callsBySid.set(sid, queuedCall);
               break;
             }
-            case "INITIATED": {
-              const initiatedCall = call.advanceStatusToInitiated({
-                currentTime: timestamp,
-                twilioSid: sid,
-              });
-              this.callsBySid.set(sid, initiatedCall);
-              break;
-            }
             default: {
-              throw new Error("Calls can only start as queued or initiated.");
+              throw new Error("Calls can only start as queued.");
             }
           }
         }),
@@ -310,10 +297,6 @@ export class PhoneCanvassService {
     if (call === undefined) {
       throw new Error(`Unable to update call. sid ${sid} doesn't exist.`);
     }
-
-    console.log(
-      `Updating call with sid ${sid}, current status ${call.status} and new status ${status}`,
-    );
 
     const newCallParams = {
       currentTime: timestamp,

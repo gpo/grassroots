@@ -65,21 +65,11 @@ abstract class AbstractCall<STATUS extends CallStatus> {
   protected advanceStatusTo<CallTypeTo extends Call>(
     call: CallTypeTo,
   ): CallTypeTo {
-    for (const [key, m] of Object.entries(this.state.scheduler.callsByStatus)) {
-      for (const [id, call] of m) {
-        console.log(`${String(id)} : ${call.status}`);
-      }
-    }
-
     if (
       !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)
     ) {
       throw new Error(
         `Couldn't remove call with id ${String(this.state.id)} and status ${this.status}`,
-      );
-    } else {
-      console.log(
-        `Removed call with id ${String(this.state.id)} and status ${this.status}`,
       );
     }
 
@@ -89,16 +79,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       number,
       CallTypeTo
     >;
-    console.log(
-      `Adding call with id ${String(this.state.id)} and status ${call.status}`,
-    );
     calls.set(call.state.id, call);
-
-    for (const [key, m] of Object.entries(this.state.scheduler.callsByStatus)) {
-      for (const [id, call] of m) {
-        console.log(`${String(id)} : ${call.status}`);
-      }
-    }
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
       this.state.scheduler.callsByStatus,
     );
@@ -130,16 +111,6 @@ export class NotStartedCall extends AbstractCall<"NOT_STARTED"> {
         COMPLETED: undefined,
       },
     });
-  }
-
-  advanceStatusToInitiated(params: CurrentTime & SID): InitiatedCall {
-    return this.advanceStatusTo(
-      new InitiatedCall({
-        ...this.state,
-        twilioSid: params.twilioSid,
-        currentTime: params.currentTime,
-      }),
-    );
   }
 
   advanceStatusToQueued(params: CurrentTime & SID): QueuedCall {

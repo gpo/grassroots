@@ -87,7 +87,6 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
           contact,
         });
         this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
-        console.log("CALLING NEXT", this.#callsObservable);
         this.#callsObservable.next(notStartedCall);
         this.metricsTracker.onCallsByStatusUpdate(this.callsByStatus);
       }
