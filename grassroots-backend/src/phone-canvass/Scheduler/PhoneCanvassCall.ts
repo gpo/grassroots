@@ -160,7 +160,6 @@ export class InitiatedCall extends AbstractCall<"INITIATED"> {
   }
 
   advanceStatusToRinging(params: { currentTime: number }): RingingCall {
-    console.log("Initiated call has status ", this.status);
     return this.advanceStatusTo(
       new RingingCall({
         ...this.state,

@@ -57,25 +57,20 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   }
 
   startIfNeeded(): { started: boolean } {
-    console.log("STARTING SCHEDULER");
     if (this.#running) {
       return { started: false };
     }
     this.#running = true;
     void (async (): Promise<void> => {
       while (true) {
-        console.log("WAITING FOR NEXT CALL");
         await this.#strategy.waitForNextCall();
-        console.log("GOT A CALL");
         // This could change while waiting for the next call.
         if (!this.#running) {
-          console.log("NOT RUNNING");
           break;
         }
 
         const contact = this.#pendingContacts.shift();
         if (contact === undefined) {
-          console.log("OUT OF CONTACTS");
           // We've called all contacts. We're done!
           this.#callsObservable.complete();
           break;
