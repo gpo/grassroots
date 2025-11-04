@@ -1,6 +1,6 @@
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { createStore, StoreApi } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, persist } from "zustand/middleware";
 
 export interface PhoneCanvassCallerStore {
   caller?: PhoneCanvassCallerDTO;
@@ -10,17 +10,19 @@ export interface PhoneCanvassCallerStore {
 export function createPhoneCanvassCallerStore(): StoreApi<PhoneCanvassCallerStore> {
   return createStore<PhoneCanvassCallerStore>()(
     devtools(
-      (set) => {
-        return {
-          caller: undefined,
-          setCaller: (caller: PhoneCanvassCallerDTO): void => {
-            set({ caller });
-          },
-        };
-      },
-      {
-        name: "phonecanvass-caller-store",
-      },
+      persist(
+        (set) => {
+          return {
+            caller: undefined,
+            setCaller: (caller: PhoneCanvassCallerDTO): void => {
+              set({ caller });
+            },
+          };
+        },
+        {
+          name: "phonecanvass-caller-store",
+        },
+      ),
     ),
   );
 }

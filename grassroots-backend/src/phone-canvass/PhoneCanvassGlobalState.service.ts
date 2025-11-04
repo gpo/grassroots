@@ -28,6 +28,7 @@ export class PhoneCanvassGlobalStateService {
 
     const withId = PhoneCanvassCallerDTO.from({
       ...propsOf(caller),
+      ready: false,
       id: ++this.#nextId,
     });
 
