@@ -14,10 +14,9 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
+import { mergeMap, Observable, Subject } from "rxjs";
 
 const MAX_CALLER_COUNT = 10;
-const MAX_CALL_COUNT = 1000;
-const MAX_SIMULATION_TIME = 10 * 60;
 
 type NormalDistributionSampler = (mean: number, sigma: number) => number;
 // These deltas are in seconds.
@@ -37,13 +36,12 @@ function modelStateTransition(
   mu: number,
   sigma: number,
 ): number | undefined {
-  const value = sampleLogNormal(sampler, mu, sigma);
-  const x = sampler(0, 1);
-  // This ugly, but it means we only rely on one sampler which makes seed management easier.
-  // This gives us a roughly 3% chance of failure.
-  if (x > 1.88) {
+  // 3% chance of failure.
+  if (Math.random() > 0.03) {
     return undefined;
   }
+  const value = sampleLogNormal(sampler, mu, sigma);
+
   return value;
 }
 
@@ -101,7 +99,14 @@ interface ChangeReadyCallerEvent extends BaseEvent {
   ready: boolean;
 }
 
-type SimulationEvent = AddCallerEvent | ChangeReadyCallerEvent;
+interface StatusChangeEvent extends BaseEvent {
+  kind: "status_change";
+}
+
+type SimulationEvent =
+  | AddCallerEvent
+  | ChangeReadyCallerEvent
+  | StatusChangeEvent;
 
 export function simulateMakeCall(call: NotStartedCall): {
   sid: string;
@@ -120,86 +125,95 @@ export function simulateMakeCall(call: NotStartedCall): {
   };
 }
 
-interface CallSchedule {
-  // If a step is undefined, that means it failed at that step.
-  INITIATED: number | undefined;
-  RINGING: number | undefined;
-  IN_PROGRESS: number | undefined;
-  COMPLETED: number;
-  result: CallResult;
-}
-
-function addMaybes(
-  a: number | undefined,
-  b: number | undefined,
-): number | undefined {
-  if (a === undefined || b == undefined) {
-    return undefined;
-  }
-  return a + b;
-}
-
 export class PhoneCanvassSimulator {
-  #rand: NormalDistributionSampler;
   #faker: Faker;
-  #events: SimulationEvent[] = [];
-  #callSchedules: CallSchedule[] = [];
+  #events = new Subject<SimulationEvent>();
   #callers: PhoneCanvassCallerDTO[] = [];
   #scheduler: PhoneCanvassScheduler;
 
   constructor(
     private readonly phoneCanvassService: PhoneCanvassService,
     private readonly phoneCanvassId: string,
-    private readonly seed?: number,
   ) {
-    if (seed !== undefined) {
-      this.#rand = normal.factory({
-        seed,
-      });
-    } else {
-      this.#rand = normal.factory({});
-    }
-
-    this.#faker = new Faker({ seed, locale: [en_CA, en] });
+    this.#faker = new Faker({ locale: [en_CA, en] });
     this.#scheduler =
       this.phoneCanvassService.schedulers.get(phoneCanvassId) ??
       fail("Couldn't find phone canvass scheduler");
   }
 
-  scheduleCaller(index: number): void {
-    let ts = callerJoinDelta(this.#rand);
-    this.#events.push({
+  async simulateCaller(index: number): Promise<void> {
+    await delay(callerJoinDelta(this.#rand));
+    this.#events.next({
       kind: "add_caller",
       index,
-      ts,
+      ts: Date.now(),
     });
 
-    while (ts < MAX_SIMULATION_TIME) {
-      ts += callerReadyDelta(this.#rand);
-      this.#events.push({
+    while (true) {
+      await delay(callerReadyDelta(this.#rand));
+      this.#events.next({
         kind: "change_ready_caller",
         index,
-        ts,
+        ts: Date.now(),
         ready: true,
       });
-      ts += callerUnreadyDelta(this.#rand);
-      this.#events.push({
+      await delay(callerUnreadyDelta(this.#rand));
+      this.#events.next({
         kind: "change_ready_caller",
         index,
-        ts,
+        ts: Date.now(),
         ready: false,
       });
     }
   }
 
-  schedulerCallers(): void {
+  async simulateCallers(): Promise<void> {
     for (let i = 0; i < MAX_CALLER_COUNT; ++i) {
-      this.scheduleCaller(i);
+      await this.simulateCaller(i);
     }
   }
 
-  scheduleCalls(): void {
-    for (let i = 0; i < MAX_CALL_COUNT; ++i) {
+  async #advanceStatusOrFail(
+    status: CallStatus,
+    delayTsOrFailed: number | undefined,
+  ) {
+    if (delayTsOrFailed === undefined) {
+      throw new Error("Simulation modelling call failure");
+    }
+    await delay(delayTsOrFailed);
+    this.#events.next({
+      kind: "status_change",
+      ts: Date.now(),
+    });
+  }
+
+  scheduleCalls(): Promise<void> {
+    this.#scheduler.calls.pipe(
+      mergeMap(async (call) => {
+        try {
+          await this.#advanceStatusOrFail(
+            "INITIATED",
+            callInitiatedDelta(this.#rand),
+          );
+          await this.#advanceStatusOrFail(
+            "RINGING",
+            callRingingDelta(this.#rand),
+          );
+          await this.#advanceStatusOrFail(
+            "IN_PROGRESS",
+            callInProgressDelta(this.#rand),
+          );
+          await this.#advanceStatusOrFail(
+            "COMPLETED",
+            callCompletedDelta(this.#rand),
+          );
+        } catch (e) {
+          void e;
+          await delay(callFailedDelta(this.#rand));
+        }
+      }),
+    );
+    /*while (true) {
       const INITIATED = callInitiatedDelta(this.#rand);
       const RINGING = addMaybes(INITIATED, callRingingDelta(this.#rand));
       const IN_PROGRESS = addMaybes(RINGING, callInProgressDelta(this.#rand));
@@ -236,21 +250,10 @@ export class PhoneCanvassSimulator {
           result,
         });
       }
-    }
-    this.#scheduler.calls.subscribe((call) => {
-      const schedule = this.#callSchedules.pop();
-      if (schedule === undefined) {
-        throw new Error("Ran out of scheduled calls");
-      }
-      let lastTime = performance.now();
-      if (schedule.INITIATED !== undefined) {
-      }
-    });
+    }*/
   }
 
   async start(): Promise<void> {
-    // We precompute all events as that will make it easier to
-    // reproduce issues with a deterministic random seed.
     this.schedulerCallers();
     this.scheduleCalls();
     this.#events.sort((a, b) => a.ts - b.ts);
