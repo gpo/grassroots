@@ -36,6 +36,8 @@ enum CallResultEnum {
 
 export type CallResult = keyof typeof CallResultEnum;
 
+export const CallResults: CallResult[] = Object.values(CallResultEnum);
+
 export function CallResultDecorator(): PropertyDecorator {
   return applyDecorators(
     IsEnum(CallResultEnum),

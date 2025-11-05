@@ -65,6 +65,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
   protected advanceStatusTo<CallTypeTo extends Call>(
     call: CallTypeTo,
   ): CallTypeTo {
+    console.log("ADVANCING TO ", call.status);
     if (
       !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)
     ) {

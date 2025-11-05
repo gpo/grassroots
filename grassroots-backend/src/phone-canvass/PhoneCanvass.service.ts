@@ -35,6 +35,7 @@ import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { mergeMap } from "rxjs";
 import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
+import { simulateMakeCall } from "./PhoneCanvassSimulator.js";
 
 @Injectable()
 export class PhoneCanvassService {
@@ -42,6 +43,8 @@ export class PhoneCanvassService {
   callsBySid = new Map<string, Call>();
   // From phone canvass id.
   schedulers = new Map<string, PhoneCanvassScheduler>();
+  // Phone canvass ids.
+  #inSimulation = new Set<string>();
 
   constructor(
     private readonly entityManager: EntityManager,
@@ -53,13 +56,20 @@ export class PhoneCanvassService {
       entityManager.getRepository<PhoneCanvassEntity>(PhoneCanvassEntity);
   }
 
+  startSimulating(phoneCanvassId: string): void {
+    this.#inSimulation.add(phoneCanvassId);
+  }
+
   watchSchedulerForCalls(scheduler: PhoneCanvassScheduler): void {
     scheduler.calls
       .pipe(
         // mergeMap is the easiest way to run async code per call.
         mergeMap(async (call) => {
-          const { sid, timestamp, status } =
-            await this.twilioService.makeCall(call);
+          const { sid, timestamp, status } = !this.#inSimulation.has(
+            scheduler.phoneCanvassId,
+          )
+            ? await this.twilioService.makeCall(call)
+            : simulateMakeCall(call);
 
           switch (status) {
             case "QUEUED": {
@@ -116,7 +126,7 @@ export class PhoneCanvassService {
     }
 
     await this.entityManager.flush();
-    await this.updateSyncData(canvassEntity.id);
+    await this.#updateSyncData(canvassEntity.id);
 
     return CreatePhoneCanvassResponseDTO.from({
       id: canvassEntity.id,
@@ -189,7 +199,7 @@ export class PhoneCanvassService {
     });
   }
 
-  async updateSyncData(phoneCanvassId: string): Promise<void> {
+  async #updateSyncData(phoneCanvassId: string): Promise<void> {
     const contacts = (await this.getPhoneCanvassContacts(phoneCanvassId)).map(
       (x) => {
         return x.toDTO();
@@ -266,7 +276,7 @@ export class PhoneCanvassService {
     caller: CreatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     const newCaller = this.globalState.addCaller(caller);
-    await this.updateSyncData(caller.activePhoneCanvassId);
+    await this.#updateSyncData(caller.activePhoneCanvassId);
     return newCaller;
   }
 
@@ -283,7 +293,7 @@ export class PhoneCanvassService {
       scheduler.removeCaller(caller.id);
     }
 
-    await this.updateSyncData(caller.activePhoneCanvassId);
+    await this.#updateSyncData(caller.activePhoneCanvassId);
     return caller;
   }
 
