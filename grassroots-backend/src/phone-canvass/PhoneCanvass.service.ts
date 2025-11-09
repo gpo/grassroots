@@ -272,6 +272,7 @@ export class PhoneCanvassService {
         result: contact.callResult,
       };
     });
+    console.log("CONTACTS", contacts);
 
     const syncData = {
       callers,
@@ -318,6 +319,22 @@ export class PhoneCanvassService {
       phoneCanvassId: caller.activePhoneCanvassId,
     });
     return newCaller;
+  }
+
+  async refreshCaller(
+    caller: PhoneCanvassCallerDTO,
+  ): Promise<PhoneCanvassCallerDTO> {
+    await this.getPhoneCanvassByIdOrFail(caller.activePhoneCanvassId);
+    const refreshedCaller = await this.globalState.refreshCaller(
+      caller,
+      async (id) => await this.twilioService.getAuthToken(id),
+    );
+
+    await this.#updateSyncData(caller.activePhoneCanvassId);
+    await this.getInitializedScheduler({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
+    return refreshedCaller;
   }
 
   async updateCaller(

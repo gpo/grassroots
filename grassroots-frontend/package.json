@@ -23,6 +23,7 @@
     "class-validator": "^0.14.2",
     "grassroots-shared": "workspace:*",
     "grassroots-shared-net": "workspace:*",
+    "jwt-decode": "^4.0.0",
     "openapi-fetch": "^0.13.8",
     "openapi-paths": "workspace:*",
     "react": "^19.0.0",

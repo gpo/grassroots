@@ -190,6 +190,9 @@ export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
   @IsNotEmpty()
   activePhoneCanvassId!: string;
 
+  @IsString()
+  authToken!: string;
+
   primaryPropsEqual(other: PhoneCanvassCallerDTO): boolean {
     return (
       this.id === other.id &&
@@ -201,7 +204,4 @@ export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
 
   @IsBoolean()
   ready!: boolean;
-
-  @IsString()
-  authToken!: string;
 }

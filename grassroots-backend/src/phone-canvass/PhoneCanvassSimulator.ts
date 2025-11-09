@@ -32,7 +32,7 @@ function callerUnreadyDelta(): number {
 // Log normal distribution, with a possibility of failing.
 function modelStateTransition(mu: number, sigma: number): number | undefined {
   // 3% chance of failure.
-  if (Math.random() > 0.03) {
+  if (Math.random() < 0.03) {
     return undefined;
   }
   return sampleLogNormal(mu, sigma);
@@ -161,47 +161,57 @@ export class PhoneCanvassSimulator {
     }
   }
 
-  async #advanceStatusOrFail(
-    call: Call,
-    status: CallStatus,
-    delayTsOrFailed: number | undefined,
-  ): Promise<void> {
-    if (delayTsOrFailed === undefined) {
+  async #advanceStatusOrFail(params: {
+    call: Call;
+    status: CallStatus;
+    result?: CallResult;
+    delayOrFailed: number | undefined;
+  }): Promise<void> {
+    const { call, status, result, delayOrFailed } = params;
+    if (delayOrFailed === undefined) {
       throw new Error("Simulation modelling call failure");
     }
-    await delay(delayTsOrFailed);
+    await delay(delayOrFailed);
     this.#events.next({
       kind: "status_change",
       ts: Date.now(),
       sid: getFakeCallSid(call),
       status,
+      result,
     });
   }
 
   simulateCalls(): void {
     this.scheduler.calls.subscribe((call) => {
       console.log("ON CALL");
-      void (async (): Promise<void> => {
+      (async (): Promise<void> => {
+        console.log("TRYING");
         try {
           // We always delay some amount, so this is guaranteed to take place after "simulateMakeCall"
           // occurs for this call.
-          await this.#advanceStatusOrFail(
+          await this.#advanceStatusOrFail({
             call,
-            "INITIATED",
-            callInitiatedDelta(),
-          );
-          await this.#advanceStatusOrFail(call, "RINGING", callRingingDelta());
-          await this.#advanceStatusOrFail(
+            status: "INITIATED",
+            delayOrFailed: callInitiatedDelta(),
+          });
+          await this.#advanceStatusOrFail({
             call,
-            "IN_PROGRESS",
-            callInProgressDelta(),
-          );
-          await this.#advanceStatusOrFail(
+            status: "RINGING",
+            delayOrFailed: callRingingDelta(),
+          });
+          await this.#advanceStatusOrFail({
             call,
-            "COMPLETED",
-            callCompletedDelta(),
-          );
+            status: "IN_PROGRESS",
+            delayOrFailed: callInProgressDelta(),
+          });
+          await this.#advanceStatusOrFail({
+            call,
+            status: "COMPLETED",
+            result: "COMPLETED",
+            delayOrFailed: callCompletedDelta(),
+          });
         } catch (e) {
+          console.log("FAILURE");
           void e;
           await delay(callFailedDelta());
           const result =
@@ -216,6 +226,8 @@ export class PhoneCanvassSimulator {
             result,
           });
         }
+      })().catch((e: unknown) => {
+        throw new Error(String(e));
       });
     });
   }

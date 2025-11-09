@@ -1,18 +1,35 @@
 // eslint-disable-next-line check-file/filename-naming-convention
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ParticipateInPhoneCanvass } from "../../Features/PhoneCanvass/Components/ParticipateInPhoneCanvass.js";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { grassrootsAPI } from "../../GrassRootsAPI.js";
 
 export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
   component: ParticipateInPhoneCanvass,
-  beforeLoad: ({ context, params }) => {
+  beforeLoad: async ({ context, params }) => {
+    const refreshCaller = async (
+      caller: PhoneCanvassCallerDTO,
+    ): Promise<PhoneCanvassCallerDTO> => {
+      return PhoneCanvassCallerDTO.fromFetchOrThrow(
+        await grassrootsAPI.POST("/phone-canvass/register-caller", {
+          body: caller,
+        }),
+      );
+    };
     const phoneCanvassCallerStore = context.getPhoneCanvassCallerStore();
-    if (phoneCanvassCallerStore.caller === undefined) {
+    const caller = await phoneCanvassCallerStore.getCaller(
+      refreshCaller,
+      params.phoneCanvassId,
+    );
+
+    if (caller === undefined) {
       // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw redirect({
         to: "/PhoneCanvass/Register/$phoneCanvassId",
         params: { phoneCanvassId: params.phoneCanvassId },
       });
     }
+    return { caller, refreshCaller };
   },
   head: () => ({
     meta: [

@@ -202,6 +202,16 @@ export class PhoneCanvassController {
     return newCaller;
   }
 
+  @Post("refresh-caller")
+  async refreshCaller(
+    @Body() caller: PhoneCanvassCallerDTO,
+    @Session() session: expressSession.SessionData,
+  ): Promise<PhoneCanvassCallerDTO> {
+    caller = await this.phoneCanvassService.refreshCaller(caller);
+    session.phoneCanvassCaller = caller;
+    return caller;
+  }
+
   @Post("update-caller")
   async updateCaller(
     @Body() caller: PhoneCanvassCallerDTO,

@@ -58,7 +58,12 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     this.#entityManager = params.entityManager;
 
     this.#pendingContacts = params.contacts.filter((contact) => {
-      return contact.callStatus === "NOT_STARTED";
+      // As long as someone's phone never started ringing, we're okay to include them.
+      return (
+        contact.callStatus === "NOT_STARTED" ||
+        contact.callStatus === "QUEUED" ||
+        contact.callStatus === "INITIATED"
+      );
     });
   }
 

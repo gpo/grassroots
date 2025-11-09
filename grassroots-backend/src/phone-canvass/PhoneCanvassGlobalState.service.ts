@@ -9,6 +9,8 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
 
+type GetAuthToken = (id: string) => Promise<string>;
+
 @Injectable()
 export class PhoneCanvassGlobalStateService {
   #phoneCanvassIdToCaller = new Map<string, PhoneCanvassCallerDTO[]>();
@@ -16,7 +18,7 @@ export class PhoneCanvassGlobalStateService {
 
   async registerCaller(
     caller: CreatePhoneCanvassCallerDTO,
-    getAuthToken: (id: string) => Promise<string>,
+    getAuthToken: GetAuthToken,
   ): Promise<PhoneCanvassCallerDTO> {
     const callers =
       this.#phoneCanvassIdToCaller.get(caller.activePhoneCanvassId) ?? [];
@@ -43,15 +45,37 @@ export class PhoneCanvassGlobalStateService {
     return withId;
   }
 
-  updateCaller(updatedCaller: PhoneCanvassCallerDTO): void {
+  // This is as secure as the authToken is. If a user could guess someone else's
+  // authToken, they could use that to update their data, but we'd already have bigger problems.
+  #findCaller(params: {
+    activePhoneCanvassId: string;
+    id: number;
+    authToken: string;
+  }): PhoneCanvassCallerDTO {
+    const { activePhoneCanvassId, id, authToken } = params;
     const callers =
-      this.#phoneCanvassIdToCaller.get(updatedCaller.activePhoneCanvassId) ??
-      [];
-    const caller = callers.find((callers) => callers.id === updatedCaller.id);
-    if (caller === undefined) {
-      throw new NotFoundException("Invalid caller");
+      this.#phoneCanvassIdToCaller.get(activePhoneCanvassId) ?? [];
+    const existingCaller = callers.find(
+      (x) => x.id === id && x.authToken == authToken,
+    );
+    if (existingCaller === undefined) {
+      throw new NotFoundException(`Can't find caller with id ${String(id)}.`);
     }
-    Object.assign(caller, updatedCaller);
+    return existingCaller;
+  }
+
+  async refreshCaller(
+    caller: PhoneCanvassCallerDTO,
+    getAuthToken: GetAuthToken,
+  ): Promise<PhoneCanvassCallerDTO> {
+    const existingCaller = this.#findCaller(caller);
+    existingCaller.authToken = await getAuthToken(String(caller.id));
+    return existingCaller;
+  }
+
+  updateCaller(updatedCaller: PhoneCanvassCallerDTO): void {
+    const existingCaller = this.#findCaller(updatedCaller);
+    Object.assign(existingCaller, updatedCaller);
   }
 
   listCallers(phoneCanvassId: string): PhoneCanvassCallerDTO[] {

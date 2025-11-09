@@ -6,9 +6,9 @@ import { grassrootsAPI } from "../../../GrassRootsAPI.js";
 
 /*
 Flow is:
-1. Hit "I'm ready" button.
+1. Fetch an auth token.
 2. Wait for sync push with initial state.
-3. Fetch an auth token.
+3. Hit "I'm ready" button.
 4. Wait for sync push matching you with someone, call in.
 */
 
@@ -21,6 +21,7 @@ export async function markReadyForCalls(
 ): Promise<{ device: Device }> {
   const { caller } = params;
 
+  // TODO(mvp): use tanstack.
   VoidDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/update-caller", {
       body: PhoneCanvassCallerDTO.from({
@@ -30,7 +31,6 @@ export async function markReadyForCalls(
     }),
   );
 
-  // TODO(MVP): this should happen when we're actually matched with a callee.
   const device = new Device(caller.authToken, {
     logLevel: 4,
     enableImprovedSignalingErrorPrecision: true,

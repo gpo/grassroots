@@ -20,22 +20,17 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     phoneCanvassCallerStore,
   });
 
-  // The route beforeLoad guard should prevent this from happening.
-  if (phoneCanvassCallerStore.caller === undefined) {
-    throw new Error("Missing caller");
-  }
+  const { caller, refreshCaller } =
+    ParticipateInPhoneCanvassRoute.useRouteContext();
 
   useEffect(() => {
-    // The route beforeLoad guard should prevent this from happening.
-    if (phoneCanvassCallerStore.caller === undefined) {
-      throw new Error("Missing caller");
-    }
-    console.log("joining group with caller", phoneCanvassCallerStore.caller);
+    console.log("joining group with caller", caller);
     void SyncGroupManager.joinGroup({
-      caller: phoneCanvassCallerStore.caller,
+      caller,
       callPartyStateStore,
       phoneCanvassCallerStore,
       registerCaller,
+      refreshCaller,
     });
   }, []);
 
@@ -52,18 +47,20 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     );
   });
   const callers = callPartyStateStore.callers.map((caller) => {
-    return <ListItem key={caller.callerId}>{caller.displayName}</ListItem>;
+    return (
+      <ListItem key={caller.callerId}>
+        {caller.displayName} {caller.ready ? "ready" : "not ready"}
+      </ListItem>
+    );
   });
 
   return (
     <>
       <h1> Call Party </h1>
-      <h2> Welcome {phoneCanvassCallerStore.caller.displayName}</h2>
+      <h2> Welcome {caller.displayName}</h2>
 
       <>
-        <MarkReadyForCallsButton
-          caller={phoneCanvassCallerStore.caller}
-        ></MarkReadyForCallsButton>
+        <MarkReadyForCallsButton caller={caller}></MarkReadyForCallsButton>
         <h2> Callers </h2>
         <List>{callers}</List>
         <h2> Contacts </h2>
