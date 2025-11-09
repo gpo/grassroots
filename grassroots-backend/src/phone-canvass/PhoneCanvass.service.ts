@@ -9,7 +9,6 @@ import {
 import {
   CreatePhoneCanvassRequestDTO,
   CreatePhoneCanvassResponseDTO,
-  PhoneCanvassAuthTokenResponseDTO,
   PaginatedPhoneCanvassContactListRequestDTO,
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
@@ -21,11 +20,6 @@ import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
-import { partition } from "grassroots-shared/util/Partition";
-import {
-  ActiveCall,
-  PendingCall,
-} from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import type { Express } from "express";
 import {
   CallResult,
@@ -33,16 +27,82 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
-import { mergeMap } from "rxjs";
 import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
 import { simulateMakeCall } from "./PhoneCanvassSimulator.js";
+import { ServerMetaService } from "../server-meta/ServerMeta.service.js";
+import {
+  CallerSummary,
+  ContactSummary,
+} from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
+
+interface AdvanceCallToStatusParams {
+  call: Call;
+  status: CallStatus;
+  result?: CallResult;
+  currentTime: number;
+  twilioSid: string;
+  scheduler: PhoneCanvassScheduler;
+}
+
+async function advanceCallToStatus(
+  params: AdvanceCallToStatusParams,
+): Promise<Call> {
+  const { call, status, result, scheduler } = params;
+  switch (call.status) {
+    case "NOT_STARTED": {
+      throw new Error(
+        "Calls can't be updated until they've been queued or initiated.",
+      );
+    }
+    case "QUEUED": {
+      if (status !== "INITIATED") {
+        throw new Error(`Invalid transition to ${status}`);
+      }
+      return await call.advanceStatusToInitiated(params);
+    }
+    case "INITIATED": {
+      if (status !== "RINGING") {
+        throw new Error("Invalid transition");
+      }
+      return await call.advanceStatusToRinging(params);
+    }
+    case "RINGING": {
+      if (status !== "IN_PROGRESS") {
+        throw new Error("Invalid transition");
+      }
+      const callerId = scheduler.getNextIdleCallerId();
+      if (callerId === undefined) {
+        throw new Error("TODO(mvp) handle overcalling");
+      }
+      return call.advanceStatusToInProgress({
+        ...params,
+        callerId,
+      });
+    }
+    case "IN_PROGRESS": {
+      if (status !== "COMPLETED") {
+        throw new Error("Invalid transition");
+      }
+      if (result === undefined) {
+        throw new Error("Missing result for completed call");
+      }
+      return call.advanceStatusToCompleted({
+        ...params,
+        result,
+      });
+    }
+    case "COMPLETED": {
+      throw new Error("Can't update a completed call.");
+    }
+  }
+}
 
 @Injectable()
 export class PhoneCanvassService {
   repo: EntityRepository<PhoneCanvassEntity>;
   callsBySid = new Map<string, Call>();
   // From phone canvass id.
-  schedulers = new Map<string, PhoneCanvassScheduler>();
+  #schedulers = new Map<string, PhoneCanvassScheduler>();
   // Phone canvass ids.
   #inSimulation = new Set<string>();
 
@@ -51,6 +111,7 @@ export class PhoneCanvassService {
     private twilioService: TwilioService,
     private readonly globalState: PhoneCanvassGlobalStateService,
     private readonly schedulerFactory: PhoneCanvassSchedulerFactory,
+    private readonly serverMetaService: ServerMetaService,
   ) {
     this.repo =
       entityManager.getRepository<PhoneCanvassEntity>(PhoneCanvassEntity);
@@ -61,10 +122,12 @@ export class PhoneCanvassService {
   }
 
   watchSchedulerForCalls(scheduler: PhoneCanvassScheduler): void {
-    scheduler.calls
-      .pipe(
-        // mergeMap is the easiest way to run async code per call.
-        mergeMap(async (call) => {
+    scheduler.calls.subscribe({
+      complete: () => {
+        console.log("TODO(mvp) handle running out of calls.");
+      },
+      next: (call) => {
+        void (async (): Promise<void> => {
           const { sid, timestamp, status } = !this.#inSimulation.has(
             scheduler.phoneCanvassId,
           )
@@ -73,7 +136,7 @@ export class PhoneCanvassService {
 
           switch (status) {
             case "QUEUED": {
-              const queuedCall = call.advanceStatusToQueued({
+              const queuedCall = await call.advanceStatusToQueued({
                 currentTime: timestamp,
                 twilioSid: sid,
               });
@@ -84,13 +147,9 @@ export class PhoneCanvassService {
               throw new Error("Calls can only start as queued.");
             }
           }
-        }),
-      )
-      .subscribe({
-        complete: () => {
-          console.log("TODO(mvp) handle running out of calls.");
-        },
-      });
+        })();
+      },
+    });
   }
 
   // Returns the id of the new phone canvass.
@@ -131,11 +190,6 @@ export class PhoneCanvassService {
     return CreatePhoneCanvassResponseDTO.from({
       id: canvassEntity.id,
     });
-  }
-
-  async getAuthToken(id: string): Promise<PhoneCanvassAuthTokenResponseDTO> {
-    await this.getPhoneCanvassByIdOrFail(id);
-    return this.twilioService.getAuthToken();
   }
 
   async getPhoneCanvassByIdOrFail(
@@ -200,69 +254,47 @@ export class PhoneCanvassService {
   }
 
   async #updateSyncData(phoneCanvassId: string): Promise<void> {
-    const contacts = (await this.getPhoneCanvassContacts(phoneCanvassId)).map(
-      (x) => {
-        return x.toDTO();
-      },
-    );
+    // TODO(mvp): consider exposing which caller is talking to which contact.
+    const callers: CallerSummary[] = this.globalState
+      .listCallers(phoneCanvassId)
+      .map((x) => {
+        return { displayName: x.displayName, ready: x.ready, callerId: x.id };
+      });
 
-    const partitionedContacts = partition(
-      contacts,
-      (contact: PhoneCanvassContactDTO) => {
-        if (
-          contact.callStatus === "NOT_STARTED" ||
-          contact.callStatus === "INITIATED" ||
-          contact.callStatus === "QUEUED" ||
-          contact.callStatus === "RINGING"
-        ) {
-          return "NOT_STARTED";
-        } else if (contact.callStatus === "IN_PROGRESS") {
-          return "IN_PROGRESS";
-        }
-        return "COMPLETE";
-      },
-    );
-
-    const activeCalls: ActiveCall[] = (
-      partitionedContacts.get("IN_PROGRESS") ?? []
-    ).map((contact: PhoneCanvassContactDTO) => {
+    const contacts: ContactSummary[] = (
+      await this.getPhoneCanvassContacts(phoneCanvassId)
+    ).map((contact) => {
+      const dto = contact.toDTO();
       return {
-        calleeDisplayName: contact.contact.formatName(),
-        calleeId: contact.contact.id,
-        callerName: "TODO",
-      };
-    });
-    const pendingCalls: PendingCall[] = (
-      partitionedContacts.get("NOT_STARTED") ?? []
-    ).map((contact: PhoneCanvassContactDTO) => {
-      return {
-        calleeDisplayName: contact.contact.formatName(),
-        calleeId: contact.contact.id,
+        contactDisplayName: dto.contact.formatName(),
+        contactId: contact.contact.id,
+        status: contact.callStatus,
+        result: contact.callResult,
       };
     });
 
     const syncData = {
-      callers: this.globalState.listCallers(phoneCanvassId).map((x) => {
-        return { displayName: x.displayName, ready: x.ready };
-      }),
-      activeCalls,
-      pendingCalls,
+      callers,
+      contacts,
+      serverInstanceUUID: this.serverMetaService.instanceUUID,
     };
     await this.twilioService.setSyncData(phoneCanvassId, syncData);
   }
 
-  async #getInitializedScheduler(params: {
+  async getInitializedScheduler(params: {
     phoneCanvassId: string;
   }): Promise<PhoneCanvassScheduler> {
+    console.log("getInitializedScheduler");
     const { phoneCanvassId } = params;
-    let scheduler = this.schedulers.get(phoneCanvassId);
+    let scheduler = this.#schedulers.get(phoneCanvassId);
     if (scheduler === undefined) {
       const contacts = await this.getPhoneCanvassContacts(phoneCanvassId);
       scheduler = this.schedulerFactory.createScheduler({
         contacts: contacts,
         phoneCanvassId: phoneCanvassId,
+        entityManager: this.entityManager,
       });
-      this.schedulers.set(phoneCanvassId, scheduler);
+      this.#schedulers.set(phoneCanvassId, scheduler);
     }
 
     const { started } = scheduler.startIfNeeded();
@@ -272,11 +304,19 @@ export class PhoneCanvassService {
     return scheduler;
   }
 
-  async addCaller(
+  async registerCaller(
     caller: CreatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
-    const newCaller = this.globalState.addCaller(caller);
+    await this.getPhoneCanvassByIdOrFail(caller.activePhoneCanvassId);
+    const newCaller = await this.globalState.registerCaller(
+      caller,
+      async (id) => await this.twilioService.getAuthToken(id),
+    );
+
     await this.#updateSyncData(caller.activePhoneCanvassId);
+    await this.getInitializedScheduler({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
     return newCaller;
   }
 
@@ -284,7 +324,7 @@ export class PhoneCanvassService {
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     this.globalState.updateCaller(caller);
-    const scheduler = await this.#getInitializedScheduler({
+    const scheduler = await this.getInitializedScheduler({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
     if (caller.ready) {
@@ -297,12 +337,13 @@ export class PhoneCanvassService {
     return caller;
   }
 
-  updateCall(params: {
+  async updateCall(params: {
     sid: string;
     status: CallStatus;
     result?: CallResult;
     timestamp: number;
-  }): void {
+  }): Promise<void> {
+    console.log("UPDATE CALL");
     const { sid, status, result, timestamp } = params;
     const call = this.callsBySid.get(sid);
     if (call === undefined) {
@@ -312,66 +353,31 @@ export class PhoneCanvassService {
     const newCallParams = {
       currentTime: timestamp,
       twilioSid: sid,
+      status,
+      result,
     };
 
     let newCall: Call | undefined = undefined;
 
-    switch (call.status) {
-      case "NOT_STARTED": {
-        throw new Error(
-          "Calls can't be updated until they've been queued or initiated.",
-        );
+    if (status === "COMPLETED") {
+      if (result === undefined) {
+        throw new Error("COMPLETED call missing result");
       }
-      case "QUEUED": {
-        if (status !== "INITIATED") {
-          throw new Error(`Invalid transition to ${status}`);
-        }
-        newCall = call.advanceStatusToInitiated(newCallParams);
-        break;
+      newCall = await call.advanceStatusToFailed({ ...newCallParams, result });
+    }
+
+    if (newCall === undefined) {
+      const scheduler = this.#schedulers.get(call.canvassId());
+      if (scheduler === undefined) {
+        throw new Error("Missing scheduler.");
       }
-      case "INITIATED": {
-        if (status !== "RINGING") {
-          throw new Error("Invalid transition");
-        }
-        newCall = call.advanceStatusToRinging(newCallParams);
-        break;
-      }
-      case "RINGING": {
-        if (status !== "IN_PROGRESS") {
-          throw new Error("Invalid transition");
-        }
-        const scheduler = this.schedulers.get(call.canvassId());
-        if (scheduler === undefined) {
-          throw new Error("Missing scheduler.");
-        }
-        const callerId = scheduler.getNextIdleCallerId();
-        if (callerId === undefined) {
-          throw new Error("TODO(mvp) handle overcalling");
-        }
-        newCall = call.advanceStatusToInProgress({
-          ...newCallParams,
-          callerId,
-        });
-        break;
-      }
-      case "IN_PROGRESS": {
-        if (status !== "COMPLETED") {
-          throw new Error("Invalid transition");
-        }
-        if (result === undefined) {
-          throw new Error("Missing result for completed call");
-        }
-        newCall = call.advanceStatusToCompleted({
-          ...newCallParams,
-          result,
-        });
-        break;
-      }
-      case "COMPLETED": {
-        throw new Error("Can't update a completed call.");
-        break;
-      }
+      newCall = await advanceCallToStatus({
+        ...newCallParams,
+        scheduler,
+        call,
+      });
     }
     this.callsBySid.set(sid, newCall);
+    await this.#updateSyncData(newCall.canvassId());
   }
 }

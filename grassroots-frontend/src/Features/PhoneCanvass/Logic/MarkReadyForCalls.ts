@@ -13,27 +13,25 @@ Flow is:
 */
 
 export interface MarkReadyForCallsParams {
-  callerIdentity: PhoneCanvassCallerDTO;
-  calleeId: number;
-  authToken: string;
+  caller: PhoneCanvassCallerDTO;
 }
 
 export async function markReadyForCalls(
   params: MarkReadyForCallsParams,
-): Promise<void> {
-  const { callerIdentity, calleeId, authToken } = params;
+): Promise<{ device: Device }> {
+  const { caller } = params;
 
   VoidDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/update-caller", {
       body: PhoneCanvassCallerDTO.from({
-        ...propsOf(callerIdentity),
+        ...propsOf(caller),
         ready: true,
       }),
     }),
   );
 
   // TODO(MVP): this should happen when we're actually matched with a callee.
-  const device = new Device(authToken, {
+  const device = new Device(caller.authToken, {
     logLevel: 4,
     enableImprovedSignalingErrorPrecision: true,
   });
@@ -47,17 +45,5 @@ export async function markReadyForCalls(
   });
 
   await device.register();
-
-  const call = await device.connect({
-    // These get passed to the controller.
-    params: { conference: String(calleeId) },
-  });
-
-  call.on("accept", () => {
-    console.log("Joined conference.");
-  });
-
-  call.on("disconnect", () => {
-    console.log("Left conference.");
-  });
+  return { device };
 }

@@ -14,7 +14,10 @@ export class PhoneCanvassGlobalStateService {
   #phoneCanvassIdToCaller = new Map<string, PhoneCanvassCallerDTO[]>();
   #nextId = 0;
 
-  addCaller(caller: CreatePhoneCanvassCallerDTO): PhoneCanvassCallerDTO {
+  async registerCaller(
+    caller: CreatePhoneCanvassCallerDTO,
+    getAuthToken: (id: string) => Promise<string>,
+  ): Promise<PhoneCanvassCallerDTO> {
     const callers =
       this.#phoneCanvassIdToCaller.get(caller.activePhoneCanvassId) ?? [];
 
@@ -26,10 +29,13 @@ export class PhoneCanvassGlobalStateService {
       throw new ConflictException("Display name already taken.");
     }
 
+    const id = ++this.#nextId;
+
     const withId = PhoneCanvassCallerDTO.from({
       ...propsOf(caller),
       ready: false,
-      id: ++this.#nextId,
+      id,
+      authToken: await getAuthToken(String(id)),
     });
 
     callers.push(withId);

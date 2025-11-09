@@ -1,19 +1,20 @@
-export interface PendingCall {
-  calleeDisplayName: string;
-  calleeId: number;
+import { CallResult, CallStatus } from "../dtos/PhoneCanvass/CallStatus.dto.js";
+
+export interface ContactSummary {
+  contactDisplayName: string;
+  contactId: number;
+  status: CallStatus;
+  result?: CallResult;
 }
 
-export type ActiveCall = PendingCall & {
-  callerName: string;
-};
-
 export interface CallerSummary {
-  displayName: string;
+  callerId: number;
   ready: boolean;
+  displayName: string;
 }
 
 export interface PhoneCanvassSyncData {
   callers: CallerSummary[];
-  activeCalls: ActiveCall[];
-  pendingCalls: PendingCall[];
+  contacts: ContactSummary[];
+  serverInstanceUUID: string;
 }

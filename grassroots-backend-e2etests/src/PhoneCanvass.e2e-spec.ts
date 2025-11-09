@@ -166,7 +166,7 @@ describe("PhoneCanvass (e2e)", () => {
     );
 
     CreatePhoneCanvassCallerDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/add-caller", {
+      await f.grassrootsAPI.POST("/phone-canvass/register-caller", {
         body: {
           activePhoneCanvassId: canvass.id,
           displayName: "A",
@@ -177,7 +177,7 @@ describe("PhoneCanvass (e2e)", () => {
     );
 
     CreatePhoneCanvassCallerDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/add-caller", {
+      await f.grassrootsAPI.POST("/phone-canvass/register-caller", {
         body: {
           activePhoneCanvassId: canvass.id,
           displayName: "B",
@@ -213,7 +213,7 @@ describe("PhoneCanvass (e2e)", () => {
     );
 
     const caller = PhoneCanvassCallerDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/add-caller", {
+      await f.grassrootsAPI.POST("/phone-canvass/register-caller", {
         body: CreatePhoneCanvassCallerDTO.from({
           displayName: "Test",
           email: "Test@Test.com",
@@ -231,6 +231,7 @@ describe("PhoneCanvass (e2e)", () => {
           email: "Test@Test.com",
           activePhoneCanvassId: canvass.id,
           ready: true,
+          authToken: "foo",
         }),
       }),
     );

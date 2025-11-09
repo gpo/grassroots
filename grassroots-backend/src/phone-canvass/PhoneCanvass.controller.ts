@@ -18,7 +18,6 @@ import {
   CreatePhoneCanvasCSVRequestDTO,
   CreatePhoneCanvassRequestDTO,
   CreatePhoneCanvassResponseDTO,
-  PhoneCanvassAuthTokenResponseDTO,
   PaginatedPhoneCanvassContactListRequestDTO,
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassProgressInfoResponseDTO,
@@ -162,23 +161,15 @@ export class PhoneCanvassController {
     );
   }
 
-  @Get("auth-token/:id")
-  @PublicRoute()
-  async getAuthToken(
-    @Param("id") id: string,
-  ): Promise<PhoneCanvassAuthTokenResponseDTO> {
-    return this.phoneCanvassService.getAuthToken(id);
-  }
-
   // eslint-disable-next-line grassroots/controller-routes-return-dtos
   @Post("webhooks/twilio-callstatus")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
-  twilioCallStatusCallback(
+  async twilioCallStatusCallback(
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
-  ): string {
+  ): Promise<string> {
     const status = twilioCallStatusToCallStatus(body.CallStatus);
-    this.phoneCanvassService.updateCall({
+    await this.phoneCanvassService.updateCall({
       ...status,
       sid: body.CallSid,
       timestamp: body.Timestamp,
@@ -201,12 +192,12 @@ export class PhoneCanvassController {
     return await this.phoneCanvassService.list(request);
   }
 
-  @Post("add-caller")
-  async addCaller(
+  @Post("register-caller")
+  async registerCaller(
     @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    const newCaller = await this.phoneCanvassService.addCaller(caller);
+    const newCaller = await this.phoneCanvassService.registerCaller(caller);
     session.phoneCanvassCaller = newCaller;
     return newCaller;
   }
@@ -228,8 +219,17 @@ export class PhoneCanvassController {
         "Can't simulate a phone canvass without ENABLE_PHONE_CANVASS_SIMULATION",
       );
     }
-    const simulator = new PhoneCanvassSimulator(this.phoneCanvassService, id);
-    void simulator.start();
+    const scheduler = await this.phoneCanvassService.getInitializedScheduler({
+      phoneCanvassId: id,
+    });
+    const simulator = new PhoneCanvassSimulator(
+      this.phoneCanvassService,
+      id,
+      scheduler,
+    );
+    simulator.start();
+    // TODO(mvp): stop simulating at some point.
+    this.phoneCanvassService.startSimulating(id);
     return VoidDTO.from({});
   }
 }

@@ -11,10 +11,11 @@ export function createCallPartyStateStore(): StoreApi<CallPartyStateStore> {
     devtools(
       (set) => ({
         callers: [],
-        activeCalls: [],
-        pendingCalls: [],
+        contacts: [],
+        serverInstanceUUID: undefined,
         // Data comes from twilio sync, which provides an untyped JSON blob.
         setData: (data: PhoneCanvassSyncData | object): void => {
+          console.log("Sync data in setData", data);
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           set(() => data as PhoneCanvassSyncData);
         },

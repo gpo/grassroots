@@ -1,21 +1,28 @@
 // eslint-disable-next-line check-file/filename-naming-convention
 import "@mantine/core/styles.css";
 
-import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
+import {
+  createRootRouteWithContext,
+  HeadContent,
+  Outlet,
+} from "@tanstack/react-router";
 
 import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
 import { RoutedLink } from "../Components/RoutedLink.js";
 import { navigateToBackendRoute } from "../GrassRootsAPI.js";
 import { LoginState } from "../Features/Auth/Logic/LoginStateContext.js";
 import { DevTools } from "../Features/Devtools/Components/DevTools.js";
+import { PhoneCanvassCallerStore } from "../Features/PhoneCanvass/Logic/PhoneCanvassCallerStore.js";
 
 interface RouterContext {
   loginState: Promise<LoginState | undefined>;
+  getPhoneCanvassCallerStore: () => PhoneCanvassCallerStore;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <MantineProvider>
+      <HeadContent />
       <AppShell
         header={{ height: 60 }}
         navbar={{

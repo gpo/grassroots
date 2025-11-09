@@ -60,7 +60,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "tstyche": "^3.5.0",
-    "twilio": "^5.9.0"
+    "twilio": "^5.9.0",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@mikro-orm/cli": "^6.4.15",

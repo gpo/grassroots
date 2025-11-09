@@ -10,4 +10,5 @@ AuthModule-->PassportModule
 AppModule-->PassportModule
 AppModule-->OrganizationsModule
 AppModule-->PhoneCanvassModule
+PhoneCanvassModule-->ServerMetaModule
 ```
