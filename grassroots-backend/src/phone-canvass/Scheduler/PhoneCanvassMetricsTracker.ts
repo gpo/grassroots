@@ -38,10 +38,6 @@ export class PhoneCanvassMetricsTracker {
       ),
     );
 
-    this.#idleCallerCountObservable.subscribe((x) => {
-      console.log("Number of idle callers is", x);
-    });
-
     this.#endingCallsObservable.subscribe((call: Call) => {
       console.log(`Recording metrics about ${String(call.id)}`);
     });

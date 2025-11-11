@@ -109,6 +109,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       call.state.contact.callResult = call.result;
     }
     await this.state.entityManager.flush();
+    console.log("FLUSH");
 
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
       this.state.scheduler.callsByStatus,

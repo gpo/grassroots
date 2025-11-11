@@ -17,4 +17,5 @@ export interface PhoneCanvassSyncData {
   callers: CallerSummary[];
   contacts: ContactSummary[];
   serverInstanceUUID: string;
+  phoneCanvassId: string;
 }

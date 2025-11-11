@@ -11,7 +11,6 @@ import {
   UseInterceptors,
   UploadedFile,
   Session,
-  ForbiddenException,
 } from "@nestjs/common";
 import {
   CreatePhoneCanvasContactRequestDTO,
@@ -37,8 +36,6 @@ import type { Express } from "express";
 import type * as expressSession from "express-session";
 import { twilioCallStatusToCallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
-import { PhoneCanvassSimulator } from "./PhoneCanvassSimulator.js";
-import { getEnvVars } from "../GetEnvVars.js";
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
@@ -224,22 +221,8 @@ export class PhoneCanvassController {
 
   @Get("start-simulation/:id")
   async startSimulation(@Param("id") id: string): Promise<VoidDTO> {
-    if (!(await getEnvVars()).ENABLE_PHONE_CANVASS_SIMULATION) {
-      throw new ForbiddenException(
-        "Can't simulate a phone canvass without ENABLE_PHONE_CANVASS_SIMULATION",
-      );
-    }
-    const scheduler = await this.phoneCanvassService.getInitializedScheduler({
-      phoneCanvassId: id,
-    });
-    const simulator = new PhoneCanvassSimulator(
-      this.phoneCanvassService,
-      id,
-      scheduler,
-    );
-    simulator.start();
-    // TODO(mvp): stop simulating at some point.
-    this.phoneCanvassService.startSimulating(id);
+    console.log("START SIMULATING");
+    await this.phoneCanvassService.startSimulating(id);
     return VoidDTO.from({});
   }
 }

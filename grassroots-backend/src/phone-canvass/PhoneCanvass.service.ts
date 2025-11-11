@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
 import {
   EntityManager,
@@ -28,12 +32,16 @@ import {
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
-import { simulateMakeCall } from "./PhoneCanvassSimulator.js";
+import {
+  PhoneCanvassSimulator,
+  simulateMakeCall,
+} from "./PhoneCanvassSimulator.js";
 import { ServerMetaService } from "../server-meta/ServerMeta.service.js";
 import {
   CallerSummary,
   ContactSummary,
 } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
+import { getEnvVars } from "../GetEnvVars.js";
 
 interface AdvanceCallToStatusParams {
   call: Call;
@@ -103,8 +111,8 @@ export class PhoneCanvassService {
   callsBySid = new Map<string, Call>();
   // From phone canvass id.
   #schedulers = new Map<string, PhoneCanvassScheduler>();
-  // Phone canvass ids.
-  #inSimulation = new Set<string>();
+  // Only present if there's an active simulation.
+  #simulator: PhoneCanvassSimulator | undefined;
 
   constructor(
     private readonly entityManager: EntityManager,
@@ -117,8 +125,26 @@ export class PhoneCanvassService {
       entityManager.getRepository<PhoneCanvassEntity>(PhoneCanvassEntity);
   }
 
-  startSimulating(phoneCanvassId: string): void {
-    this.#inSimulation.add(phoneCanvassId);
+  async startSimulating(phoneCanvassId: string): Promise<void> {
+    if (!(await getEnvVars()).ENABLE_PHONE_CANVASS_SIMULATION) {
+      throw new ForbiddenException(
+        "Can't simulate a phone canvass without ENABLE_PHONE_CANVASS_SIMULATION",
+      );
+    }
+
+    this.#simulator?.stop();
+
+    console.log("GETTING");
+    const scheduler = await this.getInitializedScheduler({
+      phoneCanvassId,
+    });
+    this.#simulator = new PhoneCanvassSimulator(
+      this,
+      phoneCanvassId,
+      scheduler,
+    );
+    this.#simulator.start();
+    console.log("STARTED");
   }
 
   watchSchedulerForCalls(scheduler: PhoneCanvassScheduler): void {
@@ -128,11 +154,10 @@ export class PhoneCanvassService {
       },
       next: (call) => {
         void (async (): Promise<void> => {
-          const { sid, timestamp, status } = !this.#inSimulation.has(
-            scheduler.phoneCanvassId,
-          )
-            ? await this.twilioService.makeCall(call)
-            : simulateMakeCall(call);
+          const { sid, timestamp, status } =
+            this.#simulator?.phoneCanvassId !== scheduler.phoneCanvassId
+              ? await this.twilioService.makeCall(call)
+              : simulateMakeCall(call);
 
           switch (status) {
             case "QUEUED": {
@@ -272,20 +297,21 @@ export class PhoneCanvassService {
         result: contact.callResult,
       };
     });
-    console.log("CONTACTS", contacts);
 
     const syncData = {
       callers,
       contacts,
       serverInstanceUUID: this.serverMetaService.instanceUUID,
+      phoneCanvassId: phoneCanvassId,
     };
+
+    console.log(syncData.contacts);
     await this.twilioService.setSyncData(phoneCanvassId, syncData);
   }
 
   async getInitializedScheduler(params: {
     phoneCanvassId: string;
   }): Promise<PhoneCanvassScheduler> {
-    console.log("getInitializedScheduler");
     const { phoneCanvassId } = params;
     let scheduler = this.#schedulers.get(phoneCanvassId);
     if (scheduler === undefined) {
@@ -388,6 +414,7 @@ export class PhoneCanvassService {
       if (scheduler === undefined) {
         throw new Error("Missing scheduler.");
       }
+      console.log("ADVANCE TO STATUS");
       newCall = await advanceCallToStatus({
         ...newCallParams,
         scheduler,
@@ -395,6 +422,7 @@ export class PhoneCanvassService {
       });
     }
     this.callsBySid.set(sid, newCall);
+    console.log("UPDATING SYNC DATA");
     await this.#updateSyncData(newCall.canvassId());
   }
 }

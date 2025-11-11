@@ -14,7 +14,8 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { Call, NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
-import { concatMap, Subject } from "rxjs";
+import { concatMap, Subject, Subscription } from "rxjs";
+import { runPromise } from "grassroots-shared/util/RunPromise";
 
 const MAX_CALLER_COUNT = 10;
 
@@ -117,16 +118,15 @@ export class PhoneCanvassSimulator {
   #faker: Faker;
   #events = new Subject<SimulationEvent>();
   #callers: PhoneCanvassCallerDTO[] = [];
-  static #id = 0;
-  readonly id: number;
+  #running = true;
+  #subscriptions: Subscription[] = [];
 
   constructor(
     private readonly phoneCanvassService: PhoneCanvassService,
-    private readonly phoneCanvassId: string,
+    readonly phoneCanvassId: string,
     private readonly scheduler: PhoneCanvassScheduler,
   ) {
     this.#faker = new Faker({ locale: [en_CA, en] });
-    this.id = PhoneCanvassSimulator.#id++;
   }
 
   async simulateCaller(index: number): Promise<void> {
@@ -137,7 +137,7 @@ export class PhoneCanvassSimulator {
       ts: Date.now(),
     });
 
-    while (true) {
+    while (this.#running) {
       await delay(callerReadyDelta());
       this.#events.next({
         kind: "change_ready_caller",
@@ -157,7 +157,7 @@ export class PhoneCanvassSimulator {
 
   simulateCallers(): void {
     for (let i = 0; i < MAX_CALLER_COUNT; ++i) {
-      void this.simulateCaller(i);
+      runPromise(this.simulateCaller(i));
     }
   }
 
@@ -182,64 +182,67 @@ export class PhoneCanvassSimulator {
   }
 
   simulateCalls(): void {
-    this.scheduler.calls.subscribe((call) => {
+    const simulateCallsSubscription = this.scheduler.calls.subscribe((call) => {
       console.log("ON CALL");
-      (async (): Promise<void> => {
-        console.log("TRYING");
-        try {
-          // We always delay some amount, so this is guaranteed to take place after "simulateMakeCall"
-          // occurs for this call.
-          await this.#advanceStatusOrFail({
-            call,
-            status: "INITIATED",
-            delayOrFailed: callInitiatedDelta(),
-          });
-          await this.#advanceStatusOrFail({
-            call,
-            status: "RINGING",
-            delayOrFailed: callRingingDelta(),
-          });
-          await this.#advanceStatusOrFail({
-            call,
-            status: "IN_PROGRESS",
-            delayOrFailed: callInProgressDelta(),
-          });
-          await this.#advanceStatusOrFail({
-            call,
-            status: "COMPLETED",
-            result: "COMPLETED",
-            delayOrFailed: callCompletedDelta(),
-          });
-        } catch (e) {
-          console.log("FAILURE");
-          void e;
-          await delay(callFailedDelta());
-          const result =
-            FailingCallResults[
-              Math.floor(Math.random() * FailingCallResults.length)
-            ];
-          this.#events.next({
-            kind: "status_change",
-            ts: Date.now(),
-            sid: getFakeCallSid(call),
-            status: "COMPLETED",
-            result,
-          });
-        }
-      })().catch((e: unknown) => {
-        throw new Error(String(e));
-      });
+      runPromise(
+        (async (): Promise<void> => {
+          console.log("TRYING");
+          try {
+            // We always delay some amount, so this is guaranteed to take place after "simulateMakeCall"
+            // occurs for this call.
+            await this.#advanceStatusOrFail({
+              call,
+              status: "INITIATED",
+              delayOrFailed: callInitiatedDelta(),
+            });
+            await this.#advanceStatusOrFail({
+              call,
+              status: "RINGING",
+              delayOrFailed: callRingingDelta(),
+            });
+            await this.#advanceStatusOrFail({
+              call,
+              status: "IN_PROGRESS",
+              delayOrFailed: callInProgressDelta(),
+            });
+            await this.#advanceStatusOrFail({
+              call,
+              status: "COMPLETED",
+              result: "COMPLETED",
+              delayOrFailed: callCompletedDelta(),
+            });
+          } catch (e) {
+            console.log("FAILURE");
+            void e;
+            await delay(callFailedDelta());
+            const result =
+              FailingCallResults[
+                Math.floor(Math.random() * FailingCallResults.length)
+              ];
+            this.#events.next({
+              kind: "status_change",
+              ts: Date.now(),
+              sid: getFakeCallSid(call),
+              status: "COMPLETED",
+              result,
+            });
+          }
+        })(),
+      );
     });
+    this.#subscriptions.push(simulateCallsSubscription);
   }
 
   start(): void {
     this.simulateCalls();
     this.simulateCallers();
 
-    this.#events
+    const eventsSubscription = this.#events
       .pipe(
         concatMap(async (event: SimulationEvent) => {
-          console.log("EVENT:", event);
+          if (["status_change"].includes(event.kind)) {
+            console.log("EVENT:", event);
+          }
           switch (event.kind) {
             case "add_caller": {
               this.#callers[event.index] =
@@ -255,9 +258,7 @@ export class PhoneCanvassSimulator {
             case "change_ready_caller": {
               const caller =
                 this.#callers[event.index] ??
-                fail(
-                  `Can't update caller that doesn't exist. Simulator id: ${String(this.id)}`,
-                );
+                fail(`Can't update caller that doesn't exist.`);
               caller.ready = event.ready;
               await this.phoneCanvassService.updateCaller(caller);
               break;
@@ -277,5 +278,13 @@ export class PhoneCanvassSimulator {
         }),
       )
       .subscribe();
+    this.#subscriptions.push(eventsSubscription);
+  }
+
+  stop(): void {
+    this.#running = false;
+    for (const subscription of this.#subscriptions) {
+      subscription.unsubscribe();
+    }
   }
 }

@@ -1,7 +1,7 @@
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf, PropsOf } from "grassroots-shared/util/TypeUtils";
-import { create } from "zustand";
+import { create, useStore } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
 
@@ -22,6 +22,10 @@ export interface PhoneCanvassCallerStore {
   setCaller: (id: PhoneCanvassCallerDTO) => void;
   reset: () => void;
 }
+
+export const usePhoneCanvassCaller = () => {
+  usePhoneCanvassCallerStore((state) => state.callerProps);
+};
 
 export const usePhoneCanvassCallerStore = create<PhoneCanvassCallerStore>()(
   devtools(

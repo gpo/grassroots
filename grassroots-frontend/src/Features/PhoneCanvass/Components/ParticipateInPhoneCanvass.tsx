@@ -5,7 +5,7 @@ import { List, ListItem } from "@mantine/core";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
 import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
-import { SyncGroupManager } from "../Logic/SyncGroupManager.js";
+import { joinTwilioSyncGroup } from "../Logic/JoinTwilioSyncGroup.js";
 import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
@@ -14,6 +14,9 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const callPartyStateStoreRef = useRef(createCallPartyStateStore());
   const callPartyStateStore = useStore(callPartyStateStoreRef.current);
   const phoneCanvassCallerStore = usePhoneCanvassCallerStore();
+  // TODO: this is required to force a rerender when the caller changes.
+  // I think this means I put too much logic in the store.
+  usePhoneCanvassCallerStore((state) => state.callerProps);
 
   const registerCaller = useRegisterCaller({
     phoneCanvassId,
@@ -25,7 +28,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   useEffect(() => {
     console.log("joining group with caller", caller);
-    void SyncGroupManager.joinGroup({
+    void joinTwilioSyncGroup({
       caller,
       callPartyStateStore,
       phoneCanvassCallerStore,
@@ -37,7 +40,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   console.log(callPartyStateStore);
 
   const contacts = callPartyStateStore.contacts.map((contact) => {
-    const callDescription = `status: ${contact.status}`;
+    const callDescription = ` status: ${contact.status}`;
 
     return (
       <ListItem key={contact.contactId}>

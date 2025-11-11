@@ -11,7 +11,7 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
       caller: PhoneCanvassCallerDTO,
     ): Promise<PhoneCanvassCallerDTO> => {
       return PhoneCanvassCallerDTO.fromFetchOrThrow(
-        await grassrootsAPI.POST("/phone-canvass/register-caller", {
+        await grassrootsAPI.POST("/phone-canvass/refresh-caller", {
           body: caller,
         }),
       );

@@ -1,4 +1,4 @@
-import { SyncClient } from "twilio-sync";
+import { SyncClient, SyncDocument } from "twilio-sync";
 import { CallPartyStateStore } from "./CallPartyStateStore.js";
 import {
   CreatePhoneCanvassCallerDTO,
@@ -10,6 +10,7 @@ import {
   RefreshCaller,
 } from "./PhoneCanvassCallerStore.js";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
+import { runPromise } from "grassroots-shared/util/RunPromise";
 
 type RegisterCaller = UseMutateAsyncFunction<
   PhoneCanvassCallerDTO,
@@ -25,46 +26,22 @@ interface JoinSyncGroupParams {
   refreshCaller: RefreshCaller;
 }
 
-export class SyncGroupManager {
+// We don't give anyone a handle to the SyncGroup, so they can't hold onto a stale instance.
+class SyncGroupManager {
   #syncClient: SyncClient;
-  #caller: PhoneCanvassCallerDTO;
+  #doc: SyncDocument | undefined;
+  caller: PhoneCanvassCallerDTO;
   #callPartyStateStore: CallPartyStateStore;
   #phoneCanvassCallerStore: PhoneCanvassCallerStore;
   #registerCaller: RegisterCaller;
   #refreshCaller: RefreshCaller;
 
-  static #instance: SyncGroupManager | undefined;
-  static async joinGroup(
-    params: JoinSyncGroupParams,
-  ): Promise<SyncGroupManager> {
-    let instance = SyncGroupManager.#instance;
-    if (instance !== undefined) {
-      console.log("CALLER IS", instance.#caller);
-    }
+  static instance: SyncGroupManager | undefined;
 
-    if (
-      instance !== undefined &&
-      // We're trying to join a different sync group than the one we're currently in.
-      // Leave the current group, and join the new one.
-      !instance.#caller.primaryPropsEqual(params.caller)
-    ) {
-      console.log("LEAVE CURRENT GROUP");
-      await instance.#stop();
-      params.callPartyStateStore.reset();
-      instance = undefined;
-    }
-    if (instance === undefined) {
-      console.log("CREATE NEW INSTANCE");
-      instance = new SyncGroupManager(params);
-      await instance.#init();
-    }
-    SyncGroupManager.#instance = instance;
-    return instance;
-  }
-  private constructor(params: JoinSyncGroupParams) {
-    this.#caller = params.caller;
-    console.log("Creating sync client with caller", this.#caller);
-    this.#syncClient = new SyncClient(this.#caller.authToken);
+  constructor(params: JoinSyncGroupParams) {
+    this.caller = params.caller;
+    console.log("Creating sync client with caller", this.caller);
+    this.#syncClient = new SyncClient(this.caller.authToken);
     console.log("AFTER CREATING CLIENT");
     this.#callPartyStateStore = params.callPartyStateStore;
     this.#registerCaller = params.registerCaller;
@@ -73,9 +50,15 @@ export class SyncGroupManager {
   }
 
   async #onUpdate(data: PhoneCanvassSyncData): Promise<void> {
+    if (
+      data.phoneCanvassId !=
+      SyncGroupManager.instance?.caller.activePhoneCanvassId
+    ) {
+      throw new Error("FOO");
+    }
     const caller = await this.#phoneCanvassCallerStore.getCaller(
       this.#refreshCaller,
-      this.#caller.activePhoneCanvassId,
+      this.caller.activePhoneCanvassId,
     );
     if (
       this.#callPartyStateStore.serverInstanceUUID &&
@@ -89,25 +72,56 @@ export class SyncGroupManager {
     this.#callPartyStateStore.setData(data);
   }
 
-  async #init(): Promise<void> {
+  async init(): Promise<void> {
     console.log("GET DOC");
     const doc = await this.#syncClient.document(
-      this.#caller.activePhoneCanvassId,
+      this.caller.activePhoneCanvassId,
     );
+    this.#doc = doc;
     console.log("AFTER GET DOC");
 
     this.#syncClient.on("connectionStateChanged", () => {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      void this.#onUpdate(doc.data as PhoneCanvassSyncData);
+      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData));
     });
 
-    doc.on("updated", () => {
+    this.#doc.on("updated", () => {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      void this.#onUpdate(doc.data as PhoneCanvassSyncData);
+      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData));
     });
   }
 
-  async #stop(): Promise<void> {
+  async stop(): Promise<void> {
     await this.#syncClient.shutdown();
+    if (!this.#doc) {
+      throw new Error("Missing document, unable to unsubscribe.");
+    }
+    this.#doc.close();
   }
+}
+
+export async function joinTwilioSyncGroup(
+  params: JoinSyncGroupParams,
+): Promise<void> {
+  let instance = SyncGroupManager.instance;
+
+  if (
+    instance !== undefined &&
+    // We're trying to join a different sync group than the one we're currently in.
+    // Leave the current group, and join the new one.
+    !instance.caller.primaryPropsEqual(params.caller)
+  ) {
+    console.log("LEAVE CURRENT GROUP");
+    // Make sure no one can use the instance while things are shutting down.
+    SyncGroupManager.instance = undefined;
+    await instance.stop();
+    params.callPartyStateStore.reset();
+    instance = undefined;
+  }
+  if (instance === undefined) {
+    console.log("CREATE NEW INSTANCE");
+    instance = new SyncGroupManager(params);
+    await instance.init();
+  }
+  SyncGroupManager.instance = instance;
 }
