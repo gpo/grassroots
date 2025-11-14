@@ -1,7 +1,6 @@
-import { JSX, useEffect, useRef } from "react";
-import { MarkReadyForCallsButton } from "./MarkReadyForCallsButton.js";
+import { JSX, useEffect, useRef, useState } from "react";
 import { usePhoneCanvassCallerStore } from "../Logic/PhoneCanvassCallerStore.js";
-import { List, ListItem } from "@mantine/core";
+import { Button, List, ListItem } from "@mantine/core";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
 import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
@@ -10,6 +9,8 @@ import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { ContactSummary } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { takeCall } from "../Logic/TakeCall.js";
+import { markReadyForCalls } from "../Logic/MarkReadyForCalls.js";
+import { Device } from "@twilio/voice-sdk";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -17,6 +18,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const callPartyStateStoreRef = useRef(createCallPartyStateStore());
   const callPartyStateStore = useStore(callPartyStateStoreRef.current);
   const phoneCanvassCallerStore = usePhoneCanvassCallerStore();
+  const [currentDevice, setCurrentDevice] = useState<Device | undefined>();
 
   const registerCaller = useRegisterCaller({
     phoneCanvassId,
@@ -27,7 +29,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     ParticipateInPhoneCanvassRoute.useRouteContext();
 
   const onNewContact = async (contact: ContactSummary): Promise<void> => {
-    await takeCall(undefined, contact.contactId);
+    if (currentDevice === undefined) {
+      throw new Error("Should only receive a contact when we're marked ready.");
+    }
+    await takeCall(currentDevice, contact.contactId);
   };
 
   useEffect(() => {
@@ -68,7 +73,19 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       <h2> Welcome {caller.displayName}</h2>
 
       <>
-        <MarkReadyForCallsButton caller={caller}></MarkReadyForCallsButton>
+        <Button
+          onClick={() => {
+            runPromise(
+              (async (): Promise<void> => {
+                const device = (await markReadyForCalls({ caller })).device;
+                setCurrentDevice(device);
+              })(),
+              false,
+            );
+          }}
+        >
+          Ready for Calls
+        </Button>
         <h2> Callers </h2>
         <List>{callers}</List>
         <h2> Contacts </h2>
