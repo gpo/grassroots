@@ -7,10 +7,10 @@ import {
   resetPhoneCanvasCallIdsForTest,
 } from "./PhoneCanvassCall.js";
 import { fail } from "assert";
-import {
-  PhoneCanvassScheduler,
-  PhoneCanvassSchedulerImpl,
-} from "./PhoneCanvassScheduler.js";
+import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
+import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
+import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
+import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
@@ -31,7 +31,12 @@ const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
 let currentTime = -1;
 
 function getScheduler(): PhoneCanvassScheduler {
-  const scheduler = new PhoneCanvassSchedulerImpl(FAKE_CONTACTS);
+  const metricsTracker = new PhoneCanvassMetricsTracker();
+  const scheduler = new PhoneCanvassSchedulerImpl(
+    new NoOvercallingStrategy(metricsTracker),
+    metricsTracker,
+    { contacts: FAKE_CONTACTS, phoneCanvassId: "fake phone canvass id" },
+  );
 
   const currentTimeMock = vi.fn(() => {
     return currentTime;
@@ -50,7 +55,7 @@ describe("PhoneCanvassScheduler", () => {
     scheduler.calls.subscribe((call) => calls.push(call));
 
     expect(calls).toHaveLength(0);
-    void scheduler.start();
+    void scheduler.startIfNeeded();
 
     currentTime = 11;
     scheduler.addCaller(1);
@@ -102,7 +107,7 @@ describe("PhoneCanvassScheduler", () => {
     const calls: NotStartedCall[] = [];
     scheduler.calls.subscribe((call) => calls.push(call));
 
-    void scheduler.start();
+    void scheduler.startIfNeeded();
     scheduler.addCaller(CALLER_ID);
     await scheduler.waitForIdleForTest();
 
@@ -115,7 +120,10 @@ describe("PhoneCanvassScheduler", () => {
     expect(call.id).toBe(1);
 
     const callInProgress = call
-      .advanceStatusToQueued({ currentTime: 2 })
+      .advanceStatusToQueued({
+        currentTime: 2,
+        twilioSid: "Test",
+      })
       .advanceStatusToInitiated({
         currentTime: 3,
       })

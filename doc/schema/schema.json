@@ -822,7 +822,7 @@
   ],
   "driver": {
     "name": "postgres",
-    "database_version": "PostgreSQL 18.0 (Debian 18.0-1.pgdg13+3) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
+    "database_version": "PostgreSQL 18.1 (Debian 18.1-1.pgdg13+2) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit",
     "meta": {
       "current_schema": "public",
       "search_paths": [

@@ -31,6 +31,8 @@ GOOGLE_CLIENT_ID = FILL_IN
 GOOGLE_CLIENT_SECRET = FILL_IN
 ```
 
+Add your ngrok auth token to `docker/ngrok/traffic-policy.yml` if you want to test twilio integration.
+
 ## 2. Update your hosts file
 
 Add the line
@@ -101,3 +103,9 @@ To create a migration to the current Entity schemas.
 ```sh
 pnpm exec mikro-orm-esm migration:create
 ```
+
+# Ngrok for twilio integration
+
+1. Add your ngrok auth token to `docker/ngrok/traffic-policy.yml`
+1. Explicitly start the ngrok container with `docker up ngrok`.
+1. Visit localhost:4040, and copy the URL presented there into .env.development.local's WEBHOOK_HOST

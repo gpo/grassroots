@@ -101,7 +101,12 @@ async function createMikroORMMigration(
 }
 
 async function bootstrap(port: number): Promise<void> {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app: NestExpressApplication =
+    await NestFactory.create<NestExpressApplication>(AppModule, {
+      snapshot: false,
+      abortOnError: false,
+    });
+
   await writeOpenAPI(app);
   if (genFilesOnly) {
     await app.close();

@@ -10,9 +10,12 @@ import {
   ValidateNested,
 } from "class-validator";
 import { createDTOBase } from "../../util/CreateDTOBase.js";
-import type { CallStatus } from "./CallStatus.dto.js";
-import { CallStatusDecorator } from "./CallStatus.dto.js";
-import { Type } from "class-transformer";
+import type { CallStatus, TwilioCallStatus } from "./CallStatus.dto.js";
+import {
+  CallStatusDecorator,
+  TwilioCallStatusDecorator,
+} from "./CallStatus.dto.js";
+import { Transform, Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
 import { Trim } from "../../decorators/Trim.decorator.js";
@@ -141,14 +144,27 @@ export class PhoneCanvassAuthTokenResponseDTO extends createDTOBase(
   token!: string;
 }
 
-export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
-  "PhoneCanvasTwilioVoiceCallback",
+export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
+  "PhoneCanvasTwilioCallStatusCallback",
 ) {
-  // We require this to be present, but don't want to use default error handling with twilio responses, so
-  // we mark it optional and manually handle the case where it's missing.
   @IsString()
+  CallSid!: string;
+  // eslint-disable-next-line @darraghor/nestjs-typed/all-properties-are-whitelisted, @darraghor/nestjs-typed/all-properties-have-explicit-defined
+  @TwilioCallStatusDecorator()
+  CallStatus!: TwilioCallStatus;
+
   @IsOptional()
-  conference?: string;
+  CallDuration?: number;
+
+  /**
+   * Convert RFC 2822 timestamp to a ms since epoch
+   */
+  @Transform(({ value }: { value: string }) => {
+    const time = Date.parse(value);
+    return Number.isNaN(time) ? undefined : time;
+  })
+  @IsNumber()
+  Timestamp!: number;
 }
 
 // (displayName, activePhoneCanvassId) is globally unique.
