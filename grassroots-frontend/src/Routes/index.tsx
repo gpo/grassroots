@@ -8,6 +8,7 @@ import {
 
 export const Route = createFileRoute("/")({
   component: Index,
+  staticData: { isPublic: true },
 });
 
 function Index(): JSX.Element {

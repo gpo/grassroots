@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Session,
+  NotFoundException,
 } from "@nestjs/common";
 import {
   CreatePhoneCanvasContactRequestDTO,
@@ -23,6 +24,7 @@ import {
   PhoneCanvassCallerDTO,
   CreatePhoneCanvassCallerDTO,
   PhoneCanvasTwilioCallStatusCallbackDTO,
+  PhoneCanvasTwilioCallAnsweredCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -88,7 +90,6 @@ export class PhoneCanvassController {
       "last_name",
       "phone",
     ]);
-    console.log(body.csv);
     const rows = Papa.parse<
       {
         id: string;
@@ -178,12 +179,39 @@ export class PhoneCanvassController {
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
   ): Promise<string> {
     const status = twilioCallStatusToCallStatus(body.CallStatus);
+    console.log(body);
     await this.phoneCanvassService.updateCall({
       ...status,
       sid: body.CallSid,
       timestamp: body.Timestamp,
     });
     return `<Response></Response>`;
+  }
+
+  // TODO: move this logic closer to the twilioService.
+  // eslint-disable-next-line grassroots/controller-routes-return-dtos
+  @Post("webhooks/twilio-call-answered")
+  @PublicRoute()
+  @Header("Content-Type", "text/xml")
+  twilioCallAnsweredCallback(
+    @Body() body: PhoneCanvasTwilioCallAnsweredCallbackDTO,
+  ): string {
+    console.log(body);
+    console.log("GOT ANSWERED");
+    const call = this.phoneCanvassService.callsBySid.get(body.CallSid);
+    if (!call) {
+      throw new NotFoundException(`Can't find call with id ${body.CallSid}`);
+    }
+    if (body.AnsweredBy === "human" || body.AnsweredBy === "unknown") {
+      return `<Response>
+      <Dial>
+        <Conference>
+          ${String(call.contactId())}
+        </Conference>
+      </Dial>
+    </Response>`;
+    }
+    throw new Error("Not handling voicemails yet.");
   }
 
   @Get("progress/:id")
@@ -216,7 +244,7 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    caller = await this.phoneCanvassService.refreshCaller(caller);
+    caller = await this.phoneCanvassService.refreshOrCreateCaller(caller);
     session.phoneCanvassCaller = caller;
     return caller;
   }
@@ -226,7 +254,7 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    caller = await this.phoneCanvassService.updateCaller(caller);
+    caller = await this.phoneCanvassService.updateOrCreateCaller(caller);
     session.phoneCanvassCaller = caller;
     return caller;
   }

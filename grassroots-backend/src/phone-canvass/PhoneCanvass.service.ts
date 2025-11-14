@@ -56,7 +56,7 @@ interface AdvanceCallToStatusParams {
 
 async function advanceCallToStatus(
   params: AdvanceCallToStatusParams,
-): Promise<Call> {
+): Promise<Call & { twilioSid: string }> {
   const { call, status, result, scheduler } = params;
   switch (call.status) {
     case "NOT_STARTED": {
@@ -65,10 +65,13 @@ async function advanceCallToStatus(
       );
     }
     case "QUEUED": {
-      if (status !== "INITIATED") {
+      if (status === "INITIATED") {
+        return await call.advanceStatusToInitiated(params);
+      } else if (status === "RINGING") {
+        return await call.advanceStatusToRinging(params);
+      } else {
         throw new Error(`Invalid transition to ${status}`);
       }
-      return await call.advanceStatusToInitiated(params);
     }
     case "INITIATED": {
       if (status !== "RINGING") {
@@ -109,7 +112,7 @@ async function advanceCallToStatus(
 
 @Injectable()
 export class PhoneCanvassService {
-  callsBySid = new Map<string, Call>();
+  callsBySid = new Map<string, Call & { twilioSid: string }>();
   // From phone canvass id.
   #schedulers = new Map<string, PhoneCanvassScheduler>();
   // Only present if there's an active simulation.
@@ -349,11 +352,11 @@ export class PhoneCanvassService {
     return newCaller;
   }
 
-  async refreshCaller(
+  async refreshOrCreateCaller(
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     await this.getPhoneCanvassByIdOrFail(caller.activePhoneCanvassId);
-    const refreshedCaller = await this.globalState.refreshCaller(
+    const refreshedCaller = await this.globalState.refreshOrCreateCaller(
       caller,
       async (id) => await this.twilioService.getAuthToken(id),
     );
@@ -365,10 +368,13 @@ export class PhoneCanvassService {
     return refreshedCaller;
   }
 
-  async updateCaller(
+  async updateOrCreateCaller(
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
-    this.globalState.updateCaller(caller);
+    await this.globalState.updateOrCreateCaller(
+      caller,
+      async (id) => await this.twilioService.getAuthToken(id),
+    );
     const scheduler = await this.getInitializedScheduler({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
@@ -391,6 +397,10 @@ export class PhoneCanvassService {
     const { sid, status, result, timestamp } = params;
     const call = this.callsBySid.get(sid);
     if (call === undefined) {
+      console.log(
+        "callsBySid",
+        [...this.callsBySid.values()].map((x) => x.twilioSid),
+      );
       throw new Error(`Unable to update call. sid ${sid} doesn't exist.`);
     }
 
@@ -401,7 +411,7 @@ export class PhoneCanvassService {
       result,
     };
 
-    let newCall: Call | undefined = undefined;
+    let newCall: (Call & { twilioSid: string }) | undefined = undefined;
 
     if (status === "COMPLETED") {
       if (result === undefined) {

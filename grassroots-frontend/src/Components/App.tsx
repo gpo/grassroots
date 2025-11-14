@@ -24,6 +24,10 @@ declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;
   }
+
+  interface StaticDataRouteOption {
+    isPublic?: boolean;
+  }
 }
 
 const queryClient = new QueryClient();

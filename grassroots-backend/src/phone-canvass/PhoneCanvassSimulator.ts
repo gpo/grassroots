@@ -276,7 +276,7 @@ export class PhoneCanvassSimulator {
                 this.#callers[event.index] ??
                 fail(`Can't update caller that doesn't exist.`);
               caller.ready = event.ready;
-              await this.phoneCanvassService.updateCaller(caller);
+              await this.phoneCanvassService.updateOrCreateCaller(caller);
               break;
             }
             case "status_change": {

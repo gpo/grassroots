@@ -53,10 +53,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
       </AppShell>
     </MantineProvider>
   ),
-  beforeLoad: async ({ context, location }) => {
-    // If we want more unauthenticated routes, we could have a folder of routes that aren't authenticated,
-    // or similar.
-    if (location.href == "/") {
+  beforeLoad: async ({ context, location, matches }) => {
+    const isPublic = matches.some((m) => m.staticData.isPublic === true);
+    if (isPublic) {
       return;
     }
 

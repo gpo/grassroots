@@ -9,6 +9,7 @@ import {
   CallStatus,
   twilioCallStatusToCallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
+import VoiceResponse from "twilio/lib/twiml/VoiceResponse.js";
 
 @Injectable()
 export class TwilioService {
@@ -29,6 +30,10 @@ export class TwilioService {
 
     const client = await this.#getClient();
 
+    // Pause to give answering machine detection some time.
+    // Configure this by configuring answering machine detection.
+    const twiml = new VoiceResponse().pause({ length: 30 });
+
     const callInstance = await client.calls.create({
       // TODO(mvp): use the actual phone number.
       to: envVars.TEST_APPROVED_PHONE_NUMBER,
@@ -36,14 +41,21 @@ export class TwilioService {
       statusCallback:
         (await getEnvVars()).WEBHOOK_HOST +
         "/phone-canvass/webhooks/twilio-callstatus",
+      asyncAmd: "true",
+      asyncAmdStatusCallback:
+        (await getEnvVars()).WEBHOOK_HOST +
+        "/phone-canvass/webhooks/twilio-call-answered",
       statusCallbackEvent: [
         "initiated",
         "ringing",
         "answered",
         "completed",
-        "queued",
+        "answered",
       ],
-      twiml: `<Response><Dial><Conference>${String(call.contactId())}</Conference></Dial></Response>`,
+      // DetectMessageEnd means that for a human, we get the callback right away,
+      // but for an answering machine, we only get it when the message finishes playing.
+      machineDetection: "DetectMessageEnd",
+      twiml,
     });
 
     return {

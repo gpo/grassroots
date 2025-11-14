@@ -176,6 +176,16 @@ export class QueuedCall extends AbstractCall<"QUEUED"> {
       }),
     );
   }
+
+  async advanceStatusToRinging(params: CurrentTime): Promise<RingingCall> {
+    return await this.advanceStatusTo(
+      new RingingCall({
+        ...this.state,
+        twilioSid: this.twilioSid,
+        currentTime: params.currentTime,
+      }),
+    );
+  }
 }
 
 export class InitiatedCall extends AbstractCall<"INITIATED"> {

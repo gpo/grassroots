@@ -7,6 +7,7 @@ import { getPhoneCanvassCaller } from "../../Features/PhoneCanvass/Logic/PhoneCa
 
 export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
   component: ParticipateInPhoneCanvass,
+  staticData: { isPublic: true },
   beforeLoad: async ({ context, params }) => {
     const refreshCaller = async (
       caller: PhoneCanvassCallerDTO,
