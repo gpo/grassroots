@@ -74,12 +74,10 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     this.#running = true;
     void (async (): Promise<void> => {
       while (true) {
-        console.log("START IF NEEDED IN LOOP");
         await this.#strategy.waitForNextCall();
 
         // This could change while waiting for the next call.
         if (!this.#running) {
-          console.log("NOT #running, bailing.");
           break;
         }
 
@@ -87,7 +85,6 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
         if (contact === undefined) {
           // We've called all contacts. We're done!
           this.#callsObservable.complete();
-          console.log("DONE");
           break;
         }
 
@@ -98,7 +95,6 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
           entityManager: this.#entityManager,
         });
         this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
-        console.log("NEXT");
         this.#callsObservable.next(notStartedCall);
         this.metricsTracker.onCallsByStatusUpdate(this.callsByStatus);
       }

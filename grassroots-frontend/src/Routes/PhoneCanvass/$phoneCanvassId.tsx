@@ -3,6 +3,7 @@ import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ParticipateInPhoneCanvass } from "../../Features/PhoneCanvass/Components/ParticipateInPhoneCanvass.js";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
+import { getPhoneCanvassCaller } from "../../Features/PhoneCanvass/Logic/PhoneCanvassCallerStore.js";
 
 export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
   component: ParticipateInPhoneCanvass,
@@ -17,10 +18,11 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
       );
     };
     const phoneCanvassCallerStore = context.getPhoneCanvassCallerStore();
-    const caller = await phoneCanvassCallerStore.getCaller(
+    const caller = await getPhoneCanvassCaller({
       refreshCaller,
-      params.phoneCanvassId,
-    );
+      activePhoneCanvassId: params.phoneCanvassId,
+      phoneCanvassCallerStore,
+    });
 
     if (caller === undefined) {
       // eslint-disable-next-line @typescript-eslint/only-throw-error

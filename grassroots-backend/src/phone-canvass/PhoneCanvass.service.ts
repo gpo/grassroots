@@ -28,6 +28,7 @@ import type { Express } from "express";
 import {
   CallResult,
   CallStatus,
+  callStatusSort,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
@@ -42,6 +43,7 @@ import {
   ContactSummary,
 } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { getEnvVars } from "../GetEnvVars.js";
+import { InjectRepository } from "@mikro-orm/nestjs";
 
 interface AdvanceCallToStatusParams {
   call: Call;
@@ -107,7 +109,6 @@ async function advanceCallToStatus(
 
 @Injectable()
 export class PhoneCanvassService {
-  repo: EntityRepository<PhoneCanvassEntity>;
   callsBySid = new Map<string, Call>();
   // From phone canvass id.
   #schedulers = new Map<string, PhoneCanvassScheduler>();
@@ -120,10 +121,9 @@ export class PhoneCanvassService {
     private readonly globalState: PhoneCanvassGlobalStateService,
     private readonly schedulerFactory: PhoneCanvassSchedulerFactory,
     private readonly serverMetaService: ServerMetaService,
-  ) {
-    this.repo =
-      entityManager.getRepository<PhoneCanvassEntity>(PhoneCanvassEntity);
-  }
+    @InjectRepository(PhoneCanvassEntity)
+    private readonly repo: EntityRepository<PhoneCanvassEntity>,
+  ) {}
 
   async startSimulating(phoneCanvassId: string): Promise<void> {
     if (!(await getEnvVars()).ENABLE_PHONE_CANVASS_SIMULATION) {
@@ -134,7 +134,6 @@ export class PhoneCanvassService {
 
     this.#simulator?.stop();
 
-    console.log("GETTING");
     const scheduler = await this.getInitializedScheduler({
       phoneCanvassId,
     });
@@ -143,8 +142,7 @@ export class PhoneCanvassService {
       phoneCanvassId,
       scheduler,
     );
-    this.#simulator.start();
-    console.log("STARTED");
+    await this.#simulator.start();
   }
 
   watchSchedulerForCalls(scheduler: PhoneCanvassScheduler): void {
@@ -286,7 +284,7 @@ export class PhoneCanvassService {
         return { displayName: x.displayName, ready: x.ready, callerId: x.id };
       });
 
-    const contacts: ContactSummary[] = (
+    let contacts: ContactSummary[] = (
       await this.getPhoneCanvassContacts(phoneCanvassId)
     ).map((contact) => {
       const dto = contact.toDTO();
@@ -298,6 +296,11 @@ export class PhoneCanvassService {
       };
     });
 
+    contacts = contacts
+      .filter((a) => a.status !== "COMPLETED")
+      .sort((a, b) => -callStatusSort(a.status, b.status))
+      .slice(0, 20);
+
     const syncData = {
       callers,
       contacts,
@@ -305,7 +308,6 @@ export class PhoneCanvassService {
       phoneCanvassId: phoneCanvassId,
     };
 
-    console.log(syncData.contacts);
     await this.twilioService.setSyncData(phoneCanvassId, syncData);
   }
 
@@ -386,7 +388,6 @@ export class PhoneCanvassService {
     result?: CallResult;
     timestamp: number;
   }): Promise<void> {
-    console.log("UPDATE CALL");
     const { sid, status, result, timestamp } = params;
     const call = this.callsBySid.get(sid);
     if (call === undefined) {
@@ -414,7 +415,6 @@ export class PhoneCanvassService {
       if (scheduler === undefined) {
         throw new Error("Missing scheduler.");
       }
-      console.log("ADVANCE TO STATUS");
       newCall = await advanceCallToStatus({
         ...newCallParams,
         scheduler,
@@ -422,7 +422,19 @@ export class PhoneCanvassService {
       });
     }
     this.callsBySid.set(sid, newCall);
-    console.log("UPDATING SYNC DATA");
     await this.#updateSyncData(newCall.canvassId());
+  }
+
+  // If the server dies, we could end up with a bunch of stale
+  // twilio sync data. Clear this on restart.
+  async clearTwilioSyncDatas(): Promise<void> {
+    const canvasses = await this.repo.findAll();
+    await Promise.all(
+      canvasses.map((canvass) => {
+        return (async (): Promise<void> => {
+          await this.#updateSyncData(canvass.id);
+        })();
+      }),
+    );
   }
 }

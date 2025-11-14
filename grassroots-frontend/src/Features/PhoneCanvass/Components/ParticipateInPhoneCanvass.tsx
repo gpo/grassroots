@@ -7,6 +7,7 @@ import { useStore } from "zustand";
 import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
 import { joinTwilioSyncGroup } from "../Logic/JoinTwilioSyncGroup.js";
 import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
+import { runPromise } from "grassroots-shared/util/RunPromise";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -14,9 +15,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const callPartyStateStoreRef = useRef(createCallPartyStateStore());
   const callPartyStateStore = useStore(callPartyStateStoreRef.current);
   const phoneCanvassCallerStore = usePhoneCanvassCallerStore();
-  // TODO: this is required to force a rerender when the caller changes.
-  // I think this means I put too much logic in the store.
-  usePhoneCanvassCallerStore((state) => state.callerProps);
 
   const registerCaller = useRegisterCaller({
     phoneCanvassId,
@@ -27,17 +25,17 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     ParticipateInPhoneCanvassRoute.useRouteContext();
 
   useEffect(() => {
-    console.log("joining group with caller", caller);
-    void joinTwilioSyncGroup({
-      caller,
-      callPartyStateStore,
-      phoneCanvassCallerStore,
-      registerCaller,
-      refreshCaller,
-    });
+    runPromise(
+      joinTwilioSyncGroup({
+        caller,
+        callPartyStateStore,
+        phoneCanvassCallerStore,
+        registerCaller,
+        refreshCaller,
+      }),
+      false,
+    );
   }, []);
-
-  console.log(callPartyStateStore);
 
   const contacts = callPartyStateStore.contacts.map((contact) => {
     const callDescription = ` status: ${contact.status}`;

@@ -5,7 +5,6 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { Faker, en, en_CA } from "@faker-js/faker";
 import { delay } from "grassroots-shared/util/Delay";
-import normal from "@stdlib/random-base-normal";
 import { fail } from "assert";
 import {
   CallResult,
@@ -16,52 +15,58 @@ import { Call, NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { concatMap, Subject, Subscription } from "rxjs";
 import { runPromise } from "grassroots-shared/util/RunPromise";
+import { getEnvVars } from "../GetEnvVars.js";
 
-const MAX_CALLER_COUNT = 10;
+const MAX_CALLER_COUNT = 4;
 
-// These deltas are in seconds.
+// These deltas are in ms.
 function callerJoinDelta(): number {
-  return sampleLogNormal(4, 4);
+  return sampleLogNormalFromCI(100, 5000);
 }
 function callerReadyDelta(): number {
-  return sampleLogNormal(2, 1);
+  return sampleLogNormalFromCI(1000, 10_000);
 }
 function callerUnreadyDelta(): number {
-  return sampleLogNormal(10, 3);
+  return sampleLogNormalFromCI(20_000, 100_000);
 }
 
-// Log normal distribution, with a possibility of failing.
-function modelStateTransition(mu: number, sigma: number): number | undefined {
+// Number within range, with a possibility of failing.
+function modelStateTransition(
+  lower: number,
+  upper: number,
+): number | undefined {
   // 3% chance of failure.
   if (Math.random() < 0.03) {
     return undefined;
   }
-  return sampleLogNormal(mu, sigma);
+  return sampleLogNormalFromCI(lower, upper);
 }
 
 function callInitiatedDelta(): number | undefined {
-  return modelStateTransition(0.5, 1);
+  return modelStateTransition(0, 1_000);
 }
 
 function callRingingDelta(): number | undefined {
-  return modelStateTransition(0.5, 1);
+  return modelStateTransition(100, 2_000);
 }
 
 function callInProgressDelta(): number | undefined {
-  return modelStateTransition(5, 3);
+  return modelStateTransition(2_000, 5_000);
 }
 
 function callCompletedDelta(): number | undefined {
-  return modelStateTransition(10, 30);
+  return modelStateTransition(5_000, 30_000);
 }
 
 function callFailedDelta(): number {
-  return sampleLogNormal(5, 30);
+  return sampleLogNormalFromCI(0, 15_000);
 }
 
-function sampleLogNormal(mu: number, sigma: number): number {
-  const z = normal(0, 1);
-  return Math.exp(mu + sigma * z);
+// TODO: use a log normal distribution, which is both more realistic, and will
+// hit more edge cases. We'll want some hard max to avoid very rare numeric overflow
+// though.
+function sampleLogNormalFromCI(lower: number, upper: number): number {
+  return Math.random() * (upper - lower) + lower;
 }
 
 const FailingCallResults = CallResults.filter((x) => x !== "COMPLETED");
@@ -136,7 +141,6 @@ export class PhoneCanvassSimulator {
       index,
       ts: Date.now(),
     });
-
     while (this.#running) {
       await delay(callerReadyDelta());
       this.#events.next({
@@ -155,23 +159,20 @@ export class PhoneCanvassSimulator {
     }
   }
 
-  simulateCallers(): void {
+  simulateCallers(debug: boolean): void {
     for (let i = 0; i < MAX_CALLER_COUNT; ++i) {
-      runPromise(this.simulateCaller(i));
+      runPromise(this.simulateCaller(i), debug);
     }
   }
 
-  async #advanceStatusOrFail(params: {
+  async #advanceStatus(params: {
     call: Call;
     status: CallStatus;
     result?: CallResult;
-    delayOrFailed: number | undefined;
+    delayMs: number;
   }): Promise<void> {
-    const { call, status, result, delayOrFailed } = params;
-    if (delayOrFailed === undefined) {
-      throw new Error("Simulation modelling call failure");
-    }
-    await delay(delayOrFailed);
+    const { call, status, result, delayMs } = params;
+    await delay(delayMs);
     this.#events.next({
       kind: "status_change",
       ts: Date.now(),
@@ -181,39 +182,55 @@ export class PhoneCanvassSimulator {
     });
   }
 
-  simulateCalls(): void {
+  async #advanceCallThroughToCompletion(
+    call: Call,
+  ): Promise<{ succeeded: boolean }> {
+    let delayMs = callInitiatedDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+    await this.#advanceStatus({
+      call,
+      status: "INITIATED",
+      delayMs,
+    });
+    delayMs = callRingingDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+    await this.#advanceStatus({
+      call,
+      status: "RINGING",
+      delayMs,
+    });
+    delayMs = callInProgressDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+    await this.#advanceStatus({
+      call,
+      status: "IN_PROGRESS",
+      delayMs,
+    });
+    delayMs = callCompletedDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+    await this.#advanceStatus({
+      call,
+      status: "COMPLETED",
+      result: "COMPLETED",
+      delayMs,
+    });
+    return { succeeded: true };
+  }
+
+  simulateCalls(debug: boolean): void {
     const simulateCallsSubscription = this.scheduler.calls.subscribe((call) => {
-      console.log("ON CALL");
       runPromise(
         (async (): Promise<void> => {
-          console.log("TRYING");
-          try {
-            // We always delay some amount, so this is guaranteed to take place after "simulateMakeCall"
-            // occurs for this call.
-            await this.#advanceStatusOrFail({
-              call,
-              status: "INITIATED",
-              delayOrFailed: callInitiatedDelta(),
-            });
-            await this.#advanceStatusOrFail({
-              call,
-              status: "RINGING",
-              delayOrFailed: callRingingDelta(),
-            });
-            await this.#advanceStatusOrFail({
-              call,
-              status: "IN_PROGRESS",
-              delayOrFailed: callInProgressDelta(),
-            });
-            await this.#advanceStatusOrFail({
-              call,
-              status: "COMPLETED",
-              result: "COMPLETED",
-              delayOrFailed: callCompletedDelta(),
-            });
-          } catch (e) {
-            console.log("FAILURE");
-            void e;
+          const result = await this.#advanceCallThroughToCompletion(call);
+          if (!result.succeeded) {
             await delay(callFailedDelta());
             const result =
               FailingCallResults[
@@ -228,21 +245,20 @@ export class PhoneCanvassSimulator {
             });
           }
         })(),
+        debug,
       );
     });
     this.#subscriptions.push(simulateCallsSubscription);
   }
 
-  start(): void {
-    this.simulateCalls();
-    this.simulateCallers();
+  async start(): Promise<void> {
+    const debug = (await getEnvVars()).IS_DEBUG;
+    this.simulateCalls(debug);
+    this.simulateCallers(debug);
 
     const eventsSubscription = this.#events
       .pipe(
         concatMap(async (event: SimulationEvent) => {
-          if (["status_change"].includes(event.kind)) {
-            console.log("EVENT:", event);
-          }
           switch (event.kind) {
             case "add_caller": {
               this.#callers[event.index] =

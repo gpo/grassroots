@@ -37,6 +37,16 @@ import type * as expressSession from "express-session";
 import { twilioCallStatusToCallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 
+export interface GVoteCSVEntry {
+  id: string;
+  email: string;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  phone: string;
+  tags: string;
+}
+
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
   if (email === undefined) {
@@ -73,31 +83,33 @@ export class PhoneCanvassController {
 
     const HANDLED_FIELDS = new Set([
       "id",
-      "gvote_id",
       "email",
       "first_name",
       "last_name",
       "phone",
     ]);
+    console.log(body.csv);
     const rows = Papa.parse<
       {
         id: string;
-        gvote_id: string;
         email: string;
         first_name: string;
         middle_name: string;
         last_name: string;
         phone: string;
+        tags: string;
       } & Record<string, string>
     >(body.csv, {
       header: true,
       dynamicTyping: false,
       skipEmptyLines: true,
+      delimiter: ",",
       transformHeader: (h) => h.trim(),
       transform: (v) => v.trim(),
     });
 
     if (rows.errors.length > 0) {
+      console.log(rows.errors);
       throw new BadRequestException(
         "CSV structure invalid: " + rows.errors.map((x) => x.message).join(" "),
       );
@@ -115,7 +127,7 @@ export class PhoneCanvassController {
           }
           const tagsString = contactRow[field];
           const tags = tagsString
-            ?.split(";")
+            .split(";")
             .map((x) => x.trim())
             .filter((x) => x.length > 0);
           return [field, tags];
@@ -221,7 +233,6 @@ export class PhoneCanvassController {
 
   @Get("start-simulation/:id")
   async startSimulation(@Param("id") id: string): Promise<VoidDTO> {
-    console.log("START SIMULATING");
     await this.phoneCanvassService.startSimulating(id);
     return VoidDTO.from({});
   }

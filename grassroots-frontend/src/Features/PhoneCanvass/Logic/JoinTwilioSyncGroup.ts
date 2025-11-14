@@ -6,6 +6,7 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import {
+  getPhoneCanvassCaller,
   PhoneCanvassCallerStore,
   RefreshCaller,
 } from "./PhoneCanvassCallerStore.js";
@@ -40,9 +41,7 @@ class SyncGroupManager {
 
   constructor(params: JoinSyncGroupParams) {
     this.caller = params.caller;
-    console.log("Creating sync client with caller", this.caller);
     this.#syncClient = new SyncClient(this.caller.authToken);
-    console.log("AFTER CREATING CLIENT");
     this.#callPartyStateStore = params.callPartyStateStore;
     this.#registerCaller = params.registerCaller;
     this.#refreshCaller = params.refreshCaller;
@@ -54,12 +53,14 @@ class SyncGroupManager {
       data.phoneCanvassId !=
       SyncGroupManager.instance?.caller.activePhoneCanvassId
     ) {
-      throw new Error("FOO");
+      // TODO: figure out why this keeps receiving onUpdates.
+      return;
     }
-    const caller = await this.#phoneCanvassCallerStore.getCaller(
-      this.#refreshCaller,
-      this.caller.activePhoneCanvassId,
-    );
+    const caller = await getPhoneCanvassCaller({
+      refreshCaller: this.#refreshCaller,
+      activePhoneCanvassId: this.caller.activePhoneCanvassId,
+      phoneCanvassCallerStore: this.#phoneCanvassCallerStore,
+    });
     if (
       this.#callPartyStateStore.serverInstanceUUID &&
       this.#callPartyStateStore.serverInstanceUUID !==
@@ -73,21 +74,18 @@ class SyncGroupManager {
   }
 
   async init(): Promise<void> {
-    console.log("GET DOC");
     const doc = await this.#syncClient.document(
       this.caller.activePhoneCanvassId,
     );
     this.#doc = doc;
-    console.log("AFTER GET DOC");
-
     this.#syncClient.on("connectionStateChanged", () => {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData));
+      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData), false);
     });
 
     this.#doc.on("updated", () => {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData));
+      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData), false);
     });
   }
 
@@ -111,7 +109,6 @@ export async function joinTwilioSyncGroup(
     // Leave the current group, and join the new one.
     !instance.caller.primaryPropsEqual(params.caller)
   ) {
-    console.log("LEAVE CURRENT GROUP");
     // Make sure no one can use the instance while things are shutting down.
     SyncGroupManager.instance = undefined;
     await instance.stop();
@@ -119,7 +116,6 @@ export async function joinTwilioSyncGroup(
     instance = undefined;
   }
   if (instance === undefined) {
-    console.log("CREATE NEW INSTANCE");
     instance = new SyncGroupManager(params);
     await instance.init();
   }

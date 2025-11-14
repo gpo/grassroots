@@ -17,6 +17,19 @@ enum CallStatusEnum {
   COMPLETED = "COMPLETED",
 }
 
+const callStatusIndex: Record<CallStatusEnum, number> = {
+  NOT_STARTED: 0,
+  QUEUED: 1,
+  INITIATED: 2,
+  RINGING: 3,
+  IN_PROGRESS: 4,
+  COMPLETED: 5,
+};
+
+export function callStatusSort(a: CallStatus, b: CallStatus): number {
+  return callStatusIndex[a] - callStatusIndex[b];
+}
+
 export type CallStatus = keyof typeof CallStatusEnum;
 
 export function CallStatusDecorator(): PropertyDecorator {

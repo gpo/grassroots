@@ -38,7 +38,6 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
-    "@stdlib/random-base-normal": "^0.2.1",
     "@types/papaparse": "^5.3.16",
     "@types/pg": "^8.15.5",
     "chokidar": "^4.0.3",

@@ -55,6 +55,7 @@ export class PhoneCanvassGlobalStateService {
     const { activePhoneCanvassId, id, authToken } = params;
     const callers =
       this.#phoneCanvassIdToCaller.get(activePhoneCanvassId) ?? [];
+
     const existingCaller = callers.find(
       (x) => x.id === id && x.authToken == authToken,
     );

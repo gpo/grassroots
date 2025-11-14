@@ -8,7 +8,6 @@ export function useStartPhoneCanvassSimulation(): UseMutationResult<
 > {
   return useMutation({
     mutationFn: async (phoneCanvassId: string) => {
-      console.log("MUTATE");
       const result = await grassrootsAPI.GET(
         "/phone-canvass/start-simulation/{id}",
         {
@@ -19,7 +18,6 @@ export function useStartPhoneCanvassSimulation(): UseMutationResult<
           },
         },
       );
-      console.log("RESULT", result.data);
 
       if (result.error) {
         throw new Error(JSON.stringify(result.error));
@@ -29,7 +27,6 @@ export function useStartPhoneCanvassSimulation(): UseMutationResult<
     retry: 1,
     onSuccess: () => {
       // TODO(mvp) - maybe track state here?
-      console.log("Simulation started");
     },
   });
 }

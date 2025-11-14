@@ -5,6 +5,8 @@ import { TwilioService } from "./Twilio.service.js";
 import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
 import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
 import { ServerMetaModule } from "../server-meta/ServerMeta.module.js";
+import { MikroOrmModule } from "@mikro-orm/nestjs";
+import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
 
 @Module({
   controllers: [PhoneCanvassController],
@@ -14,7 +16,7 @@ import { ServerMetaModule } from "../server-meta/ServerMeta.module.js";
     PhoneCanvassGlobalStateService,
     PhoneCanvassSchedulerFactory,
   ],
-  imports: [ServerMetaModule],
+  imports: [MikroOrmModule.forFeature([PhoneCanvassEntity]), ServerMetaModule],
 })
 // eslint-disable-next-line @typescript-eslint/no-extraneous-class
 export class PhoneCanvassModule {}

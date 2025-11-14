@@ -88,7 +88,6 @@ abstract class AbstractCall<STATUS extends CallStatus> {
   protected async advanceStatusTo<CallTypeTo extends Call>(
     call: CallTypeTo,
   ): Promise<CallTypeTo> {
-    console.log("ADVANCING TO ", call.status);
     if (
       !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)
     ) {
@@ -109,7 +108,6 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       call.state.contact.callResult = call.result;
     }
     await this.state.entityManager.flush();
-    console.log("FLUSH");
 
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
       this.state.scheduler.callsByStatus,
