@@ -4,7 +4,10 @@ import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
-import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
+import {
+  ContactSummary,
+  PhoneCanvassSyncData,
+} from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import {
   getPhoneCanvassCaller,
   PhoneCanvassCallerStore,
@@ -25,6 +28,7 @@ interface JoinSyncGroupParams {
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
   registerCaller: RegisterCaller;
   refreshCaller: RefreshCaller;
+  onNewContact: (contact: ContactSummary) => Promise<void>;
 }
 
 // We don't give anyone a handle to the SyncGroup, so they can't hold onto a stale instance.
@@ -36,6 +40,8 @@ class SyncGroupManager {
   #phoneCanvassCallerStore: PhoneCanvassCallerStore;
   #registerCaller: RegisterCaller;
   #refreshCaller: RefreshCaller;
+  #lastContact: ContactSummary | undefined;
+  #onNewContact: (contact: ContactSummary) => Promise<void>;
 
   static instance: SyncGroupManager | undefined;
 
@@ -46,6 +52,8 @@ class SyncGroupManager {
     this.#registerCaller = params.registerCaller;
     this.#refreshCaller = params.refreshCaller;
     this.#phoneCanvassCallerStore = params.phoneCanvassCallerStore;
+    this.#onNewContact = params.onNewContact;
+    this.#lastContact = undefined;
   }
 
   async #onUpdate(data: PhoneCanvassSyncData): Promise<void> {
@@ -56,7 +64,7 @@ class SyncGroupManager {
       // TODO: figure out why this keeps receiving onUpdates.
       return;
     }
-    const caller = await getPhoneCanvassCaller({
+    let caller = await getPhoneCanvassCaller({
       refreshCaller: this.#refreshCaller,
       activePhoneCanvassId: this.caller.activePhoneCanvassId,
       phoneCanvassCallerStore: this.#phoneCanvassCallerStore,
@@ -68,9 +76,19 @@ class SyncGroupManager {
       caller
     ) {
       // The server has rebooted, we need to reregister.
-      await this.#registerCaller(CreatePhoneCanvassCallerDTO.from(caller));
+      caller = await this.#registerCaller(
+        CreatePhoneCanvassCallerDTO.from(caller),
+      );
     }
     this.#callPartyStateStore.setData(data);
+    if (caller === undefined) {
+      throw new Error("We should have a caller.");
+    }
+    const currentContact = data.contacts.find((x) => x.callerId == caller.id);
+    if (currentContact && this.#lastContact != currentContact) {
+      this.#lastContact = currentContact;
+      await this.#onNewContact(currentContact);
+    }
   }
 
   async init(): Promise<void> {

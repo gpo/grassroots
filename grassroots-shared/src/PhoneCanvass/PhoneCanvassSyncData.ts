@@ -5,6 +5,7 @@ export interface ContactSummary {
   contactId: number;
   status: CallStatus;
   result?: CallResult;
+  callerId: number | undefined;
 }
 
 export interface CallerSummary {

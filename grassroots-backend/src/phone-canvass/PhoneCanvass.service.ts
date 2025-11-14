@@ -296,6 +296,10 @@ export class PhoneCanvassService {
         contactId: contact.contact.id,
         status: contact.callStatus,
         result: contact.callResult,
+        // TODO: optimize.
+        callerId: [...this.callsBySid.values()].find(
+          (x) => x.contactId() === contact.id,
+        )?.id,
       };
     });
 

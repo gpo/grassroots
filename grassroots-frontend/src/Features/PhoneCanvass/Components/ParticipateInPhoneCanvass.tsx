@@ -8,6 +8,8 @@ import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
 import { joinTwilioSyncGroup } from "../Logic/JoinTwilioSyncGroup.js";
 import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 import { runPromise } from "grassroots-shared/util/RunPromise";
+import { ContactSummary } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
+import { takeCall } from "../Logic/TakeCall.js";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -24,6 +26,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const { caller, refreshCaller } =
     ParticipateInPhoneCanvassRoute.useRouteContext();
 
+  const onNewContact = async (contact: ContactSummary): Promise<void> => {
+    await takeCall(undefined, contact.contactId);
+  };
+
   useEffect(() => {
     runPromise(
       joinTwilioSyncGroup({
@@ -32,6 +38,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         phoneCanvassCallerStore,
         registerCaller,
         refreshCaller,
+        onNewContact,
       }),
       false,
     );
