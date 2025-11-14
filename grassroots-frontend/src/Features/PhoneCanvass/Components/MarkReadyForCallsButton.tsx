@@ -30,7 +30,7 @@ export function MarkReadyForCallsButton(
   useEffect(() => {
     void (async (): Promise<void> => {
       await joinSyncGroup({
-        identity: new PhoneCanvassCallerDTO(),
+        identity,
         callPartyStateStore: callPartyStateStore,
         authToken: authToken,
       });

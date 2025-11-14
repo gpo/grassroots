@@ -180,9 +180,6 @@ export class CreatePhoneCanvassCallerDTO extends createDTOBase(
 
   @IsNotEmpty()
   activePhoneCanvassId!: string;
-
-  @IsBoolean()
-  ready!: boolean;
 }
 
 // (displayName, activePhoneCanvassId) is globally unique.

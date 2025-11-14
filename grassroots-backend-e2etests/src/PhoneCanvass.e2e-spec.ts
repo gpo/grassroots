@@ -218,7 +218,6 @@ describe("PhoneCanvass (e2e)", () => {
           displayName: "Test",
           email: "Test@Test.com",
           activePhoneCanvassId: canvass.id,
-          ready: false,
         }),
       }),
     );

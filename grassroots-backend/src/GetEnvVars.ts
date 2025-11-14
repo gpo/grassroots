@@ -64,6 +64,9 @@ export class Environment {
 
   @IsNotEmpty()
   WEBHOOK_HOST!: string;
+
+  @IsNotEmpty()
+  ENABLE_PHONE_CANVASS_SIMULATION!: boolean;
 }
 
 // Earlier files take priority.

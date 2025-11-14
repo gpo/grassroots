@@ -14,11 +14,11 @@ export async function joinSyncGroup(
   const { identity, authToken, callPartyStateStore } = params;
   const syncClient = new SyncClient(authToken);
 
-  syncClient.on("connectionStateChanged", (state) => {
-    console.log("Sync connection state:", state);
-  });
-
   const doc = await syncClient.document(identity.activePhoneCanvassId);
+
+  syncClient.on("connectionStateChanged", () => {
+    callPartyStateStore.setData(doc.data);
+  });
 
   callPartyStateStore.setData(doc.data);
 

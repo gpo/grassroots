@@ -33,7 +33,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       displayName: "",
       email: "",
       activePhoneCanvassId: phoneCanvassId,
-      ready: false,
     }),
   });
 

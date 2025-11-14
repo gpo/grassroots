@@ -231,13 +231,14 @@ export class PhoneCanvassService {
       };
     });
 
-    await this.twilioService.setSyncData(phoneCanvassId, {
+    const syncData = {
       callers: this.globalState.listCallers(phoneCanvassId).map((x) => {
         return { displayName: x.displayName, ready: x.ready };
       }),
       activeCalls,
       pendingCalls,
-    });
+    };
+    await this.twilioService.setSyncData(phoneCanvassId, syncData);
   }
 
   async #getInitializedScheduler(params: {
