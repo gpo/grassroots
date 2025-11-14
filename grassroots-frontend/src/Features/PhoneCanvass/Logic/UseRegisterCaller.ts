@@ -8,15 +8,15 @@ import {
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { grassrootsAPI } from "../../../GrassRootsAPI.js";
-import { PhoneCanvassCallerStore } from "./PhoneCanvassIdentityStore.js";
+import { PhoneCanvassCallerStore } from "./PhoneCanvassCallerStore.js";
 
-export interface UseAddCallerParams {
+export interface UseRegisterCallerParams {
   phoneCanvassId: string;
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
 }
 
-export function useAddCaller(
-  params: UseAddCallerParams,
+export function useRegisterCaller(
+  params: UseRegisterCallerParams,
 ): UseMutateAsyncFunction<
   PhoneCanvassCallerDTO,
   Error,
@@ -27,7 +27,7 @@ export function useAddCaller(
   const { mutateAsync } = useMutation({
     mutationFn: async (caller: CreatePhoneCanvassCallerDTO) => {
       return PhoneCanvassCallerDTO.fromFetchOrThrow(
-        await grassrootsAPI.POST("/phone-canvass/add-caller", {
+        await grassrootsAPI.POST("/phone-canvass/register-caller", {
           body: caller,
         }),
       );

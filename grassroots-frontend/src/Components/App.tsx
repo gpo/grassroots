@@ -8,12 +8,14 @@ import {
   getLoginState,
   LoginStateContext,
 } from "../Features/Auth/Logic/LoginStateContext.js";
+import { usePhoneCanvassCallerStore } from "../Features/PhoneCanvass/Logic/PhoneCanvassCallerStore.js";
 
 // Create a new router instance
 const router = createRouter({
   routeTree,
   context: {
     loginState: Promise.resolve(undefined),
+    getPhoneCanvassCallerStore: () => usePhoneCanvassCallerStore.getState(),
   },
 });
 

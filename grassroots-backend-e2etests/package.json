@@ -12,13 +12,16 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@faker-js/faker": "^9.9.0",
     "@mikro-orm/core": "^6.5.2",
     "@mikro-orm/postgresql": "^6.5.2",
+    "@types/papaparse": "^5.3.16",
     "grassroots-backend": "workspace:*",
     "grassroots-shared": "workspace:*",
     "grassroots-shared-net": "workspace:*",
     "openapi-fetch": "^0.13.8",
     "openapi-paths": "workspace:*",
+    "papaparse": "^5.5.3",
     "unplugin-swc": "^1.5.7"
   },
   "devDependencies": {

@@ -5,32 +5,71 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { Faker, en, en_CA } from "@faker-js/faker";
 import { delay } from "grassroots-shared/util/Delay";
-import normal from "@stdlib/random-base-normal";
 import { fail } from "assert";
+import {
+  CallResult,
+  CallResults,
+  CallStatus,
+} from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
+import { Call, NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
+import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
+import { concatMap, Subject, Subscription } from "rxjs";
+import { runPromise } from "grassroots-shared/util/RunPromise";
+import { getEnvVars } from "../GetEnvVars.js";
 
-const MAX_CALLER_COUNT = 10;
-const MAX_SIMULATION_TIME = 10 * 60;
+const MAX_CALLER_COUNT = 4;
 
-type NormalDistributionSampler = (mean: number, sigma: number) => number;
-// These deltas are in seconds.
-function callerJoinDelta(sampler: NormalDistributionSampler): number {
-  return sampleLogNormal(sampler, 4, 4);
+// These deltas are in ms.
+function callerJoinDelta(): number {
+  return sampleLogNormalFromCI(100, 5000);
 }
-function callerReadyDelta(sampler: NormalDistributionSampler): number {
-  return sampleLogNormal(sampler, 2, 1);
+function callerReadyDelta(): number {
+  return sampleLogNormalFromCI(1000, 10_000);
 }
-function callerUnreadyDelta(sampler: NormalDistributionSampler): number {
-  return sampleLogNormal(sampler, 10, 3);
+function callerUnreadyDelta(): number {
+  return sampleLogNormalFromCI(20_000, 100_000);
 }
 
-function sampleLogNormal(
-  sampler: NormalDistributionSampler,
-  mu: number,
-  sigma: number,
-): number {
-  const z = sampler(0, 1); // standard normal
-  return Math.exp(mu + sigma * z);
+// Number within range, with a possibility of failing.
+function modelStateTransition(
+  lower: number,
+  upper: number,
+): number | undefined {
+  // 3% chance of failure.
+  if (Math.random() < 0.03) {
+    return undefined;
+  }
+  return sampleLogNormalFromCI(lower, upper);
 }
+
+function callInitiatedDelta(): number | undefined {
+  return modelStateTransition(0, 1_000);
+}
+
+function callRingingDelta(): number | undefined {
+  return modelStateTransition(100, 2_000);
+}
+
+function callInProgressDelta(): number | undefined {
+  return modelStateTransition(2_000, 5_000);
+}
+
+function callCompletedDelta(): number | undefined {
+  return modelStateTransition(5_000, 30_000);
+}
+
+function callFailedDelta(): number {
+  return sampleLogNormalFromCI(0, 15_000);
+}
+
+// TODO: use a log normal distribution, which is both more realistic, and will
+// hit more edge cases. We'll want some hard max to avoid very rare numeric overflow
+// though.
+function sampleLogNormalFromCI(lower: number, upper: number): number {
+  return Math.random() * (upper - lower) + lower;
+}
+
+const FailingCallResults = CallResults.filter((x) => x !== "COMPLETED");
 
 interface BaseEvent {
   ts: number;
@@ -47,95 +86,221 @@ interface ChangeReadyCallerEvent extends BaseEvent {
   ready: boolean;
 }
 
-type SimulationEvent = AddCallerEvent | ChangeReadyCallerEvent;
+interface StatusChangeEvent extends BaseEvent {
+  kind: "status_change";
+  sid: string;
+  status: CallStatus;
+  result?: CallResult;
+}
+
+type SimulationEvent =
+  | AddCallerEvent
+  | ChangeReadyCallerEvent
+  | StatusChangeEvent;
+
+// This doesn't follow the format of real twilio call sids, but is good enough for the simulation.
+function getFakeCallSid(call: Call): string {
+  return String(call.state.id);
+}
+
+export function simulateMakeCall(call: NotStartedCall): {
+  sid: string;
+  status: CallStatus;
+  timestamp: number;
+} {
+  return {
+    sid: getFakeCallSid(call),
+    status: "QUEUED",
+    timestamp:
+      // Use a fixed offset from the NOT_STARTED timestamp.
+      // This is the easiest way to ensure it's determinimistic.
+      (call.state.transitionTimestamps.NOT_STARTED ??
+        fail("Can't reuse NOT_STARTED timestamp, as it isn't present")) + 5,
+  };
+}
 
 export class PhoneCanvassSimulator {
-  #rand: NormalDistributionSampler;
   #faker: Faker;
-  #events: SimulationEvent[] = [];
+  #events = new Subject<SimulationEvent>();
   #callers: PhoneCanvassCallerDTO[] = [];
+  #running = true;
+  #subscriptions: Subscription[] = [];
 
   constructor(
     private readonly phoneCanvassService: PhoneCanvassService,
-    private readonly phoneCanvassId: string,
-    private readonly seed?: number,
+    readonly phoneCanvassId: string,
+    private readonly scheduler: PhoneCanvassScheduler,
   ) {
-    if (seed !== undefined) {
-      this.#rand = normal.factory({
-        seed,
-      });
-    } else {
-      this.#rand = normal.factory({});
-    }
-
-    this.#faker = new Faker({ seed, locale: [en_CA, en] });
+    this.#faker = new Faker({ locale: [en_CA, en] });
   }
 
-  schedulerCaller(index: number): void {
-    let ts = callerJoinDelta(this.#rand);
-    this.#events.push({
+  async simulateCaller(index: number): Promise<void> {
+    await delay(callerJoinDelta());
+    this.#events.next({
       kind: "add_caller",
       index,
-      ts,
+      ts: Date.now(),
     });
-
-    while (ts < MAX_SIMULATION_TIME) {
-      ts += callerReadyDelta(this.#rand);
-      this.#events.push({
+    while (this.#running) {
+      await delay(callerReadyDelta());
+      this.#events.next({
         kind: "change_ready_caller",
         index,
-        ts,
+        ts: Date.now(),
         ready: true,
       });
-      ts += callerUnreadyDelta(this.#rand);
-      this.#events.push({
+      await delay(callerUnreadyDelta());
+      this.#events.next({
         kind: "change_ready_caller",
         index,
-        ts,
+        ts: Date.now(),
         ready: false,
       });
     }
   }
 
-  schedulerCallers(): void {
+  simulateCallers(debug: boolean): void {
     for (let i = 0; i < MAX_CALLER_COUNT; ++i) {
-      this.schedulerCaller(i);
+      runPromise(this.simulateCaller(i), debug);
     }
   }
 
-  async start(): Promise<void> {
-    // We precompute all events as that will make it easier to
-    // reproduce issues with a deterministic random seed.
-    this.schedulerCallers();
-    this.#events.sort((a, b) => a.ts - b.ts);
+  async #advanceStatus(params: {
+    call: Call;
+    status: CallStatus;
+    result?: CallResult;
+    delayMs: number;
+  }): Promise<void> {
+    const { call, status, result, delayMs } = params;
+    await delay(delayMs);
+    this.#events.next({
+      kind: "status_change",
+      ts: Date.now(),
+      sid: getFakeCallSid(call),
+      status,
+      result,
+    });
+  }
 
-    let lastTime = performance.now();
-    for (const event of this.#events) {
-      await delay((event.ts - lastTime) * 1000);
-      lastTime = event.ts;
-      switch (event.kind) {
-        case "add_caller": {
-          this.#callers[event.index] = await this.phoneCanvassService.addCaller(
-            CreatePhoneCanvassCallerDTO.from({
-              displayName: this.#faker.person.fullName(),
-              email: this.#faker.internet.email(),
-              activePhoneCanvassId: this.phoneCanvassId,
-            }),
-          );
-          break;
-        }
-        case "change_ready_caller":
-          {
-            const caller =
-              this.#callers[event.index] ??
-              fail("Can't update caller that doesn't exist.");
-            caller.ready = event.ready;
-            await this.phoneCanvassService.updateCaller(caller);
+  async #advanceCallThroughToCompletion(
+    call: Call,
+  ): Promise<{ succeeded: boolean }> {
+    let delayMs = callInitiatedDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+    await this.#advanceStatus({
+      call,
+      status: "INITIATED",
+      delayMs,
+    });
+    delayMs = callRingingDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+    await this.#advanceStatus({
+      call,
+      status: "RINGING",
+      delayMs,
+    });
+    delayMs = callInProgressDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+    await this.#advanceStatus({
+      call,
+      status: "IN_PROGRESS",
+      delayMs,
+    });
+    delayMs = callCompletedDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+    await this.#advanceStatus({
+      call,
+      status: "COMPLETED",
+      result: "COMPLETED",
+      delayMs,
+    });
+    return { succeeded: true };
+  }
+
+  simulateCalls(debug: boolean): void {
+    const simulateCallsSubscription = this.scheduler.calls.subscribe((call) => {
+      runPromise(
+        (async (): Promise<void> => {
+          const result = await this.#advanceCallThroughToCompletion(call);
+          if (!result.succeeded) {
+            await delay(callFailedDelta());
+            const result =
+              FailingCallResults[
+                Math.floor(Math.random() * FailingCallResults.length)
+              ];
+            this.#events.next({
+              kind: "status_change",
+              ts: Date.now(),
+              sid: getFakeCallSid(call),
+              status: "COMPLETED",
+              result,
+            });
           }
-          break;
-        default:
-          throw new Error("Unhandled simulation event.");
-      }
+        })(),
+        debug,
+      );
+    });
+    this.#subscriptions.push(simulateCallsSubscription);
+  }
+
+  async start(): Promise<void> {
+    const debug = (await getEnvVars()).IS_DEBUG;
+    this.simulateCalls(debug);
+    this.simulateCallers(debug);
+
+    const eventsSubscription = this.#events
+      .pipe(
+        concatMap(async (event: SimulationEvent) => {
+          switch (event.kind) {
+            case "add_caller": {
+              this.#callers[event.index] =
+                await this.phoneCanvassService.registerCaller(
+                  CreatePhoneCanvassCallerDTO.from({
+                    displayName: this.#faker.person.fullName(),
+                    email: this.#faker.internet.email(),
+                    activePhoneCanvassId: this.phoneCanvassId,
+                  }),
+                );
+              break;
+            }
+            case "change_ready_caller": {
+              const caller =
+                this.#callers[event.index] ??
+                fail(`Can't update caller that doesn't exist.`);
+              caller.ready = event.ready;
+              await this.phoneCanvassService.updateCaller(caller);
+              break;
+            }
+            case "status_change": {
+              await this.phoneCanvassService.updateCall({
+                ...event,
+                timestamp: event.ts,
+              });
+              break;
+            }
+            default: {
+              const _exhaustiveCheck: never = event;
+              void _exhaustiveCheck;
+            }
+          }
+        }),
+      )
+      .subscribe();
+    this.#subscriptions.push(eventsSubscription);
+  }
+
+  stop(): void {
+    this.#running = false;
+    for (const subscription of this.#subscriptions) {
+      subscription.unsubscribe();
     }
   }
 }

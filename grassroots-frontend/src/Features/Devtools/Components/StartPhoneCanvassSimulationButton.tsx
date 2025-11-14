@@ -3,7 +3,13 @@ import { JSX } from "react";
 import { useStartPhoneCanvassSimulation } from "../Logic/UseStartPhoneCanvassSimulation.js";
 import { useMatchRoute } from "@tanstack/react-router";
 
-export function StartPhoneCanvassSimulationButton(): JSX.Element | undefined {
+interface StartPhoneCanvassSimulationButtonParams {
+  postClick: () => void;
+}
+
+export function StartPhoneCanvassSimulationButton(
+  params: StartPhoneCanvassSimulationButtonParams,
+): JSX.Element | undefined {
   const startPhoneCanvassSimulation = useStartPhoneCanvassSimulation();
 
   // Check if we're on the phone canvass participation page.
@@ -24,6 +30,7 @@ export function StartPhoneCanvassSimulationButton(): JSX.Element | undefined {
       onClick={() => {
         void (async (): Promise<void> => {
           await startPhoneCanvassSimulation.mutateAsync(phoneCanvassId);
+          params.postClick();
         })();
       }}
     >

@@ -11,6 +11,7 @@ import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
+import { EntityManager } from "@mikro-orm/postgresql";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
@@ -31,11 +32,19 @@ const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
 let currentTime = -1;
 
 function getScheduler(): PhoneCanvassScheduler {
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const entityManager = {
+    flush: vi.fn().mockResolvedValue(undefined),
+  } as unknown as EntityManager;
   const metricsTracker = new PhoneCanvassMetricsTracker();
   const scheduler = new PhoneCanvassSchedulerImpl(
     new NoOvercallingStrategy(metricsTracker),
     metricsTracker,
-    { contacts: FAKE_CONTACTS, phoneCanvassId: "fake phone canvass id" },
+    {
+      contacts: FAKE_CONTACTS,
+      phoneCanvassId: "fake phone canvass id",
+      entityManager,
+    },
   );
 
   const currentTimeMock = vi.fn(() => {
@@ -119,27 +128,26 @@ describe("PhoneCanvassScheduler", () => {
     const call = calls[0] ?? fail();
     expect(call.id).toBe(1);
 
-    const callInProgress = call
-      .advanceStatusToQueued({
-        currentTime: 2,
-        twilioSid: "Test",
-      })
-      .advanceStatusToInitiated({
-        currentTime: 3,
-      })
-      .advanceStatusToRinging({
-        currentTime: 4,
-      })
-      .advanceStatusToInProgress({
-        callerId:
-          scheduler.getNextIdleCallerId() ?? fail("Missing next caller id"),
-        currentTime: 5,
-      });
+    const queued = await call.advanceStatusToQueued({
+      currentTime: 2,
+      twilioSid: "Test",
+    });
+    const initiated = await queued.advanceStatusToInitiated({
+      currentTime: 3,
+    });
+    const ringing = await initiated.advanceStatusToRinging({
+      currentTime: 4,
+    });
+    const inProgress = await ringing.advanceStatusToInProgress({
+      callerId:
+        scheduler.getNextIdleCallerId() ?? fail("Missing next caller id"),
+      currentTime: 5,
+    });
 
     await scheduler.waitForIdleForTest();
     expect(calls).toHaveLength(1);
 
-    const completedCall = callInProgress.advanceStatusToCompleted({
+    const completedCall = await inProgress.advanceStatusToCompleted({
       currentTime: 6,
       result: "COMPLETED",
     });

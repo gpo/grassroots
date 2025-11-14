@@ -29,7 +29,11 @@ export function DevTools(): JSX.Element {
           <AppShell.Section p="sm">
             <Stack gap="sm">
               <AddFakeDataButton></AddFakeDataButton>
-              <StartPhoneCanvassSimulationButton></StartPhoneCanvassSimulationButton>
+              <StartPhoneCanvassSimulationButton
+                postClick={() => {
+                  setDevtoolsShown(false);
+                }}
+              ></StartPhoneCanvassSimulationButton>
             </Stack>
           </AppShell.Section>
           <AppShell.Section>

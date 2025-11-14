@@ -22,6 +22,7 @@ import metadata from "./FormattedMetadata.gen.js";
 import { mkdir } from "fs/promises";
 import { dirname } from "path";
 import { OrganizationEntity } from "./organizations/Organization.entity.js";
+import { PhoneCanvassService } from "./phone-canvass/PhoneCanvass.service.js";
 
 const watching = argv.includes("--watch") || argv.includes("-w");
 const genFilesOnly = argv.includes("--gen-files-only");
@@ -100,6 +101,13 @@ async function createMikroORMMigration(
   }
 }
 
+// Ideally this would live in the TwilioService with a lifecycle callback,
+// but that runs into tricky lifetime issues with MikroORM initialization.
+async function clearTwilioSyncData(app: NestExpressApplication): Promise<void> {
+  const phoneCanvassService = app.get(PhoneCanvassService);
+  await phoneCanvassService.clearTwilioSyncDatas();
+}
+
 async function bootstrap(port: number): Promise<void> {
   const app: NestExpressApplication =
     await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -123,6 +131,7 @@ async function bootstrap(port: number): Promise<void> {
       await createMikroORMMigration(app);
       await OrganizationEntity.ensureRootOrganization(app);
     })(),
+    clearTwilioSyncData,
   ];
 
   await Promise.all(postStartupTasks);

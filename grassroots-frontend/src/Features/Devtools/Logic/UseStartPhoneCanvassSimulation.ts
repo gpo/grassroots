@@ -27,7 +27,6 @@ export function useStartPhoneCanvassSimulation(): UseMutationResult<
     retry: 1,
     onSuccess: () => {
       // TODO(mvp) - maybe track state here?
-      console.log("Simulation started");
     },
   });
 }
