@@ -1,5 +1,6 @@
 // eslint-disable-next-line check-file/filename-naming-convention
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
 
 import {
   createRootRouteWithContext,
@@ -8,6 +9,7 @@ import {
 } from "@tanstack/react-router";
 
 import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 import { RoutedLink } from "../Components/RoutedLink.js";
 import { navigateToBackendRoute } from "../GrassRootsAPI.js";
 import { LoginState } from "../Features/Auth/Logic/LoginStateContext.js";
@@ -23,6 +25,8 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => (
     <MantineProvider>
       <HeadContent />
+      <Notifications />
+
       <AppShell
         header={{ height: 60 }}
         navbar={{

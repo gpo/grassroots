@@ -9,8 +9,17 @@ import { UsersService } from "../users/Users.service.js";
 import OpenIDConnectStrategy from "passport-openidconnect";
 import { UserDTO } from "grassroots-shared/dtos/User.dto";
 import { Environment, getEnvVars } from "../GetEnvVars.js";
+import { ErrorTexts } from "grassroots-shared/constants/ErrorTexts";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
+
+export class GoogleOAuthStrategyValidateError extends Error {
+  constructor(msg: string, errorMessage: keyof typeof ErrorTexts) {
+    super(msg);
+    this.errorMessage = errorMessage;
+  }
+  errorMessage: keyof typeof ErrorTexts;
+}
 
 @Injectable()
 export class GoogleOAuthStrategy extends PassportStrategy(
@@ -39,9 +48,12 @@ export class GoogleOAuthStrategy extends PassportStrategy(
 
     const validEmailsRegex = (await getEnvVars()).VALID_LOGIN_EMAIL_REGEX;
     const validEmail = emails.find((email) => validEmailsRegex.match(email));
-    // TODO: figure out a way to pass error messages from here to the OAuth guard's handleRequest.
+
     if (validEmail === undefined) {
-      return undefined;
+      throw new GoogleOAuthStrategyValidateError(
+        ErrorTexts.EmailsMustBeGpo,
+        "EmailsMustBeGpo",
+      );
     }
 
     return await this.userService.findOrCreate(

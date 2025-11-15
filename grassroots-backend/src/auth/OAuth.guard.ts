@@ -1,5 +1,8 @@
 import { AuthGuard } from "@nestjs/passport";
-import { DEFAULT_PASSPORT_STRATEGY_NAME } from "./GoogleOAuth.strategy.js";
+import {
+  DEFAULT_PASSPORT_STRATEGY_NAME,
+  GoogleOAuthStrategyValidateError,
+} from "./GoogleOAuth.strategy.js";
 import { ExecutionContext, Injectable } from "@nestjs/common";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
 import { Observable } from "rxjs";
@@ -25,7 +28,7 @@ export class OAuthGuard extends AuthGuard(DEFAULT_PASSPORT_STRATEGY_NAME) {
   }
 
   handleRequest<UserDTO>(
-    err: Error | undefined,
+    err: GoogleOAuthStrategyValidateError | undefined,
     user: UserDTO | false,
     info: unknown,
     context: ExecutionContext,
@@ -34,8 +37,13 @@ export class OAuthGuard extends AuthGuard(DEFAULT_PASSPORT_STRATEGY_NAME) {
     if (err || user === false) {
       console.log("ERROR!");
       const request = context.switchToHttp().getRequest<GrassrootsRequest>();
+      if (err?.errorMessage) {
+        request.session.redirect_path = "/?errorMessage=" + err.errorMessage;
+      } else {
+        request.session.redirect_path = "/?errorMessage=Unauthorized";
+      }
       console.log("HANDLE REQUEST SET REDIRECT PATH");
-      request.session.redirect_path = "/?errorMessage=Unauthorized";
+
       return null;
     }
 
