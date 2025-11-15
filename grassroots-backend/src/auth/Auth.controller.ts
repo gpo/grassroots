@@ -49,24 +49,31 @@ export class AuthController {
     @Response() response: ExpressResponse,
   ): Promise<VoidDTO> {
     console.log("CALLBACK");
-    if (!req.user) {
-      throw new Error("No user found for login.");
-    }
+    console.log("USER", req.user);
+
     // The session doesn't contain the redirect path by the time req.login is called,
     // so make sure to stash it here.
     const redirectPath =
       req.session.redirect_path ?? (await getEnvVars()).VITE_FRONTEND_HOST;
+    console.log("REDIRECT PATH: ", req.session.redirect_path);
     // To prevent a redirect path accidentally being used multiple times, clear this
     // as soon as it's read.
     req.session.redirect_path = undefined;
 
+    if (!req.user) {
+      // The redirect path will already be setup, including an error message query parameter.
+      response.redirect(redirectPath);
+      return VoidDTO.get();
+    }
+
     console.log("LOGIN");
     req.login(req.user, (err) => {
       console.log("LOGIN FUNC");
-      if (err !== undefined) {
+      if (err === undefined) {
+        response.redirect(redirectPath);
+      } else {
         response.redirect("/");
       }
-      response.redirect(redirectPath);
     });
     return VoidDTO.get();
   }

@@ -23,4 +23,22 @@ export class OAuthGuard extends AuthGuard(DEFAULT_PASSPORT_STRATEGY_NAME) {
 
     return super.canActivate(context);
   }
+
+  handleRequest<UserDTO>(
+    err: Error | undefined,
+    user: UserDTO | false,
+    info: unknown,
+    context: ExecutionContext,
+  ): UserDTO | null {
+    console.log("HANDLE REQUEST", err, user);
+    if (err || user === false) {
+      console.log("ERROR!");
+      const request = context.switchToHttp().getRequest<GrassrootsRequest>();
+      console.log("HANDLE REQUEST SET REDIRECT PATH");
+      request.session.redirect_path = "/?errorMessage=Unauthorized";
+      return null;
+    }
+
+    return user;
+  }
 }

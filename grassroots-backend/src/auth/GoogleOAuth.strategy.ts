@@ -1,10 +1,9 @@
 import {
   Strategy as GoogleStrategy,
-  VerifyCallback,
   VerifyFunction,
   Profile,
 } from "passport-google-oidc";
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "../users/Users.service.js";
 import OpenIDConnectStrategy from "passport-openidconnect";
@@ -34,41 +33,25 @@ export class GoogleOAuthStrategy extends PassportStrategy(
   validate: VerifyFunction = async (
     issuer: string,
     profile: Profile,
-    done: VerifyCallback,
-  ): Promise<void> => {
+  ): Promise<UserDTO | undefined> => {
     const id = profile.id;
-    let user: UserDTO | undefined = undefined;
     const emails = profile.emails?.map((v) => v.value) ?? [];
 
     const validEmailsRegex = (await getEnvVars()).VALID_LOGIN_EMAIL_REGEX;
     const validEmail = emails.find((email) => validEmailsRegex.match(email));
+    // TODO: figure out a way to pass error messages from here to the OAuth guard's handleRequest.
     if (validEmail === undefined) {
-      done(
-        new UnauthorizedException(
-          "Only @gpo.ca emails are accepted at this time.",
-        ),
-      );
+      return undefined;
     }
 
-    try {
-      user = await this.userService.findOrCreate(
-        UserDTO.from({
-          id,
-          emails,
-          displayName: profile.displayName,
-          firstName: profile.name?.givenName,
-          lastName: profile.name?.familyName,
-        }),
-      );
-      done(null, user);
-    } catch (err) {
-      let typedErr: undefined | Error = undefined;
-      if (err instanceof Error) {
-        typedErr = err;
-      } else {
-        typedErr = new Error(String(err));
-      }
-      done(typedErr);
-    }
+    return await this.userService.findOrCreate(
+      UserDTO.from({
+        id,
+        emails,
+        displayName: profile.displayName,
+        firstName: profile.name?.givenName,
+        lastName: profile.name?.familyName,
+      }),
+    );
   };
 }
