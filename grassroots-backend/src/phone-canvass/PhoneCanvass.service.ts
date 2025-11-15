@@ -19,6 +19,7 @@ import {
   PhoneCanvassContactDTO,
   PhoneCanvassCallerDTO,
   CreatePhoneCanvassCallerDTO,
+  PhoneCanvassDetailsDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -185,6 +186,7 @@ export class PhoneCanvassService {
     audioFile?: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
     const canvassEntity = this.repo.create({
+      name: canvass.name,
       creatorEmail,
       contacts: [],
     });
@@ -211,6 +213,7 @@ export class PhoneCanvassService {
     }
 
     await this.entityManager.flush();
+
     await this.#updateSyncData(canvassEntity.id);
 
     return CreatePhoneCanvassResponseDTO.from({
@@ -247,6 +250,13 @@ export class PhoneCanvassService {
     const canvass = await this.getPhoneCanvassByIdOrFail(id);
     return PhoneCanvassProgressInfoResponseDTO.from({
       count: canvass.contacts.length,
+    });
+  }
+
+  async getDetails(id: string): Promise<PhoneCanvassDetailsDTO> {
+    const canvass = await this.getPhoneCanvassByIdOrFail(id);
+    return PhoneCanvassDetailsDTO.from({
+      name: canvass.name,
     });
   }
 

@@ -24,6 +24,9 @@ export class PhoneCanvassDTO extends createDTOBase("PhoneCanvass") {
   @IsString()
   id!: string;
 
+  @IsString()
+  name!: string;
+
   @ValidateNested({ each: true })
   @Type(() => PhoneCanvassContactDTO)
   contacts!: PhoneCanvassContactDTO[];
@@ -101,6 +104,13 @@ export class PhoneCanvassProgressInfoResponseDTO extends createDTOBase(
 ) {
   @IsNumber()
   count!: number;
+}
+
+export class PhoneCanvassDetailsDTO extends createDTOBase(
+  "PhoneCanvassDetails",
+) {
+  @IsString()
+  name!: string;
 }
 
 export class PaginatedPhoneCanvassContactListRequestDTO extends createDTOBase(

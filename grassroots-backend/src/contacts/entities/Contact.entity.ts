@@ -32,6 +32,9 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   @Property()
   phoneNumber!: string;
 
+  //@Property()
+  //address!: string;
+
   @ManyToOne(() => OrganizationEntity)
   organization!: Rel<OrganizationEntity>;
 

@@ -12,7 +12,6 @@ export class SessionGuard {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    console.log("CAN ACTIVATE in Session guard");
     const isRoutePublic = this.reflector.getAllAndOverride<boolean>(
       DECORATOR_METADATA_INDICATING_PUBLIC_ROUTE,
       [context.getHandler(), context.getClass()],

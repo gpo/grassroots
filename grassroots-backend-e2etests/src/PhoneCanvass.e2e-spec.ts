@@ -5,7 +5,6 @@ import {
   CreatePhoneCanvassResponseDTO,
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassCallerDTO,
-  PhoneCanvassProgressInfoResponseDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassModule } from "grassroots-backend/phone-canvass/PhoneCanvass.module";
 import { AuthModule } from "grassroots-backend/auth/Auth.module";
@@ -116,18 +115,6 @@ describe("PhoneCanvass (e2e)", () => {
         ),
       }),
     );
-
-    const progress = PhoneCanvassProgressInfoResponseDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.GET("/phone-canvass/progress/{id}", {
-        params: {
-          path: {
-            id: result.id,
-          },
-        },
-      }),
-    );
-
-    expect(progress.count).toBe(4);
 
     const allContacts =
       PaginatedPhoneCanvassContactResponseDTO.fromFetchOrThrow(

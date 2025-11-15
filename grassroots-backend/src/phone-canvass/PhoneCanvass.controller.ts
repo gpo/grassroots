@@ -20,11 +20,11 @@ import {
   CreatePhoneCanvassResponseDTO,
   PaginatedPhoneCanvassContactListRequestDTO,
   PaginatedPhoneCanvassContactResponseDTO,
-  PhoneCanvassProgressInfoResponseDTO,
   PhoneCanvassCallerDTO,
   CreatePhoneCanvassCallerDTO,
   PhoneCanvasTwilioCallStatusCallbackDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
+  PhoneCanvassDetailsDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -52,6 +52,7 @@ export interface GVoteCSVEntry {
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
   if (email === undefined) {
+    console.log("BOO");
     throw new UnauthorizedException(
       "Missing user email in request to create phone canvas.",
     );
@@ -81,6 +82,7 @@ export class PhoneCanvassController {
     @UploadedFile() voiceMailAudioFile: Express.Multer.File,
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
+    console.log("CREATE");
     const email = getEmail(req);
 
     const HANDLED_FIELDS = new Set([
@@ -119,6 +121,7 @@ export class PhoneCanvassController {
     const unhandledFields = allFields?.filter((x) => !HANDLED_FIELDS.has(x));
 
     const validationErrors: ValidationError[][] = [];
+    console.log("CREATING WITH NAME: ", body.name);
     const createDTO = CreatePhoneCanvassRequestDTO.from({
       name: body.name,
       contacts: rows.data.map((contactRow) => {
@@ -214,11 +217,13 @@ export class PhoneCanvassController {
     throw new Error("Not handling voicemails yet.");
   }
 
-  @Get("progress/:id")
-  async getProgressInfo(
+  @Get("details/:id")
+  @PublicRoute()
+  async getPhoneCanvassDetails(
     @Param("id") id: string,
-  ): Promise<PhoneCanvassProgressInfoResponseDTO> {
-    return await this.phoneCanvassService.getProgressInfo(id);
+  ): Promise<PhoneCanvassDetailsDTO> {
+    console.log("GETTER", id);
+    return await this.phoneCanvassService.getDetails(id);
   }
 
   @Post("list")

@@ -11,6 +11,7 @@ import { ContactSummary } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncD
 import { takeCall } from "../Logic/TakeCall.js";
 import { markReadyForCalls } from "../Logic/MarkReadyForCalls.js";
 import { Device } from "@twilio/voice-sdk";
+import { usePhoneCanvassDetails } from "../Logic/UsePhoneCanvassDetails.js";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -49,6 +50,8 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     );
   }, []);
 
+  const phoneCanvassDetails = usePhoneCanvassDetails(phoneCanvassId).data;
+
   const contacts = callPartyStateStore.contacts.map((contact) => {
     const callDescription = ` status: ${contact.status}`;
 
@@ -69,7 +72,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   return (
     <>
-      <h1> Call Party </h1>
+      <h1> Call Party: {phoneCanvassDetails?.name ?? ""} </h1>
       <h2> Welcome {caller.displayName}</h2>
 
       <>
