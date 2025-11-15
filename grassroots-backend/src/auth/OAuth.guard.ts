@@ -11,6 +11,7 @@ export class OAuthGuard extends AuthGuard(DEFAULT_PASSPORT_STRATEGY_NAME) {
   canActivate(
     context: ExecutionContext,
   ): Promise<boolean> | Observable<boolean> | boolean {
+    console.log("GUARD");
     const req = context.switchToHttp().getRequest<GrassrootsRequest>();
 
     // This is set in the login route.
@@ -18,6 +19,7 @@ export class OAuthGuard extends AuthGuard(DEFAULT_PASSPORT_STRATEGY_NAME) {
     if (typeof redirectPath === "string") {
       req.session.redirect_path = redirectPath;
     }
+    console.log("GUARD CALLING SUPER");
 
     return super.canActivate(context);
   }

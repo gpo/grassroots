@@ -48,6 +48,7 @@ export class AuthController {
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
   ): Promise<VoidDTO> {
+    console.log("CALLBACK");
     if (!req.user) {
       throw new Error("No user found for login.");
     }
@@ -59,9 +60,11 @@ export class AuthController {
     // as soon as it's read.
     req.session.redirect_path = undefined;
 
+    console.log("LOGIN");
     req.login(req.user, (err) => {
+      console.log("LOGIN FUNC");
       if (err !== undefined) {
-        throw err;
+        response.redirect("/");
       }
       response.redirect(redirectPath);
     });

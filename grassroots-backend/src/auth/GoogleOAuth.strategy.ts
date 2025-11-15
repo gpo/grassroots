@@ -4,12 +4,12 @@ import {
   VerifyFunction,
   Profile,
 } from "passport-google-oidc";
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "../users/Users.service.js";
 import OpenIDConnectStrategy from "passport-openidconnect";
 import { UserDTO } from "grassroots-shared/dtos/User.dto";
-import { Environment } from "../GetEnvVars.js";
+import { Environment, getEnvVars } from "../GetEnvVars.js";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
 
@@ -31,7 +31,6 @@ export class GoogleOAuthStrategy extends PassportStrategy(
     } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
   }
 
-  // TODO: eventually we shouldn't let anyone with a Google account login.
   validate: VerifyFunction = async (
     issuer: string,
     profile: Profile,
@@ -39,11 +38,23 @@ export class GoogleOAuthStrategy extends PassportStrategy(
   ): Promise<void> => {
     const id = profile.id;
     let user: UserDTO | undefined = undefined;
+    const emails = profile.emails?.map((v) => v.value) ?? [];
+
+    const validEmailsRegex = (await getEnvVars()).VALID_LOGIN_EMAIL_REGEX;
+    const validEmail = emails.find((email) => validEmailsRegex.match(email));
+    if (validEmail === undefined) {
+      done(
+        new UnauthorizedException(
+          "Only @gpo.ca emails are accepted at this time.",
+        ),
+      );
+    }
+
     try {
       user = await this.userService.findOrCreate(
         UserDTO.from({
           id,
-          emails: profile.emails?.map((v) => v.value) ?? [],
+          emails,
           displayName: profile.displayName,
           firstName: profile.name?.givenName,
           lastName: profile.name?.familyName,
