@@ -97,6 +97,7 @@ export class PhoneCanvassController {
       "id",
       "email",
       "first_name",
+      "middle_name",
       "last_name",
       "phone",
       "address",

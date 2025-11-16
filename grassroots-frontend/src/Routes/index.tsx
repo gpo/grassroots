@@ -8,6 +8,7 @@ import {
 import { ErrorTexts } from "grassroots-shared/constants/ErrorTexts";
 import { notifications } from "@mantine/notifications";
 import { runPromise } from "grassroots-shared/util/RunPromise";
+import { Title } from "@mantine/core";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -36,7 +37,6 @@ function Index(): JSX.Element {
     setLoginError(search.errorMessage);
   }
   const navigate = useNavigate();
-  console.log("search", search);
 
   useEffect(() => {
     runPromise(
@@ -45,7 +45,6 @@ function Index(): JSX.Element {
           return;
         }
 
-        console.log("GOING", loginError);
         notifications.clean();
         notifications.show({
           title: "Login failed",
@@ -67,7 +66,7 @@ function Index(): JSX.Element {
     });
   return (
     <>
-      <h1>Temporary auth tools</h1>
+      <Title>Home</Title>
       <p>
         {loginState?.user ? (
           <button
@@ -81,7 +80,6 @@ function Index(): JSX.Element {
           <a href="http://grassroots.org/api/auth/login">Login</a>
         )}
       </p>
-      <p>TODO</p>
     </>
   );
 }

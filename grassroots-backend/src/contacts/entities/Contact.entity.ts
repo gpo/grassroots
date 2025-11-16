@@ -36,6 +36,15 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   address?: string;
 
   @Property({ nullable: true })
+  town?: string;
+
+  @Property({ nullable: true })
+  postal_code?: string;
+
+  @Property({ nullable: true })
+  province?: string;
+
+  @Property({ nullable: true })
   supportLevel?: number;
 
   @Property({ nullable: true })
@@ -56,10 +65,14 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       gvote_id: this.gvote_id,
       email: this.email,
       firstName: this.firstName,
+      middleName: this.middleName,
       lastName: this.lastName,
       phoneNumber: this.phoneNumber,
       organization: this.organization,
       address: this.address,
+      town: this.town,
+      postal_code: this.postal_code,
+      province: this.province,
       supportLevel: this.supportLevel,
       partySupport: this.partySupport,
       voted: this.voted,

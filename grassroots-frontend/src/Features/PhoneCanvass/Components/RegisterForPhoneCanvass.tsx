@@ -1,6 +1,6 @@
 import { JSX, useCallback } from "react";
 import { usePhoneCanvassCallerStore } from "../Logic/PhoneCanvassCallerStore.js";
-import { TextInput } from "@mantine/core";
+import { Button, Stack, TextInput, Title } from "@mantine/core";
 import { CreatePhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { useTypedForm } from "../../../Logic/UseTypedForm.js";
 import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
@@ -36,19 +36,21 @@ export function RegisterForPhoneCanvass(): JSX.Element {
 
   return (
     <>
-      <h1>Welcome to the Party</h1>
+      <Title>Welcome!</Title>
       <form onSubmit={identityForm.onSubmit(onSubmit)}>
-        <TextInput
-          label="Display Name"
-          key={identityForm.key("displayName")}
-          {...identityForm.getInputProps("displayName")}
-        ></TextInput>
-        <TextInput
-          label="Email"
-          key={identityForm.key("email")}
-          {...identityForm.getInputProps("email")}
-        ></TextInput>
-        <input type="submit" />
+        <Stack>
+          <TextInput
+            label="Display Name"
+            key={identityForm.key("displayName")}
+            {...identityForm.getInputProps("displayName")}
+          ></TextInput>
+          <TextInput
+            label="Email"
+            key={identityForm.key("email")}
+            {...identityForm.getInputProps("email")}
+          ></TextInput>
+          <Button type="submit">Submit</Button>
+        </Stack>
       </form>
     </>
   );

@@ -21,6 +21,7 @@ export class PhoneCanvassContactEntity extends createEntityBase<
   @ManyToOne(() => PhoneCanvassEntity)
   phoneCanvas!: Rel<PhoneCanvassEntity>;
 
+  // TODO: Most of this should probably into real fields on the ContactEntity.
   @Property({ type: "json" })
   metadata!: string;
 

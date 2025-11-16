@@ -59,6 +59,18 @@ export class ContactDTO extends createDTOBase("Contact") {
   @IsOptional()
   address?: string;
 
+  @IsString()
+  @IsOptional()
+  town?: string;
+
+  @IsString()
+  @IsOptional()
+  postal_code?: string;
+
+  @IsString()
+  @IsOptional()
+  province?: string;
+
   @IsNumber()
   @Type(() => Number)
   @IsOptional()

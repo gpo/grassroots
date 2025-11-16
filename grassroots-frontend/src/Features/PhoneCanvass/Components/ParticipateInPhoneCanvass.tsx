@@ -13,6 +13,7 @@ import { markReadyForCalls } from "../Logic/MarkReadyForCalls.js";
 import { Device } from "@twilio/voice-sdk";
 import { usePhoneCanvassDetails } from "../Logic/UsePhoneCanvassDetails.js";
 import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
+import { PhoneCanvassContactCard } from "./PhoneCanvassContactCard.js";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -32,8 +33,11 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const currentContact = usePhoneCanvassContact(currentContactId).data;
 
+  console.log("CURRENT CONTACT", currentContact);
   const currentContactCard = currentContact ? (
-    <pre>{JSON.stringify(currentContact)}</pre>
+    <PhoneCanvassContactCard
+      phoneCanvassContact={currentContact}
+    ></PhoneCanvassContactCard>
   ) : null;
 
   const { caller, refreshCaller } =

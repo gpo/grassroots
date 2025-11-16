@@ -16,6 +16,7 @@
     "@mantine/form": "^8.3.2",
     "@mantine/hooks": "^7.17.4",
     "@mantine/notifications": "^8.3.7",
+    "@tabler/icons-react": "^3.35.0",
     "@tanstack/react-query": "^5.74.11",
     "@tanstack/react-router": "^1.117.0",
     "@tanstack/react-router-devtools": "^1.117.0",

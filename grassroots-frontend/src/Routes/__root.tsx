@@ -8,7 +8,14 @@ import {
   Outlet,
 } from "@tanstack/react-router";
 
-import { AppShell, MantineProvider, ScrollArea } from "@mantine/core";
+import {
+  AppShell,
+  Group,
+  MantineProvider,
+  ScrollArea,
+  Stack,
+  Title,
+} from "@mantine/core";
 import { Notifications } from "@mantine/notifications";
 import { RoutedLink } from "../Components/RoutedLink.js";
 import { navigateToBackendRoute } from "../GrassRootsAPI.js";
@@ -36,18 +43,19 @@ export const Route = createRootRouteWithContext<RouterContext>()({
         padding="md"
       >
         <AppShell.Header>
-          <h1>Grassroots</h1>
+          <Group h="100%" px="md">
+            <Title>Grassroots</Title>
+          </Group>
         </AppShell.Header>
-        <AppShell.Navbar>
-          <AppShell.Section>
-            <RoutedLink to="/">Home</RoutedLink>
+        <AppShell.Navbar p="md">
+          <AppShell.Section grow component={ScrollArea}>
+            <Stack>
+              <RoutedLink to="/">Home</RoutedLink>
+              <RoutedLink to="/PhoneCanvass/Create">
+                Create Phone Canvass
+              </RoutedLink>
+            </Stack>
           </AppShell.Section>
-          <AppShell.Section>
-            <RoutedLink to="/PhoneCanvass/Create">
-              Create Phone Canvass
-            </RoutedLink>
-          </AppShell.Section>
-          <AppShell.Section grow component={ScrollArea}></AppShell.Section>
         </AppShell.Navbar>
 
         <AppShell.Main>
