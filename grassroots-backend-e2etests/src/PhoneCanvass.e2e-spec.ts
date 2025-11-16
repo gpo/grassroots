@@ -16,7 +16,7 @@ import {
   CallStatus,
   TwilioCallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { faker } from "@faker-js/faker";
+import { en, en_CA, Faker } from "@faker-js/faker";
 import { GVoteCSVEntry } from "grassroots-backend/phone-canvass/PhoneCanvass.controller";
 import Papa from "papaparse";
 import { writeFile } from "fs/promises";
@@ -136,7 +136,6 @@ describe("PhoneCanvass (e2e)", () => {
     expect(firstContact.contact.email).toBe("a@a.com");
     expect(firstContact.callStatus).toBe("NOT_STARTED");
 
-    expect(firstContact.getMetadataByKey("town")).toBe("Kitchener");
     const tags = firstContact.getMetadataByKey("tags");
     expect(tags).toHaveLength(3);
   });
@@ -269,6 +268,8 @@ describe("PhoneCanvass (e2e)", () => {
   it("DEV ONLY: can generate spit out a test csv", async () => {
     const ROWS = 100;
     const rows: GVoteCSVEntry[] = [];
+    const faker = new Faker({ locale: [en_CA, en] });
+
     for (let i = 0; i < ROWS; ++i) {
       const firstName = faker.person.firstName();
       const middleName = faker.person.middleName();
@@ -283,6 +284,18 @@ describe("PhoneCanvass (e2e)", () => {
         last_name: lastName,
         phone: faker.phone.number(),
         tags: ";;import-2023-07-24; 2022-gpc-donor; true-multi-unit",
+        address: faker.location.streetAddress({ useFullAddress: true }),
+        town: faker.location.city(),
+        postal_code: faker.location.zipCode(),
+        province: faker.location.state(),
+        support_level: faker.number.int({ min: 1, max: 5 }),
+        party_support: faker.helpers.arrayElement(["GPO", "GPC", ""]),
+        voted: faker.helpers.arrayElement([
+          "confirmed",
+          "not voted",
+          "unconfirmed",
+          "",
+        ]),
       });
     }
     expect(rows).toHaveLength(100);

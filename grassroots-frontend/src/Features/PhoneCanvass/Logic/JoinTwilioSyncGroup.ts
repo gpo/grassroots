@@ -28,7 +28,7 @@ interface JoinSyncGroupParams {
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
   registerCaller: RegisterCaller;
   refreshCaller: RefreshCaller;
-  onNewContact: (contact: ContactSummary) => Promise<void>;
+  onNewContact: (contact: ContactSummary) => void;
 }
 
 // We don't give anyone a handle to the SyncGroup, so they can't hold onto a stale instance.
@@ -41,7 +41,7 @@ class SyncGroupManager {
   #registerCaller: RegisterCaller;
   #refreshCaller: RefreshCaller;
   #lastContact: ContactSummary | undefined;
-  #onNewContact: (contact: ContactSummary) => Promise<void>;
+  #onNewContact: (contact: ContactSummary) => void;
 
   static instance: SyncGroupManager | undefined;
 
@@ -87,7 +87,7 @@ class SyncGroupManager {
     const currentContact = data.contacts.find((x) => x.callerId == caller.id);
     if (currentContact && this.#lastContact != currentContact) {
       this.#lastContact = currentContact;
-      await this.#onNewContact(currentContact);
+      this.#onNewContact(currentContact);
     }
   }
 
@@ -105,6 +105,11 @@ class SyncGroupManager {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData), false);
     });
+
+    // Trying to fix a flaky bug where sometimes the sync data isn't initialized
+    // on page visit. Maybe this fixes it?
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    runPromise(this.#onUpdate(this.#doc.data as PhoneCanvassSyncData), false);
   }
 
   async stop(): Promise<void> {

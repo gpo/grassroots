@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsInt,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -53,6 +54,27 @@ export class ContactDTO extends createDTOBase("Contact") {
 
   @IsPhoneNumber("CA")
   phoneNumber!: string;
+
+  @IsString()
+  @IsOptional()
+  address?: string;
+
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  supportLevel?: number;
+
+  @IsString()
+  @IsOptional()
+  partySupport?: string;
+
+  @IsString()
+  @IsOptional()
+  voted?: string;
+
+  @IsString()
+  @IsOptional()
+  membershipStatus?: string;
 }
 
 export class ContactsDTO extends createDTOBase("Contacts") {
@@ -89,6 +111,27 @@ export class CreateContactRequestDTO extends createDTOBase(
   @IsInt()
   @Min(1)
   organizationId!: number;
+
+  @IsString()
+  @IsOptional()
+  address?: string;
+
+  @IsNumber()
+  @Type(() => Number)
+  @IsOptional()
+  supportLevel?: number;
+
+  @IsString()
+  @IsOptional()
+  partySupport?: string;
+
+  @IsString()
+  @IsOptional()
+  voted?: string;
+
+  @IsString()
+  @IsOptional()
+  membershipStatus?: string;
 }
 
 export class CreateBulkContactRequestDTO extends createDTOBase(

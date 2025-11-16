@@ -12,6 +12,7 @@ import { takeCall } from "../Logic/TakeCall.js";
 import { markReadyForCalls } from "../Logic/MarkReadyForCalls.js";
 import { Device } from "@twilio/voice-sdk";
 import { usePhoneCanvassDetails } from "../Logic/UsePhoneCanvassDetails.js";
+import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -20,21 +21,35 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const callPartyStateStore = useStore(callPartyStateStoreRef.current);
   const phoneCanvassCallerStore = usePhoneCanvassCallerStore();
   const [currentDevice, setCurrentDevice] = useState<Device | undefined>();
+  const [currentContactId, setCurrentContactId] = useState<
+    number | undefined
+  >();
 
   const registerCaller = useRegisterCaller({
     phoneCanvassId,
     phoneCanvassCallerStore,
   });
 
+  const currentContact = usePhoneCanvassContact(currentContactId).data;
+
+  const currentContactCard = currentContact ? (
+    <pre>{JSON.stringify(currentContact)}</pre>
+  ) : null;
+
   const { caller, refreshCaller } =
     ParticipateInPhoneCanvassRoute.useRouteContext();
 
-  const onNewContact = async (contact: ContactSummary): Promise<void> => {
-    if (currentDevice === undefined) {
-      throw new Error("Should only receive a contact when we're marked ready.");
-    }
-    await takeCall(currentDevice, contact.contactId);
+  const onNewContact = (contact: ContactSummary): void => {
+    setCurrentContactId(contact.contactId);
   };
+
+  useEffect(() => {
+    // Device is still initializing, or we haven't been matched with a contact.
+    if (currentContactId === undefined || currentDevice === undefined) {
+      return;
+    }
+    runPromise(takeCall(currentDevice, currentContactId), false);
+  }, [currentContactId, currentDevice]);
 
   useEffect(() => {
     runPromise(
@@ -81,6 +96,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
             runPromise(
               (async (): Promise<void> => {
                 const device = (await markReadyForCalls({ caller })).device;
+                console.log("SETTING DEVICE", device);
                 setCurrentDevice(device);
               })(),
               false,
@@ -89,6 +105,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         >
           Ready for Calls
         </Button>
+        {currentContactCard}
         <h2> Callers </h2>
         <List>{callers}</List>
         <h2> Contacts </h2>

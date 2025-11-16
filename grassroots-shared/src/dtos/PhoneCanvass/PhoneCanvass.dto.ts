@@ -38,8 +38,12 @@ export class CreatePhoneCanvasContactRequestDTO extends createDTOBase(
   @ValidateNested()
   @Type(() => CreateContactRequestDTO)
   contact!: CreateContactRequestDTO;
+
   @IsJSON()
   metadata!: string;
+
+  @IsString()
+  notes!: string;
 }
 
 export class CreatePhoneCanvassRequestDTO extends createDTOBase(

@@ -260,6 +260,13 @@ export class PhoneCanvassService {
     });
   }
 
+  async getContact(id: number): Promise<PhoneCanvassContactDTO> {
+    const contact = await this.repo
+      .getEntityManager()
+      .findOneOrFail(PhoneCanvassContactEntity, { id });
+    return contact.toDTO();
+  }
+
   async list({
     phoneCanvassId,
     paginated,

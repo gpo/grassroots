@@ -32,8 +32,20 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   @Property()
   phoneNumber!: string;
 
-  //@Property()
-  //address!: string;
+  @Property({ nullable: true })
+  address?: string;
+
+  @Property({ nullable: true })
+  supportLevel?: number;
+
+  @Property({ nullable: true })
+  partySupport?: string;
+
+  @Property({ nullable: true })
+  voted?: string;
+
+  @Property({ nullable: true })
+  membershipStatus?: string;
 
   @ManyToOne(() => OrganizationEntity)
   organization!: Rel<OrganizationEntity>;
@@ -47,6 +59,11 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       lastName: this.lastName,
       phoneNumber: this.phoneNumber,
       organization: this.organization,
+      address: this.address,
+      supportLevel: this.supportLevel,
+      partySupport: this.partySupport,
+      voted: this.voted,
+      membershipStatus: this.membershipStatus,
     });
   }
 
@@ -60,6 +77,11 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       lastName: contact.lastName,
       phoneNumber: contact.phoneNumber,
       organization: contact.organizationId,
+      address: contact.address,
+      supportLevel: contact.supportLevel,
+      partySupport: contact.partySupport,
+      voted: contact.voted,
+      membershipStatus: contact.membershipStatus,
     };
   }
 }

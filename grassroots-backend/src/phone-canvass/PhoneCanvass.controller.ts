@@ -25,6 +25,7 @@ import {
   PhoneCanvasTwilioCallStatusCallbackDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
   PhoneCanvassDetailsDTO,
+  PhoneCanvassContactDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -47,12 +48,18 @@ export interface GVoteCSVEntry {
   last_name: string;
   phone: string;
   tags: string;
+  address: string;
+  town: string;
+  postal_code: string;
+  province: string;
+  support_level: number;
+  party_support: string;
+  voted: string;
 }
 
 function getEmail(req: GrassrootsRequest): string {
   const email = req.user?.emails[0];
   if (email === undefined) {
-    console.log("BOO");
     throw new UnauthorizedException(
       "Missing user email in request to create phone canvas.",
     );
@@ -77,12 +84,13 @@ export class PhoneCanvassController {
       limits: { fileSize: 5 * 1024 * 1024 }, // Limit file size to 5MB
     }),
   )
+
+  // TODO: factor this out of the controller.
   async create(
     @Body() body: CreatePhoneCanvasCSVRequestDTO,
     @UploadedFile() voiceMailAudioFile: Express.Multer.File,
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    console.log("CREATE");
     const email = getEmail(req);
 
     const HANDLED_FIELDS = new Set([
@@ -91,18 +99,16 @@ export class PhoneCanvassController {
       "first_name",
       "last_name",
       "phone",
+      "address",
+      "town",
+      "postal_code",
+      "province",
+      "support_level",
+      "party_support",
+      "voted",
+      "membership_status",
     ]);
-    const rows = Papa.parse<
-      {
-        id: string;
-        email: string;
-        first_name: string;
-        middle_name: string;
-        last_name: string;
-        phone: string;
-        tags: string;
-      } & Record<string, string>
-    >(body.csv, {
+    const rows = Papa.parse<GVoteCSVEntry & Record<string, string>>(body.csv, {
       header: true,
       dynamicTyping: false,
       skipEmptyLines: true,
@@ -112,7 +118,6 @@ export class PhoneCanvassController {
     });
 
     if (rows.errors.length > 0) {
-      console.log(rows.errors);
       throw new BadRequestException(
         "CSV structure invalid: " + rows.errors.map((x) => x.message).join(" "),
       );
@@ -121,7 +126,6 @@ export class PhoneCanvassController {
     const unhandledFields = allFields?.filter((x) => !HANDLED_FIELDS.has(x));
 
     const validationErrors: ValidationError[][] = [];
-    console.log("CREATING WITH NAME: ", body.name);
     const createDTO = CreatePhoneCanvassRequestDTO.from({
       name: body.name,
       contacts: rows.data.map((contactRow) => {
@@ -137,6 +141,10 @@ export class PhoneCanvassController {
           return [field, tags];
         });
 
+        const address =
+          contactRow.address +
+          `, ${contactRow.town} ${contactRow.province} ${contactRow.postal_code}`;
+
         const dto = CreatePhoneCanvasContactRequestDTO.from({
           contact: CreateContactRequestDTO.from({
             gvote_id: contactRow.id,
@@ -146,8 +154,14 @@ export class PhoneCanvassController {
             lastName: contactRow.last_name,
             phoneNumber: contactRow.phone,
             organizationId: ROOT_ORGANIZATION_ID,
+            address,
+            supportLevel: contactRow.support_level,
+            partySupport: contactRow.party_support,
+            voted: contactRow.voted,
+            membershipStatus: contactRow.membership_status,
           }),
           metadata: JSON.stringify(metadata),
+          notes: "",
         });
 
         const errors = validateSync(dto);
@@ -182,7 +196,6 @@ export class PhoneCanvassController {
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
   ): Promise<string> {
     const status = twilioCallStatusToCallStatus(body.CallStatus);
-    console.log(body);
     await this.phoneCanvassService.updateCall({
       ...status,
       sid: body.CallSid,
@@ -199,8 +212,6 @@ export class PhoneCanvassController {
   twilioCallAnsweredCallback(
     @Body() body: PhoneCanvasTwilioCallAnsweredCallbackDTO,
   ): string {
-    console.log(body);
-    console.log("GOT ANSWERED");
     const call = this.phoneCanvassService.callsBySid.get(body.CallSid);
     if (!call) {
       throw new NotFoundException(`Can't find call with id ${body.CallSid}`);
@@ -222,7 +233,6 @@ export class PhoneCanvassController {
   async getPhoneCanvassDetails(
     @Param("id") id: string,
   ): Promise<PhoneCanvassDetailsDTO> {
-    console.log("GETTER", id);
     return await this.phoneCanvassService.getDetails(id);
   }
 
@@ -232,6 +242,11 @@ export class PhoneCanvassController {
     request: PaginatedPhoneCanvassContactListRequestDTO,
   ): Promise<PaginatedPhoneCanvassContactResponseDTO> {
     return await this.phoneCanvassService.list(request);
+  }
+
+  @Get("contact/:id")
+  async getContact(@Param("id") id: number): Promise<PhoneCanvassContactDTO> {
+    return await this.phoneCanvassService.getContact(id);
   }
 
   @Post("register-caller")
