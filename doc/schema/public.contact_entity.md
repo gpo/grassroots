@@ -4,16 +4,24 @@
 
 ## Columns
 
-| Name            | Type         | Default                                    | Nullable | Children                                                                      | Parents                                                     | Comment |
-| --------------- | ------------ | ------------------------------------------ | -------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ------- |
-| id              | integer      | nextval('contact_entity_id_seq'::regclass) | false    | [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) |                                                             |         |
-| email           | varchar(255) |                                            | false    |                                                                               |                                                             |         |
-| first_name      | varchar(255) |                                            | false    |                                                                               |                                                             |         |
-| last_name       | varchar(255) |                                            | false    |                                                                               |                                                             |         |
-| phone_number    | varchar(255) |                                            | false    |                                                                               |                                                             |         |
-| organization_id | integer      |                                            | false    |                                                                               | [public.organization_entity](public.organization_entity.md) |         |
-| gvote_id        | varchar(255) |                                            | true     |                                                                               |                                                             |         |
-| middle_name     | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| Name              | Type         | Default                                    | Nullable | Children                                                                      | Parents                                                     | Comment |
+| ----------------- | ------------ | ------------------------------------------ | -------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------- | ------- |
+| id                | integer      | nextval('contact_entity_id_seq'::regclass) | false    | [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) |                                                             |         |
+| email             | varchar(255) |                                            | false    |                                                                               |                                                             |         |
+| first_name        | varchar(255) |                                            | false    |                                                                               |                                                             |         |
+| last_name         | varchar(255) |                                            | false    |                                                                               |                                                             |         |
+| phone_number      | varchar(255) |                                            | false    |                                                                               |                                                             |         |
+| organization_id   | integer      |                                            | false    |                                                                               | [public.organization_entity](public.organization_entity.md) |         |
+| gvote_id          | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| middle_name       | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| address           | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| support_level     | integer      |                                            | true     |                                                                               |                                                             |         |
+| party_support     | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| voted             | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| membership_status | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| town              | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| postal_code       | varchar(255) |                                            | true     |                                                                               |                                                             |         |
+| province          | varchar(255) |                                            | true     |                                                                               |                                                             |         |
 
 ## Constraints
 
@@ -51,6 +59,14 @@ erDiagram
   integer organization_id FK
   varchar_255_ gvote_id
   varchar_255_ middle_name
+  varchar_255_ address
+  integer support_level
+  varchar_255_ party_support
+  varchar_255_ voted
+  varchar_255_ membership_status
+  varchar_255_ town
+  varchar_255_ postal_code
+  varchar_255_ province
 }
 "public.phone_canvass_contact_entity" {
   integer id
