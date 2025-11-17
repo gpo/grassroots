@@ -24,8 +24,6 @@ import { PhoneCanvassCallerStore } from "../Features/PhoneCanvass/Logic/PhoneCan
 import { useEffect, useState } from "react";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 
-const NAV_BAR_WIDTH = 300;
-
 interface RouterContext {
   loginState: Promise<LoginState | undefined>;
   getPhoneCanvassCallerStore: () => PhoneCanvassCallerStore;
@@ -35,6 +33,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
   component: () => {
     const context = Route.useRouteContext();
     const [loggedIn, setLoggedIn] = useState<boolean>(false);
+    const navBarWidth = loggedIn ? 300 : 0;
 
     useEffect(() => {
       runPromise(
@@ -63,7 +62,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 
         <AppShell
           navbar={{
-            width: 300,
+            width: navBarWidth,
             breakpoint: "sm",
           }}
           padding="md"
@@ -71,7 +70,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           withBorder={false}
         >
           <AppShell.Header
-            pl={NAV_BAR_WIDTH}
+            pl={navBarWidth}
             p="md"
             ml="md"
             style={{ position: "static" }}
