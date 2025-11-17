@@ -47,7 +47,6 @@ export class UsersService {
         inherited: userRoleDTO.inherited,
       });
     }
-
     await this.entityManager.flush();
     return newUser.toDTO();
   }

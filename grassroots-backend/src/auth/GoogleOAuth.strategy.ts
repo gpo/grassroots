@@ -42,12 +42,17 @@ export class GoogleOAuthStrategy extends PassportStrategy(
   validate: VerifyFunction = async (
     issuer: string,
     profile: Profile,
+    // Nest doesn't need this, but our tests do!
+    // TODO: see if we can get rid of this completely.
+    done: OpenIDConnectStrategy.VerifyCallback,
   ): Promise<UserDTO | undefined> => {
     const id = profile.id;
     const emails = profile.emails?.map((v) => v.value) ?? [];
 
-    const validEmailsRegex = (await getEnvVars()).VALID_LOGIN_EMAIL_REGEX;
-    const validEmail = emails.find((email) => validEmailsRegex.match(email));
+    const validEmailsRegex = new RegExp(
+      (await getEnvVars()).VALID_LOGIN_EMAIL_REGEX,
+    );
+    const validEmail = emails.find((email) => validEmailsRegex.test(email));
 
     if (validEmail === undefined) {
       throw new GoogleOAuthStrategyValidateError(
@@ -56,7 +61,7 @@ export class GoogleOAuthStrategy extends PassportStrategy(
       );
     }
 
-    return await this.userService.findOrCreate(
+    const user = await this.userService.findOrCreate(
       UserDTO.from({
         id,
         emails,
@@ -65,5 +70,10 @@ export class GoogleOAuthStrategy extends PassportStrategy(
         lastName: profile.name?.familyName,
       }),
     );
+
+    // This is only required for tests to pass.
+    done(null, user);
+
+    return user;
   };
 }
