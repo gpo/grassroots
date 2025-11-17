@@ -36,7 +36,7 @@ export function RegisterForPhoneCanvass(): JSX.Element {
 
   return (
     <>
-      <Title>Welcome!</Title>
+      <Title order={2}>Welcome!</Title>
       <form onSubmit={identityForm.onSubmit(onSubmit)}>
         <Stack>
           <TextInput

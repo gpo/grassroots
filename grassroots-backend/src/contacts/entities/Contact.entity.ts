@@ -39,7 +39,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   town?: string;
 
   @Property({ nullable: true })
-  postal_code?: string;
+  postalCode?: string;
 
   @Property({ nullable: true })
   province?: string;
@@ -71,7 +71,7 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       organization: this.organization,
       address: this.address,
       town: this.town,
-      postal_code: this.postal_code,
+      postalCode: this.postalCode,
       province: this.province,
       supportLevel: this.supportLevel,
       partySupport: this.partySupport,
@@ -87,10 +87,14 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       email: contact.email,
       gvote_id: contact.gvote_id,
       firstName: contact.firstName,
+      middleName: contact.middleName,
       lastName: contact.lastName,
       phoneNumber: contact.phoneNumber,
       organization: contact.organizationId,
       address: contact.address,
+      town: contact.town,
+      postalCode: contact.postalCode,
+      province: contact.province,
       supportLevel: contact.supportLevel,
       partySupport: contact.partySupport,
       voted: contact.voted,

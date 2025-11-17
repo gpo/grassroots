@@ -422,10 +422,6 @@ export class PhoneCanvassService {
     const { sid, status, result, timestamp } = params;
     const call = this.callsBySid.get(sid);
     if (call === undefined) {
-      console.log(
-        "callsBySid",
-        [...this.callsBySid.values()].map((x) => x.twilioSid),
-      );
       throw new Error(`Unable to update call. sid ${sid} doesn't exist.`);
     }
 

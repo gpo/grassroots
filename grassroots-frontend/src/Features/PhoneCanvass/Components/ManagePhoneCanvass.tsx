@@ -9,6 +9,7 @@ import {
 import { LinkButton } from "../../../Components/LinkButton.js";
 import { PaginatedContacts } from "../../Contacts/Components/PaginatedContacts.js";
 import { usePhoneCanvassContactList } from "../Logic/UsePhoneCanvassContactList.js";
+import { Group, Title } from "@mantine/core";
 
 const ROWS_PER_PAGE = 10;
 
@@ -29,14 +30,16 @@ export function ManagePhoneCanvass(): JSX.Element {
 
   return (
     <>
-      <h1> Manage your phone canvass </h1>
-      <LinkButton
-        to="/PhoneCanvass/$phoneCanvassId"
-        params={{ phoneCanvassId: phoneCanvassId }}
-        variant="filled"
-      >
-        Participate
-      </LinkButton>
+      <Group>
+        <Title order={2}> Manage your phone canvass </Title>
+        <LinkButton
+          to="/PhoneCanvass/$phoneCanvassId"
+          params={{ phoneCanvassId: phoneCanvassId }}
+          variant="filled"
+        >
+          Participate
+        </LinkButton>
+      </Group>
       <PaginatedContacts
         paginatedContactResponse={PaginatedContactResponseDTO.from({
           contacts: paginatedPhoneCanvassContacts.contacts.map(

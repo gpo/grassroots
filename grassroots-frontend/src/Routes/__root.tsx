@@ -10,7 +10,6 @@ import {
 
 import {
   AppShell,
-  Group,
   MantineProvider,
   ScrollArea,
   Stack,
@@ -22,6 +21,10 @@ import { navigateToBackendRoute } from "../GrassRootsAPI.js";
 import { LoginState } from "../Features/Auth/Logic/LoginStateContext.js";
 import { DevTools } from "../Features/Devtools/Components/DevTools.js";
 import { PhoneCanvassCallerStore } from "../Features/PhoneCanvass/Logic/PhoneCanvassCallerStore.js";
+import { useEffect, useState } from "react";
+import { runPromise } from "grassroots-shared/util/RunPromise";
+
+const NAV_BAR_WIDTH = 300;
 
 interface RouterContext {
   loginState: Promise<LoginState | undefined>;
@@ -29,42 +32,62 @@ interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-  component: () => (
-    <MantineProvider>
-      <HeadContent />
-      <Notifications />
+  component: () => {
+    const context = Route.useRouteContext();
+    const [loggedIn, setLoggedIn] = useState<boolean>(false);
 
-      <AppShell
-        header={{ height: 60 }}
-        navbar={{
-          width: 300,
-          breakpoint: "sm",
-        }}
-        padding="md"
-      >
-        <AppShell.Header>
-          <Group h="100%" px="md">
+    useEffect(() => {
+      runPromise(
+        (async (): Promise<void> => {
+          setLoggedIn((await context.loginState)?.user !== undefined);
+        })(),
+        false,
+      );
+    }, [context.loginState]);
+    const navBar = !loggedIn ? undefined : (
+      <AppShell.Navbar p="md" mt="lg">
+        <AppShell.Section grow component={ScrollArea}>
+          <Stack>
+            <RoutedLink to="/">Home</RoutedLink>
+            <RoutedLink to="/PhoneCanvass/Create">
+              Create Phone Canvass
+            </RoutedLink>
+          </Stack>
+        </AppShell.Section>
+      </AppShell.Navbar>
+    );
+    return (
+      <MantineProvider>
+        <HeadContent />
+        <Notifications />
+
+        <AppShell
+          navbar={{
+            width: 300,
+            breakpoint: "sm",
+          }}
+          padding="md"
+          mt="lg"
+          withBorder={false}
+        >
+          <AppShell.Header
+            pl={NAV_BAR_WIDTH}
+            p="md"
+            ml="md"
+            style={{ position: "static" }}
+          >
             <Title>Grassroots</Title>
-          </Group>
-        </AppShell.Header>
-        <AppShell.Navbar p="md">
-          <AppShell.Section grow component={ScrollArea}>
-            <Stack>
-              <RoutedLink to="/">Home</RoutedLink>
-              <RoutedLink to="/PhoneCanvass/Create">
-                Create Phone Canvass
-              </RoutedLink>
-            </Stack>
-          </AppShell.Section>
-        </AppShell.Navbar>
+          </AppShell.Header>
+          {navBar}
 
-        <AppShell.Main>
-          <Outlet />
-        </AppShell.Main>
-        <DevTools></DevTools>
-      </AppShell>
-    </MantineProvider>
-  ),
+          <AppShell.Main>
+            <Outlet />
+          </AppShell.Main>
+          <DevTools></DevTools>
+        </AppShell>
+      </MantineProvider>
+    );
+  },
   beforeLoad: async ({ context, location, matches }) => {
     const isPublic = matches.some((m) => m.staticData.isPublic === true);
     if (isPublic) {

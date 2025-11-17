@@ -12,14 +12,31 @@ Flow is:
 4. Wait for sync push matching you with someone, call in.
 */
 
-export interface MarkReadyForCallsParams {
+export interface UpdateReadyStateForCallsParams {
   caller: PhoneCanvassCallerDTO;
+  device: Device | undefined;
+}
+
+export async function markUnreadyForCalls(
+  params: UpdateReadyStateForCallsParams,
+): Promise<void> {
+  const { caller } = params;
+
+  VoidDTO.fromFetchOrThrow(
+    await grassrootsAPI.POST("/phone-canvass/update-caller", {
+      body: PhoneCanvassCallerDTO.from({
+        ...propsOf(caller),
+        ready: false,
+      }),
+    }),
+  );
 }
 
 export async function markReadyForCalls(
-  params: MarkReadyForCallsParams,
+  params: UpdateReadyStateForCallsParams,
 ): Promise<{ device: Device }> {
   const { caller } = params;
+  let { device } = params;
 
   // TODO(mvp): use tanstack.
   VoidDTO.fromFetchOrThrow(
@@ -31,7 +48,10 @@ export async function markReadyForCalls(
     }),
   );
 
-  const device = new Device(caller.authToken, {
+  if (device !== undefined) {
+    return { device };
+  }
+  device = new Device(caller.authToken, {
     logLevel: 4,
     enableImprovedSignalingErrorPrecision: true,
   });

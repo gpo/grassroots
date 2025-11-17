@@ -6,6 +6,7 @@ import {
   Stack,
   ThemeIcon,
   Text,
+  Button,
 } from "@mantine/core";
 import { PhoneCanvassContactDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { JSX } from "react";
@@ -18,10 +19,10 @@ import {
 } from "@tabler/icons-react";
 
 export interface ContactCardProps {
-  children?: React.ReactNode;
   // TODO: This should just take a ContactDTO, but right now some of the fields
   // are only in PhoneCanvassContactDTO.
   phoneCanvassContact: PhoneCanvassContactDTO;
+  style?: React.CSSProperties;
 }
 
 const getSupportLevelColor = (level: number | undefined): string => {
@@ -49,7 +50,7 @@ function getVotedColor(voter: string | undefined): string {
 }
 
 export function ContactCard(props: ContactCardProps): JSX.Element {
-  const { phoneCanvassContact } = props;
+  const { phoneCanvassContact, style } = props;
   const contact = phoneCanvassContact.contact;
 
   const name =
@@ -62,10 +63,8 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
     phoneCanvassContact.getMetadataByKey("tags") ?? [],
   ].flat();
 
-  console.log(JSON.stringify(contact));
-
   return (
-    <Paper shadow="sm" p="xl" radius="md" withBorder>
+    <Paper style={style} shadow="sm" p="xl" radius="md" withBorder>
       <Group justify="space-between" mb="lg">
         <Group>
           <Avatar size="lg" color="blue">
@@ -73,7 +72,17 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
           </Avatar>
           <div>
             <Text size="xl" fw={600}>
-              {name}
+              {name}{" "}
+              {contact.gvote_id !== undefined ? (
+                <Button
+                  ml="lg"
+                  component="a"
+                  target="_blank"
+                  href={"https://app.gvote.ca/contacts/" + contact.gvote_id}
+                >
+                  GVote
+                </Button>
+              ) : undefined}
             </Text>
             <Text size="sm" c="dimmed">
               {contact.partySupport ?? "unknown"}
@@ -98,7 +107,7 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
               <IconCheck size={14} />
             </ThemeIcon>
             <Text size="sm" c="dimmed">
-              {contact.voted}
+              Voted: {contact.voted}
             </Text>
           </Group>
         </div>
@@ -111,7 +120,7 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
         <Badge variant="outline">{contact.membershipStatus ?? "unknown"}</Badge>
       </Group>
 
-      <Stack gap="md" mb="lg">
+      <Stack gap="md">
         <Text size="sm" fw={600} tt="uppercase" c="dimmed">
           Contact Information
         </Text>
@@ -126,13 +135,13 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
           <Text size="sm">{contact.email}</Text>
         </Group>
 
-        <Group align="flex-start">
+        <Group align="flex-start" mb="lg">
           <IconMapPin size={18} />
-          <Stack>
+          <Stack gap={6}>
             <Text size="sm">{contact.address}</Text>
             <Text size="sm">{contact.town}</Text>
             <Text size="sm">{contact.province}</Text>
-            <Text size="sm">{contact.postal_code}</Text>
+            <Text size="sm">{contact.postalCode}</Text>
           </Stack>
         </Group>
       </Stack>

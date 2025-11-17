@@ -72,7 +72,7 @@ export function CreatePhoneCanvass(): JSX.Element {
 
   return (
     <>
-      <Title>Create a Phone Canvass</Title>
+      <Title order={2}>Create a Phone Canvass</Title>
 
       <form onSubmit={form.onSubmit(onSubmit)}>
         <Stack>
@@ -97,6 +97,8 @@ export function CreatePhoneCanvass(): JSX.Element {
             key={form.key("audio")}
             onChange={handleAudioChange}
           ></FileInput>
+          {/* TODO: maybe this should take up space before an upload occurs, to avoid
+           content jumping around. */}
           {uploadedAudio && (
             <AudioPreview
               audioFile={uploadedAudio}

@@ -9,7 +9,7 @@ export function usePhoneCanvassContactList(
   request: PaginatedPhoneCanvassContactListRequestDTO,
 ): UseQueryResult<PaginatedPhoneCanvassContactResponseDTO> {
   return useQuery<PaginatedPhoneCanvassContactResponseDTO>({
-    queryKey: ["canvass"],
+    queryKey: ["canvass", request.paginated],
     staleTime: 60 * 1000,
     retry: 1,
     // If the user hits the next button, keep showing the prior data until new data is ready.

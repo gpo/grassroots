@@ -13,7 +13,6 @@ export function usePhoneCanvassDetails(
       const result = await grassrootsAPI.GET("/phone-canvass/details/{id}", {
         params: { path: { id } },
       });
-      console.log("result in queryfn", result);
       return PhoneCanvassDetailsDTO.fromFetchOrThrow(result);
     },
   });

@@ -1,6 +1,6 @@
 import { JSX, useEffect, useRef, useState } from "react";
 import { usePhoneCanvassCallerStore } from "../Logic/PhoneCanvassCallerStore.js";
-import { Button, List, ListItem } from "@mantine/core";
+import { Box, Button, Group, List, ListItem, Stack, Text } from "@mantine/core";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
 import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
@@ -9,11 +9,14 @@ import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { ContactSummary } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { takeCall } from "../Logic/TakeCall.js";
-import { markReadyForCalls } from "../Logic/MarkReadyForCalls.js";
+import {
+  markReadyForCalls,
+  markUnreadyForCalls,
+} from "../Logic/MarkReadyForCalls.js";
 import { Device } from "@twilio/voice-sdk";
 import { usePhoneCanvassDetails } from "../Logic/UsePhoneCanvassDetails.js";
 import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
-import { PhoneCanvassContactCard } from "./PhoneCanvassContactCard.js";
+import { ContactCard } from "../../Contacts/Components/ContactCard.js";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -25,6 +28,9 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const [currentContactId, setCurrentContactId] = useState<
     number | undefined
   >();
+  const [readyForCalls, setReadyForCalls] = useState<
+    "unready" | "ready" | "becomingReady" | "becomingUnready"
+  >("unready");
 
   const registerCaller = useRegisterCaller({
     phoneCanvassId,
@@ -33,11 +39,16 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const currentContact = usePhoneCanvassContact(currentContactId).data;
 
-  console.log("CURRENT CONTACT", currentContact);
-  const currentContactCard = currentContact ? (
-    <PhoneCanvassContactCard
-      phoneCanvassContact={currentContact}
-    ></PhoneCanvassContactCard>
+  const currentContactDetails = currentContact ? (
+    <Group>
+      <ContactCard
+        style={{ flex: "2 1 0" }}
+        phoneCanvassContact={currentContact}
+      ></ContactCard>
+      <Box style={{ flex: "1 1 0" }}>
+        <Text>TODO: notes go here.</Text>
+      </Box>
+    </Group>
   ) : null;
 
   const { caller, refreshCaller } =
@@ -89,19 +100,38 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     );
   });
 
-  return (
-    <>
-      <h1> Call Party: {phoneCanvassDetails?.name ?? ""} </h1>
-      <h2> Welcome {caller.displayName}</h2>
-
-      <>
+  const ToggleReadyButton = (): JSX.Element => {
+    if (readyForCalls === "ready" || readyForCalls === "becomingUnready") {
+      return (
         <Button
+          disabled={readyForCalls === "becomingUnready"}
           onClick={() => {
+            setReadyForCalls("becomingUnready");
             runPromise(
               (async (): Promise<void> => {
-                const device = (await markReadyForCalls({ caller })).device;
-                console.log("SETTING DEVICE", device);
+                await markUnreadyForCalls({ caller, device: currentDevice });
+                setReadyForCalls("unready");
+              })(),
+              false,
+            );
+          }}
+        >
+          Last Call For Now
+        </Button>
+      );
+    } else {
+      return (
+        <Button
+          disabled={readyForCalls === "becomingReady"}
+          onClick={() => {
+            setReadyForCalls("becomingReady");
+            runPromise(
+              (async (): Promise<void> => {
+                const device = (
+                  await markReadyForCalls({ caller, device: currentDevice })
+                ).device;
                 setCurrentDevice(device);
+                setReadyForCalls("ready");
               })(),
               false,
             );
@@ -109,12 +139,22 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         >
           Ready for Calls
         </Button>
-        {currentContactCard}
+      );
+    }
+  };
+
+  return (
+    <>
+      <h1> Call Party: {phoneCanvassDetails?.name ?? ""} </h1>
+      <h2> Welcome {caller.displayName}</h2>
+      <Stack>
+        <ToggleReadyButton></ToggleReadyButton>
+        {currentContactDetails}
         <h2> Callers </h2>
         <List>{callers}</List>
         <h2> Contacts </h2>
         <List>{contacts}</List>
-      </>
+      </Stack>
     </>
   );
 }

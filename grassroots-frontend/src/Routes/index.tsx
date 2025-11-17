@@ -8,7 +8,7 @@ import {
 import { ErrorTexts } from "grassroots-shared/constants/ErrorTexts";
 import { notifications } from "@mantine/notifications";
 import { runPromise } from "grassroots-shared/util/RunPromise";
-import { Title } from "@mantine/core";
+import { Button, Title } from "@mantine/core";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -66,18 +66,20 @@ function Index(): JSX.Element {
     });
   return (
     <>
-      <Title>Home</Title>
+      <Title order={2}>Home</Title>
       <p>
         {loginState?.user ? (
-          <button
+          <Button
             onClick={() => {
               void loginState.logout();
             }}
           >
             Logout {loginState.user.displayName ?? ""}
-          </button>
+          </Button>
         ) : (
-          <a href="http://grassroots.org/api/auth/login">Login</a>
+          <Button component="a" href="http://grassroots.org/api/auth/login">
+            Login
+          </Button>
         )}
       </p>
     </>

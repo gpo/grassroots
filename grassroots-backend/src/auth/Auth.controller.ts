@@ -48,14 +48,10 @@ export class AuthController {
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
   ): Promise<VoidDTO> {
-    console.log("CALLBACK");
-    console.log("USER", req.user);
-
     // The session doesn't contain the redirect path by the time req.login is called,
     // so make sure to stash it here.
     const redirectPath =
       req.session.redirect_path ?? (await getEnvVars()).VITE_FRONTEND_HOST;
-    console.log("REDIRECT PATH: ", req.session.redirect_path);
     // To prevent a redirect path accidentally being used multiple times, clear this
     // as soon as it's read.
     req.session.redirect_path = undefined;
@@ -66,9 +62,7 @@ export class AuthController {
       return VoidDTO.get();
     }
 
-    console.log("LOGIN");
     req.login(req.user, (err) => {
-      console.log("LOGIN FUNC");
       if (err === undefined) {
         response.redirect(redirectPath);
       } else {

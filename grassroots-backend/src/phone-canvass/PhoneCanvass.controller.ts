@@ -142,10 +142,6 @@ export class PhoneCanvassController {
           return [field, tags];
         });
 
-        const address =
-          contactRow.address +
-          `, ${contactRow.town} ${contactRow.province} ${contactRow.postal_code}`;
-
         const dto = CreatePhoneCanvasContactRequestDTO.from({
           contact: CreateContactRequestDTO.from({
             gvote_id: contactRow.id,
@@ -155,7 +151,10 @@ export class PhoneCanvassController {
             lastName: contactRow.last_name,
             phoneNumber: contactRow.phone,
             organizationId: ROOT_ORGANIZATION_ID,
-            address,
+            address: contactRow.address,
+            town: contactRow.town,
+            postalCode: contactRow.postal_code,
+            province: contactRow.province,
             supportLevel: contactRow.support_level,
             partySupport: contactRow.party_support,
             voted: contactRow.voted,
