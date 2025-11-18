@@ -1,13 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { PhoneCanvassAuthTokenResponseDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { vi } from "vitest";
 import { NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
 
 @Injectable()
 export class TwilioServiceMock {
-  static sid: number;
+  static sid = 0;
   makeCall = vi.fn(
     async (
       _call: NotStartedCall,
@@ -19,17 +18,13 @@ export class TwilioServiceMock {
     }> => {
       void _call;
       return {
-        sid: String(TwilioServiceMock.sid),
+        sid: String(TwilioServiceMock.sid++),
         status: "QUEUED",
         // TODO: this probably needs to be injected.
         timestamp: Date.now(),
       };
     },
   );
-
-  getAuthToken(): PhoneCanvassAuthTokenResponseDTO {
-    return PhoneCanvassAuthTokenResponseDTO.from({ token: "Fake auth token" });
-  }
 
   setSyncData = vi.fn(
     async (
@@ -41,4 +36,9 @@ export class TwilioServiceMock {
       void data;
     },
   );
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async getAuthToken(callerId: string): Promise<string> {
+    return callerId;
+  }
 }

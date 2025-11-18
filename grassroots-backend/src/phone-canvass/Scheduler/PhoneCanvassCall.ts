@@ -5,6 +5,7 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
+import { EntityManager } from "@mikro-orm/core";
 
 export type Call =
   | NotStartedCall
@@ -22,6 +23,7 @@ interface CommonCallState {
   // Timestamps provided by Twilio when available.
   // Otherwise, we use Date.now().
   transitionTimestamps: Record<CallStatus, number | undefined>;
+  entityManager: EntityManager;
 }
 
 type CommonCallConstructorParams = CommonCallState & {
@@ -45,6 +47,12 @@ export function resetPhoneCanvasCallIdsForTest(): void {
   NotStartedCall.resetIdsForTest();
 }
 
+function getCallerId(call: Call): number | undefined {
+  if (call.status === "IN_PROGRESS") {
+    return call.callerId;
+  }
+}
+
 abstract class AbstractCall<STATUS extends CallStatus> {
   readonly state: CommonCallState;
 
@@ -62,9 +70,24 @@ abstract class AbstractCall<STATUS extends CallStatus> {
     return this.state.scheduler.phoneCanvassId;
   }
 
-  protected advanceStatusTo<CallTypeTo extends Call>(
+  public async advanceStatusToFailed(
+    params: CurrentTime & SID & { result: CallResult },
+  ): Promise<CompletedCall> {
+    return await this.advanceStatusTo(
+      new CompletedCall({
+        ...params,
+        ...this.state,
+        // TODO: this is ugly. We should probably change this whole structure to a single interface
+        // with multiple Interfaces over it, depending on state.
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        callerId: getCallerId(this as unknown as Call),
+      }),
+    );
+  }
+
+  protected async advanceStatusTo<CallTypeTo extends Call>(
     call: CallTypeTo,
-  ): CallTypeTo {
+  ): Promise<CallTypeTo> {
     if (
       !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)
     ) {
@@ -80,6 +103,12 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       CallTypeTo
     >;
     calls.set(call.state.id, call);
+    call.state.contact.callStatus = call.status;
+    if (call.status === "COMPLETED") {
+      call.state.contact.callResult = call.result;
+    }
+    await this.state.entityManager.flush();
+
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
       this.state.scheduler.callsByStatus,
     );
@@ -113,8 +142,8 @@ export class NotStartedCall extends AbstractCall<"NOT_STARTED"> {
     });
   }
 
-  advanceStatusToQueued(params: CurrentTime & SID): QueuedCall {
-    return this.advanceStatusTo(
+  async advanceStatusToQueued(params: CurrentTime & SID): Promise<QueuedCall> {
+    return await this.advanceStatusTo(
       new QueuedCall({
         ...this.state,
         twilioSid: params.twilioSid,
@@ -138,8 +167,8 @@ export class QueuedCall extends AbstractCall<"QUEUED"> {
     this.state.transitionTimestamps.QUEUED = params.currentTime;
   }
 
-  advanceStatusToInitiated(params: CurrentTime): InitiatedCall {
-    return this.advanceStatusTo(
+  async advanceStatusToInitiated(params: CurrentTime): Promise<InitiatedCall> {
+    return await this.advanceStatusTo(
       new InitiatedCall({
         ...this.state,
         twilioSid: this.twilioSid,
@@ -159,8 +188,10 @@ export class InitiatedCall extends AbstractCall<"INITIATED"> {
     this.state.transitionTimestamps.INITIATED = params.currentTime;
   }
 
-  advanceStatusToRinging(params: { currentTime: number }): RingingCall {
-    return this.advanceStatusTo(
+  async advanceStatusToRinging(params: {
+    currentTime: number;
+  }): Promise<RingingCall> {
+    return await this.advanceStatusTo(
       new RingingCall({
         ...this.state,
         twilioSid: this.twilioSid,
@@ -180,8 +211,10 @@ export class RingingCall extends AbstractCall<"RINGING"> {
     this.state.transitionTimestamps.RINGING = params.currentTime;
   }
 
-  advanceStatusToInProgress(params: CurrentTime & CallerId): InProgressCall {
-    return this.advanceStatusTo(
+  async advanceStatusToInProgress(
+    params: CurrentTime & CallerId,
+  ): Promise<InProgressCall> {
+    return await this.advanceStatusTo(
       new InProgressCall({
         ...this.state,
         twilioSid: this.twilioSid,
@@ -208,12 +241,12 @@ export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
     return this.#callerId;
   }
 
-  advanceStatusToCompleted(
+  async advanceStatusToCompleted(
     params: {
       result: CallResult;
     } & CurrentTime,
-  ): CompletedCall {
-    return this.advanceStatusTo(
+  ): Promise<CompletedCall> {
+    return await this.advanceStatusTo(
       new CompletedCall({
         ...this.state,
         callerId: this.#callerId,
@@ -235,8 +268,7 @@ export class CompletedCall extends AbstractCall<"COMPLETED"> {
     params: CommonCallConstructorParams & {
       result: CallResult;
       callerId: number | undefined;
-    } & CallerId &
-      SID,
+    } & SID,
   ) {
     super(params);
     this.#callerId = params.callerId;

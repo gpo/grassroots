@@ -5,6 +5,9 @@ import { plainToInstance } from "class-transformer";
 
 export class Environment {
   @IsNotEmpty()
+  IS_DEBUG!: boolean;
+
+  @IsNotEmpty()
   POSTGRES_USER!: string;
 
   @IsNotEmpty()

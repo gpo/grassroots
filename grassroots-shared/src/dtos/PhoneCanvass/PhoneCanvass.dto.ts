@@ -137,13 +137,6 @@ export class PaginatedPhoneCanvassContactResponseDTO extends createDTOBase(
   }
 }
 
-export class PhoneCanvassAuthTokenResponseDTO extends createDTOBase(
-  "PhoneCanvassAuthTokenResponse",
-) {
-  @IsString()
-  token!: string;
-}
-
 export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
   "PhoneCanvasTwilioCallStatusCallback",
 ) {
@@ -196,6 +189,18 @@ export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
 
   @IsNotEmpty()
   activePhoneCanvassId!: string;
+
+  @IsString()
+  authToken!: string;
+
+  primaryPropsEqual(other: PhoneCanvassCallerDTO): boolean {
+    return (
+      this.id === other.id &&
+      this.displayName === other.displayName &&
+      this.email === other.displayName &&
+      this.activePhoneCanvassId === other.activePhoneCanvassId
+    );
+  }
 
   @IsBoolean()
   ready!: boolean;

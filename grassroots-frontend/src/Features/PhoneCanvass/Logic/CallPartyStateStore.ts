@@ -4,19 +4,27 @@ import { devtools } from "zustand/middleware";
 
 export interface CallPartyStateStore extends PhoneCanvassSyncData {
   setData: (data: PhoneCanvassSyncData | object) => void;
+  reset: () => void;
 }
+
+const initialState = {
+  callers: [],
+  contacts: [],
+  serverInstanceUUID: undefined,
+};
 
 export function createCallPartyStateStore(): StoreApi<CallPartyStateStore> {
   return createStore<CallPartyStateStore>()(
     devtools(
       (set) => ({
-        callers: [],
-        activeCalls: [],
-        pendingCalls: [],
+        ...initialState,
         // Data comes from twilio sync, which provides an untyped JSON blob.
         setData: (data: PhoneCanvassSyncData | object): void => {
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
           set(() => data as PhoneCanvassSyncData);
+        },
+        reset: (): void => {
+          set(initialState);
         },
       }),
       {

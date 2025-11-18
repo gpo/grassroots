@@ -1,7 +1,6 @@
 import twilio from "twilio";
 
 import { Injectable } from "@nestjs/common";
-import { PhoneCanvassAuthTokenResponseDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import AccessToken from "twilio/lib/jwt/AccessToken.js";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { getEnvVars } from "../GetEnvVars.js";
@@ -26,7 +25,6 @@ export class TwilioService {
     timestamp: number;
   }> {
     const now = Date.now();
-
     const envVars = await getEnvVars();
 
     const client = await this.#getClient();
@@ -55,15 +53,14 @@ export class TwilioService {
     };
   }
 
-  async getAuthToken(): Promise<PhoneCanvassAuthTokenResponseDTO> {
+  async getAuthToken(callerId: string): Promise<string> {
     const envVars = await getEnvVars();
-    const identity = "user";
 
     const token = new AccessToken(
       envVars.TWILIO_SID,
       envVars.TWILIO_API_KEY_SID,
       envVars.TWILIO_API_KEY_SECRET,
-      { identity: identity },
+      { identity: callerId },
     );
     token.addGrant(
       new AccessToken.VoiceGrant({
@@ -77,7 +74,7 @@ export class TwilioService {
       }),
     );
 
-    return PhoneCanvassAuthTokenResponseDTO.from({ token: token.toJwt() });
+    return token.toJwt();
   }
 
   async setSyncData(

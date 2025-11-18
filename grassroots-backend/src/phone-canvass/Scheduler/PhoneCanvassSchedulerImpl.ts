@@ -1,5 +1,5 @@
 /* eslint-disable grassroots/entity-use */
-import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { Subject, firstValueFrom, filter } from "rxjs";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
@@ -13,6 +13,7 @@ import {
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { Caller, PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 import { PhoneCanvassSchedulerStrategy } from "./Strategies/PhoneCanvassSchedulerStrategy.js";
+import { EntityManager } from "@mikro-orm/core";
 
 @Injectable()
 export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
@@ -36,23 +37,33 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
 
   #running = false;
   #pendingContacts: PhoneCanvassContactEntity[] = [];
+  #entityManager: EntityManager;
 
   getCurrentTime(): number {
     return Date.now();
   }
 
   constructor(
-    @Inject(forwardRef(() => PhoneCanvassSchedulerStrategy))
     strategy: PhoneCanvassSchedulerStrategy,
     public metricsTracker: PhoneCanvassMetricsTracker,
-    params: { contacts: PhoneCanvassContactEntity[]; phoneCanvassId: string },
+    params: {
+      contacts: PhoneCanvassContactEntity[];
+      phoneCanvassId: string;
+      entityManager: EntityManager;
+    },
   ) {
     super();
     this.#strategy = strategy;
     this.phoneCanvassId = params.phoneCanvassId;
+    this.#entityManager = params.entityManager;
 
     this.#pendingContacts = params.contacts.filter((contact) => {
-      return contact.callStatus === "NOT_STARTED";
+      // As long as someone's phone never started ringing, we're okay to include them.
+      return (
+        contact.callStatus === "NOT_STARTED" ||
+        contact.callStatus === "QUEUED" ||
+        contact.callStatus === "INITIATED"
+      );
     });
   }
 
@@ -64,6 +75,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     void (async (): Promise<void> => {
       while (true) {
         await this.#strategy.waitForNextCall();
+
         // This could change while waiting for the next call.
         if (!this.#running) {
           break;
@@ -80,6 +92,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
           scheduler: this,
           currentTime: this.getCurrentTime(),
           contact,
+          entityManager: this.#entityManager,
         });
         this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
         this.#callsObservable.next(notStartedCall);
