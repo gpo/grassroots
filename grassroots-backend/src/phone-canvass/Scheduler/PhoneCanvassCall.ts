@@ -6,6 +6,9 @@ import {
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 import { EntityManager } from "@mikro-orm/core";
+import { runPromise } from "grassroots-shared/util/RunPromise";
+import { appendFile } from "fs/promises";
+import { delay } from "grassroots-shared/util/Delay";
 
 export type Call =
   | NotStartedCall
@@ -58,6 +61,25 @@ abstract class AbstractCall<STATUS extends CallStatus> {
 
   constructor(params: CommonCallState) {
     this.state = params;
+    runPromise(this.log(), false);
+  }
+
+  async log(): Promise<void> {
+    // Wait until this object is fully constructed.
+    // TODO: this is a bit ugly.
+    await delay(0);
+    const blob = {
+      sid: "twilioSid" in this ? this.twilioSid : undefined,
+      status: this.status,
+      result: "result" in this ? this.result : undefined,
+      contactId: this.state.contact.contact.id,
+      // TODO: pull the timestamp from twilio.
+      ts: Date.now(),
+    };
+    await appendFile(
+      `/app/logs/${this.canvassId()}.log`,
+      JSON.stringify(blob) + "\n",
+    );
   }
 
   abstract get status(): STATUS;
