@@ -34,6 +34,8 @@ export class TwilioService {
     // Configure this by configuring answering machine detection.
     const twiml = new VoiceResponse().pause({ length: 30 });
 
+    // TODO(mvp): use the actual phone number.
+    void call;
     const callInstance = await client.calls.create({
       // TODO(mvp): use the actual phone number.
       to: envVars.TEST_APPROVED_PHONE_NUMBER,
