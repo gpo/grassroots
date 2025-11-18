@@ -32,6 +32,30 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
   @Property()
   phoneNumber!: string;
 
+  @Property({ nullable: true })
+  address?: string;
+
+  @Property({ nullable: true })
+  town?: string;
+
+  @Property({ nullable: true })
+  postalCode?: string;
+
+  @Property({ nullable: true })
+  province?: string;
+
+  @Property({ nullable: true })
+  supportLevel?: number;
+
+  @Property({ nullable: true })
+  partySupport?: string;
+
+  @Property({ nullable: true })
+  voted?: string;
+
+  @Property({ nullable: true })
+  membershipStatus?: string;
+
   @ManyToOne(() => OrganizationEntity)
   organization!: Rel<OrganizationEntity>;
 
@@ -41,9 +65,18 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       gvote_id: this.gvote_id,
       email: this.email,
       firstName: this.firstName,
+      middleName: this.middleName,
       lastName: this.lastName,
       phoneNumber: this.phoneNumber,
       organization: this.organization,
+      address: this.address,
+      town: this.town,
+      postalCode: this.postalCode,
+      province: this.province,
+      supportLevel: this.supportLevel,
+      partySupport: this.partySupport,
+      voted: this.voted,
+      membershipStatus: this.membershipStatus,
     });
   }
 
@@ -54,9 +87,18 @@ export class ContactEntity extends createEntityBase<"Contact", ContactDTO>(
       email: contact.email,
       gvote_id: contact.gvote_id,
       firstName: contact.firstName,
+      middleName: contact.middleName,
       lastName: contact.lastName,
       phoneNumber: contact.phoneNumber,
       organization: contact.organizationId,
+      address: contact.address,
+      town: contact.town,
+      postalCode: contact.postalCode,
+      province: contact.province,
+      supportLevel: contact.supportLevel,
+      partySupport: contact.partySupport,
+      voted: contact.voted,
+      membershipStatus: contact.membershipStatus,
     };
   }
 }

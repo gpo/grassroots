@@ -316,6 +316,46 @@
           "name": "middle_name",
           "type": "varchar(255)",
           "nullable": true
+        },
+        {
+          "name": "address",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "support_level",
+          "type": "integer",
+          "nullable": true
+        },
+        {
+          "name": "party_support",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "voted",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "membership_status",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "town",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "postal_code",
+          "type": "varchar(255)",
+          "nullable": true
+        },
+        {
+          "name": "province",
+          "type": "varchar(255)",
+          "nullable": true
         }
       ],
       "indexes": [
@@ -553,6 +593,16 @@
           "type": "uuid",
           "nullable": false,
           "default": "gen_random_uuid()"
+        },
+        {
+          "name": "creator_email",
+          "type": "varchar(255)",
+          "nullable": false
+        },
+        {
+          "name": "name",
+          "type": "varchar(255)",
+          "nullable": false
         }
       ],
       "indexes": [
@@ -567,6 +617,16 @@
       ],
       "constraints": [
         {
+          "name": "phone_canvass_entity_creator_email_not_null",
+          "type": "n",
+          "def": "NOT NULL creator_email",
+          "table": "public.phone_canvass_entity",
+          "referenced_table": "",
+          "columns": [
+            "creator_email"
+          ]
+        },
+        {
           "name": "phone_canvass_entity_id_not_null",
           "type": "n",
           "def": "NOT NULL id",
@@ -574,6 +634,16 @@
           "referenced_table": "",
           "columns": [
             "id"
+          ]
+        },
+        {
+          "name": "phone_canvass_entity_name_not_null",
+          "type": "n",
+          "def": "NOT NULL name",
+          "table": "public.phone_canvass_entity",
+          "referenced_table": "",
+          "columns": [
+            "name"
           ]
         },
         {

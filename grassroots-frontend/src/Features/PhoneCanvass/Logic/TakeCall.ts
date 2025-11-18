@@ -2,11 +2,11 @@ import { Device } from "@twilio/voice-sdk";
 
 export async function takeCall(
   device: Device,
-  calleeId: string,
+  contactId: number,
 ): Promise<void> {
   const call = await device.connect({
     // These get passed to the controller.
-    params: { conference: String(calleeId) },
+    params: { conference: String(contactId) },
   });
 
   call.on("accept", () => {

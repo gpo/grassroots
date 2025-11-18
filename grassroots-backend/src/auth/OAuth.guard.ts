@@ -1,5 +1,8 @@
 import { AuthGuard } from "@nestjs/passport";
-import { DEFAULT_PASSPORT_STRATEGY_NAME } from "./GoogleOAuth.strategy.js";
+import {
+  DEFAULT_PASSPORT_STRATEGY_NAME,
+  GoogleOAuthStrategyValidateError,
+} from "./GoogleOAuth.strategy.js";
 import { ExecutionContext, Injectable } from "@nestjs/common";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
 import { Observable } from "rxjs";
@@ -20,5 +23,25 @@ export class OAuthGuard extends AuthGuard(DEFAULT_PASSPORT_STRATEGY_NAME) {
     }
 
     return super.canActivate(context);
+  }
+
+  handleRequest<UserDTO>(
+    err: GoogleOAuthStrategyValidateError | undefined,
+    user: UserDTO | false,
+    info: unknown,
+    context: ExecutionContext,
+  ): UserDTO | null {
+    if (err || user === false) {
+      const request = context.switchToHttp().getRequest<GrassrootsRequest>();
+      if (err?.errorMessage) {
+        request.session.redirect_path = "/?errorMessage=" + err.errorMessage;
+      } else {
+        request.session.redirect_path = "/?errorMessage=Unauthorized";
+      }
+
+      return null;
+    }
+
+    return user;
   }
 }

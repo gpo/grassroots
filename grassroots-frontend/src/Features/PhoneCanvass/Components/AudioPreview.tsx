@@ -19,8 +19,8 @@ export function AudioPreview({
   onRemove,
 }: AudioPreviewProps): JSX.Element {
   return (
-    <Box bg="gray.1" p="md" style={{ borderRadius: "8px" }} mt="md">
-      <Group justify="space-between" mb="xs">
+    <Box bg="gray.1" p="md" pb="0" style={{ borderRadius: "8px" }}>
+      <Group justify="space-between">
         <Stack gap="xs">
           <Text size="sm" fw={500}>
             Audio Preview

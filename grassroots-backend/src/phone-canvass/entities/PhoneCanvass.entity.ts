@@ -1,4 +1,10 @@
-import { Collection, Entity, OneToMany, PrimaryKey } from "@mikro-orm/core";
+import {
+  Collection,
+  Entity,
+  OneToMany,
+  PrimaryKey,
+  Property,
+} from "@mikro-orm/core";
 import { createEntityBase } from "../../util/CreateEntityBase.js";
 import { PhoneCanvassDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassContactEntity } from "./PhoneCanvassContact.entity.js";
@@ -11,7 +17,11 @@ export class PhoneCanvassEntity extends createEntityBase<
   @PrimaryKey({ type: "uuid", defaultRaw: "gen_random_uuid()" })
   id!: string;
 
+  @Property()
   creatorEmail!: string;
+
+  @Property()
+  name!: string;
 
   @OneToMany(() => PhoneCanvassContactEntity, (contact) => contact.phoneCanvas)
   contacts = new Collection<PhoneCanvassContactEntity>(this);

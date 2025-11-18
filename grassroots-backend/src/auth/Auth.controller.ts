@@ -48,9 +48,6 @@ export class AuthController {
     @Request() req: GrassrootsRequest,
     @Response() response: ExpressResponse,
   ): Promise<VoidDTO> {
-    if (!req.user) {
-      throw new Error("No user found for login.");
-    }
     // The session doesn't contain the redirect path by the time req.login is called,
     // so make sure to stash it here.
     const redirectPath =
@@ -59,11 +56,18 @@ export class AuthController {
     // as soon as it's read.
     req.session.redirect_path = undefined;
 
-    req.login(req.user, (err) => {
-      if (err !== undefined) {
-        throw err;
-      }
+    if (!req.user) {
+      // The redirect path will already be setup, including an error message query parameter.
       response.redirect(redirectPath);
+      return VoidDTO.get();
+    }
+
+    req.login(req.user, (err) => {
+      if (err === undefined) {
+        response.redirect(redirectPath);
+      } else {
+        response.redirect("/");
+      }
     });
     return VoidDTO.get();
   }

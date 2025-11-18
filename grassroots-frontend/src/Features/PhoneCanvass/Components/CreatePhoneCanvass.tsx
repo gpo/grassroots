@@ -1,4 +1,4 @@
-import { TextInput, FileInput } from "@mantine/core";
+import { TextInput, FileInput, Stack, Button, Title } from "@mantine/core";
 import { useNavigate } from "@tanstack/react-router";
 import { JSX, useState, useCallback } from "react";
 import { useTypedForm } from "../../../Logic/UseTypedForm.js";
@@ -71,39 +71,47 @@ export function CreatePhoneCanvass(): JSX.Element {
   );
 
   return (
-    <form onSubmit={form.onSubmit(onSubmit)}>
-      <TextInput
-        label="Phone Canvass Name"
-        key={form.key("name")}
-        {...form.getInputProps("name")}
-      ></TextInput>
-      <FileInput
-        label="Contact List CSV"
-        description="CSV from GVote containing list of people to phone"
-        placeholder="Contact List CSV"
-        accept=".csv"
-        key={form.key("csv")}
-        {...form.getInputProps("csv")}
-      ></FileInput>
-      <FileInput
-        label="Audio Upload"
-        description="Audio file to play"
-        placeholder="Audio File"
-        accept="audio/*"
-        key={form.key("audio")}
-        onChange={handleAudioChange}
-      ></FileInput>
-      {uploadedAudio && (
-        <AudioPreview
-          audioFile={uploadedAudio}
-          onRemove={() => {
-            URL.revokeObjectURL(uploadedAudio.url);
-            setUploadedAudio(null);
-            form.setFieldValue("audio", undefined);
-          }}
-        />
-      )}
-      <input type="submit" />
-    </form>
+    <>
+      <Title order={2}>Create a Phone Canvass</Title>
+
+      <form onSubmit={form.onSubmit(onSubmit)}>
+        <Stack>
+          <TextInput
+            label="Phone Canvass Name"
+            key={form.key("name")}
+            {...form.getInputProps("name")}
+          ></TextInput>
+          <FileInput
+            label="Contact List CSV"
+            description="CSV from GVote containing list of people to phone"
+            placeholder="Contact List CSV"
+            accept=".csv"
+            key={form.key("csv")}
+            {...form.getInputProps("csv")}
+          ></FileInput>
+          <FileInput
+            label="Audio Upload"
+            description="Audio file to play"
+            placeholder="Audio File"
+            accept="audio/*"
+            key={form.key("audio")}
+            onChange={handleAudioChange}
+          ></FileInput>
+          {/* TODO: maybe this should take up space before an upload occurs, to avoid
+           content jumping around. */}
+          {uploadedAudio && (
+            <AudioPreview
+              audioFile={uploadedAudio}
+              onRemove={() => {
+                URL.revokeObjectURL(uploadedAudio.url);
+                setUploadedAudio(null);
+                form.setFieldValue("audio", undefined);
+              }}
+            />
+          )}
+          <Button type="submit">Submit</Button>
+        </Stack>
+      </form>
+    </>
   );
 }

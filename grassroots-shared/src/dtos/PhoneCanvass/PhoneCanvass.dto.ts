@@ -24,6 +24,9 @@ export class PhoneCanvassDTO extends createDTOBase("PhoneCanvass") {
   @IsString()
   id!: string;
 
+  @IsString()
+  name!: string;
+
   @ValidateNested({ each: true })
   @Type(() => PhoneCanvassContactDTO)
   contacts!: PhoneCanvassContactDTO[];
@@ -35,8 +38,12 @@ export class CreatePhoneCanvasContactRequestDTO extends createDTOBase(
   @ValidateNested()
   @Type(() => CreateContactRequestDTO)
   contact!: CreateContactRequestDTO;
+
   @IsJSON()
   metadata!: string;
+
+  @IsString()
+  notes!: string;
 }
 
 export class CreatePhoneCanvassRequestDTO extends createDTOBase(
@@ -103,6 +110,13 @@ export class PhoneCanvassProgressInfoResponseDTO extends createDTOBase(
   count!: number;
 }
 
+export class PhoneCanvassDetailsDTO extends createDTOBase(
+  "PhoneCanvassDetails",
+) {
+  @IsString()
+  name!: string;
+}
+
 export class PaginatedPhoneCanvassContactListRequestDTO extends createDTOBase(
   "PaginatedPhoneCanvassContactListRequest",
 ) {
@@ -158,6 +172,31 @@ export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
   })
   @IsNumber()
   Timestamp!: number;
+}
+
+export class PhoneCanvasTwilioCallAnsweredCallbackDTO extends createDTOBase(
+  "PhoneCanvasTwilioCallAnsweredCallback",
+) {
+  @IsString()
+  CallSid!: string;
+
+  // The result of answering machine detection. If Enable was specified, results can be: machine_start, human, fax, unknown. If DetectMessageEnd was specified, results can be: machine_end_beep, machine_end_silence, machine_end_other, human, fax, unknown
+  // OpenAPI clients never see this, so we just type it as a string for OpenAPI.
+  @IsString()
+  AnsweredBy!:
+    | "machine_end_beep"
+    | "machine_end_silence"
+    | "machine_end_other"
+    | "human"
+    | "fax"
+    | "unknown";
+
+  //Time in milliseconds that Automatic Machine Detection took to reach a verdict
+  @IsNumber()
+  @Transform(({ value }: { value: string }) => {
+    return Number(value);
+  })
+  MachineDetectionDuration!: number;
 }
 
 // (displayName, activePhoneCanvassId) is globally unique.

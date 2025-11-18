@@ -1,6 +1,12 @@
 import { access, readFile } from "fs/promises";
 import * as dotenv from "dotenv";
-import { IsNotEmpty, IsPositive, IsUrl, validateSync } from "class-validator";
+import {
+  IsNotEmpty,
+  IsPositive,
+  IsString,
+  IsUrl,
+  validateSync,
+} from "class-validator";
 import { plainToInstance } from "class-transformer";
 
 export class Environment {
@@ -70,6 +76,9 @@ export class Environment {
 
   @IsNotEmpty()
   ENABLE_PHONE_CANVASS_SIMULATION!: boolean;
+
+  @IsString()
+  VALID_LOGIN_EMAIL_REGEX!: string;
 }
 
 // Earlier files take priority.

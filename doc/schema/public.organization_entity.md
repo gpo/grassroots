@@ -58,6 +58,14 @@ erDiagram
   integer organization_id FK
   varchar_255_ gvote_id
   varchar_255_ middle_name
+  varchar_255_ address
+  integer support_level
+  varchar_255_ party_support
+  varchar_255_ voted
+  varchar_255_ membership_status
+  varchar_255_ town
+  varchar_255_ postal_code
+  varchar_255_ province
 }
 "public.user_role_entity" {
   integer id

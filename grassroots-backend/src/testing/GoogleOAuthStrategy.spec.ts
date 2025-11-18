@@ -32,7 +32,7 @@ describe("GoogleOAuthStrategy", () => {
       strategy.validate(
         "foo",
         {
-          emails: [],
+          emails: [{ value: "bob@gpo.ca" }],
           provider: "",
           id: FAKE_ID,
           displayName: "",

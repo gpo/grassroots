@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
@@ -51,7 +47,7 @@ export class PhoneCanvassGlobalStateService {
     activePhoneCanvassId: string;
     id: number;
     authToken: string;
-  }): PhoneCanvassCallerDTO {
+  }): PhoneCanvassCallerDTO | undefined {
     const { activePhoneCanvassId, id, authToken } = params;
     const callers =
       this.#phoneCanvassIdToCaller.get(activePhoneCanvassId) ?? [];
@@ -59,24 +55,39 @@ export class PhoneCanvassGlobalStateService {
     const existingCaller = callers.find(
       (x) => x.id === id && x.authToken == authToken,
     );
-    if (existingCaller === undefined) {
-      throw new NotFoundException(`Can't find caller with id ${String(id)}.`);
-    }
     return existingCaller;
   }
 
-  async refreshCaller(
+  async refreshOrCreateCaller(
     caller: PhoneCanvassCallerDTO,
     getAuthToken: GetAuthToken,
   ): Promise<PhoneCanvassCallerDTO> {
     const existingCaller = this.#findCaller(caller);
-    existingCaller.authToken = await getAuthToken(String(caller.id));
-    return existingCaller;
+    if (existingCaller !== undefined) {
+      existingCaller.authToken = await getAuthToken(String(caller.id));
+      return existingCaller;
+    }
+
+    return this.registerCaller(
+      CreatePhoneCanvassCallerDTO.from(propsOf(caller)),
+      getAuthToken,
+    );
   }
 
-  updateCaller(updatedCaller: PhoneCanvassCallerDTO): void {
+  async updateOrCreateCaller(
+    updatedCaller: PhoneCanvassCallerDTO,
+    getAuthToken: GetAuthToken,
+  ): Promise<PhoneCanvassCallerDTO> {
     const existingCaller = this.#findCaller(updatedCaller);
-    Object.assign(existingCaller, updatedCaller);
+    if (existingCaller !== undefined) {
+      Object.assign(existingCaller, updatedCaller);
+      return existingCaller;
+    }
+
+    return await this.registerCaller(
+      CreatePhoneCanvassCallerDTO.from(propsOf(updatedCaller)),
+      getAuthToken,
+    );
   }
 
   listCallers(phoneCanvassId: string): PhoneCanvassCallerDTO[] {

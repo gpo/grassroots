@@ -1,6 +1,5 @@
 import {
   Strategy as GoogleStrategy,
-  VerifyCallback,
   VerifyFunction,
   Profile,
 } from "passport-google-oidc";
@@ -9,9 +8,18 @@ import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "../users/Users.service.js";
 import OpenIDConnectStrategy from "passport-openidconnect";
 import { UserDTO } from "grassroots-shared/dtos/User.dto";
-import { Environment } from "../GetEnvVars.js";
+import { Environment, getEnvVars } from "../GetEnvVars.js";
+import { ErrorTexts } from "grassroots-shared/constants/ErrorTexts";
 
 export const DEFAULT_PASSPORT_STRATEGY_NAME = "google";
+
+export class GoogleOAuthStrategyValidateError extends Error {
+  constructor(msg: string, errorMessage: keyof typeof ErrorTexts) {
+    super(msg);
+    this.errorMessage = errorMessage;
+  }
+  errorMessage: keyof typeof ErrorTexts;
+}
 
 @Injectable()
 export class GoogleOAuthStrategy extends PassportStrategy(
@@ -31,33 +39,41 @@ export class GoogleOAuthStrategy extends PassportStrategy(
     } satisfies Partial<OpenIDConnectStrategy.StrategyOptions>);
   }
 
-  // TODO: eventually we shouldn't let anyone with a Google account login.
   validate: VerifyFunction = async (
     issuer: string,
     profile: Profile,
-    done: VerifyCallback,
-  ): Promise<void> => {
+    // Nest doesn't need this, but our tests do!
+    // TODO: see if we can get rid of this completely.
+    done: OpenIDConnectStrategy.VerifyCallback,
+  ): Promise<UserDTO | undefined> => {
     const id = profile.id;
-    let user: UserDTO | undefined = undefined;
-    try {
-      user = await this.userService.findOrCreate(
-        UserDTO.from({
-          id,
-          emails: profile.emails?.map((v) => v.value) ?? [],
-          displayName: profile.displayName,
-          firstName: profile.name?.givenName,
-          lastName: profile.name?.familyName,
-        }),
+    const emails = profile.emails?.map((v) => v.value) ?? [];
+
+    const validEmailsRegex = new RegExp(
+      (await getEnvVars()).VALID_LOGIN_EMAIL_REGEX,
+    );
+    const validEmail = emails.find((email) => validEmailsRegex.test(email));
+
+    if (validEmail === undefined) {
+      throw new GoogleOAuthStrategyValidateError(
+        ErrorTexts.EmailsMustBeGpo,
+        "EmailsMustBeGpo",
       );
-      done(null, user);
-    } catch (err) {
-      let typedErr: undefined | Error = undefined;
-      if (err instanceof Error) {
-        typedErr = err;
-      } else {
-        typedErr = new Error(String(err));
-      }
-      done(typedErr);
     }
+
+    const user = await this.userService.findOrCreate(
+      UserDTO.from({
+        id,
+        emails,
+        displayName: profile.displayName,
+        firstName: profile.name?.givenName,
+        lastName: profile.name?.familyName,
+      }),
+    );
+
+    // This is only required for tests to pass.
+    done(null, user);
+
+    return user;
   };
 }

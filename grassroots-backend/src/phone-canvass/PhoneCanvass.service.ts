@@ -19,6 +19,7 @@ import {
   PhoneCanvassContactDTO,
   PhoneCanvassCallerDTO,
   CreatePhoneCanvassCallerDTO,
+  PhoneCanvassDetailsDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -56,7 +57,7 @@ interface AdvanceCallToStatusParams {
 
 async function advanceCallToStatus(
   params: AdvanceCallToStatusParams,
-): Promise<Call> {
+): Promise<Call & { twilioSid: string }> {
   const { call, status, result, scheduler } = params;
   switch (call.status) {
     case "NOT_STARTED": {
@@ -65,10 +66,13 @@ async function advanceCallToStatus(
       );
     }
     case "QUEUED": {
-      if (status !== "INITIATED") {
+      if (status === "INITIATED") {
+        return await call.advanceStatusToInitiated(params);
+      } else if (status === "RINGING") {
+        return await call.advanceStatusToRinging(params);
+      } else {
         throw new Error(`Invalid transition to ${status}`);
       }
-      return await call.advanceStatusToInitiated(params);
     }
     case "INITIATED": {
       if (status !== "RINGING") {
@@ -109,7 +113,7 @@ async function advanceCallToStatus(
 
 @Injectable()
 export class PhoneCanvassService {
-  callsBySid = new Map<string, Call>();
+  callsBySid = new Map<string, Call & { twilioSid: string }>();
   // From phone canvass id.
   #schedulers = new Map<string, PhoneCanvassScheduler>();
   // Only present if there's an active simulation.
@@ -182,6 +186,7 @@ export class PhoneCanvassService {
     audioFile?: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
     const canvassEntity = this.repo.create({
+      name: canvass.name,
       creatorEmail,
       contacts: [],
     });
@@ -208,6 +213,7 @@ export class PhoneCanvassService {
     }
 
     await this.entityManager.flush();
+
     await this.#updateSyncData(canvassEntity.id);
 
     return CreatePhoneCanvassResponseDTO.from({
@@ -245,6 +251,24 @@ export class PhoneCanvassService {
     return PhoneCanvassProgressInfoResponseDTO.from({
       count: canvass.contacts.length,
     });
+  }
+
+  async getDetails(id: string): Promise<PhoneCanvassDetailsDTO> {
+    const canvass = await this.getPhoneCanvassByIdOrFail(id);
+    return PhoneCanvassDetailsDTO.from({
+      name: canvass.name,
+    });
+  }
+
+  async getContact(id: number): Promise<PhoneCanvassContactDTO> {
+    const contact = await this.repo
+      .getEntityManager()
+      .findOneOrFail(
+        PhoneCanvassContactEntity,
+        { id },
+        { populate: ["contact"] },
+      );
+    return contact.toDTO();
   }
 
   async list({
@@ -293,6 +317,10 @@ export class PhoneCanvassService {
         contactId: contact.contact.id,
         status: contact.callStatus,
         result: contact.callResult,
+        // TODO: optimize.
+        callerId: [...this.callsBySid.values()].find(
+          (x) => x.contactId() === contact.id,
+        )?.id,
       };
     });
 
@@ -349,11 +377,11 @@ export class PhoneCanvassService {
     return newCaller;
   }
 
-  async refreshCaller(
+  async refreshOrCreateCaller(
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     await this.getPhoneCanvassByIdOrFail(caller.activePhoneCanvassId);
-    const refreshedCaller = await this.globalState.refreshCaller(
+    const refreshedCaller = await this.globalState.refreshOrCreateCaller(
       caller,
       async (id) => await this.twilioService.getAuthToken(id),
     );
@@ -365,10 +393,13 @@ export class PhoneCanvassService {
     return refreshedCaller;
   }
 
-  async updateCaller(
+  async updateOrCreateCaller(
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
-    this.globalState.updateCaller(caller);
+    await this.globalState.updateOrCreateCaller(
+      caller,
+      async (id) => await this.twilioService.getAuthToken(id),
+    );
     const scheduler = await this.getInitializedScheduler({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
@@ -401,7 +432,7 @@ export class PhoneCanvassService {
       result,
     };
 
-    let newCall: Call | undefined = undefined;
+    let newCall: (Call & { twilioSid: string }) | undefined = undefined;
 
     if (status === "COMPLETED") {
       if (result === undefined) {

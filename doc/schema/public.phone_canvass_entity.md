@@ -4,16 +4,20 @@
 
 ## Columns
 
-| Name | Type | Default           | Nullable | Children                                                                      | Parents | Comment |
-| ---- | ---- | ----------------- | -------- | ----------------------------------------------------------------------------- | ------- | ------- |
-| id   | uuid | gen_random_uuid() | false    | [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) |         |         |
+| Name          | Type         | Default           | Nullable | Children                                                                      | Parents | Comment |
+| ------------- | ------------ | ----------------- | -------- | ----------------------------------------------------------------------------- | ------- | ------- |
+| id            | uuid         | gen_random_uuid() | false    | [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) |         |         |
+| creator_email | varchar(255) |                   | false    |                                                                               |         |         |
+| name          | varchar(255) |                   | false    |                                                                               |         |         |
 
 ## Constraints
 
-| Name                             | Type        | Definition       |
-| -------------------------------- | ----------- | ---------------- |
-| phone_canvass_entity_id_not_null | n           | NOT NULL id      |
-| phone_canvass_entity_pkey        | PRIMARY KEY | PRIMARY KEY (id) |
+| Name                                        | Type        | Definition             |
+| ------------------------------------------- | ----------- | ---------------------- |
+| phone_canvass_entity_creator_email_not_null | n           | NOT NULL creator_email |
+| phone_canvass_entity_id_not_null            | n           | NOT NULL id            |
+| phone_canvass_entity_name_not_null          | n           | NOT NULL name          |
+| phone_canvass_entity_pkey                   | PRIMARY KEY | PRIMARY KEY (id)       |
 
 ## Indexes
 
@@ -30,6 +34,8 @@ erDiagram
 
 "public.phone_canvass_entity" {
   uuid id
+  varchar_255_ creator_email
+  varchar_255_ name
 }
 "public.phone_canvass_contact_entity" {
   integer id

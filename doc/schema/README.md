@@ -7,9 +7,9 @@
 | [public.mikro_orm_migrations](public.mikro_orm_migrations.md)                 | 3       |         | BASE TABLE |
 | [public.user_entity](public.user_entity.md)                                   | 5       |         | BASE TABLE |
 | [public.organization_entity](public.organization_entity.md)                   | 5       |         | BASE TABLE |
-| [public.contact_entity](public.contact_entity.md)                             | 8       |         | BASE TABLE |
+| [public.contact_entity](public.contact_entity.md)                             | 16      |         | BASE TABLE |
 | [public.user_role_entity](public.user_role_entity.md)                         | 5       |         | BASE TABLE |
-| [public.phone_canvass_entity](public.phone_canvass_entity.md)                 | 1       |         | BASE TABLE |
+| [public.phone_canvass_entity](public.phone_canvass_entity.md)                 | 3       |         | BASE TABLE |
 | [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) | 7       |         | BASE TABLE |
 
 ## Relations
@@ -52,6 +52,14 @@ erDiagram
   integer organization_id FK
   varchar_255_ gvote_id
   varchar_255_ middle_name
+  varchar_255_ address
+  integer support_level
+  varchar_255_ party_support
+  varchar_255_ voted
+  varchar_255_ membership_status
+  varchar_255_ town
+  varchar_255_ postal_code
+  varchar_255_ province
 }
 "public.user_role_entity" {
   integer id
@@ -62,6 +70,8 @@ erDiagram
 }
 "public.phone_canvass_entity" {
   uuid id
+  varchar_255_ creator_email
+  varchar_255_ name
 }
 "public.phone_canvass_contact_entity" {
   integer id
