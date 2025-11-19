@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { Module, OnModuleInit } from "@nestjs/common";
 import { PhoneCanvassController } from "./PhoneCanvass.controller.js";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -7,6 +7,9 @@ import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerF
 import { ServerMetaModule } from "../server-meta/ServerMeta.module.js";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
+import { mkdir } from "fs/promises";
+
+export const LOG_DIR = "/app/logs";
 
 @Module({
   controllers: [PhoneCanvassController],
@@ -18,5 +21,8 @@ import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
   ],
   imports: [MikroOrmModule.forFeature([PhoneCanvassEntity]), ServerMetaModule],
 })
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-export class PhoneCanvassModule {}
+export class PhoneCanvassModule implements OnModuleInit {
+  async onModuleInit(): Promise<void> {
+    await mkdir(LOG_DIR);
+  }
+}

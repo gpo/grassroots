@@ -9,6 +9,7 @@ import { EntityManager } from "@mikro-orm/core";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { appendFile } from "fs/promises";
 import { delay } from "grassroots-shared/util/Delay";
+import { LOG_DIR } from "../PhoneCanvass.module.js";
 
 export type Call =
   | NotStartedCall
@@ -78,7 +79,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       ts: Date.now(),
     };
     await appendFile(
-      `/app/logs/${this.canvassId()}.log`,
+      `${LOG_DIR}/${this.canvassId()}.log`,
       JSON.stringify(blob) + "\n",
     );
   }
