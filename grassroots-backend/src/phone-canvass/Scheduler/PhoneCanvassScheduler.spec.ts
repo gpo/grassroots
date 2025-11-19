@@ -18,14 +18,17 @@ const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
   {
     id: 10,
     callStatus: "NOT_STARTED",
+    contact: { contact: { id: 0 } },
   },
   {
     id: 20,
     callStatus: "NOT_STARTED",
+    contact: { contact: { id: 1 } },
   },
   {
     id: 30,
     callStatus: "NOT_STARTED",
+    contact: { contact: { id: 2 } },
   },
 ] as unknown as PhoneCanvassContactEntity[];
 
