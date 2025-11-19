@@ -26,15 +26,22 @@ export function useCreatePhoneCanvass(): UseMutateAsyncFunction<
       if (!phoneCanvass.csv) {
         throw new Error("Form submitted without csv present.");
       }
+      if (!phoneCanvass.audio) {
+        throw new Error("Form submitted without audio present.");
+      }
       const csvText = await readFileAsText(phoneCanvass.csv);
+
+      const formData = new FormData();
+      formData.append("name", phoneCanvass.name);
+      formData.append("csv", csvText);
+      formData.append("voiceMailAudioFile", phoneCanvass.audio);
+      console.log(typeof phoneCanvass.audio);
+      console.log(typeof formData.get("voiceMailAudioFile"));
 
       return CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
         await grassrootsAPI.POST("/phone-canvass", {
-          body: {
-            csv: csvText,
-            name: phoneCanvass.name,
-            // Note: audio field not yet sent to backend (will be implemented in PR #3)
-          },
+          // @ts-expect-error - FormData isn't strongly typed.
+          body: formData,
         }),
       );
     },

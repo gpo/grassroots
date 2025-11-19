@@ -1,4 +1,4 @@
-import { Box, Text, Button, Group, Stack } from "@mantine/core";
+import { Box, Text, Group, Stack } from "@mantine/core";
 import { JSX } from "react/jsx-dev-runtime";
 export interface AudioFile {
   id: string;
@@ -11,13 +11,9 @@ export interface AudioFile {
 
 interface AudioPreviewProps {
   audioFile: AudioFile;
-  onRemove: () => void;
 }
 
-export function AudioPreview({
-  audioFile,
-  onRemove,
-}: AudioPreviewProps): JSX.Element {
+export function AudioPreview({ audioFile }: AudioPreviewProps): JSX.Element {
   return (
     <Box bg="gray.1" p="md" pb="0" style={{ borderRadius: "8px" }}>
       <Group justify="space-between">
@@ -32,9 +28,6 @@ export function AudioPreview({
             {(audioFile.size / 1024 / 1024).toFixed(2)} MB • {audioFile.type}
           </Text>
         </Stack>
-        <Button size="xs" color="red" variant="light" onClick={onRemove}>
-          Remove
-        </Button>
       </Group>
       <Box w="100%">
         <audio controls src={audioFile.url}></audio>

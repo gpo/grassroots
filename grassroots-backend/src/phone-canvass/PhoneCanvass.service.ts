@@ -45,6 +45,8 @@ import {
 } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { getEnvVars } from "../GetEnvVars.js";
 import { InjectRepository } from "@mikro-orm/nestjs";
+import { writeFile } from "fs/promises";
+import path from "path";
 
 interface AdvanceCallToStatusParams {
   call: Call;
@@ -183,22 +185,15 @@ export class PhoneCanvassService {
   async create(
     canvass: CreatePhoneCanvassRequestDTO,
     creatorEmail: string,
-    audioFile?: Express.Multer.File,
+    audioFile: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
+    console.log("audioFile", audioFile);
     const canvassEntity = this.repo.create({
       name: canvass.name,
       creatorEmail,
       contacts: [],
     });
     await this.entityManager.flush();
-
-    if (audioFile != null) {
-      console.log(
-        "Service received audio file:",
-        audioFile.originalname,
-        audioFile.size,
-      );
-    }
 
     for (const canvasContact of canvass.contacts) {
       const contact: RequiredEntityData<ContactEntity> =
@@ -216,9 +211,26 @@ export class PhoneCanvassService {
 
     await this.#updateSyncData(canvassEntity.id);
 
-    return CreatePhoneCanvassResponseDTO.from({
+    const newCanvass = CreatePhoneCanvassResponseDTO.from({
       id: canvassEntity.id,
     });
+
+    console.log("AUDIO FILE IS", audioFile);
+    const audioFileExtension = path
+      .extname(audioFile.originalname)
+      .toLowerCase();
+
+    await writeFile(
+      "/app/storage/" + newCanvass.id + audioFileExtension,
+      audioFile.buffer,
+    );
+    console.log(
+      "Service received audio file:",
+      audioFile.originalname,
+      audioFile.size,
+    );
+
+    return newCanvass;
   }
 
   async getPhoneCanvassByIdOrFail(

@@ -69,6 +69,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
     // TODO: this is a bit ugly.
     await delay(0);
     const blob = {
+      id: this.id,
       sid: "twilioSid" in this ? this.twilioSid : undefined,
       status: this.status,
       result: "result" in this ? this.result : undefined,
