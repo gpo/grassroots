@@ -187,7 +187,6 @@ export class PhoneCanvassService {
     creatorEmail: string,
     audioFile: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    console.log("audioFile", audioFile);
     const canvassEntity = this.repo.create({
       name: canvass.name,
       creatorEmail,
@@ -215,7 +214,6 @@ export class PhoneCanvassService {
       id: canvassEntity.id,
     });
 
-    console.log("AUDIO FILE IS", audioFile);
     const audioFileExtension = path
       .extname(audioFile.originalname)
       .toLowerCase();
@@ -223,11 +221,6 @@ export class PhoneCanvassService {
     await writeFile(
       "/app/storage/" + newCanvass.id + audioFileExtension,
       audioFile.buffer,
-    );
-    console.log(
-      "Service received audio file:",
-      audioFile.originalname,
-      audioFile.size,
     );
 
     return newCanvass;

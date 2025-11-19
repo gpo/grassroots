@@ -35,8 +35,6 @@ export function useCreatePhoneCanvass(): UseMutateAsyncFunction<
       formData.append("name", phoneCanvass.name);
       formData.append("csv", csvText);
       formData.append("voiceMailAudioFile", phoneCanvass.audio);
-      console.log(typeof phoneCanvass.audio);
-      console.log(typeof formData.get("voiceMailAudioFile"));
 
       return CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
         await grassrootsAPI.POST("/phone-canvass", {

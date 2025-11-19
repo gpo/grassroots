@@ -53,7 +53,6 @@ export function CreatePhoneCanvass(): JSX.Element {
 
   const handleAudioChange = useCallback(
     (file: File | null) => {
-      console.log("SETTING FILE TO ", file);
       if (uploadedAudio) {
         URL.revokeObjectURL(uploadedAudio.url);
       }
@@ -73,7 +72,6 @@ export function CreatePhoneCanvass(): JSX.Element {
 
       setUploadedAudio(audioFile);
       form.setFieldValue("audio", file);
-      console.log("SET FIELD VALUE TO ", file);
     },
     [uploadedAudio, form],
   );
@@ -106,8 +104,6 @@ export function CreatePhoneCanvass(): JSX.Element {
             key={form.key("audio") + String(keyAppendixToForceRerender)}
             {...form.getInputProps("audio")}
             onChange={(file: File | null) => {
-              console.log("In form, file is", file);
-              console.log(typeof file);
               handleAudioChange(file);
               if (file !== null) {
                 return;
