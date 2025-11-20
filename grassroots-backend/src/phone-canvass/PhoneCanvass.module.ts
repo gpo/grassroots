@@ -10,6 +10,7 @@ import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
 import { mkdir } from "fs/promises";
 
 export const LOG_DIR = "../logs";
+export const VOICEMAIL_STORAGE_DIR = "../storage";
 
 @Module({
   controllers: [PhoneCanvassController],

@@ -47,6 +47,7 @@ import { getEnvVars } from "../GetEnvVars.js";
 import { InjectRepository } from "@mikro-orm/nestjs";
 import { writeFile } from "fs/promises";
 import path from "path";
+import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
 
 interface AdvanceCallToStatusParams {
   call: Call;
@@ -219,7 +220,7 @@ export class PhoneCanvassService {
       .toLowerCase();
 
     await writeFile(
-      "/app/storage/" + newCanvass.id + audioFileExtension,
+      VOICEMAIL_STORAGE_DIR + "/" + newCanvass.id + audioFileExtension,
       audioFile.buffer,
     );
 
