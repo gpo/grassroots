@@ -36,6 +36,8 @@ services:
     volumes:
       - ../:/app
       - /app/node_modules
+      - ../logs:/app/logs
+      - ../storage:/app/storage
 
     ports:
       - "5173:5173"

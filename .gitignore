@@ -8,6 +8,8 @@ grassroots-backend/src/util/LastDependencyUpdateTime.ts
 openapi-paths/src/OpenAPI.gen.ts
 grassroots-backend/openAPI.json
 docker/ngrok/traffic-policy.yml
+logs
+storage
 
 .env.development.local
 .env.test.local

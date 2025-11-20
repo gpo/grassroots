@@ -21,6 +21,9 @@ export function CreatePhoneCanvass(): JSX.Element {
       if (values.csv === undefined) {
         Object.assign(errors, { csv: "Missing csv" });
       }
+      if (values.audio === undefined) {
+        Object.assign(errors, { audio: "Missing voicemail" });
+      }
       return errors;
     }),
     initialValues: CreatePhoneCanvassData.from({
@@ -31,6 +34,10 @@ export function CreatePhoneCanvass(): JSX.Element {
   });
 
   const [uploadedAudio, setUploadedAudio] = useState<AudioFile | null>(null);
+  // This appears to be the only way to cause a rerender in a FileInput when you
+  // clear the field.
+  const [keyAppendixToForceRerender, setKeyAppendixToForceRerender] =
+    useState(0);
 
   const onSubmit = useCallback(async (data: CreatePhoneCanvassData) => {
     if (!data.csv) {
@@ -46,13 +53,12 @@ export function CreatePhoneCanvass(): JSX.Element {
 
   const handleAudioChange = useCallback(
     (file: File | null) => {
+      if (uploadedAudio) {
+        URL.revokeObjectURL(uploadedAudio.url);
+      }
       if (!file) {
         setUploadedAudio(null);
         return;
-      }
-
-      if (uploadedAudio) {
-        URL.revokeObjectURL(uploadedAudio.url);
       }
 
       const audioFile: AudioFile = {
@@ -94,21 +100,21 @@ export function CreatePhoneCanvass(): JSX.Element {
             description="Audio file to play"
             placeholder="Audio File"
             accept="audio/*"
-            key={form.key("audio")}
-            onChange={handleAudioChange}
+            clearable
+            key={form.key("audio") + String(keyAppendixToForceRerender)}
+            {...form.getInputProps("audio")}
+            onChange={(file: File | null) => {
+              handleAudioChange(file);
+              if (file !== null) {
+                return;
+              }
+              form.setFieldValue("audio", undefined);
+              setKeyAppendixToForceRerender((v) => v + 1);
+            }}
           ></FileInput>
           {/* TODO: maybe this should take up space before an upload occurs, to avoid
            content jumping around. */}
-          {uploadedAudio && (
-            <AudioPreview
-              audioFile={uploadedAudio}
-              onRemove={() => {
-                URL.revokeObjectURL(uploadedAudio.url);
-                setUploadedAudio(null);
-                form.setFieldValue("audio", undefined);
-              }}
-            />
-          )}
+          {uploadedAudio && <AudioPreview audioFile={uploadedAudio} />}
           <Button type="submit">Submit</Button>
         </Stack>
       </form>

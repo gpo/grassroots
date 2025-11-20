@@ -14,5 +14,6 @@ export default defineConfig({
     root: "./",
     exclude: ["node_modules/**", "dist/**"],
     include: ["**/*.spec.ts", "**/*.e2e-spec.ts"],
+    printConsoleTrace: true,
   },
 });
