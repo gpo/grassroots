@@ -9,7 +9,7 @@ import { MikroOrmModule } from "@mikro-orm/nestjs";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
 import { mkdir } from "fs/promises";
 
-export const LOG_DIR = "/app/logs";
+export const LOG_DIR = "../logs";
 
 @Module({
   controllers: [PhoneCanvassController],
@@ -23,6 +23,6 @@ export const LOG_DIR = "/app/logs";
 })
 export class PhoneCanvassModule implements OnModuleInit {
   async onModuleInit(): Promise<void> {
-    await mkdir(LOG_DIR);
+    await mkdir(LOG_DIR, { recursive: true });
   }
 }
