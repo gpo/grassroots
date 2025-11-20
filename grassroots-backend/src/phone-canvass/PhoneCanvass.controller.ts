@@ -12,6 +12,8 @@ import {
   UploadedFile,
   Session,
   NotFoundException,
+  Res,
+  InternalServerErrorException,
 } from "@nestjs/common";
 import {
   CreatePhoneCanvasContactRequestDTO,
@@ -35,10 +37,13 @@ import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
 import { FileInterceptor } from "@nestjs/platform-express";
-import type { Express } from "express";
+import type { Express, Response } from "express";
 import type * as expressSession from "express-session";
 import { twilioCallStatusToCallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
+import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
+import { readdir } from "fs/promises";
+import { resolve } from "path";
 
 export interface GVoteCSVEntry {
   id: string;
@@ -226,6 +231,32 @@ export class PhoneCanvassController {
     </Response>`;
     }
     throw new Error("Not handling voicemails yet.");
+  }
+
+  // TODO: move this logic closer to the twilioService.
+  // eslint-disable-next-line grassroots/controller-routes-return-dtos
+  @Get("webhooks/get-voicemail/:id")
+  @PublicRoute()
+  async getVoicemail(
+    @Param("id") id: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    let voicemails = await readdir(VOICEMAIL_STORAGE_DIR);
+    const regex = new RegExp(`${id}\\.*`);
+    voicemails = voicemails.filter((x) => regex.test(x));
+
+    if (voicemails.length > 1) {
+      throw new InternalServerErrorException(
+        "Multiple voicemails with that id",
+      );
+    }
+
+    const voicemail = voicemails[0];
+    if (voicemail === undefined) {
+      throw new NotFoundException("No voicemail with that id");
+    }
+
+    res.sendFile(resolve(VOICEMAIL_STORAGE_DIR + "/" + voicemail));
   }
 
   @Get("details/:id")
