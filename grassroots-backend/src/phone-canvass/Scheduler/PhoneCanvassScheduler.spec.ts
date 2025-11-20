@@ -1,6 +1,6 @@
 /* eslint-disable grassroots/entity-use */
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import {
   NotStartedCall,
@@ -12,6 +12,7 @@ import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
 import { EntityManager } from "@mikro-orm/postgresql";
+import { PhoneCanvassModule } from "../PhoneCanvass.module.js";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
@@ -58,6 +59,9 @@ function getScheduler(): PhoneCanvassScheduler {
 }
 
 describe("PhoneCanvassScheduler", () => {
+  beforeAll(async () => {
+    await new PhoneCanvassModule().onModuleInit();
+  });
   beforeEach(() => {
     resetPhoneCanvasCallIdsForTest();
   });
