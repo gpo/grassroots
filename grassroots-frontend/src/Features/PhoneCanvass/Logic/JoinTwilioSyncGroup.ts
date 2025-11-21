@@ -28,7 +28,7 @@ interface JoinSyncGroupParams {
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
   registerCaller: RegisterCaller;
   refreshCaller: RefreshCaller;
-  onNewContact: (contact: ContactSummary) => void;
+  onNewContact: (contact: ContactSummary | undefined) => void;
 }
 
 // We don't give anyone a handle to the SyncGroup, so they can't hold onto a stale instance.
@@ -41,7 +41,7 @@ class SyncGroupManager {
   #registerCaller: RegisterCaller;
   #refreshCaller: RefreshCaller;
   #lastContact: ContactSummary | undefined;
-  #onNewContact: (contact: ContactSummary) => void;
+  #onNewContact: (contact: ContactSummary | undefined) => void;
 
   static instance: SyncGroupManager | undefined;
 
@@ -64,6 +64,8 @@ class SyncGroupManager {
       // TODO: figure out why this keeps receiving onUpdates.
       return;
     }
+
+    console.log("GOT UPDATE", data);
     let caller = await getPhoneCanvassCaller({
       refreshCaller: this.#refreshCaller,
       activePhoneCanvassId: this.caller.activePhoneCanvassId,
@@ -85,7 +87,7 @@ class SyncGroupManager {
       throw new Error("We should have a caller.");
     }
     const currentContact = data.contacts.find((x) => x.callerId == caller.id);
-    if (currentContact && this.#lastContact != currentContact) {
+    if (this.#lastContact != currentContact) {
       this.#lastContact = currentContact;
       this.#onNewContact(currentContact);
     }

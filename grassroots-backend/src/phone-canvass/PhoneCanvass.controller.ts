@@ -44,6 +44,8 @@ import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
 import { readdir } from "fs/promises";
 import { resolve } from "path";
+import VoiceResponse from "twilio/lib/twiml/VoiceResponse.js";
+import { getEnvVars } from "../GetEnvVars.js";
 
 export interface GVoteCSVEntry {
   id: string;
@@ -201,6 +203,7 @@ export class PhoneCanvassController {
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
   ): Promise<string> {
     const status = twilioCallStatusToCallStatus(body.CallStatus);
+    console.log("UPDATE CALL", body.CallSid, body.CallStatus);
     await this.phoneCanvassService.updateCall({
       ...status,
       sid: body.CallSid,
@@ -214,26 +217,36 @@ export class PhoneCanvassController {
   @Post("webhooks/twilio-call-answered")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
-  twilioCallAnsweredCallback(
+  async twilioCallAnsweredCallback(
     @Body() body: PhoneCanvasTwilioCallAnsweredCallbackDTO,
-  ): string {
+  ): Promise<string> {
     const call = this.phoneCanvassService.callsBySid.get(body.CallSid);
     if (!call) {
       throw new NotFoundException(`Can't find call with id ${body.CallSid}`);
     }
+    const response = new VoiceResponse();
+
     if (body.AnsweredBy === "human" || body.AnsweredBy === "unknown") {
-      return `<Response>
-      <Dial>
-        <Conference>
-          ${String(call.contactId())}
-        </Conference>
-      </Dial>
-    </Response>`;
+      const dial = response.dial();
+      dial.conference(
+        {
+          endConferenceOnExit: true,
+          record: "record-from-start", // optional
+        },
+        String(call.contactId()),
+      );
     }
-    throw new Error("Not handling voicemails yet.");
+    response.play(
+      (await getEnvVars()).WEBHOOK_HOST +
+        "/phone-canvass/webhooks/get-voicemail/" +
+        call.canvassId(),
+    );
+    return response.toString();
   }
 
   // TODO: move this logic closer to the twilioService.
+  // This isn't technically a webhook, but it does get hit by twilio servers, so
+  // we treat it the same.
   // eslint-disable-next-line grassroots/controller-routes-return-dtos
   @Get("webhooks/get-voicemail/:id")
   @PublicRoute()
@@ -305,6 +318,7 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
+    console.log("UPDATE CALLER", caller.ready);
     caller = await this.phoneCanvassService.updateOrCreateCaller(caller);
     session.phoneCanvassCaller = caller;
     return caller;

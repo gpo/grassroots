@@ -131,6 +131,8 @@ abstract class AbstractCall<STATUS extends CallStatus> {
     if (call.status === "COMPLETED") {
       call.state.contact.callResult = call.result;
     }
+    console.log("EM IS", this.state.entityManager._id);
+
     await this.state.entityManager.flush();
 
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
@@ -166,14 +168,18 @@ export class NotStartedCall extends AbstractCall<"NOT_STARTED"> {
     });
   }
 
-  async advanceStatusToQueued(params: CurrentTime & SID): Promise<QueuedCall> {
-    return await this.advanceStatusTo(
-      new QueuedCall({
-        ...this.state,
-        twilioSid: params.twilioSid,
-        currentTime: params.currentTime,
-      }),
-    );
+  // We split this from advancing the call to avoid a race where twilio sends a callback
+  // before this is we've registered this call with the PhoneCanvassService.
+  constructQueuedCall(params: CurrentTime & SID): QueuedCall {
+    return new QueuedCall({
+      ...this.state,
+      twilioSid: params.twilioSid,
+      currentTime: params.currentTime,
+    });
+  }
+
+  async advanceStatusToQueued(call: QueuedCall): Promise<QueuedCall> {
+    return await this.advanceStatusTo(call);
   }
 
   static resetIdsForTest(): void {

@@ -164,13 +164,19 @@ export class PhoneCanvassService {
               ? await this.twilioService.makeCall(call)
               : simulateMakeCall(call);
 
+          console.log("MAKING CALL", sid);
+
           switch (status) {
             case "QUEUED": {
-              const queuedCall = await call.advanceStatusToQueued({
+              console.log("ADVANCING CALL", sid);
+
+              const queuedCall = call.constructQueuedCall({
                 currentTime: timestamp,
                 twilioSid: sid,
               });
               this.callsBySid.set(sid, queuedCall);
+
+              await call.advanceStatusToQueued(queuedCall);
               break;
             }
             default: {
@@ -240,9 +246,10 @@ export class PhoneCanvassService {
   async getPhoneCanvassContacts(
     id: string,
   ): Promise<Loaded<PhoneCanvassContactEntity, "contact">[]> {
+    console.log("EM IS", this.repo.getEntityManager()._id);
     const phoneCanvass = await this.repo.findOne(
       { id },
-      { populate: ["contacts.contact"] },
+      { populate: ["contacts.contact"], refresh: true },
     );
     if (phoneCanvass === null) {
       throw new UnauthorizedException("Invalid phone canvass id");
@@ -323,10 +330,14 @@ export class PhoneCanvassService {
         contactId: contact.contact.id,
         status: contact.callStatus,
         result: contact.callResult,
-        // TODO: optimize.
-        callerId: [...this.callsBySid.values()].find(
-          (x) => x.contactId() === contact.id,
-        )?.id,
+        // TODO: optimize, and assert there's only one value.
+        callerId: [...this.callsBySid.values()]
+          .filter((x) => x.contactId() === contact.id)
+          .map((x) => {
+            if (x.status === "IN_PROGRESS") {
+              return x.callerId;
+            }
+          })[0],
       };
     });
 
@@ -457,6 +468,13 @@ export class PhoneCanvassService {
         scheduler,
         call,
       });
+
+      console.log(
+        "Updating call for contact id ",
+        newCall.contactId(),
+        " to ",
+        newCallParams.status,
+      );
     }
     this.callsBySid.set(sid, newCall);
     await this.#updateSyncData(newCall.canvassId());
