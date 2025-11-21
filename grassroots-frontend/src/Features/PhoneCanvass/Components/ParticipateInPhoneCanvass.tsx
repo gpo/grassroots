@@ -17,6 +17,7 @@ import { Device } from "@twilio/voice-sdk";
 import { usePhoneCanvassDetails } from "../Logic/UsePhoneCanvassDetails.js";
 import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
 import { ContactCard } from "../../Contacts/Components/ContactCard.js";
+import { notifications } from "@mantine/notifications";
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -37,6 +38,36 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     phoneCanvassCallerStore,
   });
 
+  // TODO: initialCaller's ready bit is often stale.
+  const { refreshCaller, initialCaller } =
+    ParticipateInPhoneCanvassRoute.useRouteContext();
+
+  // If the user navigates away, we need to mark them as not ready.
+  useEffect(() => {
+    window.onbeforeunload = (event: BeforeUnloadEvent): string | undefined => {
+      event.preventDefault();
+      if (readyForCalls === "becomingReady" || readyForCalls === "ready") {
+        setReadyForCalls("unready");
+        runPromise(
+          markUnreadyForCalls({
+            caller: initialCaller,
+            device: currentDevice,
+            keepalive: true,
+          }),
+          false,
+        );
+        notifications.show({
+          title: "Marked as unready",
+          message: "Marked as unready for additional calls",
+          color: "red",
+        });
+      }
+      if (currentContactId !== undefined) {
+        return "You're in the middle of a call. Are you sure you want to leave?";
+      }
+    };
+  }, [readyForCalls, currentContactId]);
+
   const currentContact = usePhoneCanvassContact(currentContactId).data;
 
   const currentContactDetails = currentContact ? (
@@ -51,11 +82,8 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     </Group>
   ) : null;
 
-  const { caller, refreshCaller } =
-    ParticipateInPhoneCanvassRoute.useRouteContext();
-
-  const onNewContact = (contact: ContactSummary): void => {
-    setCurrentContactId(contact.contactId);
+  const onNewContact = (contact: ContactSummary | undefined): void => {
+    setCurrentContactId(contact?.contactId);
   };
 
   useEffect(() => {
@@ -69,7 +97,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   useEffect(() => {
     runPromise(
       joinTwilioSyncGroup({
-        caller,
+        caller: initialCaller,
         callPartyStateStore,
         phoneCanvassCallerStore,
         registerCaller,
@@ -109,7 +137,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
             setReadyForCalls("becomingUnready");
             runPromise(
               (async (): Promise<void> => {
-                await markUnreadyForCalls({ caller, device: currentDevice });
+                await markUnreadyForCalls({
+                  caller: initialCaller,
+                  device: currentDevice,
+                });
                 setReadyForCalls("unready");
               })(),
               false,
@@ -128,7 +159,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
             runPromise(
               (async (): Promise<void> => {
                 const device = (
-                  await markReadyForCalls({ caller, device: currentDevice })
+                  await markReadyForCalls({
+                    caller: initialCaller,
+                    device: currentDevice,
+                  })
                 ).device;
                 setCurrentDevice(device);
                 setReadyForCalls("ready");
@@ -146,7 +180,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   return (
     <>
       <h1> Call Party: {phoneCanvassDetails?.name ?? ""} </h1>
-      <h2> Welcome {caller.displayName}</h2>
+      <h2> Welcome {initialCaller.displayName}</h2>
       <Stack>
         <ToggleReadyButton></ToggleReadyButton>
         {currentContactDetails}
