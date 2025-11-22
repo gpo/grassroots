@@ -127,11 +127,15 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       CallTypeTo
     >;
     calls.set(call.state.id, call);
+
+    // Contacts were grabbed during another request, so they will have detached.
+    // Push them into this entityManager again, or the flush below does nothing.
+    this.state.entityManager.merge(call.state.contact);
+
     call.state.contact.callStatus = call.status;
     if (call.status === "COMPLETED") {
       call.state.contact.callResult = call.result;
     }
-    console.log("EM IS", this.state.entityManager._id);
 
     await this.state.entityManager.flush();
 

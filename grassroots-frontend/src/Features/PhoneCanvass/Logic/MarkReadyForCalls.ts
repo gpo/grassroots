@@ -23,8 +23,6 @@ export async function markUnreadyForCalls(
 ): Promise<void> {
   const { caller } = params;
 
-  console.log("MARKING UNREADY");
-
   VoidDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/update-caller", {
       body: PhoneCanvassCallerDTO.from({

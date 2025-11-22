@@ -203,7 +203,6 @@ export class PhoneCanvassController {
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
   ): Promise<string> {
     const status = twilioCallStatusToCallStatus(body.CallStatus);
-    console.log("UPDATE CALL", body.CallSid, body.CallStatus);
     await this.phoneCanvassService.updateCall({
       ...status,
       sid: body.CallSid,
@@ -318,7 +317,6 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    console.log("UPDATE CALLER", caller.ready);
     caller = await this.phoneCanvassService.updateOrCreateCaller(caller);
     session.phoneCanvassCaller = caller;
     return caller;

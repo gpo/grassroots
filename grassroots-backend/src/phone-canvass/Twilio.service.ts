@@ -98,8 +98,6 @@ export class TwilioService {
     const envVars = await getEnvVars();
     const client = await this.#getClient();
 
-    console.log("SETTING DATA", data);
-
     try {
       // This fails if the document doesn't already exist. Checking if it exists first introduces
       // an extra unnecessary round trip and some complexity.

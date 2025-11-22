@@ -65,7 +65,6 @@ class SyncGroupManager {
       return;
     }
 
-    console.log("GOT UPDATE", data);
     let caller = await getPhoneCanvassCaller({
       refreshCaller: this.#refreshCaller,
       activePhoneCanvassId: this.caller.activePhoneCanvassId,

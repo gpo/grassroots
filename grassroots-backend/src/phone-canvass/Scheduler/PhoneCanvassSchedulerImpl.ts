@@ -120,7 +120,6 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   }
 
   getNextIdleCallerId(): number | undefined {
-    console.log("CALLERS ARE", this.#callers);
     const busyCallerIds = new Set(
       [...this.callsByStatus.IN_PROGRESS.values()].map((x) => x.callerId),
     );
