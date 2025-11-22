@@ -52,12 +52,11 @@ export class PhoneCanvassGlobalStateService {
     const callers =
       this.#phoneCanvassIdToCaller.get(activePhoneCanvassId) ?? [];
 
-    console.log("LOOKING FOR MATCHING CALLER", callers, id, authToken);
-
     const existingCaller = callers.find(
       // TODO: we need a more resilient secure identifier, as when the auth token rotates, this breaks.
       (x) => x.id === id /*&& x.authToken == authToken,*/,
     );
+    void authToken;
     return existingCaller;
   }
 

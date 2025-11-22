@@ -164,12 +164,8 @@ export class PhoneCanvassService {
               ? await this.twilioService.makeCall(call)
               : simulateMakeCall(call);
 
-          console.log("MAKING CALL", sid);
-
           switch (status) {
             case "QUEUED": {
-              console.log("ADVANCING CALL", sid);
-
               const queuedCall = call.constructQueuedCall({
                 currentTime: timestamp,
                 twilioSid: sid,
@@ -246,7 +242,6 @@ export class PhoneCanvassService {
   async getPhoneCanvassContacts(
     id: string,
   ): Promise<Loaded<PhoneCanvassContactEntity, "contact">[]> {
-    console.log("EM IS", this.repo.getEntityManager()._id);
     const phoneCanvass = await this.repo.findOne(
       { id },
       { populate: ["contacts.contact"], refresh: true },
@@ -468,13 +463,6 @@ export class PhoneCanvassService {
         scheduler,
         call,
       });
-
-      console.log(
-        "Updating call for contact id ",
-        newCall.contactId(),
-        " to ",
-        newCallParams.status,
-      );
     }
     this.callsBySid.set(sid, newCall);
     await this.#updateSyncData(newCall.canvassId());
