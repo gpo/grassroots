@@ -60,6 +60,7 @@ export class PhoneCanvassMetricsTracker {
   }
 
   onCallerCountUpdate(callerCount: number): void {
+    console.log("CALLER COUNT IS ", callerCount);
     this.#callerCountObservable.next(callerCount);
   }
 }

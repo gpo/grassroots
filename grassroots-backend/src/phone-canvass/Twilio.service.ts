@@ -29,10 +29,8 @@ export class TwilioService {
     const envVars = await getEnvVars();
 
     const client = await this.#getClient();
-
-    // Pause to give answering machine detection some time.
-    // Configure this by configuring answering machine detection.
-    const twiml = new VoiceResponse().pause({ length: 30 });
+    const twiml = new VoiceResponse();
+    twiml.say("HELLO");
 
     // TODO(mvp): use the actual phone number.
     void call;
@@ -40,6 +38,7 @@ export class TwilioService {
       // TODO(mvp): use the actual phone number.
       to: envVars.TEST_APPROVED_PHONE_NUMBER,
       from: envVars.TWILIO_OUTGOING_NUMBER,
+      record: true,
       statusCallback:
         (await getEnvVars()).WEBHOOK_HOST +
         "/phone-canvass/webhooks/twilio-callstatus",

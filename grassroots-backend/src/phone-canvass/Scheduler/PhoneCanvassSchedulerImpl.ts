@@ -157,7 +157,8 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   removeCaller(id: number): void {
     const removed = this.#callers.delete(id);
     if (!removed) {
-      throw new Error("Tried to remove caller who wasn't present.");
+      // This can happen due to a server restart, causing us to forget this caller exists.
+      return;
     }
     this.metricsTracker.onCallerCountUpdate(this.#callers.size);
   }

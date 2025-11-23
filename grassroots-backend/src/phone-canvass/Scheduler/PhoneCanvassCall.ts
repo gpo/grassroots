@@ -62,18 +62,29 @@ abstract class AbstractCall<STATUS extends CallStatus> {
 
   constructor(params: CommonCallState) {
     this.state = params;
-    runPromise(this.log(), false);
+
+    runPromise(
+      (async (): Promise<void> => {
+        // Wait until this object is fully constructed.
+        // TODO: this is a bit ugly.
+        await delay(0);
+        await this.log();
+      })(),
+      false,
+    );
   }
 
   async log(): Promise<void> {
-    // Wait until this object is fully constructed.
-    // TODO: this is a bit ugly.
-    await delay(0);
     const blob = {
       id: this.id,
       sid: "twilioSid" in this ? this.twilioSid : undefined,
       status: this.status,
       result: "result" in this ? this.result : undefined,
+      playedVoicemail:
+        "playedVoicemail" in this && this.playedVoicemail === true
+          ? this.playedVoicemail
+          : undefined,
+
       contactId: this.state.contact.contact.id,
       // TODO: pull the timestamp from twilio.
       ts: Date.now(),
@@ -105,6 +116,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
         // with multiple Interfaces over it, depending on state.
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         callerId: getCallerId(this as unknown as Call),
+        playedVoicemail: false,
       }),
     );
   }
@@ -130,14 +142,19 @@ abstract class AbstractCall<STATUS extends CallStatus> {
 
     // Contacts were grabbed during another request, so they will have detached.
     // Push them into this entityManager again, or the flush below does nothing.
+    console.log("PRE MERGE", call.state.contact.callStatus);
     this.state.entityManager.merge(call.state.contact);
+    console.log("POST MERGE", call.state.contact.callStatus);
 
     call.state.contact.callStatus = call.status;
     if (call.status === "COMPLETED") {
       call.state.contact.callResult = call.result;
     }
 
+    console.log("PRE FLUSH", call.state.contact.callStatus);
+
     await this.state.entityManager.flush();
+    console.log("POST FLUSH", call.state.contact.callStatus);
 
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
       this.state.scheduler.callsByStatus,
@@ -288,6 +305,7 @@ export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
   async advanceStatusToCompleted(
     params: {
       result: CallResult;
+      playedVoicemail: boolean;
     } & CurrentTime,
   ): Promise<CompletedCall> {
     return await this.advanceStatusTo(
@@ -297,6 +315,7 @@ export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
         currentTime: params.currentTime,
         twilioSid: this.twilioSid,
         result: params.result,
+        playedVoicemail: params.playedVoicemail,
       }),
     );
   }
@@ -306,12 +325,14 @@ export class CompletedCall extends AbstractCall<"COMPLETED"> {
   status = "COMPLETED" as const;
   #result: CallResult;
   #callerId: number | undefined;
+  readonly playedVoicemail: boolean;
   readonly twilioSid: string;
 
   constructor(
     params: CommonCallConstructorParams & {
       result: CallResult;
       callerId: number | undefined;
+      playedVoicemail: boolean;
     } & SID,
   ) {
     super(params);
@@ -320,6 +341,7 @@ export class CompletedCall extends AbstractCall<"COMPLETED"> {
     this.state.transitionTimestamps.COMPLETED = params.currentTime;
     this.#result = params.result;
     this.state.scheduler.metricsTracker.onEndingCall(this);
+    this.playedVoicemail = params.playedVoicemail;
   }
 
   get result(): CallResult {

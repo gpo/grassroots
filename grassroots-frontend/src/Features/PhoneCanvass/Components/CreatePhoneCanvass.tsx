@@ -9,6 +9,7 @@ import {
   useCreatePhoneCanvass,
 } from "../Logic/UseCreatePhoneCanvass.js";
 import { FormErrors } from "@mantine/form";
+import { VALID_TWILIO_AUDIO_MIME_TYPES } from "grassroots-shared/constants/ValidTwilioAudioMimeTypes";
 
 export function CreatePhoneCanvass(): JSX.Element {
   const navigate = useNavigate();
@@ -97,9 +98,9 @@ export function CreatePhoneCanvass(): JSX.Element {
           ></FileInput>
           <FileInput
             label="Audio Upload"
-            description="Audio file to play"
+            description="Audio file to play (mp3 or wav)"
             placeholder="Audio File"
-            accept="audio/*"
+            accept={VALID_TWILIO_AUDIO_MIME_TYPES.join(",")}
             clearable
             key={form.key("audio") + String(keyAppendixToForceRerender)}
             {...form.getInputProps("audio")}
