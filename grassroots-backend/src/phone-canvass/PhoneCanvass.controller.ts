@@ -46,6 +46,8 @@ import { readdir } from "fs/promises";
 import { resolve } from "path";
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse.js";
 import { getEnvVars } from "../GetEnvVars.js";
+import { VALID_TWILIO_AUDIO_MIME_TYPES } from "grassroots-shared/constants/ValidTwilioAudioMimeTypes";
+import { concatMap, debounceTime, groupBy, mergeMap, Subject } from "rxjs";
 
 export interface GVoteCSVEntry {
   id: string;
@@ -76,14 +78,41 @@ function getEmail(req: GrassrootsRequest): string {
 
 @Controller("phone-canvass")
 export class PhoneCanvassController {
-  constructor(private readonly phoneCanvassService: PhoneCanvassService) {}
+  twilioCallStatusCallback$ =
+    new Subject<PhoneCanvasTwilioCallStatusCallbackDTO>();
+  constructor(private readonly phoneCanvassService: PhoneCanvassService) {
+    // We want to process twilio status callbacks serially for each call, but in parallel across calls.
+    this.twilioCallStatusCallback$
+      .pipe(
+        groupBy((x) => x.CallSid, { duration: debounceTime(60_000) }),
+        mergeMap((group$) =>
+          group$.pipe(
+            concatMap(async (callback) => {
+              const status = twilioCallStatusToCallStatus(callback.CallStatus);
+              console.log("status callback", callback.CallStatus, status);
+
+              await this.phoneCanvassService.updateCall({
+                ...status,
+                sid: callback.CallSid,
+                timestamp: callback.Timestamp,
+                playedVoicemail: false,
+              });
+            }),
+          ),
+        ),
+      )
+      .subscribe();
+  }
 
   @Post()
   @UseInterceptors(
     FileInterceptor("voiceMailAudioFile", {
       fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith("audio/")) {
-          cb(new BadRequestException("Only audio files are allowed!"), false);
+        if (!VALID_TWILIO_AUDIO_MIME_TYPES.includes(file.mimetype)) {
+          cb(
+            new BadRequestException("Unsupported file format. Try wav or mp3."),
+            false,
+          );
           return;
         }
         cb(null, true);
@@ -199,15 +228,10 @@ export class PhoneCanvassController {
   @Post("webhooks/twilio-callstatus")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
-  async twilioCallStatusCallback(
+  twilioCallStatusCallback(
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
-  ): Promise<string> {
-    const status = twilioCallStatusToCallStatus(body.CallStatus);
-    await this.phoneCanvassService.updateCall({
-      ...status,
-      sid: body.CallSid,
-      timestamp: body.Timestamp,
-    });
+  ): string {
+    this.twilioCallStatusCallback$.next(body);
     return `<Response></Response>`;
   }
 
@@ -226,6 +250,7 @@ export class PhoneCanvassController {
     const response = new VoiceResponse();
 
     if (body.AnsweredBy === "human" || body.AnsweredBy === "unknown") {
+      console.log("NOT VOICEMAIL");
       const dial = response.dial();
       dial.conference(
         {
@@ -235,11 +260,22 @@ export class PhoneCanvassController {
         String(call.contactId()),
       );
     }
+    console.log("PLAY VOICEMAIL");
     response.play(
+      "https://api.twilio.com/cowbell.mp3" /*
       (await getEnvVars()).WEBHOOK_HOST +
         "/phone-canvass/webhooks/get-voicemail/" +
-        call.canvassId(),
+        call.canvassId(),*/,
     );
+    response.hangup();
+    if (call.status === "IN_PROGRESS") {
+      await call.advanceStatusToCompleted({
+        result: "COMPLETED",
+        currentTime: Date.now(),
+        playedVoicemail: true,
+      });
+    }
+    console.log(response.toString());
     return response.toString();
   }
 
@@ -253,6 +289,7 @@ export class PhoneCanvassController {
     @Param("id") id: string,
     @Res() res: Response,
   ): Promise<void> {
+    console.log("GET VOICEMAIL");
     let voicemails = await readdir(VOICEMAIL_STORAGE_DIR);
     const regex = new RegExp(`${id}\\.*`);
     voicemails = voicemails.filter((x) => regex.test(x));

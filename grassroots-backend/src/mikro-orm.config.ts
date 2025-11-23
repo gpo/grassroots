@@ -26,7 +26,7 @@ async function createMikroOrmConfig(): Promise<
     user: envVars.POSTGRES_USER,
     password: envVars.POSTGRES_PASSWORD,
     dbName: envVars.POSTGRES_DATABASE,
-    debug: true,
+    debug: false,
   });
 }
 

@@ -15,6 +15,7 @@ storage
 .env.test.local
 .env.local
 .pnpm-store
+.jj
 **/*.tsbuildinfo
 grassroots-frontend/.tanstack
 

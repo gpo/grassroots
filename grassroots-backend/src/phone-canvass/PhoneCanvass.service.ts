@@ -62,6 +62,7 @@ async function advanceCallToStatus(
   params: AdvanceCallToStatusParams,
 ): Promise<Call & { twilioSid: string }> {
   const { call, status, result, scheduler } = params;
+  console.log("ADVANCING");
   switch (call.status) {
     case "NOT_STARTED": {
       throw new Error(
@@ -84,6 +85,7 @@ async function advanceCallToStatus(
       return await call.advanceStatusToRinging(params);
     }
     case "RINGING": {
+      console.log("ADVANCING FROM RINGING TO IN_PROGRESS");
       if (status !== "IN_PROGRESS") {
         throw new Error("Invalid transition");
       }
@@ -106,6 +108,7 @@ async function advanceCallToStatus(
       return call.advanceStatusToCompleted({
         ...params,
         result,
+        playedVoicemail: false,
       });
     }
     case "COMPLETED": {
@@ -418,6 +421,7 @@ export class PhoneCanvassService {
     if (caller.ready) {
       scheduler.addCaller(caller.id);
     } else {
+      console.log("REMOVING CALLER");
       scheduler.removeCaller(caller.id);
     }
 
@@ -430,6 +434,7 @@ export class PhoneCanvassService {
     status: CallStatus;
     result?: CallResult;
     timestamp: number;
+    playedVoicemail: boolean;
   }): Promise<void> {
     const { sid, status, result, timestamp } = params;
     const call = this.callsBySid.get(sid);
@@ -442,18 +447,39 @@ export class PhoneCanvassService {
       twilioSid: sid,
       status,
       result,
+      playedVoicemail: params.playedVoicemail,
     };
 
     let newCall: (Call & { twilioSid: string }) | undefined = undefined;
 
     if (status === "COMPLETED") {
+      console.log("COMPLETED BRANCH");
       if (result === undefined) {
+        console.log("MISSING RESULT");
         throw new Error("COMPLETED call missing result");
       }
-      newCall = await call.advanceStatusToFailed({ ...newCallParams, result });
+      console.log("RESULT IS ", result);
+      if (result === "COMPLETED") {
+        if (call.status !== "IN_PROGRESS") {
+          throw new Error(
+            "We can't complete a call that isn't in progress. Current status is " +
+              call.status,
+          );
+        }
+        newCall = await call.advanceStatusToCompleted({
+          ...newCallParams,
+          result,
+        });
+      } else {
+        newCall = await call.advanceStatusToFailed({
+          ...newCallParams,
+          result,
+        });
+      }
     }
 
     if (newCall === undefined) {
+      console.log("ADVANCING EXISTING CALL");
       const scheduler = this.#schedulers.get(call.canvassId());
       if (scheduler === undefined) {
         throw new Error("Missing scheduler.");
@@ -463,6 +489,7 @@ export class PhoneCanvassService {
         scheduler,
         call,
       });
+      console.log("ADVANCED TO ", newCall.status);
     }
     this.callsBySid.set(sid, newCall);
     await this.#updateSyncData(newCall.canvassId());
