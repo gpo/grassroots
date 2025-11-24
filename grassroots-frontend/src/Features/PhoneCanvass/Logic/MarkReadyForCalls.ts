@@ -66,6 +66,10 @@ export async function markReadyForCalls(
     throw new Error("Twilio Device Error: " + JSON.stringify(error));
   });
 
+  device.on("incoming", (e) => {
+    console.log("INCOMING CALL???", e);
+  });
+
   await device.register();
   return { device };
 }
