@@ -4,6 +4,7 @@ export async function takeCall(
   device: Device,
   contactId: number,
 ): Promise<void> {
+  device.disconnectAll();
   const call = await device.connect({
     // These get passed to the controller.
     params: { conference: String(contactId) },

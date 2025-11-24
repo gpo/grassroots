@@ -15,7 +15,11 @@ export interface Caller {
 
 export abstract class PhoneCanvassScheduler {
   abstract readonly calls: Observable<NotStartedCall>;
-  abstract startIfNeeded(): { started: boolean };
+  // TODO: this feels like layering violation. We should figure out a better way to manage the "last call"
+  // state.
+  abstract startIfNeeded(): {
+    started: boolean;
+  };
   abstract stop(): void;
   abstract addCaller(id: number): void;
   abstract removeCaller(id: number): void;

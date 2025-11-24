@@ -2,7 +2,7 @@ import { Module, OnModuleInit } from "@nestjs/common";
 import { PhoneCanvassController } from "./PhoneCanvass.controller.js";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import { TwilioService } from "./Twilio.service.js";
-import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
+import { PhoneCanvassCallersService } from "./PhoneCanvassCallers.service.js";
 import { PhoneCanvassSchedulerFactory } from "./Scheduler/PhoneCanvassSchedulerFactory.js";
 import { ServerMetaModule } from "../server-meta/ServerMeta.module.js";
 import { MikroOrmModule } from "@mikro-orm/nestjs";
@@ -17,7 +17,7 @@ export const VOICEMAIL_STORAGE_DIR = "../storage";
   providers: [
     PhoneCanvassService,
     TwilioService,
-    PhoneCanvassGlobalStateService,
+    PhoneCanvassCallersService,
     PhoneCanvassSchedulerFactory,
   ],
   imports: [MikroOrmModule.forFeature([PhoneCanvassEntity]), ServerMetaModule],

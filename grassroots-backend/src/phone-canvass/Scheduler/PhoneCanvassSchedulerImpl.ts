@@ -38,6 +38,10 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   #running = false;
   #pendingContacts: PhoneCanvassContactEntity[] = [];
   #entityManager: EntityManager;
+  #onCallCompleteForCaller: (
+    phoneCanvassId: string,
+    callerId: number,
+  ) => { becameUnready: boolean };
 
   getCurrentTime(): number {
     return Date.now();
@@ -50,12 +54,17 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
       contacts: PhoneCanvassContactEntity[];
       phoneCanvassId: string;
       entityManager: EntityManager;
+      onCallCompleteForCaller: (
+        phoneCanvassId: string,
+        callerId: number,
+      ) => { becameUnready: boolean };
     },
   ) {
     super();
     this.#strategy = strategy;
     this.phoneCanvassId = params.phoneCanvassId;
     this.#entityManager = params.entityManager;
+    this.#onCallCompleteForCaller = params.onCallCompleteForCaller;
 
     this.#pendingContacts = params.contacts.filter((contact) => {
       // As long as someone's phone never started ringing, we're okay to include them.
@@ -67,7 +76,9 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     });
   }
 
-  startIfNeeded(): { started: boolean } {
+  startIfNeeded(): {
+    started: boolean;
+  } {
     if (this.#running) {
       return { started: false };
     }
@@ -93,6 +104,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
           currentTime: this.getCurrentTime(),
           contact,
           entityManager: this.#entityManager,
+          onCallCompleteForCaller: this.#onCallCompleteForCaller,
         });
         this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
         this.#callsObservable.next(notStartedCall);

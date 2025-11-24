@@ -23,6 +23,10 @@ interface CommonCallState {
   // Unique ID which exists throughout call lifetime, including before the twilio call is created.
   id: number;
   scheduler: PhoneCanvassScheduler;
+  onCallCompleteForCaller: (
+    phoneCanvassId: string,
+    callerId: number,
+  ) => { becameUnready: boolean };
   contact: PhoneCanvassContactEntity;
   // Timestamps provided by Twilio when available.
   // Otherwise, we use Date.now().
@@ -149,6 +153,15 @@ abstract class AbstractCall<STATUS extends CallStatus> {
     call.state.contact.callStatus = call.status;
     if (call.status === "COMPLETED") {
       call.state.contact.callResult = call.result;
+      if (call.callerId !== undefined) {
+        const becameUnready = this.state.onCallCompleteForCaller(
+          call.canvassId(),
+          call.callerId,
+        );
+        if (becameUnready.becameUnready) {
+          this.state.scheduler.removeCaller(call.callerId);
+        }
+      }
     }
 
     console.log("PRE FLUSH", call.state.contact.callStatus);

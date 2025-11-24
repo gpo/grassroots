@@ -9,10 +9,7 @@ import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { ContactSummary } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { takeCall } from "../Logic/TakeCall.js";
-import {
-  markReadyForCalls,
-  markUnreadyForCalls,
-} from "../Logic/MarkReadyForCalls.js";
+import { markReadyForCalls, markLastCall } from "../Logic/MarkReadyForCalls.js";
 import { Device } from "@twilio/voice-sdk";
 import { usePhoneCanvassDetails } from "../Logic/UsePhoneCanvassDetails.js";
 import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
@@ -49,7 +46,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       if (readyForCalls === "becomingReady" || readyForCalls === "ready") {
         setReadyForCalls("unready");
         runPromise(
-          markUnreadyForCalls({
+          markLastCall({
             caller: initialCaller,
             device: currentDevice,
             keepalive: true,
@@ -123,7 +120,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const callers = callPartyStateStore.callers.map((caller) => {
     return (
       <ListItem key={caller.callerId}>
-        {caller.displayName} {caller.ready ? "ready" : "not ready"}
+        {caller.displayName} {caller.ready === "ready" ? "ready" : "not ready"}
       </ListItem>
     );
   });
@@ -137,7 +134,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
             setReadyForCalls("becomingUnready");
             runPromise(
               (async (): Promise<void> => {
-                await markUnreadyForCalls({
+                await markLastCall({
                   caller: initialCaller,
                   device: currentDevice,
                 });

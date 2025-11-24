@@ -24,7 +24,7 @@ import {
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
-import { PhoneCanvassGlobalStateService } from "./PhoneCanvassGlobalState.service.js";
+import { PhoneCanvassCallersService } from "./PhoneCanvassCallers.service.js";
 import type { Express } from "express";
 import {
   CallResult,
@@ -128,7 +128,7 @@ export class PhoneCanvassService {
   constructor(
     private readonly entityManager: EntityManager,
     private twilioService: TwilioService,
-    private readonly globalState: PhoneCanvassGlobalStateService,
+    private readonly callersService: PhoneCanvassCallersService,
     private readonly schedulerFactory: PhoneCanvassSchedulerFactory,
     private readonly serverMetaService: ServerMetaService,
     @InjectRepository(PhoneCanvassEntity)
@@ -313,7 +313,7 @@ export class PhoneCanvassService {
 
   async #updateSyncData(phoneCanvassId: string): Promise<void> {
     // TODO(mvp): consider exposing which caller is talking to which contact.
-    const callers: CallerSummary[] = this.globalState
+    const callers: CallerSummary[] = this.callersService
       .listCallers(phoneCanvassId)
       .map((x) => {
         return { displayName: x.displayName, ready: x.ready, callerId: x.id };
@@ -365,6 +365,8 @@ export class PhoneCanvassService {
         contacts: contacts,
         phoneCanvassId: phoneCanvassId,
         entityManager: this.entityManager,
+        onCallCompleteForCaller: (phoneCanvassId: string, callerId: number) =>
+          this.callersService.onCallCompleteForCaller(phoneCanvassId, callerId),
       });
       this.#schedulers.set(phoneCanvassId, scheduler);
     }
@@ -380,7 +382,7 @@ export class PhoneCanvassService {
     caller: CreatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     await this.getPhoneCanvassByIdOrFail(caller.activePhoneCanvassId);
-    const newCaller = await this.globalState.registerCaller(
+    const newCaller = await this.callersService.registerCaller(
       caller,
       async (id) => await this.twilioService.getAuthToken(id),
     );
@@ -396,7 +398,7 @@ export class PhoneCanvassService {
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     await this.getPhoneCanvassByIdOrFail(caller.activePhoneCanvassId);
-    const refreshedCaller = await this.globalState.refreshOrCreateCaller(
+    const refreshedCaller = await this.callersService.refreshOrCreateCaller(
       caller,
       async (id) => await this.twilioService.getAuthToken(id),
     );
@@ -411,18 +413,25 @@ export class PhoneCanvassService {
   async updateOrCreateCaller(
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
-    await this.globalState.updateOrCreateCaller(
+    await this.callersService.updateOrCreateCaller(
       caller,
       async (id) => await this.twilioService.getAuthToken(id),
     );
     const scheduler = await this.getInitializedScheduler({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
-    if (caller.ready) {
-      scheduler.addCaller(caller.id);
-    } else {
-      console.log("REMOVING CALLER");
-      scheduler.removeCaller(caller.id);
+    switch (caller.ready) {
+      case "ready": {
+        scheduler.addCaller(caller.id);
+        break;
+      }
+      case "unready": {
+        scheduler.removeCaller(caller.id);
+        break;
+      }
+      case "last call": {
+        // We handle this when a call completes.
+      }
     }
 
     await this.#updateSyncData(caller.activePhoneCanvassId);

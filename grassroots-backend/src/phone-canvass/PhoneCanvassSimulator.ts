@@ -83,7 +83,7 @@ interface AddCallerEvent extends BaseEvent {
 interface ChangeReadyCallerEvent extends BaseEvent {
   kind: "change_ready_caller";
   index: number;
-  ready: boolean;
+  ready: "ready" | "unready";
 }
 
 interface StatusChangeEvent extends BaseEvent {
@@ -141,20 +141,21 @@ export class PhoneCanvassSimulator {
       index,
       ts: Date.now(),
     });
+    // TODO: maybe include the "last call" state.
     while (this.#running) {
       await delay(callerReadyDelta());
       this.#events.next({
         kind: "change_ready_caller",
         index,
         ts: Date.now(),
-        ready: true,
+        ready: "ready",
       });
       await delay(callerUnreadyDelta());
       this.#events.next({
         kind: "change_ready_caller",
         index,
         ts: Date.now(),
-        ready: false,
+        ready: "unready",
       });
     }
   }
@@ -283,6 +284,7 @@ export class PhoneCanvassSimulator {
               await this.phoneCanvassService.updateCall({
                 ...event,
                 timestamp: event.ts,
+                playedVoicemail: false,
               });
               break;
             }

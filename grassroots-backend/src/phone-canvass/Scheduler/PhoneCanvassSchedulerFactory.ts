@@ -13,6 +13,10 @@ export class PhoneCanvassSchedulerFactory {
     contacts: PhoneCanvassContactEntity[];
     phoneCanvassId: string;
     entityManager: EntityManager;
+    onCallCompleteForCaller: (
+      phoneCanvassId: string,
+      callerId: number,
+    ) => { becameUnready: boolean };
   }): PhoneCanvassScheduler {
     const metricsTracker = new PhoneCanvassMetricsTracker();
     const strategy = new NoOvercallingStrategy(metricsTracker);
