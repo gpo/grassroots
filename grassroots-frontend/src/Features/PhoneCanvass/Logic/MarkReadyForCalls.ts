@@ -18,7 +18,7 @@ export interface UpdateReadyStateForCallsParams {
   keepalive?: true;
 }
 
-export async function markUnreadyForCalls(
+export async function markLastCall(
   params: UpdateReadyStateForCallsParams,
 ): Promise<void> {
   const { caller } = params;
@@ -27,7 +27,7 @@ export async function markUnreadyForCalls(
     await grassrootsAPI.POST("/phone-canvass/update-caller", {
       body: PhoneCanvassCallerDTO.from({
         ...propsOf(caller),
-        ready: false,
+        ready: "last call",
       }),
       keepalive: params.keepalive,
     }),
@@ -45,7 +45,7 @@ export async function markReadyForCalls(
     await grassrootsAPI.POST("/phone-canvass/update-caller", {
       body: PhoneCanvassCallerDTO.from({
         ...propsOf(caller),
-        ready: true,
+        ready: "ready",
       }),
     }),
   );

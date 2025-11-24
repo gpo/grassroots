@@ -10,7 +10,7 @@ export interface ContactSummary {
 
 export interface CallerSummary {
   callerId: number;
-  ready: boolean;
+  ready: "ready" | "unready" | "last call";
   displayName: string;
 }
 

@@ -48,6 +48,11 @@ function getScheduler(): PhoneCanvassScheduler {
       contacts: FAKE_CONTACTS,
       phoneCanvassId: "fake phone canvass id",
       entityManager,
+      onCallCompleteForCaller: (): { becameUnready: boolean } => {
+        return {
+          becameUnready: false,
+        };
+      },
     },
   );
 
@@ -117,6 +122,7 @@ describe("PhoneCanvassScheduler", () => {
 
   it("should handle call updates", async () => {
     const scheduler = getScheduler();
+
     const CALLER_ID = 101;
     currentTime = 1;
 
@@ -135,10 +141,13 @@ describe("PhoneCanvassScheduler", () => {
     const call = calls[0] ?? fail();
     expect(call.id).toBe(1);
 
-    const queued = await call.advanceStatusToQueued({
+    const queued = call.constructQueuedCall({
       currentTime: 2,
       twilioSid: "Test",
     });
+
+    await call.advanceStatusToQueued(queued);
+
     const initiated = await queued.advanceStatusToInitiated({
       currentTime: 3,
     });
@@ -157,6 +166,7 @@ describe("PhoneCanvassScheduler", () => {
     const completedCall = await inProgress.advanceStatusToCompleted({
       currentTime: 6,
       result: "COMPLETED",
+      playedVoicemail: false,
     });
 
     await scheduler.waitForIdleForTest();

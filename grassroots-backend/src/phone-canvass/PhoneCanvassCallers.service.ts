@@ -8,7 +8,7 @@ import { propsOf } from "grassroots-shared/util/TypeUtils";
 type GetAuthToken = (id: string) => Promise<string>;
 
 @Injectable()
-export class PhoneCanvassGlobalStateService {
+export class PhoneCanvassCallersService {
   #phoneCanvassIdToCaller = new Map<string, PhoneCanvassCallerDTO[]>();
   #nextId = 0;
 
@@ -31,7 +31,7 @@ export class PhoneCanvassGlobalStateService {
 
     const withId = PhoneCanvassCallerDTO.from({
       ...propsOf(caller),
-      ready: false,
+      ready: "unready",
       id,
       authToken: await getAuthToken(String(id)),
     });
@@ -90,6 +90,24 @@ export class PhoneCanvassGlobalStateService {
       CreatePhoneCanvassCallerDTO.from(propsOf(updatedCaller)),
       getAuthToken,
     );
+  }
+
+  onCallCompleteForCaller(
+    phoneCanvassId: string,
+    callerId: number,
+  ): { becameUnready: boolean } {
+    const callers = this.#phoneCanvassIdToCaller.get(phoneCanvassId) ?? [];
+    const existingCaller = callers.find((x) => x.id === callerId);
+    if (existingCaller === undefined) {
+      throw new Error(
+        "Trying to mark call completed for caller that doesn't exist",
+      );
+    }
+    if (existingCaller.ready !== "last call") {
+      return { becameUnready: false };
+    }
+    existingCaller.ready = "unready";
+    return { becameUnready: true };
   }
 
   listCallers(phoneCanvassId: string): PhoneCanvassCallerDTO[] {

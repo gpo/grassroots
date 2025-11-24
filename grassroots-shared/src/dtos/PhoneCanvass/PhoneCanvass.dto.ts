@@ -1,7 +1,7 @@
 import {
   IsArray,
-  IsBoolean,
   IsEmail,
+  IsEnum,
   IsJSON,
   IsNotEmpty,
   IsNumber,
@@ -19,6 +19,7 @@ import { Transform, Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
 import { Trim } from "../../decorators/Trim.decorator.js";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class PhoneCanvassDTO extends createDTOBase("PhoneCanvass") {
   @IsString()
@@ -214,6 +215,12 @@ export class CreatePhoneCanvassCallerDTO extends createDTOBase(
   activePhoneCanvassId!: string;
 }
 
+enum ReadyEnum {
+  unready = "unready",
+  ready = "ready",
+  lastCall = "last call",
+}
+
 // (displayName, activePhoneCanvassId) is globally unique.
 export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
   @IsNumber()
@@ -241,6 +248,7 @@ export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
     );
   }
 
-  @IsBoolean()
-  ready!: boolean;
+  @IsEnum(ReadyEnum)
+  @ApiProperty({ enum: ReadyEnum })
+  ready!: "ready" | "unready" | "last call";
 }
