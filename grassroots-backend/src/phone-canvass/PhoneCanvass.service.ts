@@ -44,6 +44,7 @@ import { ServerMetaService } from "../server-meta/ServerMeta.service.js";
 import {
   CallerSummary,
   ContactSummary,
+  PhoneCanvassSyncData,
 } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { getEnvVars } from "../GetEnvVars.js";
 import { InjectRepository } from "@mikro-orm/nestjs";
@@ -325,7 +326,7 @@ export class PhoneCanvassService {
         return { displayName: x.displayName, ready: x.ready, callerId: x.id };
       });
 
-    let contacts: ContactSummary[] = (
+    const contacts: ContactSummary[] = (
       await this.getPhoneCanvassContacts(phoneCanvassId)
     ).map((contact) => {
       const dto = contact.toDTO();
@@ -345,17 +346,20 @@ export class PhoneCanvassService {
       };
     });
 
-    contacts = contacts
-      .filter((a) => a.status !== "COMPLETED")
+    const unfinishedContacts = contacts.filter((a) => a.status !== "COMPLETED");
+
+    const upcomingContacts = unfinishedContacts
       .sort((a, b) => -callStatusSort(a.status, b.status))
       .slice(0, 20);
 
     const syncData = {
       callers,
-      contacts,
+      contacts: upcomingContacts,
       serverInstanceUUID: this.serverMetaService.instanceUUID,
       phoneCanvassId: phoneCanvassId,
-    };
+      totalContacts: contacts.length,
+      doneContacts: contacts.length - upcomingContacts.length,
+    } satisfies PhoneCanvassSyncData;
 
     await this.twilioService.setSyncData(phoneCanvassId, syncData);
   }

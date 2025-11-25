@@ -19,4 +19,6 @@ export interface PhoneCanvassSyncData {
   contacts: ContactSummary[];
   serverInstanceUUID: string;
   phoneCanvassId: string;
+  totalContacts: number;
+  doneContacts: number;
 }

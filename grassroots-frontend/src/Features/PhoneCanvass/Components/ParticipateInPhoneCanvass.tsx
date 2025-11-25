@@ -1,9 +1,21 @@
 import { JSX, useEffect, useRef, useState } from "react";
 import { usePhoneCanvassCallerStore } from "../Logic/PhoneCanvassCallerStore.js";
-import { Box, Button, Group, List, ListItem, Stack, Text } from "@mantine/core";
+import {
+  Accordion,
+  Box,
+  Button,
+  Group,
+  Progress,
+  Stack,
+  Table,
+  Text,
+} from "@mantine/core";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
-import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
+import {
+  CallPartyStateStore,
+  createCallPartyStateStore,
+} from "../Logic/CallPartyStateStore.js";
 import { joinTwilioSyncGroup } from "../Logic/JoinTwilioSyncGroup.js";
 import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 import { runPromise } from "grassroots-shared/util/RunPromise";
@@ -15,6 +27,43 @@ import { usePhoneCanvassDetails } from "../Logic/UsePhoneCanvassDetails.js";
 import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
 import { ContactCard } from "../../Contacts/Components/ContactCard.js";
 import { notifications } from "@mantine/notifications";
+import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
+
+const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
+  NOT_STARTED: "💤",
+  QUEUED: "⏱️",
+  INITIATED: "⏱️",
+  RINGING: "🔔",
+  IN_PROGRESS: "📞",
+  COMPLETED: "✅",
+};
+
+const CALLER_READY_EMOJIS: Record<"ready" | "unready" | "last call", string> = {
+  ready: "🟢",
+  unready: "🔴",
+  "last call": "🟠",
+};
+
+function CallPartyProgress(props: {
+  callPartyStateStore: CallPartyStateStore;
+}): JSX.Element {
+  const done = props.callPartyStateStore.doneContacts;
+  const total = props.callPartyStateStore.totalContacts;
+  return (
+    <>
+      <Group justify="space-between" mb="xs">
+        <Text size="sm" c="dimmed">
+          {done} / {total}
+        </Text>
+        <Text size="sm" c="dimmed">
+          {Math.round(Math.round((done / total) * 100))}%
+        </Text>
+      </Group>
+
+      <Progress value={done / total} size="lg"></Progress>
+    </>
+  );
+}
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -108,20 +157,21 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const phoneCanvassDetails = usePhoneCanvassDetails(phoneCanvassId).data;
 
   const contacts = callPartyStateStore.contacts.map((contact) => {
-    const callDescription = ` status: ${contact.status}`;
+    const callDescription = CALL_STATUS_EMOJIS[contact.status];
 
     return (
-      <ListItem key={contact.contactId}>
-        {contact.contactDisplayName}
-        {callDescription}
-      </ListItem>
+      <Table.Tr key={contact.contactId}>
+        <Table.Td>{contact.contactDisplayName}</Table.Td>
+        <Table.Td>{callDescription}</Table.Td>
+      </Table.Tr>
     );
   });
   const callers = callPartyStateStore.callers.map((caller) => {
     return (
-      <ListItem key={caller.callerId}>
-        {caller.displayName} {caller.ready === "ready" ? "ready" : "not ready"}
-      </ListItem>
+      <Table.Tr key={caller.callerId}>
+        <Table.Td>{caller.displayName}</Table.Td>
+        <Table.Td> {CALLER_READY_EMOJIS[caller.ready]}</Table.Td>
+      </Table.Tr>
     );
   });
 
@@ -177,15 +227,42 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   return (
     <>
       <h1> Call Party: {phoneCanvassDetails?.name ?? ""} </h1>
-      <h2> Welcome {initialCaller.displayName}</h2>
-      <Stack>
-        <ToggleReadyButton></ToggleReadyButton>
-        {currentContactDetails}
-        <h2> Callers </h2>
-        <List>{callers}</List>
-        <h2> Contacts </h2>
-        <List>{contacts}</List>
-      </Stack>
+
+      <Group align="start">
+        <Stack style={{ flex: 1 }}>
+          <h2> Welcome {initialCaller.displayName}</h2>
+          <ToggleReadyButton></ToggleReadyButton>
+          {currentContactDetails}
+        </Stack>
+        <Stack w={300}>
+          <Accordion variant="contained">
+            <Accordion.Item value={"Callers"}>
+              <Accordion.Control>{`Callers (${String(callPartyStateStore.callers.length)})`}</Accordion.Control>
+              <Accordion.Panel>
+                <Table>
+                  <Table.Tbody>{callers}</Table.Tbody>
+                </Table>
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion>
+
+          <Accordion variant="contained">
+            <Accordion.Item value={"Callers"}>
+              <Accordion.Control>
+                <Text>{`Contacts`}</Text>
+                <CallPartyProgress
+                  callPartyStateStore={callPartyStateStore}
+                ></CallPartyProgress>
+              </Accordion.Control>
+              <Accordion.Panel>
+                <Table>
+                  <Table.Tbody>{contacts}</Table.Tbody>
+                </Table>
+              </Accordion.Panel>
+            </Accordion.Item>
+          </Accordion>
+        </Stack>
+      </Group>
     </>
   );
 }
