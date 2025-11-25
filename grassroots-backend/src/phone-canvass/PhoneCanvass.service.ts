@@ -358,7 +358,7 @@ export class PhoneCanvassService {
       serverInstanceUUID: this.serverMetaService.instanceUUID,
       phoneCanvassId: phoneCanvassId,
       totalContacts: contacts.length,
-      doneContacts: contacts.length - upcomingContacts.length,
+      doneContacts: contacts.length - unfinishedContacts.length,
     } satisfies PhoneCanvassSyncData;
 
     await this.twilioService.setSyncData(phoneCanvassId, syncData);
