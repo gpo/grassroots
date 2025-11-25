@@ -11,6 +11,8 @@ const initialState = {
   callers: [],
   contacts: [],
   serverInstanceUUID: undefined,
+  totalContacts: 0,
+  doneContacts: 0,
 };
 
 export function createCallPartyStateStore(): StoreApi<CallPartyStateStore> {
