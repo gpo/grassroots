@@ -45,10 +45,10 @@ const CALLER_READY_EMOJIS: Record<"ready" | "unready" | "last call", string> = {
 };
 
 function CallPartyProgress(props: {
-  callPartyStateStore: CallPartyStateStore;
+  total: number;
+  done: number;
 }): JSX.Element {
-  const done = props.callPartyStateStore.doneContacts;
-  const total = props.callPartyStateStore.totalContacts;
+  const { done, total } = props;
   return (
     <>
       <Group justify="space-between" mb="xs">
@@ -60,7 +60,7 @@ function CallPartyProgress(props: {
         </Text>
       </Group>
 
-      <Progress value={done / total} size="lg"></Progress>
+      <Progress value={(done / total) * 100} size="lg"></Progress>
     </>
   );
 }
@@ -70,7 +70,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const callPartyStateStoreRef = useRef(createCallPartyStateStore());
   const callPartyStateStore = useStore(callPartyStateStoreRef.current);
+  const doneContacts = callPartyStateStore.doneContacts;
+  console.log("DONE CONTACTS IS", doneContacts);
   const phoneCanvassCallerStore = usePhoneCanvassCallerStore();
+
   const [currentDevice, setCurrentDevice] = useState<Device | undefined>();
   const [currentContactId, setCurrentContactId] = useState<
     number | undefined
@@ -251,7 +254,8 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
               <Accordion.Control>
                 <Text>{`Contacts`}</Text>
                 <CallPartyProgress
-                  callPartyStateStore={callPartyStateStore}
+                  total={callPartyStateStore.totalContacts}
+                  done={callPartyStateStore.doneContacts}
                 ></CallPartyProgress>
               </Accordion.Control>
               <Accordion.Panel>
