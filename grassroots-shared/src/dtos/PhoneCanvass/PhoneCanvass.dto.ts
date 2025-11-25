@@ -152,6 +152,16 @@ export class PaginatedPhoneCanvassContactResponseDTO extends createDTOBase(
   }
 }
 
+export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
+  "PhoneCanvasTwilioVoiceCallback",
+) {
+  @IsString()
+  // We require this to be present, but don't want to use default error handling with twilio responses, so
+  // we mark it optional and manually handle the case where it's missing.
+  @IsOptional()
+  conference?: string;
+}
+
 export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
   "PhoneCanvasTwilioCallStatusCallback",
 ) {

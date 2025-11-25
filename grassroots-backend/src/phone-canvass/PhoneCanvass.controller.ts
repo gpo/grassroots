@@ -28,6 +28,7 @@ import {
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
   PhoneCanvassDetailsDTO,
   PhoneCanvassContactDTO,
+  PhoneCanvasTwilioVoiceCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -44,8 +45,6 @@ import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
 import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
 import { readdir } from "fs/promises";
 import { resolve } from "path";
-import VoiceResponse from "twilio/lib/twiml/VoiceResponse.js";
-import { getEnvVars } from "../GetEnvVars.js";
 import { VALID_TWILIO_AUDIO_MIME_TYPES } from "grassroots-shared/constants/ValidTwilioAudioMimeTypes";
 import { concatMap, debounceTime, groupBy, mergeMap, Subject } from "rxjs";
 
@@ -224,6 +223,30 @@ export class PhoneCanvassController {
     );
   }
 
+  // The client hits this url
+  // eslint-disable-next-line grassroots/controller-routes-return-dtos
+  @Post("webhooks/client-joining-conference")
+  @PublicRoute()
+  @Header("Content-Type", "text/xml")
+  twilioVoiceCallback(@Body() body: PhoneCanvasTwilioVoiceCallbackDTO): string {
+    const conferenceName = body.conference;
+
+    if (conferenceName === undefined) {
+      return `
+        <Response>
+          <Say voice="alice">Sorry, no conference was specified. Goodbye.</Say>
+          <Hangup/>
+        </Response>`;
+    }
+    return `
+      <Response>
+        <Dial>
+          <Conference>${conferenceName}</Conference>
+        </Dial>
+      </Response>
+    `;
+  }
+
   // eslint-disable-next-line grassroots/controller-routes-return-dtos
   @Post("webhooks/twilio-callstatus")
   @PublicRoute()
@@ -235,15 +258,9 @@ export class PhoneCanvassController {
     return `<Response></Response>`;
   }
 
-  // TODO: move this logic closer to the twilioService.
-  // We don't handle this in serial with status updates, since we need to return something
-  // different depending on status.
-  // If 2 seconds have passed, we've already dialed someone in.
-  // If not, we need to dial them in.
-  // If this is a machine, we need to play the message.
-  // This means we only need to know if there's already a caller.
-  // Otherwise, we just need to look at who answered.
-  // There is risk of a race where we decided to dial someone in twice though.
+  // TODO: should this be processed in sync with status callbacks?
+  // That would require flushing them, since this needs to return something different depending
+  // on the current state.
   // eslint-disable-next-line grassroots/controller-routes-return-dtos
   @Post("webhooks/twilio-call-answered")
   @PublicRoute()

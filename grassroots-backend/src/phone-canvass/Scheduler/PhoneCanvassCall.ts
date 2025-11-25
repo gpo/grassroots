@@ -146,9 +146,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
 
     // Contacts were grabbed during another request, so they will have detached.
     // Push them into this entityManager again, or the flush below does nothing.
-    console.log("PRE MERGE", call.state.contact.callStatus);
     this.state.entityManager.merge(call.state.contact);
-    console.log("POST MERGE", call.state.contact.callStatus);
 
     call.state.contact.callStatus = call.status;
     if (call.status === "COMPLETED") {
@@ -164,10 +162,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       }
     }
 
-    console.log("PRE FLUSH", call.state.contact.callStatus);
-
     await this.state.entityManager.flush();
-    console.log("POST FLUSH", call.state.contact.callStatus);
 
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
       this.state.scheduler.callsByStatus,
