@@ -11,7 +11,6 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse.js";
 import { PhoneCanvasTwilioCallAnsweredCallbackDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
-import { runPromise } from "grassroots-shared/util/RunPromise";
 
 function addCallerToCallIfNeeded(params: {
   sid: string;
@@ -25,12 +24,16 @@ function addCallerToCallIfNeeded(params: {
   const callerAlreadyJoined =
     call.status === "IN_PROGRESS" && call.callerId !== undefined;
   if (callerAlreadyJoined) {
-    return undefined;
+    throw new Error(
+      "There's only one path to add a caller right now. This should never happen.",
+    );
   }
+  console.log("ADDING CALLER");
   const response = new VoiceResponse();
   response.dial().conference(
     {
       endConferenceOnExit: true,
+      startConferenceOnEnter: true,
       record: "record-from-start",
     },
     String(params.contactId),
@@ -80,6 +83,7 @@ export class TwilioService {
       // Tuning these knobs to prioritize latency.
       machineDetectionSpeechEndThreshold: 700,
       machineDetectionSilenceTimeout: 2000,
+      machineDetectionTimeout: 2,
       statusCallbackEvent: [
         "initiated",
         "ringing",
@@ -87,28 +91,12 @@ export class TwilioService {
         "completed",
         "answered",
       ],
-      // DetectMessageEnd means that for a human, we get the callback right away,
+      // Enable means that we're notified as soon as twilio decides who has answered.
+      // DetectMessageEnd would mean that for a human, we get the callback right away,
       // but for an answering machine, we only get it when the message finishes playing.
-      machineDetection: "DetectMessageEnd",
+      machineDetection: "Enable",
       twiml,
     });
-
-    // After 2 seconds, if no one has answered the call, dial in the caller.
-    setTimeout(() => {
-      runPromise(
-        (async (): Promise<void> => {
-          const response = addCallerToCallIfNeeded({
-            sid: callInstance.sid,
-            contactId: call.contactId(),
-            getCallsBySid: this.getCallsBySid,
-          });
-          if (response !== undefined) {
-            await client.calls(callInstance.sid).update({ twiml: response });
-          }
-        })(),
-        false,
-      );
-    }, 2000);
 
     return {
       sid: callInstance.sid,
@@ -151,6 +139,8 @@ export class TwilioService {
         currentTime: Date.now(),
         playedVoicemail: true,
       });
+    } else {
+      throw new Error("Violation of assumptions of amd ordering.");
     }
     console.log(response.toString());
     return response.toString();

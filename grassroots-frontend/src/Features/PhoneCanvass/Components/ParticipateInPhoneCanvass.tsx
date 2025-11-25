@@ -12,10 +12,7 @@ import {
 } from "@mantine/core";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
-import {
-  CallPartyStateStore,
-  createCallPartyStateStore,
-} from "../Logic/CallPartyStateStore.js";
+import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
 import { joinTwilioSyncGroup } from "../Logic/JoinTwilioSyncGroup.js";
 import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 import { runPromise } from "grassroots-shared/util/RunPromise";
@@ -70,8 +67,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const callPartyStateStoreRef = useRef(createCallPartyStateStore());
   const callPartyStateStore = useStore(callPartyStateStoreRef.current);
-  const doneContacts = callPartyStateStore.doneContacts;
-  console.log("DONE CONTACTS IS", doneContacts);
   const phoneCanvassCallerStore = usePhoneCanvassCallerStore();
 
   const [currentDevice, setCurrentDevice] = useState<Device | undefined>();
