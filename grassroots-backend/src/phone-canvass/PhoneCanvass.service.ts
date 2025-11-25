@@ -1,6 +1,7 @@
 import {
   ForbiddenException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from "@nestjs/common";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
@@ -20,6 +21,7 @@ import {
   PhoneCanvassCallerDTO,
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassDetailsDTO,
+  PhoneCanvasTwilioCallAnsweredCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -133,7 +135,11 @@ export class PhoneCanvassService {
     private readonly serverMetaService: ServerMetaService,
     @InjectRepository(PhoneCanvassEntity)
     private readonly repo: EntityRepository<PhoneCanvassEntity>,
-  ) {}
+  ) {
+    twilioService.setGetCallsBySID((sid: string): Call | undefined => {
+      return this.callsBySid.get(sid);
+    });
+  }
 
   async startSimulating(phoneCanvassId: string): Promise<void> {
     if (!(await getEnvVars()).ENABLE_PHONE_CANVASS_SIMULATION) {
@@ -515,5 +521,17 @@ export class PhoneCanvassService {
         })();
       }),
     );
+  }
+
+  async twilioCallAnsweredCallback(
+    callback: PhoneCanvasTwilioCallAnsweredCallbackDTO,
+  ): Promise<string> {
+    const call = this.callsBySid.get(callback.CallSid);
+    if (!call) {
+      throw new NotFoundException(
+        `Can't find call with id ${callback.CallSid}`,
+      );
+    }
+    return await this.twilioService.twilioCallAnsweredCallback(callback, call);
   }
 }

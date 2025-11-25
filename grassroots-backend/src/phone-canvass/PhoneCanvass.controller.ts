@@ -236,6 +236,14 @@ export class PhoneCanvassController {
   }
 
   // TODO: move this logic closer to the twilioService.
+  // We don't handle this in serial with status updates, since we need to return something
+  // different depending on status.
+  // If 2 seconds have passed, we've already dialed someone in.
+  // If not, we need to dial them in.
+  // If this is a machine, we need to play the message.
+  // This means we only need to know if there's already a caller.
+  // Otherwise, we just need to look at who answered.
+  // There is risk of a race where we decided to dial someone in twice though.
   // eslint-disable-next-line grassroots/controller-routes-return-dtos
   @Post("webhooks/twilio-call-answered")
   @PublicRoute()
@@ -243,40 +251,7 @@ export class PhoneCanvassController {
   async twilioCallAnsweredCallback(
     @Body() body: PhoneCanvasTwilioCallAnsweredCallbackDTO,
   ): Promise<string> {
-    const call = this.phoneCanvassService.callsBySid.get(body.CallSid);
-    if (!call) {
-      throw new NotFoundException(`Can't find call with id ${body.CallSid}`);
-    }
-    const response = new VoiceResponse();
-
-    if (body.AnsweredBy === "human" || body.AnsweredBy === "unknown") {
-      console.log("NOT VOICEMAIL");
-      const dial = response.dial();
-      dial.conference(
-        {
-          endConferenceOnExit: true,
-          record: "record-from-start", // optional
-        },
-        String(call.contactId()),
-      );
-    }
-    console.log("PLAY VOICEMAIL");
-    response.play(
-      "https://api.twilio.com/cowbell.mp3" /*
-      (await getEnvVars()).WEBHOOK_HOST +
-        "/phone-canvass/webhooks/get-voicemail/" +
-        call.canvassId(),*/,
-    );
-    response.hangup();
-    if (call.status === "IN_PROGRESS") {
-      await call.advanceStatusToCompleted({
-        result: "COMPLETED",
-        currentTime: Date.now(),
-        playedVoicemail: true,
-      });
-    }
-    console.log(response.toString());
-    return response.toString();
+    return await this.phoneCanvassService.twilioCallAnsweredCallback(body);
   }
 
   // TODO: move this logic closer to the twilioService.

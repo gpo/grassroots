@@ -301,7 +301,7 @@ export class RingingCall extends AbstractCall<"RINGING"> {
 
 export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
   status = "IN_PROGRESS" as const;
-  #callerId: number;
+  #callerId: number | undefined;
   readonly twilioSid: string;
 
   constructor(params: CommonCallConstructorParams & CallerId & SID) {
@@ -311,7 +311,7 @@ export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
     this.twilioSid = params.twilioSid;
   }
 
-  get callerId(): number {
+  get callerId(): number | undefined {
     return this.#callerId;
   }
 
