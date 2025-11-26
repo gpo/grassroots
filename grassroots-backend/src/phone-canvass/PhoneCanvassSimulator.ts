@@ -11,7 +11,7 @@ import {
   CallResults,
   CallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { Call, NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
+import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { concatMap, Subject, Subscription } from "rxjs";
 import { runPromise } from "grassroots-shared/util/RunPromise";
@@ -103,19 +103,13 @@ function getFakeCallSid(call: Call): string {
   return String(call.state.id);
 }
 
-export function simulateMakeCall(call: NotStartedCall): {
+export function simulateMakeCall(call: Call): {
   sid: string;
   status: CallStatus;
-  timestamp: number;
 } {
   return {
     sid: getFakeCallSid(call),
     status: "QUEUED",
-    timestamp:
-      // Use a fixed offset from the NOT_STARTED timestamp.
-      // This is the easiest way to ensure it's determinimistic.
-      (call.state.transitionTimestamps.NOT_STARTED ??
-        fail("Can't reuse NOT_STARTED timestamp, as it isn't present")) + 5,
   };
 }
 
@@ -281,11 +275,8 @@ export class PhoneCanvassSimulator {
               break;
             }
             case "status_change": {
-              await this.phoneCanvassService.updateCall({
-                ...event,
-                timestamp: event.ts,
-                playedVoicemail: false,
-              });
+              const call = this.phoneCanvassService.getCallBySid(event.sid);
+              call.update(event.status, event);
               break;
             }
             default: {

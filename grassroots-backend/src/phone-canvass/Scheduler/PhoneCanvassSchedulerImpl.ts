@@ -1,50 +1,39 @@
 /* eslint-disable grassroots/entity-use */
 import { Injectable } from "@nestjs/common";
-import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { Subject, firstValueFrom, filter } from "rxjs";
-import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import {
-  NotStartedCall,
-  RingingCall,
-  InitiatedCall,
-  InProgressCall,
-  CompletedCall,
-} from "./PhoneCanvassCall.js";
+  firstValueFrom,
+  filter,
+  Observable,
+  Subscription,
+  from,
+  zip,
+  map,
+} from "rxjs";
+import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
+import { Call } from "./PhoneCanvassCall.js";
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { Caller, PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 import { PhoneCanvassSchedulerStrategy } from "./Strategies/PhoneCanvassSchedulerStrategy.js";
-import { EntityManager } from "@mikro-orm/core";
 
 @Injectable()
 export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
-  #callsObservable = new Subject<NotStartedCall>();
-  // Clients subscribe to this list of calls which need to be placed.
-  readonly calls = this.#callsObservable.asObservable();
+  // Shared with all schedulers.
+  readonly calls$: Observable<Call>;
+  readonly callsSubscription: Subscription;
 
   #strategy: PhoneCanvassSchedulerStrategy;
   readonly phoneCanvassId: string;
 
-  callsByStatus = {
-    NOT_STARTED: new Map<number, NotStartedCall>(),
-    QUEUED: new Map<number, RingingCall>(),
-    INITIATED: new Map<number, InitiatedCall>(),
-    RINGING: new Map<number, RingingCall>(),
-    IN_PROGRESS: new Map<number, InProgressCall>(),
-    COMPLETED: new Map<number, CompletedCall>(),
-  } as const satisfies Record<CallStatus, unknown>;
   // From caller id.
   #callers = new Map<number, Caller>();
-
-  #running = false;
-  #pendingContacts: PhoneCanvassContactEntity[] = [];
-  #entityManager: EntityManager;
-  #onCallCompleteForCaller: (
-    phoneCanvassId: string,
-    callerId: number,
-  ) => { becameUnready: boolean };
+  #pendingContacts$: Observable<PhoneCanvassContactEntity>;
 
   getCurrentTime(): number {
     return Date.now();
+  }
+
+  get pendingContacts$(): Observable<PhoneCanvassContactEntity> {
+    return this.#pendingContacts$;
   }
 
   constructor(
@@ -53,74 +42,47 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     params: {
       contacts: PhoneCanvassContactEntity[];
       phoneCanvassId: string;
-      entityManager: EntityManager;
-      onCallCompleteForCaller: (
-        phoneCanvassId: string,
-        callerId: number,
-      ) => { becameUnready: boolean };
+      calls$: Observable<Call>;
     },
   ) {
     super();
     this.#strategy = strategy;
     this.phoneCanvassId = params.phoneCanvassId;
-    this.#entityManager = params.entityManager;
-    this.#onCallCompleteForCaller = params.onCallCompleteForCaller;
+    this.calls$ = params.calls$;
 
-    this.#pendingContacts = params.contacts.filter((contact) => {
-      // As long as someone's phone never started ringing, we're okay to include them.
-      return (
-        contact.callStatus === "NOT_STARTED" ||
-        contact.callStatus === "QUEUED" ||
-        contact.callStatus === "INITIATED"
-      );
+    this.#pendingContacts$ = from(params.contacts).pipe(
+      filter((contact) => !contact.beenCalled),
+    );
+
+    // TODO(mvp): handle when we run out of contacts.
+    this.callsSubscription = zip(
+      this.#strategy.nextCall$,
+      this.#pendingContacts$,
+    ).pipe(
+      map((x) => x[1]),
+      map((contact) => {
+      return new Call("NOT_STARTED", {
+        contact,
+        phoneCanvassId: this.phoneCanvassId,
+        emit: this.em,
+      })
+      }),
+    );
+
+    subscribe((call) => {
+      const notStartedCall = ;
+      this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
+      this.#callsObservable.next(notStartedCall);
     });
   }
 
-  startIfNeeded(): {
-    started: boolean;
-  } {
-    if (this.#running) {
-      return { started: false };
-    }
-    this.#running = true;
-    void (async (): Promise<void> => {
-      while (true) {
-        await this.#strategy.waitForNextCall();
-
-        // This could change while waiting for the next call.
-        if (!this.#running) {
-          break;
-        }
-
-        const contact = this.#pendingContacts.shift();
-        if (contact === undefined) {
-          // We've called all contacts. We're done!
-          this.#callsObservable.complete();
-          break;
-        }
-
-        const notStartedCall = new NotStartedCall({
-          scheduler: this,
-          currentTime: this.getCurrentTime(),
-          contact,
-          entityManager: this.#entityManager,
-          onCallCompleteForCaller: this.#onCallCompleteForCaller,
-        });
-        this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
-        this.#callsObservable.next(notStartedCall);
-        this.metricsTracker.onCallsByStatusUpdate(this.callsByStatus);
-      }
-    })();
-    return { started: true };
-  }
-
   stop(): void {
-    this.#running = false;
+    this.callsSubscription.unsubscribe();
   }
 
   async waitForIdleForTest(): Promise<void> {
     // To be considered idle we either need no contacts remaining.
-    if (this.#pendingContacts.length === 0) {
+    if (this.#pendingContacts$.length === 0) {
       return;
     }
     // or all callers assigned to calls.

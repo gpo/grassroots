@@ -4,7 +4,7 @@ import { Injectable } from "@nestjs/common";
 import AccessToken from "twilio/lib/jwt/AccessToken.js";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { getEnvVars } from "../GetEnvVars.js";
-import { Call, NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
+import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import {
   CallStatus,
   twilioCallStatusToCallStatus,
@@ -56,12 +56,13 @@ export class TwilioService {
     this.getCallsBySid = f;
   }
 
-  async makeCall(call: NotStartedCall): Promise<{
+  async makeCall(call: Call): Promise<{
     sid: string;
     status: CallStatus;
-    timestamp: number;
   }> {
-    const now = Date.now();
+    if (call.status === "NOT_STARTED") {
+      throw new Error("Can only make calls that aren't started.");
+    }
     const envVars = await getEnvVars();
 
     const client = await this.#getClient();
@@ -70,7 +71,7 @@ export class TwilioService {
       .dial()
       .conference(
         { startConferenceOnEnter: true, endConferenceOnExit: true },
-        String(call.contactId()),
+        String(call.contactId),
       );
 
     // TODO(mvp): use the actual phone number.
@@ -108,33 +109,34 @@ export class TwilioService {
     return {
       sid: callInstance.sid,
       status: twilioCallStatusToCallStatus(callInstance.status).status,
-      timestamp: now,
     };
   }
 
-  async twilioCallAnsweredCallback(
+  twilioCallAnsweredCallback(
     callback: PhoneCanvasTwilioCallAnsweredCallbackDTO,
     call: Call & {
       twilioSid: string;
     },
     scheduler: PhoneCanvassScheduler,
-  ): Promise<string> {
+  ): string {
     if (call.status !== "IN_PROGRESS") {
       throw new Error("Call answered before being in progress");
     }
-    await call.setAnsweredBy(callback.AnsweredBy);
     if (callback.AnsweredBy === "human" || callback.AnsweredBy === "unknown") {
       console.log("We don't think this is a machine");
       const callerId = scheduler.getNextIdleCallerId();
       if (callerId === undefined) {
         throw new Error("TODO(mvp) handle overcalling");
       }
-      await call.setCallerId(callerId);
       console.log("ADDING CALLER ", callerId);
       const response = addCallerToCallIfNeeded({
         sid: call.twilioSid,
-        contactId: call.contactId(),
+        contactId: call.contactId,
         getCallsBySid: this.getCallsBySid,
+      });
+      call.update(call.status, {
+        answeredBy: callback.AnsweredBy,
+        callerId,
       });
       if (response === undefined) {
         return new VoiceResponse().toString();
@@ -149,10 +151,9 @@ export class TwilioService {
             "/phone-canvass/webhooks/get-voicemail/" +
             call.canvassId(),,
     );*/
-    await call.advanceStatusToCompleted({
+    call.update("COMPLETED", {
       result: "COMPLETED",
-      currentTime: Date.now(),
-      playedVoicemail: true,
+      playedVoicemail: false,
       answeredBy: callback.AnsweredBy,
     });
 

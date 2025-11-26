@@ -4,24 +4,33 @@ import {
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
+import { BehaviorSubject, Observable } from "rxjs";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
 @Injectable()
 export class PhoneCanvassCallersService {
-  #phoneCanvassIdToCaller = new Map<string, PhoneCanvassCallerDTO[]>();
   #nextId = 0;
+  #callers: PhoneCanvassCallerDTO[] = [];
+  #callers$: BehaviorSubject<PhoneCanvassCallerDTO[]>;
+
+  constructor() {
+    this.#callers$ = new BehaviorSubject<PhoneCanvassCallerDTO[]>([]);
+  }
+
+  get callers$(): Observable<PhoneCanvassCallerDTO[]> {
+    return this.#callers$;
+  }
 
   async registerCaller(
     caller: CreatePhoneCanvassCallerDTO,
     getAuthToken: GetAuthToken,
   ): Promise<PhoneCanvassCallerDTO> {
-    const callers =
-      this.#phoneCanvassIdToCaller.get(caller.activePhoneCanvassId) ?? [];
-
     if (
-      callers.some(
-        (existingCaller) => caller.displayName === existingCaller.displayName,
+      this.#callers.some(
+        (existingCaller) =>
+          caller.displayName === existingCaller.displayName &&
+          caller.activePhoneCanvassId === existingCaller.activePhoneCanvassId,
       )
     ) {
       throw new ConflictException("Display name already taken.");
@@ -36,8 +45,8 @@ export class PhoneCanvassCallersService {
       authToken: await getAuthToken(String(id)),
     });
 
-    callers.push(withId);
-    this.#phoneCanvassIdToCaller.set(caller.activePhoneCanvassId, callers);
+    this.#callers.push(withId);
+    this.#callers$.next(this.#callers);
     return withId;
   }
 
@@ -49,12 +58,13 @@ export class PhoneCanvassCallersService {
     authToken: string;
   }): PhoneCanvassCallerDTO | undefined {
     const { activePhoneCanvassId, id, authToken } = params;
-    const callers =
-      this.#phoneCanvassIdToCaller.get(activePhoneCanvassId) ?? [];
-
-    const existingCaller = callers.find(
+    const existingCaller = this.#callers.find(
       // TODO: we need a more resilient secure identifier, as when the auth token rotates, this breaks.
-      (x) => x.id === id /*&& x.authToken == authToken,*/,
+      (x) => {
+        return (
+          x.id === id && x.activePhoneCanvassId === activePhoneCanvassId
+        ); /*&& x.authToken == authToken,*/
+      },
     );
     void authToken;
     return existingCaller;
@@ -67,6 +77,7 @@ export class PhoneCanvassCallersService {
     const existingCaller = this.#findCaller(caller);
     if (existingCaller !== undefined) {
       existingCaller.authToken = await getAuthToken(String(caller.id));
+      this.#callers$.next(this.#callers);
       return existingCaller;
     }
 
@@ -83,6 +94,7 @@ export class PhoneCanvassCallersService {
     const existingCaller = this.#findCaller(updatedCaller);
     if (existingCaller !== undefined) {
       Object.assign(existingCaller, updatedCaller);
+      this.#callers$.next(this.#callers);
       return existingCaller;
     }
 
@@ -92,7 +104,7 @@ export class PhoneCanvassCallersService {
     );
   }
 
-  onCallCompleteForCaller(
+  /*onCallCompleteForCaller(
     phoneCanvassId: string,
     callerId: number,
   ): { becameUnready: boolean } {
@@ -108,9 +120,9 @@ export class PhoneCanvassCallersService {
     }
     existingCaller.ready = "unready";
     return { becameUnready: true };
-  }
+}*/
 
-  listCallers(phoneCanvassId: string): PhoneCanvassCallerDTO[] {
+  /*listCallers(phoneCanvassId: string): PhoneCanvassCallerDTO[] {
     return this.#phoneCanvassIdToCaller.get(phoneCanvassId) ?? [];
-  }
+  }*/
 }
