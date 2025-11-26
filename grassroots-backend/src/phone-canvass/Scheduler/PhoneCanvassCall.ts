@@ -19,6 +19,14 @@ export type Call =
   | InProgressCall
   | CompletedCall;
 
+export type AnsweredBy =
+  | "machine_end_beep"
+  | "machine_end_silence"
+  | "machine_end_other"
+  | "human"
+  | "fax"
+  | "unknown";
+
 interface CommonCallState {
   // Unique ID which exists throughout call lifetime, including before the twilio call is created.
   id: number;
@@ -41,10 +49,6 @@ type CommonCallConstructorParams = CommonCallState & {
 interface SID {
   // Call SID, provided by twilio.
   twilioSid: string;
-}
-
-interface CallerId {
-  callerId: number;
 }
 
 interface CurrentTime {
@@ -84,6 +88,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
       sid: "twilioSid" in this ? this.twilioSid : undefined,
       status: this.status,
       result: "result" in this ? this.result : undefined,
+      answeredBy: "answeredBy" in this ? this.answeredBy : undefined,
       playedVoicemail:
         "playedVoicemail" in this && this.playedVoicemail === true
           ? this.playedVoicemail
@@ -121,6 +126,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         callerId: getCallerId(this as unknown as Call),
         playedVoicemail: false,
+        answeredBy: undefined,
       }),
     );
   }
@@ -281,13 +287,13 @@ export class RingingCall extends AbstractCall<"RINGING"> {
   }
 
   async advanceStatusToInProgress(
-    params: CurrentTime & CallerId,
+    params: CurrentTime,
   ): Promise<InProgressCall> {
     return await this.advanceStatusTo(
       new InProgressCall({
         ...this.state,
         twilioSid: this.twilioSid,
-        callerId: params.callerId,
+        callerId: undefined,
         currentTime: params.currentTime,
       }),
     );
@@ -297,9 +303,14 @@ export class RingingCall extends AbstractCall<"RINGING"> {
 export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
   status = "IN_PROGRESS" as const;
   #callerId: number | undefined;
+  #answeredBy: AnsweredBy | undefined;
   readonly twilioSid: string;
 
-  constructor(params: CommonCallConstructorParams & CallerId & SID) {
+  constructor(
+    params: CommonCallConstructorParams & {
+      callerId: number | undefined;
+    } & SID,
+  ) {
     super(params);
     this.#callerId = params.callerId;
     this.state.transitionTimestamps.IN_PROGRESS = params.currentTime;
@@ -310,20 +321,41 @@ export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
     return this.#callerId;
   }
 
+  async setCallerId(callerId: number): Promise<void> {
+    this.#callerId = callerId;
+    // TODO: this is ugly, but we want to use the same codepath here.
+    // We should move this so updating the database is a sideeffect.
+    // Perhaps this emits an update to a stream of call updates, which the
+    // sync group and the database both subscribe to?
+    await this.advanceStatusTo(this);
+  }
+
+  get answeredBy(): AnsweredBy | undefined {
+    return this.#answeredBy;
+  }
+
+  async setAnsweredBy(answeredBy: AnsweredBy): Promise<void> {
+    this.#answeredBy = answeredBy;
+    // TODO: this is ugly, but we want to use the same codepath here.
+    // We should move this so updating the database is a sideeffect.
+    // Perhaps this emits an update to a stream of call updates, which the
+    // sync group and the database both subscribe to?
+    await this.advanceStatusTo(this);
+  }
+
   async advanceStatusToCompleted(
     params: {
       result: CallResult;
       playedVoicemail: boolean;
+      answeredBy: AnsweredBy | undefined;
     } & CurrentTime,
   ): Promise<CompletedCall> {
     return await this.advanceStatusTo(
       new CompletedCall({
         ...this.state,
+        ...params,
         callerId: this.#callerId,
-        currentTime: params.currentTime,
         twilioSid: this.twilioSid,
-        result: params.result,
-        playedVoicemail: params.playedVoicemail,
       }),
     );
   }
@@ -335,12 +367,14 @@ export class CompletedCall extends AbstractCall<"COMPLETED"> {
   #callerId: number | undefined;
   readonly playedVoicemail: boolean;
   readonly twilioSid: string;
+  readonly answeredBy: AnsweredBy | undefined;
 
   constructor(
     params: CommonCallConstructorParams & {
       result: CallResult;
       callerId: number | undefined;
       playedVoicemail: boolean;
+      answeredBy: AnsweredBy | undefined;
     } & SID,
   ) {
     super(params);
@@ -350,6 +384,7 @@ export class CompletedCall extends AbstractCall<"COMPLETED"> {
     this.#result = params.result;
     this.state.scheduler.metricsTracker.onEndingCall(this);
     this.playedVoicemail = params.playedVoicemail;
+    this.answeredBy = params.answeredBy;
   }
 
   get result(): CallResult {

@@ -155,10 +155,11 @@ describe("PhoneCanvassScheduler", () => {
       currentTime: 4,
     });
     const inProgress = await ringing.advanceStatusToInProgress({
-      callerId:
-        scheduler.getNextIdleCallerId() ?? fail("Missing next caller id"),
       currentTime: 5,
     });
+
+    /*callerId:
+        scheduler.getNextIdleCallerId() ?? fail("Missing next caller id"),*/
 
     await scheduler.waitForIdleForTest();
     expect(calls).toHaveLength(1);
@@ -167,6 +168,7 @@ describe("PhoneCanvassScheduler", () => {
       currentTime: 6,
       result: "COMPLETED",
       playedVoicemail: false,
+      answeredBy: undefined,
     });
 
     await scheduler.waitForIdleForTest();
