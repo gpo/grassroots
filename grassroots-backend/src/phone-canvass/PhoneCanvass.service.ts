@@ -58,13 +58,12 @@ interface AdvanceCallToStatusParams {
   result?: CallResult;
   currentTime: number;
   twilioSid: string;
-  scheduler: PhoneCanvassScheduler;
 }
 
 async function advanceCallToStatus(
   params: AdvanceCallToStatusParams,
 ): Promise<Call & { twilioSid: string }> {
-  const { call, status, result, scheduler } = params;
+  const { call, status, result } = params;
   console.log("ADVANCING");
   switch (call.status) {
     case "NOT_STARTED": {
@@ -92,13 +91,8 @@ async function advanceCallToStatus(
       if (status !== "IN_PROGRESS") {
         throw new Error("Invalid transition");
       }
-      const callerId = scheduler.getNextIdleCallerId();
-      if (callerId === undefined) {
-        throw new Error("TODO(mvp) handle overcalling");
-      }
       return call.advanceStatusToInProgress({
         ...params,
-        callerId,
       });
     }
     case "IN_PROGRESS": {
@@ -112,6 +106,7 @@ async function advanceCallToStatus(
         ...params,
         result,
         playedVoicemail: false,
+        answeredBy: call.answeredBy,
       });
     }
     case "COMPLETED": {
@@ -488,6 +483,7 @@ export class PhoneCanvassService {
         newCall = await call.advanceStatusToCompleted({
           ...newCallParams,
           result,
+          answeredBy: call.answeredBy,
         });
       } else {
         newCall = await call.advanceStatusToFailed({
@@ -505,7 +501,6 @@ export class PhoneCanvassService {
       }
       newCall = await advanceCallToStatus({
         ...newCallParams,
-        scheduler,
         call,
       });
       console.log("ADVANCED TO ", newCall.status);
@@ -536,6 +531,13 @@ export class PhoneCanvassService {
         `Can't find call with id ${callback.CallSid}`,
       );
     }
-    return await this.twilioService.twilioCallAnsweredCallback(callback, call);
+    const scheduler = await this.getInitializedScheduler({
+      phoneCanvassId: call.canvassId(),
+    });
+    return await this.twilioService.twilioCallAnsweredCallback(
+      callback,
+      call,
+      scheduler,
+    );
   }
 }

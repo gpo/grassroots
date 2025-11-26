@@ -11,6 +11,7 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import VoiceResponse from "twilio/lib/twiml/VoiceResponse.js";
 import { PhoneCanvasTwilioCallAnsweredCallbackDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 
 function addCallerToCallIfNeeded(params: {
   sid: string;
@@ -28,7 +29,7 @@ function addCallerToCallIfNeeded(params: {
       "There's only one path to add a caller right now. This should never happen.",
     );
   }
-  console.log("ADDING CALLER");
+  console.log("ADDING CALLER ");
   const response = new VoiceResponse();
   response.dial().conference(
     {
@@ -65,6 +66,12 @@ export class TwilioService {
 
     const client = await this.#getClient();
     const twiml = new VoiceResponse();
+    twiml
+      .dial()
+      .conference(
+        { startConferenceOnEnter: true, endConferenceOnExit: true },
+        String(call.contactId()),
+      );
 
     // TODO(mvp): use the actual phone number.
     void call;
@@ -110,9 +117,20 @@ export class TwilioService {
     call: Call & {
       twilioSid: string;
     },
+    scheduler: PhoneCanvassScheduler,
   ): Promise<string> {
+    if (call.status !== "IN_PROGRESS") {
+      throw new Error("Call answered before being in progress");
+    }
+    await call.setAnsweredBy(callback.AnsweredBy);
     if (callback.AnsweredBy === "human" || callback.AnsweredBy === "unknown") {
       console.log("We don't think this is a machine");
+      const callerId = scheduler.getNextIdleCallerId();
+      if (callerId === undefined) {
+        throw new Error("TODO(mvp) handle overcalling");
+      }
+      await call.setCallerId(callerId);
+      console.log("ADDING CALLER ", callerId);
       const response = addCallerToCallIfNeeded({
         sid: call.twilioSid,
         contactId: call.contactId(),
@@ -123,25 +141,23 @@ export class TwilioService {
       }
       return response.toString();
     }
-    const response = new VoiceResponse();
 
-    console.log("PLAY VOICEMAIL");
-    response.play(
-      "https://api.twilio.com/cowbell.mp3" /*
+    console.log("Picked up by machine. Hanging up.");
+    /*response.play(
+     // "https://api.twilio.com/cowbell.mp3"
           (await getEnvVars()).WEBHOOK_HOST +
             "/phone-canvass/webhooks/get-voicemail/" +
-            call.canvassId(),*/,
-    );
+            call.canvassId(),,
+    );*/
+    await call.advanceStatusToCompleted({
+      result: "COMPLETED",
+      currentTime: Date.now(),
+      playedVoicemail: true,
+      answeredBy: callback.AnsweredBy,
+    });
+
+    const response = new VoiceResponse();
     response.hangup();
-    if (call.status === "IN_PROGRESS") {
-      await call.advanceStatusToCompleted({
-        result: "COMPLETED",
-        currentTime: Date.now(),
-        playedVoicemail: true,
-      });
-    } else {
-      throw new Error("Violation of assumptions of amd ordering.");
-    }
     console.log(response.toString());
     return response.toString();
   }

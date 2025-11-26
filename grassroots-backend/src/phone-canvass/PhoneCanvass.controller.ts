@@ -89,6 +89,7 @@ export class PhoneCanvassController {
             concatMap(async (callback) => {
               const status = twilioCallStatusToCallStatus(callback.CallStatus);
               console.log("status callback", callback.CallStatus, status);
+              console.log("Answered by ", callback);
 
               await this.phoneCanvassService.updateCall({
                 ...status,
