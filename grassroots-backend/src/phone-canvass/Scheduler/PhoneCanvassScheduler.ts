@@ -1,12 +1,6 @@
 import { Observable } from "rxjs";
-import {
-  CompletedCall,
-  InitiatedCall,
-  InProgressCall,
-  NotStartedCall,
-  RingingCall,
-} from "./PhoneCanvassCall.js";
 import { PhoneCanvassMetricsTracker as PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
+import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 
 export interface Caller {
   id: number;
@@ -14,12 +8,6 @@ export interface Caller {
 }
 
 export abstract class PhoneCanvassScheduler {
-  abstract readonly calls: Observable<NotStartedCall>;
-  // TODO: this feels like layering violation. We should figure out a better way to manage the "last call"
-  // state.
-  abstract startIfNeeded(): {
-    started: boolean;
-  };
   abstract stop(): void;
   abstract addCaller(id: number): void;
   abstract removeCaller(id: number): void;
@@ -27,12 +15,6 @@ export abstract class PhoneCanvassScheduler {
   abstract getNextIdleCallerId(): number | undefined;
   abstract get metricsTracker(): PhoneCanvassMetricsTracker;
   abstract get phoneCanvassId(): string;
-  abstract get callsByStatus(): {
-    NOT_STARTED: Map<number, NotStartedCall>;
-    QUEUED: Map<number, RingingCall>;
-    INITIATED: Map<number, InitiatedCall>;
-    RINGING: Map<number, RingingCall>;
-    IN_PROGRESS: Map<number, InProgressCall>;
-    COMPLETED: Map<number, CompletedCall>;
-  };
+  // eslint-disable-next-line grassroots/entity-use
+  abstract get pendingContacts$(): Observable<PhoneCanvassContactEntity>;
 }

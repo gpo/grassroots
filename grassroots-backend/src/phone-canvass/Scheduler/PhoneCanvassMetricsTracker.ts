@@ -1,19 +1,21 @@
-import { BehaviorSubject, combineLatest, map, Observable, Subject } from "rxjs";
-import { Call, CompletedCall } from "./PhoneCanvassCall.js";
-import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  Observable,
+  scan,
+  startWith,
+} from "rxjs";
+import { Call } from "./PhoneCanvassCall.js";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class PhoneCanvassMetricsTracker {
-  #endingCallsObservable = new Subject<CompletedCall>();
   #callerCountObservable = new BehaviorSubject<number>(0);
-  #committedCallsCountObservable = new BehaviorSubject<number>(0);
+  #committedCallsCountObservable: Observable<number>;
 
   readonly #idleCallerCountObservable = new Observable<number>();
-
-  get endingCalls(): Observable<CompletedCall> {
-    return this.endingCalls;
-  }
 
   get callerCountObservable(): Observable<number> {
     return this.#callerCountObservable;
@@ -27,7 +29,21 @@ export class PhoneCanvassMetricsTracker {
     return this.#idleCallerCountObservable;
   }
 
-  constructor() {
+  constructor(calls$: Observable<Call>) {
+    this.#committedCallsCountObservable = calls$.pipe(
+      scan((activeCalls: number, call: Call): number => {
+        if (call.status === "NOT_STARTED") {
+          return activeCalls + 1;
+        }
+        if (call.status === "COMPLETED") {
+          return activeCalls - 1;
+        }
+        return activeCalls;
+      }, 0),
+      distinctUntilChanged(),
+      startWith(0),
+    );
+
     this.#idleCallerCountObservable = combineLatest([
       this.#callerCountObservable,
       this.#committedCallsCountObservable,
@@ -36,26 +52,6 @@ export class PhoneCanvassMetricsTracker {
         ([callerCount, committedCallsCount]) =>
           callerCount - committedCallsCount,
       ),
-    );
-
-    this.#endingCallsObservable.subscribe((call: Call) => {
-      console.log(`Recording metrics about ${String(call.id)}`);
-    });
-  }
-
-  onEndingCall(call: CompletedCall): void {
-    this.#endingCallsObservable.next(call);
-  }
-
-  onCallsByStatusUpdate(
-    callsByStatus: PhoneCanvassScheduler["callsByStatus"],
-  ): void {
-    this.#committedCallsCountObservable.next(
-      callsByStatus.NOT_STARTED.size +
-        callsByStatus.INITIATED.size +
-        callsByStatus.QUEUED.size +
-        callsByStatus.RINGING.size +
-        callsByStatus.IN_PROGRESS.size,
     );
   }
 

@@ -4,10 +4,7 @@ import type { Opt, Rel } from "@mikro-orm/core";
 import { createEntityBase } from "../../util/CreateEntityBase.js";
 import { PhoneCanvassEntity } from "./PhoneCanvass.entity.js";
 import { ContactEntity } from "../../contacts/entities/Contact.entity.js";
-import type {
-  CallResult,
-  CallStatus,
-} from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
+import type { CallResult } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassContactDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 @Entity()
@@ -26,7 +23,7 @@ export class PhoneCanvassContactEntity extends createEntityBase<
   metadata!: string;
 
   @Property()
-  callStatus!: CallStatus;
+  beenCalled!: boolean;
 
   @Property({ nullable: true })
   callResult?: CallResult;
@@ -41,7 +38,7 @@ export class PhoneCanvassContactEntity extends createEntityBase<
     return PhoneCanvassContactDTO.from({
       contact: this.contact.toDTO(),
       metadata: this.metadata,
-      callStatus: this.callStatus,
+      callStatus: this.beenCalled ? "COMPLETED" : "NOT_STARTED",
     });
   }
 }

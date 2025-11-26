@@ -2,22 +2,14 @@
 import {
   CallResult,
   CallStatus,
+  callStatusSort,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
-import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
-import { EntityManager } from "@mikro-orm/core";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { appendFile } from "fs/promises";
 import { delay } from "grassroots-shared/util/Delay";
 import { LOG_DIR } from "../PhoneCanvass.module.js";
-
-export type Call =
-  | NotStartedCall
-  | QueuedCall
-  | InitiatedCall
-  | RingingCall
-  | InProgressCall
-  | CompletedCall;
+import { keys } from "grassroots-shared/util/Keys";
 
 export type AnsweredBy =
   | "machine_end_beep"
@@ -27,49 +19,43 @@ export type AnsweredBy =
   | "fax"
   | "unknown";
 
-interface CommonCallState {
+interface ImmutableCallState {
   // Unique ID which exists throughout call lifetime, including before the twilio call is created.
   id: number;
-  scheduler: PhoneCanvassScheduler;
-  onCallCompleteForCaller: (
+  phoneCanvassId: string;
+  emit: (call: Call) => void;
+  //scheduler: PhoneCanvassScheduler;
+  /*onCallCompleteForCaller: (
     phoneCanvassId: string,
     callerId: number,
-  ) => { becameUnready: boolean };
+  ) => { becameUnready: boolean };*/
   contact: PhoneCanvassContactEntity;
-  // Timestamps provided by Twilio when available.
-  // Otherwise, we use Date.now().
-  transitionTimestamps: Record<CallStatus, number | undefined>;
-  entityManager: EntityManager;
 }
 
-type CommonCallConstructorParams = CommonCallState & {
-  currentTime: number;
-};
-
-interface SID {
+export type MutableCallState = Partial<{
   // Call SID, provided by twilio.
   twilioSid: string;
-}
+  playedVoicemail: boolean;
+  answeredBy: AnsweredBy;
+  result: CallResult;
+  callerId: number;
+}>;
 
-interface CurrentTime {
-  currentTime: number;
-}
+type CallState = ImmutableCallState & MutableCallState;
 
 export function resetPhoneCanvasCallIdsForTest(): void {
-  NotStartedCall.resetIdsForTest();
+  Call.resetIdsForTest();
 }
 
-function getCallerId(call: Call): number | undefined {
-  if (call.status === "IN_PROGRESS") {
-    return call.callerId;
-  }
-}
+export class Call {
+  static #currentId = 0;
 
-abstract class AbstractCall<STATUS extends CallStatus> {
-  readonly state: CommonCallState;
+  readonly state: CallState & MutableCallState;
+  readonly status: CallStatus;
 
-  constructor(params: CommonCallState) {
-    this.state = params;
+  constructor(status: CallStatus, params: Omit<ImmutableCallState, "id">) {
+    this.status = status;
+    this.state = { ...params, id: ++Call.#currentId };
 
     runPromise(
       (async (): Promise<void> => {
@@ -83,57 +69,54 @@ abstract class AbstractCall<STATUS extends CallStatus> {
   }
 
   async log(): Promise<void> {
-    const blob = {
-      id: this.id,
-      sid: "twilioSid" in this ? this.twilioSid : undefined,
-      status: this.status,
-      result: "result" in this ? this.result : undefined,
-      answeredBy: "answeredBy" in this ? this.answeredBy : undefined,
-      playedVoicemail:
-        "playedVoicemail" in this && this.playedVoicemail === true
-          ? this.playedVoicemail
-          : undefined,
+    const undefinedRemoved: Record<string, unknown> = {};
 
-      contactId: this.state.contact.contact.id,
+    for (const [key, value] of Object.entries(this.state)) {
+      if (value !== undefined) {
+        undefinedRemoved[key] = value;
+      }
+    }
+    const blob = {
+      status: this.status,
+      ...undefinedRemoved,
       // TODO: pull the timestamp from twilio.
       ts: Date.now(),
     };
     await appendFile(
-      `${LOG_DIR}/${this.canvassId()}.log`,
+      `${LOG_DIR}/${this.canvassId}.log`,
       JSON.stringify(blob) + "\n",
     );
   }
 
-  abstract get status(): STATUS;
-
-  contactId(): number {
+  get contactId(): number {
     return this.state.contact.id;
   }
 
-  canvassId(): string {
-    return this.state.scheduler.phoneCanvassId;
+  get callerId(): number | undefined {
+    return this.state.callerId;
   }
 
-  public async advanceStatusToFailed(
-    params: CurrentTime & SID & { result: CallResult },
-  ): Promise<CompletedCall> {
-    return await this.advanceStatusTo(
-      new CompletedCall({
-        ...params,
-        ...this.state,
-        // TODO: this is ugly. We should probably change this whole structure to a single interface
-        // with multiple Interfaces over it, depending on state.
-        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        callerId: getCallerId(this as unknown as Call),
-        playedVoicemail: false,
-        answeredBy: undefined,
-      }),
-    );
+  get result(): CallResult | undefined {
+    return this.state.result;
   }
 
-  protected async advanceStatusTo<CallTypeTo extends Call>(
-    call: CallTypeTo,
-  ): Promise<CallTypeTo> {
+  get canvassId(): string {
+    return this.state.phoneCanvassId;
+  }
+
+  update(status: CallStatus, props: MutableCallState): this {
+    if (callStatusSort(this.status, status) < 0) {
+      throw new Error("Call status can't go backwards");
+    }
+    for (const k of keys(props)) {
+      if (this.state[k] != undefined && props[k] == undefined) {
+        throw new Error("Can't unset call information");
+      }
+    }
+    Object.assign(this.state, props);
+    this.state.emit(this);
+    return this;
+    /*
     if (
       !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)
     ) {
@@ -146,7 +129,7 @@ abstract class AbstractCall<STATUS extends CallStatus> {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const calls = this.state.scheduler.callsByStatus[call.status] as Map<
       number,
-      CallTypeTo
+      Call
     >;
     calls.set(call.state.id, call);
 
@@ -156,10 +139,10 @@ abstract class AbstractCall<STATUS extends CallStatus> {
 
     call.state.contact.callStatus = call.status;
     if (call.status === "COMPLETED") {
-      call.state.contact.callResult = call.result;
+      call.state.contact.callResult = call.state.result;
       if (call.callerId !== undefined) {
         const becameUnready = this.state.onCallCompleteForCaller(
-          call.canvassId(),
+          call.canvassId,
           call.callerId,
         );
         if (becameUnready.becameUnready) {
@@ -172,226 +155,14 @@ abstract class AbstractCall<STATUS extends CallStatus> {
 
     this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
       this.state.scheduler.callsByStatus,
-    );
-
-    return call;
+    );*/
   }
 
   get id(): number {
     return this.state.id;
   }
-}
-
-export class NotStartedCall extends AbstractCall<"NOT_STARTED"> {
-  static #currentId = 0;
-  readonly status = "NOT_STARTED" as const;
-
-  constructor(
-    params: Omit<CommonCallConstructorParams, "id" | "transitionTimestamps">,
-  ) {
-    super({
-      ...params,
-      id: ++NotStartedCall.#currentId,
-      transitionTimestamps: {
-        NOT_STARTED: params.currentTime,
-        QUEUED: undefined,
-        INITIATED: undefined,
-        RINGING: undefined,
-        IN_PROGRESS: undefined,
-        COMPLETED: undefined,
-      },
-    });
-  }
-
-  // We split this from advancing the call to avoid a race where twilio sends a callback
-  // before this is we've registered this call with the PhoneCanvassService.
-  constructQueuedCall(params: CurrentTime & SID): QueuedCall {
-    return new QueuedCall({
-      ...this.state,
-      twilioSid: params.twilioSid,
-      currentTime: params.currentTime,
-    });
-  }
-
-  async advanceStatusToQueued(call: QueuedCall): Promise<QueuedCall> {
-    return await this.advanceStatusTo(call);
-  }
 
   static resetIdsForTest(): void {
-    NotStartedCall.#currentId = 0;
-  }
-}
-
-export class QueuedCall extends AbstractCall<"QUEUED"> {
-  status = "QUEUED" as const;
-  readonly twilioSid: string;
-
-  constructor(params: CommonCallConstructorParams & SID) {
-    super(params);
-    this.twilioSid = params.twilioSid;
-    this.state.transitionTimestamps.QUEUED = params.currentTime;
-  }
-
-  async advanceStatusToInitiated(params: CurrentTime): Promise<InitiatedCall> {
-    return await this.advanceStatusTo(
-      new InitiatedCall({
-        ...this.state,
-        twilioSid: this.twilioSid,
-        currentTime: params.currentTime,
-      }),
-    );
-  }
-
-  async advanceStatusToRinging(params: CurrentTime): Promise<RingingCall> {
-    return await this.advanceStatusTo(
-      new RingingCall({
-        ...this.state,
-        twilioSid: this.twilioSid,
-        currentTime: params.currentTime,
-      }),
-    );
-  }
-}
-
-export class InitiatedCall extends AbstractCall<"INITIATED"> {
-  status = "INITIATED" as const;
-  readonly twilioSid: string;
-
-  constructor(params: CommonCallConstructorParams & SID) {
-    super(params);
-    this.twilioSid = params.twilioSid;
-    this.state.transitionTimestamps.INITIATED = params.currentTime;
-  }
-
-  async advanceStatusToRinging(params: {
-    currentTime: number;
-  }): Promise<RingingCall> {
-    return await this.advanceStatusTo(
-      new RingingCall({
-        ...this.state,
-        twilioSid: this.twilioSid,
-        currentTime: params.currentTime,
-      }),
-    );
-  }
-}
-
-export class RingingCall extends AbstractCall<"RINGING"> {
-  status = "RINGING" as const;
-  readonly twilioSid: string;
-
-  constructor(params: CommonCallConstructorParams & SID) {
-    super(params);
-    this.twilioSid = params.twilioSid;
-    this.state.transitionTimestamps.RINGING = params.currentTime;
-  }
-
-  async advanceStatusToInProgress(
-    params: CurrentTime,
-  ): Promise<InProgressCall> {
-    return await this.advanceStatusTo(
-      new InProgressCall({
-        ...this.state,
-        twilioSid: this.twilioSid,
-        callerId: undefined,
-        currentTime: params.currentTime,
-      }),
-    );
-  }
-}
-
-export class InProgressCall extends AbstractCall<"IN_PROGRESS"> {
-  status = "IN_PROGRESS" as const;
-  #callerId: number | undefined;
-  #answeredBy: AnsweredBy | undefined;
-  readonly twilioSid: string;
-
-  constructor(
-    params: CommonCallConstructorParams & {
-      callerId: number | undefined;
-    } & SID,
-  ) {
-    super(params);
-    this.#callerId = params.callerId;
-    this.state.transitionTimestamps.IN_PROGRESS = params.currentTime;
-    this.twilioSid = params.twilioSid;
-  }
-
-  get callerId(): number | undefined {
-    return this.#callerId;
-  }
-
-  async setCallerId(callerId: number): Promise<void> {
-    this.#callerId = callerId;
-    // TODO: this is ugly, but we want to use the same codepath here.
-    // We should move this so updating the database is a sideeffect.
-    // Perhaps this emits an update to a stream of call updates, which the
-    // sync group and the database both subscribe to?
-    await this.advanceStatusTo(this);
-  }
-
-  get answeredBy(): AnsweredBy | undefined {
-    return this.#answeredBy;
-  }
-
-  async setAnsweredBy(answeredBy: AnsweredBy): Promise<void> {
-    this.#answeredBy = answeredBy;
-    // TODO: this is ugly, but we want to use the same codepath here.
-    // We should move this so updating the database is a sideeffect.
-    // Perhaps this emits an update to a stream of call updates, which the
-    // sync group and the database both subscribe to?
-    await this.advanceStatusTo(this);
-  }
-
-  async advanceStatusToCompleted(
-    params: {
-      result: CallResult;
-      playedVoicemail: boolean;
-      answeredBy: AnsweredBy | undefined;
-    } & CurrentTime,
-  ): Promise<CompletedCall> {
-    return await this.advanceStatusTo(
-      new CompletedCall({
-        ...this.state,
-        ...params,
-        callerId: this.#callerId,
-        twilioSid: this.twilioSid,
-      }),
-    );
-  }
-}
-
-export class CompletedCall extends AbstractCall<"COMPLETED"> {
-  status = "COMPLETED" as const;
-  #result: CallResult;
-  #callerId: number | undefined;
-  readonly playedVoicemail: boolean;
-  readonly twilioSid: string;
-  readonly answeredBy: AnsweredBy | undefined;
-
-  constructor(
-    params: CommonCallConstructorParams & {
-      result: CallResult;
-      callerId: number | undefined;
-      playedVoicemail: boolean;
-      answeredBy: AnsweredBy | undefined;
-    } & SID,
-  ) {
-    super(params);
-    this.#callerId = params.callerId;
-    this.twilioSid = params.twilioSid;
-    this.state.transitionTimestamps.COMPLETED = params.currentTime;
-    this.#result = params.result;
-    this.state.scheduler.metricsTracker.onEndingCall(this);
-    this.playedVoicemail = params.playedVoicemail;
-    this.answeredBy = params.answeredBy;
-  }
-
-  get result(): CallResult {
-    return this.#result;
-  }
-
-  get callerId(): number | undefined {
-    return this.#callerId;
+    this.#currentId = 0;
   }
 }

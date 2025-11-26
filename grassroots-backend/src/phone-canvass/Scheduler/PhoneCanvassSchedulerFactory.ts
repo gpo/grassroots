@@ -5,18 +5,15 @@ import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
 import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
-import { EntityManager } from "@mikro-orm/core";
+import { Observable } from "rxjs";
+import { Call } from "./PhoneCanvassCall.js";
 
 @Injectable()
 export class PhoneCanvassSchedulerFactory {
   createScheduler(params: {
     contacts: PhoneCanvassContactEntity[];
     phoneCanvassId: string;
-    entityManager: EntityManager;
-    onCallCompleteForCaller: (
-      phoneCanvassId: string,
-      callerId: number,
-    ) => { becameUnready: boolean };
+    calls$: Observable<Call>;
   }): PhoneCanvassScheduler {
     const metricsTracker = new PhoneCanvassMetricsTracker();
     const strategy = new NoOvercallingStrategy(metricsTracker);

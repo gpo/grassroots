@@ -1,11 +1,25 @@
-import { filter, firstValueFrom } from "rxjs";
+import {
+  distinctUntilChanged,
+  filter,
+  firstValueFrom,
+  map,
+  Observable,
+  pairwise,
+} from "rxjs";
 import { PhoneCanvassSchedulerStrategy } from "./PhoneCanvassSchedulerStrategy.js";
+import { PhoneCanvassMetricsTracker } from "../PhoneCanvassMetricsTracker.js";
 
 export class NoOvercallingStrategy extends PhoneCanvassSchedulerStrategy {
-  async waitForNextCall(): Promise<void> {
-    // Wait until there's an available caller.
-    await firstValueFrom(
-      this.metricsLogger.idleCallerCountObservable.pipe(filter((x) => x > 0)),
+  nextCall$: Observable<undefined>;
+
+  constructor(metricsLogger: PhoneCanvassMetricsTracker) {
+    super(metricsLogger);
+    this.nextCall$ = metricsLogger.idleCallerCountObservable.pipe(
+      pairwise(),
+      // Any time there's an increase in the idleCallerCount, emit.
+      filter(([prev, curr]) => curr > prev),
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      map(() => undefined),
     );
   }
 }
