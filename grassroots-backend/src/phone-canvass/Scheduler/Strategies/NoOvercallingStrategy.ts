@@ -18,7 +18,7 @@ export class NoOvercallingStrategy extends PhoneCanvassSchedulerStrategy {
       pairwise(),
       // Any time there's an increase in the idleCallerCount, emit.
       filter(([prev, curr]) => curr > prev),
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+       
       map(() => undefined),
     );
   }

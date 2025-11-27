@@ -1,24 +1,29 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException } from "@nestjs/common";
 import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
-import { BehaviorSubject, Observable } from "rxjs";
+import { Observable, Subject, tap } from "rxjs";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
-@Injectable()
-export class PhoneCanvassCallersService {
+export class PhoneCanvassCallersModel {
   #nextId = 0;
-  #callers: PhoneCanvassCallerDTO[] = [];
-  #callers$: BehaviorSubject<PhoneCanvassCallerDTO[]>;
+  #callersById = new Map<number, PhoneCanvassCallerDTO>();
+  #callers$: Subject<PhoneCanvassCallerDTO>;
 
   constructor() {
-    this.#callers$ = new BehaviorSubject<PhoneCanvassCallerDTO[]>([]);
+    this.#callers$ = new Subject<PhoneCanvassCallerDTO>();
+
+    this.#callers$.pipe(
+      tap((caller) => {
+        this.#callersById.set(caller.id, caller);
+      }),
+    );
   }
 
-  get callers$(): Observable<PhoneCanvassCallerDTO[]> {
+  get callers$(): Observable<PhoneCanvassCallerDTO> {
     return this.#callers$;
   }
 
@@ -27,10 +32,8 @@ export class PhoneCanvassCallersService {
     getAuthToken: GetAuthToken,
   ): Promise<PhoneCanvassCallerDTO> {
     if (
-      this.#callers.some(
-        (existingCaller) =>
-          caller.displayName === existingCaller.displayName &&
-          caller.activePhoneCanvassId === existingCaller.activePhoneCanvassId,
+      [...this.#callersById.values()].some(
+        (existingCaller) => caller.displayName === existingCaller.displayName,
       )
     ) {
       throw new ConflictException("Display name already taken.");
@@ -44,28 +47,19 @@ export class PhoneCanvassCallersService {
       id,
       authToken: await getAuthToken(String(id)),
     });
-
-    this.#callers.push(withId);
-    this.#callers$.next(this.#callers);
+    this.#callers$.next(withId);
     return withId;
   }
 
   // This is as secure as the authToken is. If a user could guess someone else's
   // authToken, they could use that to update their data, but we'd already have bigger problems.
   #findCaller(params: {
-    activePhoneCanvassId: string;
     id: number;
     authToken: string;
   }): PhoneCanvassCallerDTO | undefined {
-    const { activePhoneCanvassId, id, authToken } = params;
-    const existingCaller = this.#callers.find(
-      // TODO: we need a more resilient secure identifier, as when the auth token rotates, this breaks.
-      (x) => {
-        return (
-          x.id === id && x.activePhoneCanvassId === activePhoneCanvassId
-        ); /*&& x.authToken == authToken,*/
-      },
-    );
+    const { id, authToken } = params;
+    const existingCaller = this.#callersById.get(id);
+    // TODO: we need a more resilient secure identifier, as when the auth token rotates, this breaks.
     void authToken;
     return existingCaller;
   }
@@ -77,7 +71,7 @@ export class PhoneCanvassCallersService {
     const existingCaller = this.#findCaller(caller);
     if (existingCaller !== undefined) {
       existingCaller.authToken = await getAuthToken(String(caller.id));
-      this.#callers$.next(this.#callers);
+      this.#callers$.next(existingCaller);
       return existingCaller;
     }
 
@@ -94,7 +88,7 @@ export class PhoneCanvassCallersService {
     const existingCaller = this.#findCaller(updatedCaller);
     if (existingCaller !== undefined) {
       Object.assign(existingCaller, updatedCaller);
-      this.#callers$.next(this.#callers);
+      this.#callers$.next(existingCaller);
       return existingCaller;
     }
 

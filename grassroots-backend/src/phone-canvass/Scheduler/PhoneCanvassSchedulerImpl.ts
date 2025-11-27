@@ -8,6 +8,9 @@ import {
   from,
   zip,
   map,
+  Subject,
+  scan,
+  tap,
 } from "rxjs";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { Call } from "./PhoneCanvassCall.js";
@@ -17,24 +20,18 @@ import { PhoneCanvassSchedulerStrategy } from "./Strategies/PhoneCanvassSchedule
 
 @Injectable()
 export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
-  // Shared with all schedulers.
-  readonly calls$: Observable<Call>;
+  readonly #calls$: Subject<Call>;
   readonly callsSubscription: Subscription;
 
   #strategy: PhoneCanvassSchedulerStrategy;
   readonly phoneCanvassId: string;
+  readonly #busyCallerIds = new Set<number>();
 
   // From caller id.
   #callers = new Map<number, Caller>();
   #pendingContacts$: Observable<PhoneCanvassContactEntity>;
 
-  getCurrentTime(): number {
-    return Date.now();
-  }
-
-  get pendingContacts$(): Observable<PhoneCanvassContactEntity> {
-    return this.#pendingContacts$;
-  }
+  #getCurrentTime: () => number;
 
   constructor(
     strategy: PhoneCanvassSchedulerStrategy,
@@ -42,13 +39,17 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     params: {
       contacts: PhoneCanvassContactEntity[];
       phoneCanvassId: string;
-      calls$: Observable<Call>;
+      calls$: Subject<Call>;
     },
   ) {
     super();
     this.#strategy = strategy;
     this.phoneCanvassId = params.phoneCanvassId;
-    this.calls$ = params.calls$;
+    this.#calls$ = params.calls$;
+
+    this.#getCurrentTime = () => {
+      return Date.now();
+    };
 
     this.#pendingContacts$ = from(params.contacts).pipe(
       filter((contact) => !contact.beenCalled),
@@ -58,31 +59,46 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     this.callsSubscription = zip(
       this.#strategy.nextCall$,
       this.#pendingContacts$,
-    ).pipe(
-      map((x) => x[1]),
-      map((contact) => {
-      return new Call("NOT_STARTED", {
-        contact,
-        phoneCanvassId: this.phoneCanvassId,
-        emit: this.em,
-      })
+    )
+      .pipe(
+        // We only care about the pending contact.
+        map((x) => x[1]),
+        map((contact) => {
+          return new Call("NOT_STARTED", {
+            contact,
+            phoneCanvassId: this.phoneCanvassId,
+            emit: (call): void => {
+              this.#calls$.next(call);
+            },
+          });
+        }),
+      )
+      .subscribe();
+
+    this.#calls$.pipe(
+      tap((call) => {
+        if (call.callerId !== undefined) {
+          if (call.status === "COMPLETED") {
+            this.#busyCallerIds.delete(call.callerId);
+          } else {
+            this.#busyCallerIds.add(call.callerId);
+          }
+        }
       }),
     );
-
-    subscribe((call) => {
-      const notStartedCall = ;
-      this.callsByStatus.NOT_STARTED.set(notStartedCall.id, notStartedCall);
-      this.#callsObservable.next(notStartedCall);
-    });
   }
 
   stop(): void {
     this.callsSubscription.unsubscribe();
   }
 
+  mockCurrentTime(getTime: () => number) {
+    this.#getCurrentTime = getTime;
+  }
+
   async waitForIdleForTest(): Promise<void> {
     // To be considered idle we either need no contacts remaining.
-    if (this.#pendingContacts$.length === 0) {
+    if (this.callsSubscription.closed) {
       return;
     }
     // or all callers assigned to calls.
@@ -94,13 +110,9 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   }
 
   getNextIdleCallerId(): number | undefined {
-    const busyCallerIds = new Set(
-      [...this.callsByStatus.IN_PROGRESS.values()].map((x) => x.callerId),
-    );
-
     // Find the idle caller who has been available for the longest time.
     const availableCallers = [...this.#callers.values()].filter((caller) => {
-      return !busyCallerIds.has(caller.id);
+      return !this.#busyCallerIds.has(caller.id);
     });
 
     const firstAvailableCaller = availableCallers.pop();
@@ -123,7 +135,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   addCaller(id: number): void {
     this.#callers.set(id, {
       id,
-      availabilityStartTime: this.getCurrentTime(),
+      availabilityStartTime: this.#getCurrentTime(),
     });
     this.metricsTracker.onCallerCountUpdate(this.#callers.size);
   }

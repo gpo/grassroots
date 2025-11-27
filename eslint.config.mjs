@@ -12,6 +12,7 @@ import * as GrassrootsEslintRules from "./eslint_rules/dist/Index.js";
 import reactRefresh from "eslint-plugin-react-refresh";
 import vitest from "@vitest/eslint-plugin";
 import eslintPluginImport from "eslint-plugin-import";
+import eslintPluginRxJs from "@smarttools/eslint-plugin-rxjs";
 
 export default tseslint.config(
   includeIgnoreFile(fileURLToPath(new URL(".gitignore", import.meta.url))),
@@ -28,6 +29,7 @@ export default tseslint.config(
   vitest.configs.recommended,
   eslintPluginImport.flatConfigs.recommended,
   eslintPluginImport.flatConfigs.typescript,
+  eslintPluginRxJs.configs.recommended,
   {
     ignores: [
       "**/*.mjs",
@@ -56,6 +58,7 @@ export default tseslint.config(
     },
     plugins: {
       "check-file": checkFile,
+      rxjs: eslintPluginRxJs,
     },
     settings: {
       react: {

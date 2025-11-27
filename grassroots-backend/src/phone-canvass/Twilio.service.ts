@@ -114,11 +114,12 @@ export class TwilioService {
 
   twilioCallAnsweredCallback(
     callback: PhoneCanvasTwilioCallAnsweredCallbackDTO,
-    call: Call & {
-      twilioSid: string;
-    },
+    call: Call,
     scheduler: PhoneCanvassScheduler,
   ): string {
+    if (call.twilioSid === undefined) {
+      throw new Error("Call answered before it was queued.");
+    }
     if (call.status !== "IN_PROGRESS") {
       throw new Error("Call answered before being in progress");
     }
@@ -185,6 +186,15 @@ export class TwilioService {
     );
 
     return token.toJwt();
+  }
+
+  async clearSyncData(phoneCanvassId: string): Promise<void> {
+    const envVars = await getEnvVars();
+    const client = await this.#getClient();
+    await client.sync.v1
+      .services(envVars.TWILIO_SYNC_SERVICE_SID)
+      .documents(phoneCanvassId)
+      .remove();
   }
 
   async setSyncData(

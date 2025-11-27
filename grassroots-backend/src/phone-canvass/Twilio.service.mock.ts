@@ -2,14 +2,14 @@ import { Injectable } from "@nestjs/common";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { vi } from "vitest";
-import { NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
+import { Call } from "./Scheduler/PhoneCanvassCall.js";
 
 @Injectable()
 export class TwilioServiceMock {
   static sid = 0;
   makeCall = vi.fn(
     async (
-      _call: NotStartedCall,
+      _call: Call,
     ): Promise<{
       sid: string;
       status: CallStatus;

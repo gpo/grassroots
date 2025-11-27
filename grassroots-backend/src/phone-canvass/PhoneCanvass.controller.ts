@@ -46,7 +46,7 @@ import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
 import { readdir } from "fs/promises";
 import { resolve } from "path";
 import { VALID_TWILIO_AUDIO_MIME_TYPES } from "grassroots-shared/constants/ValidTwilioAudioMimeTypes";
-import { concatMap, debounceTime, groupBy, mergeMap, Subject } from "rxjs";
+import { debounceTime, groupBy, map, mergeMap, Subject } from "rxjs";
 
 export interface GVoteCSVEntry {
   id: string;
@@ -86,16 +86,16 @@ export class PhoneCanvassController {
         groupBy((x) => x.CallSid, { duration: debounceTime(60_000) }),
         mergeMap((group$) =>
           group$.pipe(
-            concatMap(async (callback) => {
+            map((callback) => {
               const status = twilioCallStatusToCallStatus(callback.CallStatus);
               console.log("status callback", callback.CallStatus, status);
               console.log("Answered by ", callback);
-
-              await this.phoneCanvassService.updateCall({
-                ...status,
-                sid: callback.CallSid,
-                timestamp: callback.Timestamp,
-                playedVoicemail: false,
+              const call = this.phoneCanvassService.getCallBySid(
+                callback.CallSid,
+              );
+              call.update(status.status, {
+                result: status.result,
+                twilioSid: callback.CallSid,
               });
             }),
           ),
@@ -327,7 +327,10 @@ export class PhoneCanvassController {
     @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    const newCaller = await this.phoneCanvassService.registerCaller(caller);
+    const model = await this.phoneCanvassService.getModelFor({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
+    const newCaller = await model.registerCaller(caller);
     session.phoneCanvassCaller = newCaller;
     return newCaller;
   }
@@ -337,7 +340,10 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    caller = await this.phoneCanvassService.refreshOrCreateCaller(caller);
+    const model = await this.phoneCanvassService.getModelFor({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
+    caller = await model.refreshOrCreateCaller(caller);
     session.phoneCanvassCaller = caller;
     return caller;
   }
@@ -347,7 +353,10 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    caller = await this.phoneCanvassService.updateOrCreateCaller(caller);
+    const model = await this.phoneCanvassService.getModelFor({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
+    caller = await model.updateOrCreateCaller(caller);
     session.phoneCanvassCaller = caller;
     return caller;
   }

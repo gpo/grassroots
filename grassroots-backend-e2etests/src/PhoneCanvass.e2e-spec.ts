@@ -191,7 +191,7 @@ describe("PhoneCanvass (e2e)", () => {
   });
 
   // This is currently flaky.
-  it.skip("should schedule calls", async () => {
+  it("should schedule calls", async () => {
     const { fixture: f, mock } = useTwilioMock();
     await OrganizationEntity.ensureRootOrganization(f.app);
 
