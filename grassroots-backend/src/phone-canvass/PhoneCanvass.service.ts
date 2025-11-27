@@ -47,7 +47,7 @@ import { InjectRepository } from "@mikro-orm/nestjs";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
-import { combineLatest, Observable, tap } from "rxjs";
+import { combineLatest, groupBy, map, Observable, tap } from "rxjs";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 
 @Injectable()
@@ -90,15 +90,95 @@ export class PhoneCanvassService {
       }),
     );
 
+    function groupBy<T>(ar: T[], key: (t:T) => string): Record<string, T[]> {
+      return ar.reduce((acc, item) => {
+            (acc[key(item)] ??= []).push(item);
+            return acc;
+          }, {} as Record<string, T[]>);
+    }
+
+    export function mapRecord<T, U>(
+  input: Record<string, T>,
+  fn: (value: T, key: string) => U
+): Record<string, U> {
+  return Object.fromEntries(
+    Object.entries(input).map(
+      ([key, value]): [string, U] => [key, fn(value as T, key)]
+    )
+  ) as Record<string, U>;
+}
+
+/*{
+                displayName: caller.displayName,
+                ready: caller.ready,
+                callerId: caller.id
+            } satisfies CallerSummary*/
+
+    const callers$ = this.callersService.callers$.pipe(
+      map((callers) => groupBy(callers, (caller => caller.activePhoneCanvassId))),
+      map((callers) => mapRecord(callers, (caller => {return {
+        displayName: caller.displayName,
+                ready: caller.ready,
+                callerId: caller.id
+            } satisfies CallerSummary}}))/*{
+          return callers.reduce((acc, caller) => {
+            (acc[caller.activePhoneCanvassId] ??= []).push(
+              {
+                displayName: caller.displayName,
+                ready: caller.ready,
+                callerId: caller.id
+            } satisfies CallerSummary);
+            return acc;
+          }, {} as Record<string, CallerSummary[]>);*/
+    ));
+
     const allContacts$ = [...this.#schedulers.values()].map(
       (x) => x.pendingContacts$,
     );
 
     const syncData = combineLatest({
-      callers: this.callersService.callers$,
+      callers: callers$,
       calls: this.#calls$,
       contacts: allContacts$,
     });
+
+    const contacts: ContactSummary[] = (
+      await this.getPhoneCanvassContacts(phoneCanvassId)
+    ).map((contact) => {
+      const dto = contact.toDTO();
+      return {
+        contactDisplayName: dto.contact.formatName(),
+        contactId: contact.contact.id,
+        status: contact.callStatus,
+        result: contact.callResult,
+        // TODO: optimize, and assert there's only one value.
+        callerId: [...this.callsBySid.values()]
+          .filter((x) => x.contactId === contact.id)
+          .map((x) => {
+            if (x.status === "IN_PROGRESS") {
+              return x.callerId;
+            }
+          })[0],
+      };
+    });
+
+    const unfinishedContacts = contacts.filter((a) => a.status !== "COMPLETED");
+
+    const upcomingContacts = unfinishedContacts
+      .sort((a, b) => -callStatusSort(a.status, b.status))
+      .slice(0, 20);
+
+    const syncData = {
+      callers,
+      contacts: upcomingContacts,
+      serverInstanceUUID: this.serverMetaService.instanceUUID,
+      phoneCanvassId: phoneCanvassId,
+      totalContacts: contacts.length,
+      doneContacts: contacts.length - unfinishedContacts.length,
+    } satisfies PhoneCanvassSyncData;
+
+    await this.twilioService.setSyncData(phoneCanvassId, syncData);
+  }
   }
 
   async startSimulating(phoneCanvassId: string): Promise<void> {
@@ -237,52 +317,6 @@ export class PhoneCanvassService {
         rowsTotal,
       },
     });
-  }
-
-  async #updateSyncData(phoneCanvassId: string): Promise<void> {
-    // TODO(mvp): consider exposing which caller is talking to which contact.
-    const callers: CallerSummary[] = this.callersService
-      .listCallers(phoneCanvassId)
-      .map((x) => {
-        return { displayName: x.displayName, ready: x.ready, callerId: x.id };
-      });
-
-    const contacts: ContactSummary[] = (
-      await this.getPhoneCanvassContacts(phoneCanvassId)
-    ).map((contact) => {
-      const dto = contact.toDTO();
-      return {
-        contactDisplayName: dto.contact.formatName(),
-        contactId: contact.contact.id,
-        status: contact.callStatus,
-        result: contact.callResult,
-        // TODO: optimize, and assert there's only one value.
-        callerId: [...this.callsBySid.values()]
-          .filter((x) => x.contactId === contact.id)
-          .map((x) => {
-            if (x.status === "IN_PROGRESS") {
-              return x.callerId;
-            }
-          })[0],
-      };
-    });
-
-    const unfinishedContacts = contacts.filter((a) => a.status !== "COMPLETED");
-
-    const upcomingContacts = unfinishedContacts
-      .sort((a, b) => -callStatusSort(a.status, b.status))
-      .slice(0, 20);
-
-    const syncData = {
-      callers,
-      contacts: upcomingContacts,
-      serverInstanceUUID: this.serverMetaService.instanceUUID,
-      phoneCanvassId: phoneCanvassId,
-      totalContacts: contacts.length,
-      doneContacts: contacts.length - unfinishedContacts.length,
-    } satisfies PhoneCanvassSyncData;
-
-    await this.twilioService.setSyncData(phoneCanvassId, syncData);
   }
 
   async getInitializedScheduler(params: {
