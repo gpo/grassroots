@@ -15,6 +15,5 @@ export abstract class PhoneCanvassScheduler {
   abstract getNextIdleCallerId(): number | undefined;
   abstract get metricsTracker(): PhoneCanvassMetricsTracker;
   abstract get phoneCanvassId(): string;
-  // eslint-disable-next-line grassroots/entity-use
-  abstract get pendingContacts$(): Observable<PhoneCanvassContactEntity>;
+  abstract mockCurrentTime(getTime: () => number): void;
 }

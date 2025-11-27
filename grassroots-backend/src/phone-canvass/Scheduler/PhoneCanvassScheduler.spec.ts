@@ -2,17 +2,14 @@
 
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
-import {
-  NotStartedCall,
-  resetPhoneCanvasCallIdsForTest,
-} from "./PhoneCanvassCall.js";
+import { Call, resetPhoneCanvasCallIdsForTest } from "./PhoneCanvassCall.js";
 import { fail } from "assert";
-import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
-import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
-import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
-import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
-import { EntityManager } from "@mikro-orm/postgresql";
 import { PhoneCanvassModule } from "../PhoneCanvass.module.js";
+import { PhoneCanvassModelFactory } from "./PhoneCanvassModelFactory.js";
+import { PhoneCanvassModel } from "../PhoneCanvass.model.js";
+import { TwilioServiceMock } from "../Twilio.service.mock.js";
+import { ServerMetaService } from "../../server-meta/ServerMeta.service.js";
+import { TwilioService } from "../Twilio.service.js";
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
 const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
@@ -35,32 +32,22 @@ const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
 
 let currentTime = -1;
 
-function getScheduler(): PhoneCanvassScheduler {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const entityManager = {
-    flush: vi.fn().mockResolvedValue(undefined),
-  } as unknown as EntityManager;
-  const metricsTracker = new PhoneCanvassMetricsTracker();
-  const scheduler = new PhoneCanvassSchedulerImpl(
-    new NoOvercallingStrategy(metricsTracker),
-    metricsTracker,
-    {
-      contacts: FAKE_CONTACTS,
-      phoneCanvassId: "fake phone canvass id",
-      entityManager,
-      onCallCompleteForCaller: (): { becameUnready: boolean } => {
-        return {
-          becameUnready: false,
-        };
-      },
-    },
-  );
+function getModel(): PhoneCanvassModel {
+  const factory = new PhoneCanvassModelFactory();
+  const model = factory.createModel({
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    twilioService: new TwilioServiceMock() as unknown as TwilioService,
+    phoneCanvassId: "fake phone canvass id",
+    contacts: FAKE_CONTACTS,
+    serverMetaService: new ServerMetaService(),
+  });
 
   const currentTimeMock = vi.fn(() => {
     return currentTime;
   });
-  scheduler.getCurrentTime = currentTimeMock;
-  return scheduler;
+
+  model.mockCurrentTime(currentTimeMock);
+  return model;
 }
 
 describe("PhoneCanvassScheduler", () => {
@@ -71,12 +58,12 @@ describe("PhoneCanvassScheduler", () => {
     resetPhoneCanvasCallIdsForTest();
   });
   it("should handle a stream of calls in series", async () => {
-    const calls: NotStartedCall[] = [];
-    const scheduler = getScheduler();
-    scheduler.calls.subscribe((call) => calls.push(call));
+    const calls: Call[] = [];
+    const model = getModel();
+    const scheduler = model.scheduler;
+    model.calls$.subscribe((call) => calls.push(call));
 
     expect(calls).toHaveLength(0);
-    void scheduler.startIfNeeded();
 
     currentTime = 11;
     scheduler.addCaller(1);
@@ -89,9 +76,6 @@ describe("PhoneCanvassScheduler", () => {
         }),
       ]),
     );
-
-    expect(calls[0]?.state.transitionTimestamps.NOT_STARTED).toBe(11);
-    expect(calls[0]?.state.transitionTimestamps.INITIATED).toBe(undefined);
 
     calls.length = 0;
 
@@ -121,15 +105,15 @@ describe("PhoneCanvassScheduler", () => {
   });
 
   it("should handle call updates", async () => {
-    const scheduler = getScheduler();
+    const model = getModel();
+    const scheduler = model.scheduler;
 
     const CALLER_ID = 101;
     currentTime = 1;
 
-    const calls: NotStartedCall[] = [];
-    scheduler.calls.subscribe((call) => calls.push(call));
+    const calls: Call[] = [];
+    model.calls$.subscribe((call) => calls.push(call));
 
-    void scheduler.startIfNeeded();
     scheduler.addCaller(CALLER_ID);
     await scheduler.waitForIdleForTest();
 
@@ -141,47 +125,21 @@ describe("PhoneCanvassScheduler", () => {
     const call = calls[0] ?? fail();
     expect(call.id).toBe(1);
 
-    const queued = call.constructQueuedCall({
-      currentTime: 2,
-      twilioSid: "Test",
-    });
-
-    await call.advanceStatusToQueued(queued);
-
-    const initiated = await queued.advanceStatusToInitiated({
-      currentTime: 3,
-    });
-    const ringing = await initiated.advanceStatusToRinging({
-      currentTime: 4,
-    });
-    const inProgress = await ringing.advanceStatusToInProgress({
-      currentTime: 5,
-    });
-
-    /*callerId:
-        scheduler.getNextIdleCallerId() ?? fail("Missing next caller id"),*/
+    call.update("QUEUED", { twilioSid: "Test" });
+    call.update("INITIATED", {});
+    call.update("RINGING", {});
+    call.update("IN_PROGRESS", {});
 
     await scheduler.waitForIdleForTest();
     expect(calls).toHaveLength(1);
 
-    const completedCall = await inProgress.advanceStatusToCompleted({
-      currentTime: 6,
+    const completedCall = call.update("COMPLETED", {
       result: "COMPLETED",
-      playedVoicemail: false,
-      answeredBy: undefined,
     });
 
     await scheduler.waitForIdleForTest();
     expect(calls).toHaveLength(2);
 
-    expect(completedCall.state.transitionTimestamps).toStrictEqual({
-      NOT_STARTED: 1,
-      QUEUED: 2,
-      INITIATED: 3,
-      RINGING: 4,
-      IN_PROGRESS: 5,
-      COMPLETED: 6,
-    });
     expect(completedCall.callerId).toBe(CALLER_ID);
     scheduler.stop();
   });

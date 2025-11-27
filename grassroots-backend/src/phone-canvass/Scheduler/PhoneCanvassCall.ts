@@ -104,6 +104,10 @@ export class Call {
     return this.state.phoneCanvassId;
   }
 
+  get twilioSid(): string | undefined {
+    return this.state.twilioSid;
+  }
+
   update(status: CallStatus, props: MutableCallState): this {
     if (callStatusSort(this.status, status) < 0) {
       throw new Error("Call status can't go backwards");
