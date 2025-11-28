@@ -1,5 +1,5 @@
 /* eslint-disable grassroots/entity-use */
-import { combineLatest, map, Observable, scan, tap } from "rxjs";
+import { combineLatest, map, Observable, scan } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -55,46 +55,42 @@ export class PhoneCanvassModel {
     this.#phoneCanvassCallersModel = params.phoneCanvassCallersModel;
     this.#serverMetaService = params.serverMetaService;
 
-    this.calls$.pipe(
-      tap((call) => {
-        if (call.twilioSid !== undefined) {
-          this.#callsBySid.set(call.twilioSid, call);
-        }
+    this.calls$.subscribe((call) => {
+      if (call.twilioSid !== undefined) {
+        this.#callsBySid.set(call.twilioSid, call);
+      }
 
-        // TODO(mvp), handle call complete for caller, update database, etc.
-        if (call.status === "NOT_STARTED") {
-          runPromise(
-            (async (): Promise<void> => {
-              const { sid, status } =
-                this.#simulator?.phoneCanvassId !== call.canvassId
-                  ? await this.#twilioService.makeCall(call)
-                  : simulateMakeCall(call);
-              call.update(status, { twilioSid: sid });
-            })(),
-            false,
-          );
-        }
-      }),
-    );
+      // TODO(mvp), handle call complete for caller, update database, etc.
+      if (call.status === "NOT_STARTED") {
+        runPromise(
+          (async (): Promise<void> => {
+            const { sid, status } =
+              this.#simulator?.phoneCanvassId !== call.canvassId
+                ? await this.#twilioService.makeCall(call)
+                : simulateMakeCall(call);
+            call.update(status, { twilioSid: sid });
+          })(),
+          false,
+        );
+      }
+    });
 
     // Add and remove callers from the scheduler.
-    this.#phoneCanvassCallersModel.callers$.pipe(
-      tap((caller) => {
-        switch (caller.ready) {
-          case "ready": {
-            this.scheduler.addCaller(caller.id);
-            break;
-          }
-          case "unready": {
-            this.scheduler.removeCaller(caller.id);
-            break;
-          }
-          case "last call": {
-            // We handle this when a call completes.
-          }
+    this.#phoneCanvassCallersModel.callers$.subscribe((caller) => {
+      switch (caller.ready) {
+        case "ready": {
+          this.scheduler.addCaller(caller.id);
+          break;
         }
-      }),
-    );
+        case "unready": {
+          this.scheduler.removeCaller(caller.id);
+          break;
+        }
+        case "last call": {
+          // We handle this when a call completes.
+        }
+      }
+    });
 
     const callerSummariesById$: Observable<Map<number, CallerSummary>> =
       this.#phoneCanvassCallersModel.callers$.pipe(
@@ -165,21 +161,19 @@ export class PhoneCanvassModel {
       callsCompleted: completedCallCount$,
     });
 
-    syncData$.pipe(
-      tap((syncData) => {
-        runPromise(
-          this.#twilioService.setSyncData(this.phoneCanvassId, {
-            callers: syncData.callers,
-            contacts: syncData.contacts,
-            serverInstanceUUID: this.#serverMetaService.instanceUUID,
-            phoneCanvassId: this.phoneCanvassId,
-            totalContacts: this.#contacts.length,
-            doneContacts: this.#contacts.length - syncData.callsCompleted,
-          }),
-          false,
-        );
-      }),
-    );
+    syncData$.subscribe((syncData) => {
+      runPromise(
+        this.#twilioService.setSyncData(this.phoneCanvassId, {
+          callers: syncData.callers,
+          contacts: syncData.contacts,
+          serverInstanceUUID: this.#serverMetaService.instanceUUID,
+          phoneCanvassId: this.phoneCanvassId,
+          totalContacts: this.#contacts.length,
+          doneContacts: this.#contacts.length - syncData.callsCompleted,
+        }),
+        false,
+      );
+    });
   }
 
   async startSimulating(): Promise<void> {

@@ -41,4 +41,8 @@ export class TwilioServiceMock {
   async getAuthToken(callerId: string): Promise<string> {
     return callerId;
   }
+
+  setGetCallsBySID(): void {
+    // Unnecessary for the mock at this point.
+  }
 }

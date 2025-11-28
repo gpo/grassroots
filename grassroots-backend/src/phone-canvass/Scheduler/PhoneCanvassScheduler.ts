@@ -1,6 +1,4 @@
-import { Observable } from "rxjs";
 import { PhoneCanvassMetricsTracker as PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
-import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 
 export interface Caller {
   id: number;

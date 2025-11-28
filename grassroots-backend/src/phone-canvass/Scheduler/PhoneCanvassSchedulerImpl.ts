@@ -9,8 +9,6 @@ import {
   zip,
   map,
   Subject,
-  scan,
-  tap,
 } from "rxjs";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { Call } from "./PhoneCanvassCall.js";
@@ -47,7 +45,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     this.phoneCanvassId = params.phoneCanvassId;
     this.#calls$ = params.calls$;
 
-    this.#getCurrentTime = () => {
+    this.#getCurrentTime = (): number => {
       return Date.now();
     };
 
@@ -75,24 +73,22 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
       )
       .subscribe();
 
-    this.#calls$.pipe(
-      tap((call) => {
-        if (call.callerId !== undefined) {
-          if (call.status === "COMPLETED") {
-            this.#busyCallerIds.delete(call.callerId);
-          } else {
-            this.#busyCallerIds.add(call.callerId);
-          }
+    this.#calls$.subscribe((call) => {
+      if (call.callerId !== undefined) {
+        if (call.status === "COMPLETED") {
+          this.#busyCallerIds.delete(call.callerId);
+        } else {
+          this.#busyCallerIds.add(call.callerId);
         }
-      }),
-    );
+      }
+    });
   }
 
   stop(): void {
     this.callsSubscription.unsubscribe();
   }
 
-  mockCurrentTime(getTime: () => number) {
+  mockCurrentTime(getTime: () => number): void {
     this.#getCurrentTime = getTime;
   }
 
