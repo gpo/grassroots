@@ -57,7 +57,8 @@ describe("PhoneCanvassScheduler", () => {
   beforeEach(() => {
     resetPhoneCanvasCallIdsForTest();
   });
-  it("should handle a stream of calls in series", async () => {
+  it.only("should handle a stream of calls in series", async () => {
+    console.log("START OF TEST");
     const calls: Call[] = [];
     const model = getModel();
     const scheduler = model.scheduler;
@@ -67,7 +68,9 @@ describe("PhoneCanvassScheduler", () => {
 
     currentTime = 11;
     scheduler.addCaller(1);
+    console.log("BEFORE IDLE WAIT");
     await scheduler.waitForIdleForTest();
+    console.log("AFTER IDLE WAIT");
 
     expect(calls).toStrictEqual(
       expect.arrayContaining([
@@ -115,7 +118,9 @@ describe("PhoneCanvassScheduler", () => {
     model.calls$.subscribe((call) => calls.push(call));
 
     scheduler.addCaller(CALLER_ID);
+    console.log("BEFORE WAIT");
     await scheduler.waitForIdleForTest();
+    console.log("AFTER IDLE");
 
     expect(calls).toStrictEqual([
       expect.objectContaining({

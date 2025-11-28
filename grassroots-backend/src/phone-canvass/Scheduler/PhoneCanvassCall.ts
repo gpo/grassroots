@@ -56,16 +56,7 @@ export class Call {
   constructor(status: CallStatus, params: Omit<ImmutableCallState, "id">) {
     this.status = status;
     this.state = { ...params, id: ++Call.#currentId };
-
-    runPromise(
-      (async (): Promise<void> => {
-        // Wait until this object is fully constructed.
-        // TODO: this is a bit ugly.
-        await delay(0);
-        await this.log();
-      })(),
-      false,
-    );
+    this.state.emit(this);
   }
 
   async log(): Promise<void> {
@@ -118,6 +109,7 @@ export class Call {
       }
     }
     Object.assign(this.state, props);
+    console.log("EMITTING");
     this.state.emit(this);
     return this;
     /*

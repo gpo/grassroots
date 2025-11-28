@@ -6,6 +6,7 @@ import {
   Observable,
   scan,
   startWith,
+  tap,
 } from "rxjs";
 import { Call } from "./PhoneCanvassCall.js";
 import { Injectable } from "@nestjs/common";
@@ -31,8 +32,12 @@ export class PhoneCanvassMetricsTracker {
 
   constructor(calls$: Observable<Call>) {
     this.#committedCallsCountObservable = calls$.pipe(
+      tap((call) => {
+        console.log("GOT CALL", call);
+      }),
       scan((activeCalls: number, call: Call): number => {
-        if (call.status === "NOT_STARTED") {
+        console.log("LOOKING FOR COMMITTED CALLS", activeCalls, call);
+        if (call.status === "QUEUED") {
           return activeCalls + 1;
         }
         if (call.status === "COMPLETED") {
@@ -43,6 +48,13 @@ export class PhoneCanvassMetricsTracker {
       distinctUntilChanged(),
       startWith(0),
     );
+
+    this.#callerCountObservable.subscribe((callerCount) => {
+      console.log("CALLER COUNT ", callerCount);
+    });
+    this.#committedCallsCountObservable.subscribe((committedCalls) => {
+      console.log("COMMITTED CALLS ", committedCalls);
+    });
 
     this.#idleCallerCountObservable = combineLatest([
       this.#callerCountObservable,

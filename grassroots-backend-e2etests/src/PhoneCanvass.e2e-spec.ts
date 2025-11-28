@@ -98,12 +98,14 @@ describe("PhoneCanvass (e2e)", () => {
     const { fixture: f, mock } = useTwilioMock();
     await OrganizationEntity.ensureRootOrganization(f.app);
 
+    console.log("CREATE 1");
     const result = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass", {
         // @ts-expect-error - FormData is supported but not in types
         body: getFormDataForCSVCreation(),
       }),
     );
+    console.log("CREATE 2");
 
     expect(result.id.length).toBe(36);
     expect(mock.setSyncData).toBeCalledWith(
@@ -142,17 +144,12 @@ describe("PhoneCanvass (e2e)", () => {
 
   it("should sync caller data", async () => {
     const { fixture: f, mock } = useTwilioMock();
+    await OrganizationEntity.ensureRootOrganization(f.app);
 
-    const formData = new FormData();
-    formData.append("name", "test");
-    formData.append(
-      "csv",
-      `id,civi_id,voter_id,seq_id,district_num,district,poll,first_name,middle_name,last_name,language_pref,unit_num,bldg_num,bldg_num_sfx,street_name,street_type,street_dir,address,town,postal_code,province,phone,do_not_phone,do_not_mail,do_not_email,support_level,party_support,volunteer_status,volunteer_tasks,volunteer_notes,description,membership_status,membership_join_date,membership_expiry_date,voted,election_voted_in,tags,email,merge_tag_token`,
-    );
     const canvass = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass", {
         // @ts-expect-error - FormData is supported but not in types
-        body: formData,
+        body: getFormDataForCSVCreation(),
       }),
     );
 
@@ -195,12 +192,14 @@ describe("PhoneCanvass (e2e)", () => {
     const { fixture: f, mock } = useTwilioMock();
     await OrganizationEntity.ensureRootOrganization(f.app);
 
+    console.log("CREATE IN FLAKY");
     const canvass = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass", {
         // @ts-expect-error - FormData is supported but not in types
         body: getFormDataForCSVCreation(),
       }),
     );
+    console.log("CREATE DONE FLAKY");
 
     const caller = PhoneCanvassCallerDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass/register-caller", {

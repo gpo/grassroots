@@ -4,7 +4,7 @@ import {
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
-import { Observable, Subject, tap } from "rxjs";
+import { Observable, Subject } from "rxjs";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
@@ -16,11 +16,9 @@ export class PhoneCanvassCallersModel {
   constructor() {
     this.#callers$ = new Subject<PhoneCanvassCallerDTO>();
 
-    this.#callers$.pipe(
-      tap((caller) => {
-        this.#callersById.set(caller.id, caller);
-      }),
-    );
+    this.#callers$.subscribe((caller) => {
+      this.#callersById.set(caller.id, caller);
+    });
   }
 
   get callers$(): Observable<PhoneCanvassCallerDTO> {

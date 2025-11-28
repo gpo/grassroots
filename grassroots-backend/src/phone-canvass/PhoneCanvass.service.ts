@@ -30,7 +30,6 @@ import { writeFile } from "fs/promises";
 import path from "path";
 import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
 import { PhoneCanvassModel } from "./PhoneCanvass.model.js";
-import { tap } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 
 @Injectable()
@@ -63,6 +62,7 @@ export class PhoneCanvassService {
     creatorEmail: string,
     audioFile: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
+    console.log("AUDIO FILE BEFORE", audioFile);
     const canvassEntity = this.repo.create({
       name: canvass.name,
       creatorEmail,
@@ -87,6 +87,8 @@ export class PhoneCanvassService {
     const newCanvass = CreatePhoneCanvassResponseDTO.from({
       id: canvassEntity.id,
     });
+
+    console.log("AUDIO FILE AFTER", audioFile);
 
     const audioFileExtension = path
       .extname(audioFile.originalname)
@@ -189,13 +191,11 @@ export class PhoneCanvassService {
       });
       this.#models.set(phoneCanvassId, model);
 
-      model.calls$.pipe(
-        tap((call) => {
-          if (call.twilioSid !== undefined) {
-            this.#callsBySid.set(call.twilioSid, call);
-          }
-        }),
-      );
+      model.calls$.subscribe((call) => {
+        if (call.twilioSid !== undefined) {
+          this.#callsBySid.set(call.twilioSid, call);
+        }
+      });
     }
     return model;
   }
