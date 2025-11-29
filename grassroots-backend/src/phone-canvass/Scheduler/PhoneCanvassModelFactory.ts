@@ -4,7 +4,7 @@ import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entit
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
 import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
-import { Subject } from "rxjs";
+import { ReplaySubject } from "rxjs";
 import { Call } from "./PhoneCanvassCall.js";
 import { TwilioService } from "../Twilio.service.js";
 import { PhoneCanvassModel } from "../PhoneCanvass.model.js";
@@ -20,7 +20,7 @@ export class PhoneCanvassModelFactory {
     serverMetaService: ServerMetaService;
   }): PhoneCanvassModel {
     // Creating this observable here avoid a cyclic dependency.
-    const calls$ = new Subject<Call>();
+    const calls$ = new ReplaySubject<Call>(1);
     const metricsTracker = new PhoneCanvassMetricsTracker(calls$);
     const strategy = new NoOvercallingStrategy(metricsTracker);
     const scheduler = new PhoneCanvassSchedulerImpl(strategy, metricsTracker, {

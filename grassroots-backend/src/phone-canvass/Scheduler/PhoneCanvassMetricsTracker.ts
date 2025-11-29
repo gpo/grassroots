@@ -5,6 +5,7 @@ import {
   map,
   Observable,
   scan,
+  shareReplay,
   startWith,
   tap,
 } from "rxjs";
@@ -16,7 +17,7 @@ export class PhoneCanvassMetricsTracker {
   #callerCountObservable = new BehaviorSubject<number>(0);
   #committedCallsCountObservable: Observable<number>;
 
-  readonly #idleCallerCountObservable = new Observable<number>();
+  readonly #idleCallerCountObservable: Observable<number>;
 
   get callerCountObservable(): Observable<number> {
     return this.#callerCountObservable;
@@ -32,21 +33,18 @@ export class PhoneCanvassMetricsTracker {
 
   constructor(calls$: Observable<Call>) {
     this.#committedCallsCountObservable = calls$.pipe(
-      tap((call) => {
-        console.log("GOT CALL", call);
-      }),
-      scan((activeCalls: number, call: Call): number => {
-        console.log("LOOKING FOR COMMITTED CALLS", activeCalls, call);
-        if (call.status === "QUEUED") {
-          return activeCalls + 1;
+      scan((committedCalls: number, call: Call): number => {
+        if (call.status === "NOT_STARTED") {
+          return committedCalls + 1;
         }
         if (call.status === "COMPLETED") {
-          return activeCalls - 1;
+          return committedCalls - 1;
         }
-        return activeCalls;
+        return committedCalls;
       }, 0),
       distinctUntilChanged(),
       startWith(0),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     this.#callerCountObservable.subscribe((callerCount) => {
@@ -60,6 +58,13 @@ export class PhoneCanvassMetricsTracker {
       this.#callerCountObservable,
       this.#committedCallsCountObservable,
     ]).pipe(
+      tap(([callerCount, committedCallsCount]) => {
+        console.log(
+          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+          `IDLE COUNT: ${callerCount - committedCallsCount}, callers: ${callerCount}, calls: ${committedCallsCount}`,
+        );
+      }),
+
       map(
         ([callerCount, committedCallsCount]) =>
           callerCount - committedCallsCount,

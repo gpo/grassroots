@@ -98,23 +98,18 @@ describe("PhoneCanvass (e2e)", () => {
     const { fixture: f, mock } = useTwilioMock();
     await OrganizationEntity.ensureRootOrganization(f.app);
 
-    console.log("CREATE 1");
     const result = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass", {
         // @ts-expect-error - FormData is supported but not in types
         body: getFormDataForCSVCreation(),
       }),
     );
-    console.log("CREATE 2");
 
     expect(result.id.length).toBe(36);
     expect(mock.setSyncData).toBeCalledWith(
       result.id,
       expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        contacts: expect.toSatisfy(
-          (arr: unknown) => Array.isArray(arr) && arr.length === 4,
-        ),
+        doneContacts: 4,
       }),
     );
 
@@ -159,7 +154,6 @@ describe("PhoneCanvass (e2e)", () => {
           activePhoneCanvassId: canvass.id,
           displayName: "A",
           email: "A@A.com",
-          ready: false,
         },
       }),
     );
@@ -170,7 +164,6 @@ describe("PhoneCanvass (e2e)", () => {
           activePhoneCanvassId: canvass.id,
           displayName: "B",
           email: "B@B.com",
-          ready: false,
         },
       }),
     );
@@ -180,8 +173,8 @@ describe("PhoneCanvass (e2e)", () => {
       canvass.id,
       expect.objectContaining({
         callers: [
-          { callerId: 1, displayName: "A", ready: false },
-          { callerId: 2, displayName: "B", ready: false },
+          { callerId: 1, displayName: "A", ready: "unready" },
+          { callerId: 2, displayName: "B", ready: "unready" },
         ],
       }),
     );

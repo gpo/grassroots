@@ -1,5 +1,5 @@
 /* eslint-disable grassroots/entity-use */
-import { combineLatest, map, Observable, scan } from "rxjs";
+import { combineLatest, map, Observable, scan, startWith, tap } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -21,6 +21,7 @@ import { ForbiddenException } from "@nestjs/common";
 import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
+  PhoneCanvassContactDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 export class PhoneCanvassModel {
@@ -30,7 +31,7 @@ export class PhoneCanvassModel {
 
   #serverMetaService: ServerMetaService;
   #twilioService: TwilioService;
-  #contacts: PhoneCanvassContactEntity[];
+  #contacts: PhoneCanvassContactDTO[];
   // Only present if there's an active simulation.
   #simulator: PhoneCanvassSimulator | undefined;
   #phoneCanvassCallersModel: PhoneCanvassCallersModel;
@@ -50,7 +51,9 @@ export class PhoneCanvassModel {
     this.calls$ = params.calls$;
     // Filtering at this stage means that the progress indicator starts at 0% if you exit
     // and restart a phone canvass that's partway through.
-    this.#contacts = params.contacts.filter((x) => !x.beenCalled);
+    this.#contacts = params.contacts
+      .filter((x) => !x.beenCalled)
+      .map((x) => x.toDTO());
     this.#twilioService = params.twilioService;
     this.#phoneCanvassCallersModel = params.phoneCanvassCallersModel;
     this.#serverMetaService = params.serverMetaService;
@@ -68,6 +71,7 @@ export class PhoneCanvassModel {
               this.#simulator?.phoneCanvassId !== call.canvassId
                 ? await this.#twilioService.makeCall(call)
                 : simulateMakeCall(call);
+            console.log("UPDATING WITH STATUS", status);
             call.update(status, { twilioSid: sid });
           })(),
           false,
@@ -109,14 +113,21 @@ export class PhoneCanvassModel {
       map((x) => [...x.values()]),
     );
 
-    const callsByCallerId$ = this.calls$.pipe(
+    const callsByContactId$ = this.calls$.pipe(
       scan((acc, call) => {
         if (call.callerId !== undefined) {
-          acc.set(call.callerId, call);
+          acc.set(call.phoneCanvassContactId, call);
         }
         return acc;
       }, new Map<number, Call>()),
+      startWith(new Map<number, Call>()),
     );
+
+    console.log("SUBSCRIBING");
+
+    callsByContactId$.subscribe((x) => {
+      console.log("CALLS BY CONTACT ID", x);
+    });
 
     const completedCallCount$ = this.calls$.pipe(
       scan((completed, call) => {
@@ -129,16 +140,15 @@ export class PhoneCanvassModel {
 
     // Every time the list of calls updates, we go through the list of contacts.
     const contactSummaries$: Observable<ContactSummary[]> =
-      callsByCallerId$.pipe(
+      callsByContactId$.pipe(
         map((callsByCallerId) => {
           return this.#contacts
             .map((contact) => {
-              const call = callsByCallerId.get(contact.id);
+              const call = callsByCallerId.get(contact.phoneCanvassContactId);
               const status = call?.status ?? "NOT_STARTED";
-              const contactDTO = contact.toDTO();
               const contactSummary = {
-                contactDisplayName: contactDTO.contact.formatName(),
-                contactId: contactDTO.contact.id,
+                contactDisplayName: contact.contact.formatName(),
+                contactId: contact.contact.id,
                 status: status,
                 callerId: call?.callerId,
               } satisfies ContactSummary;
@@ -156,12 +166,19 @@ export class PhoneCanvassModel {
       );
 
     const syncData$ = combineLatest({
-      callers: callerSummaries$,
+      callers: callerSummaries$.pipe(startWith([])),
       contacts: contactSummaries$,
-      callsCompleted: completedCallCount$,
-    });
+      callsCompleted: completedCallCount$.pipe(startWith(0)),
+    }).pipe(
+      tap((data) => {
+        console.log("NEW SYNC DATA", data);
+      }),
+    );
+
+    console.log("SUBSCRIBING");
 
     syncData$.subscribe((syncData) => {
+      console.log("ON SYNC DATA UPDATE");
       runPromise(
         this.#twilioService.setSyncData(this.phoneCanvassId, {
           callers: syncData.callers,

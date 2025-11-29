@@ -52,7 +52,7 @@ export class PhoneCanvassService {
   }
 
   async startSimulating(phoneCanvassId: string): Promise<void> {
-    const model = await this.getModelFor({ phoneCanvassId });
+    const model = await this.getInitiatedModelFor({ phoneCanvassId });
     await model.startSimulating();
   }
 
@@ -62,7 +62,6 @@ export class PhoneCanvassService {
     creatorEmail: string,
     audioFile: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    console.log("AUDIO FILE BEFORE", audioFile);
     const canvassEntity = this.repo.create({
       name: canvass.name,
       creatorEmail,
@@ -75,7 +74,7 @@ export class PhoneCanvassService {
         ContactEntity.fromCreateContactRequestDTO(canvasContact.contact);
 
       this.entityManager.create(PhoneCanvassContactEntity, {
-        phoneCanvas: canvassEntity,
+        phoneCanvass: canvassEntity,
         metadata: canvasContact.metadata,
         beenCalled: false,
         contact,
@@ -88,8 +87,6 @@ export class PhoneCanvassService {
       id: canvassEntity.id,
     });
 
-    console.log("AUDIO FILE AFTER", audioFile);
-
     const audioFileExtension = path
       .extname(audioFile.originalname)
       .toLowerCase();
@@ -98,6 +95,8 @@ export class PhoneCanvassService {
       VOICEMAIL_STORAGE_DIR + "/" + newCanvass.id + audioFileExtension,
       audioFile.buffer,
     );
+
+    await this.getInitiatedModelFor({ phoneCanvassId: canvassEntity.id });
 
     return newCanvass;
   }
@@ -117,7 +116,9 @@ export class PhoneCanvassService {
   ): Promise<Loaded<PhoneCanvassContactEntity, "contact">[]> {
     const phoneCanvass = await this.repo.findOne(
       { id },
-      { populate: ["contacts.contact"], refresh: true },
+      {
+        populate: ["contacts.contact"],
+      },
     );
     if (phoneCanvass === null) {
       throw new UnauthorizedException("Invalid phone canvass id");
@@ -141,12 +142,14 @@ export class PhoneCanvassService {
     });
   }
 
-  async getContact(id: number): Promise<PhoneCanvassContactDTO> {
+  async getContact(
+    phoneCanvassContactId: number,
+  ): Promise<PhoneCanvassContactDTO> {
     const contact = await this.repo
       .getEntityManager()
       .findOneOrFail(
         PhoneCanvassContactEntity,
-        { id },
+        { phoneCanvassContactId },
         { populate: ["contact"] },
       );
     return contact.toDTO();
@@ -158,7 +161,7 @@ export class PhoneCanvassService {
   }: PaginatedPhoneCanvassContactListRequestDTO): Promise<PaginatedPhoneCanvassContactResponseDTO> {
     const [result, rowsTotal] = await this.entityManager.findAndCount(
       PhoneCanvassContactEntity,
-      { phoneCanvas: phoneCanvassId },
+      { phoneCanvass: phoneCanvassId },
       {
         limit: paginated.rowsToTake,
         offset: paginated.rowsToSkip,
@@ -175,7 +178,7 @@ export class PhoneCanvassService {
     });
   }
 
-  async getModelFor(params: {
+  async getInitiatedModelFor(params: {
     phoneCanvassId: string;
   }): Promise<PhoneCanvassModel> {
     const { phoneCanvassId } = params;
@@ -217,7 +220,9 @@ export class PhoneCanvassService {
     callback: PhoneCanvasTwilioCallAnsweredCallbackDTO,
   ): Promise<string> {
     const call = this.getCallBySid(callback.CallSid);
-    const model = await this.getModelFor({ phoneCanvassId: call.canvassId });
+    const model = await this.getInitiatedModelFor({
+      phoneCanvassId: call.canvassId,
+    });
     return this.twilioService.twilioCallAnsweredCallback(
       callback,
       call,

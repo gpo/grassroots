@@ -71,7 +71,7 @@ export class TwilioService {
       .dial()
       .conference(
         { startConferenceOnEnter: true, endConferenceOnExit: true },
-        String(call.contactId),
+        String(call.phoneCanvassContactId),
       );
 
     // TODO(mvp): use the actual phone number.
@@ -132,7 +132,7 @@ export class TwilioService {
       console.log("ADDING CALLER ", callerId);
       const response = addCallerToCallIfNeeded({
         sid: call.twilioSid,
-        contactId: call.contactId,
+        contactId: call.phoneCanvassContactId,
         getCallsBySid: this.getCallsBySid,
       });
       call.update(call.status, {
@@ -201,6 +201,7 @@ export class TwilioService {
     phoneCanvassId: string,
     data: PhoneCanvassSyncData,
   ): Promise<void> {
+    console.log("SET SYNC DATA CALLED");
     const envVars = await getEnvVars();
     const client = await this.#getClient();
 

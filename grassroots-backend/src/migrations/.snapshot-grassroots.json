@@ -353,8 +353,8 @@
     },
     {
       "columns": {
-        "id": {
-          "name": "id",
+        "phone_canvass_contact_id": {
+          "name": "phone_canvass_contact_id",
           "type": "serial",
           "unsigned": false,
           "autoincrement": true,
@@ -362,8 +362,8 @@
           "nullable": false,
           "mappedType": "integer"
         },
-        "phone_canvas_id": {
-          "name": "phone_canvas_id",
+        "phone_canvass_id": {
+          "name": "phone_canvass_id",
           "type": "uuid",
           "unsigned": false,
           "autoincrement": false,
@@ -380,15 +380,14 @@
           "nullable": false,
           "mappedType": "json"
         },
-        "call_status": {
-          "name": "call_status",
-          "type": "varchar(255)",
+        "been_called": {
+          "name": "been_called",
+          "type": "boolean",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "length": 255,
-          "mappedType": "string"
+          "mappedType": "boolean"
         },
         "call_result": {
           "name": "call_result",
@@ -426,7 +425,7 @@
         {
           "keyName": "phone_canvass_contact_entity_pkey",
           "columnNames": [
-            "id"
+            "phone_canvass_contact_id"
           ],
           "composite": false,
           "constraint": true,
@@ -436,10 +435,10 @@
       ],
       "checks": [],
       "foreignKeys": {
-        "phone_canvass_contact_entity_phone_canvas_id_foreign": {
-          "constraintName": "phone_canvass_contact_entity_phone_canvas_id_foreign",
+        "phone_canvass_contact_entity_phone_canvass_id_foreign": {
+          "constraintName": "phone_canvass_contact_entity_phone_canvass_id_foreign",
           "columnNames": [
-            "phone_canvas_id"
+            "phone_canvass_id"
           ],
           "localTableName": "public.phone_canvass_contact_entity",
           "referencedColumnNames": [

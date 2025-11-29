@@ -9,6 +9,7 @@ import {
   zip,
   map,
   Subject,
+  tap,
 } from "rxjs";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { Call } from "./PhoneCanvassCall.js";
@@ -100,6 +101,9 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     // or all callers assigned to calls.
     await firstValueFrom(
       this.metricsTracker.idleCallerCountObservable.pipe(
+        tap((v) => {
+          console.log("WAITING FOR ZERO", v);
+        }),
         filter((v) => v === 0),
       ),
     );

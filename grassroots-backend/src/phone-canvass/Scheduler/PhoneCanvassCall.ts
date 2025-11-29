@@ -5,9 +5,7 @@ import {
   callStatusSort,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
-import { runPromise } from "grassroots-shared/util/RunPromise";
 import { appendFile } from "fs/promises";
-import { delay } from "grassroots-shared/util/Delay";
 import { LOG_DIR } from "../PhoneCanvass.module.js";
 import { keys } from "grassroots-shared/util/Keys";
 
@@ -51,11 +49,12 @@ export class Call {
   static #currentId = 0;
 
   readonly state: CallState & MutableCallState;
-  readonly status: CallStatus;
+  status: CallStatus;
 
   constructor(status: CallStatus, params: Omit<ImmutableCallState, "id">) {
     this.status = status;
     this.state = { ...params, id: ++Call.#currentId };
+    console.log("EMITTING FROM CONSTRUCTOR");
     this.state.emit(this);
   }
 
@@ -79,8 +78,8 @@ export class Call {
     );
   }
 
-  get contactId(): number {
-    return this.state.contact.id;
+  get phoneCanvassContactId(): number {
+    return this.state.contact.phoneCanvassContactId;
   }
 
   get callerId(): number | undefined {
@@ -100,14 +99,17 @@ export class Call {
   }
 
   update(status: CallStatus, props: MutableCallState): this {
-    if (callStatusSort(this.status, status) < 0) {
-      throw new Error("Call status can't go backwards");
+    if (callStatusSort(this.status, status) > 0) {
+      throw new Error(
+        `Call status can't go backwards from ${this.status} to ${status}`,
+      );
     }
     for (const k of keys(props)) {
       if (this.state[k] != undefined && props[k] == undefined) {
         throw new Error("Can't unset call information");
       }
     }
+    this.status = status;
     Object.assign(this.state, props);
     console.log("EMITTING");
     this.state.emit(this);

@@ -327,7 +327,7 @@ export class PhoneCanvassController {
     @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    const model = await this.phoneCanvassService.getModelFor({
+    const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
     const newCaller = await model.registerCaller(caller);
@@ -340,7 +340,7 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    const model = await this.phoneCanvassService.getModelFor({
+    const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
     caller = await model.refreshOrCreateCaller(caller);
@@ -353,7 +353,7 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    const model = await this.phoneCanvassService.getModelFor({
+    const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
     caller = await model.updateOrCreateCaller(caller);

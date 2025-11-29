@@ -17,6 +17,7 @@ export class TwilioServiceMock {
       // eslint-disable-next-line @typescript-eslint/require-await
     }> => {
       void _call;
+      console.log("IN MOCK");
       return {
         sid: String(TwilioServiceMock.sid++),
         status: "QUEUED",
@@ -32,6 +33,7 @@ export class TwilioServiceMock {
       data: PhoneCanvassSyncData,
       // eslint-disable-next-line @typescript-eslint/require-await
     ): Promise<void> => {
+      console.log("SET SYNC DATA CALLED (MOCK)");
       void phoneCanvassId;
       void data;
     },
