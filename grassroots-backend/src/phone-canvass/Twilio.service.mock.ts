@@ -33,7 +33,6 @@ export class TwilioServiceMock {
       data: PhoneCanvassSyncData,
       // eslint-disable-next-line @typescript-eslint/require-await
     ): Promise<void> => {
-      console.log("SET SYNC DATA CALLED (MOCK)");
       void phoneCanvassId;
       void data;
     },

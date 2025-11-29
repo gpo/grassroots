@@ -127,6 +127,7 @@ export class PhoneCanvassController {
     @UploadedFile() voiceMailAudioFile: Express.Multer.File,
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
+    console.log("CREATE");
     const email = getEmail(req);
 
     const HANDLED_FIELDS = new Set([
@@ -327,6 +328,7 @@ export class PhoneCanvassController {
     @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
+    console.log("REGISTER CALLER");
     const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
@@ -340,6 +342,7 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
+    console.log("REFRESH CALLER");
     const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
@@ -353,6 +356,8 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
+    console.log("UPDATE CALLER");
+
     const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });

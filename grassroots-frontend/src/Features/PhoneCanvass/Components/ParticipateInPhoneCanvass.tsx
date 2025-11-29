@@ -27,7 +27,7 @@ import { notifications } from "@mantine/notifications";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 
 const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
-  NOT_STARTED: "💤",
+  NOT_STARTED: " ",
   QUEUED: "⏱️",
   INITIATED: "⏱️",
   RINGING: "🔔",

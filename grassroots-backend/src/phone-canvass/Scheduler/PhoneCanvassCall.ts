@@ -54,7 +54,7 @@ export class Call {
   constructor(status: CallStatus, params: Omit<ImmutableCallState, "id">) {
     this.status = status;
     this.state = { ...params, id: ++Call.#currentId };
-    console.log("EMITTING FROM CONSTRUCTOR");
+    console.log("EMITTING FROM CONSTRUCTOR", this.id, this.status);
     this.state.emit(this);
   }
 
@@ -101,7 +101,7 @@ export class Call {
   update(status: CallStatus, props: MutableCallState): this {
     if (callStatusSort(this.status, status) > 0) {
       throw new Error(
-        `Call status can't go backwards from ${this.status} to ${status}`,
+        `Call status can't go backwards from ${this.status} to ${status} (id ${String(this.id)}/${String(this.phoneCanvassContactId)})`,
       );
     }
     for (const k of keys(props)) {
@@ -111,7 +111,7 @@ export class Call {
     }
     this.status = status;
     Object.assign(this.state, props);
-    console.log("EMITTING");
+    console.log("EMITTING FROM UPDATE", this.id, this.status);
     this.state.emit(this);
     return this;
     /*
