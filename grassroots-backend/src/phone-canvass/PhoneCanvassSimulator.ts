@@ -11,7 +11,7 @@ import {
   CallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
-import { concatMap, Subject, Subscription } from "rxjs";
+import { concatMap, filter, Subject, Subscription } from "rxjs";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { getEnvVars } from "../GetEnvVars.js";
 import { PhoneCanvassModel } from "./PhoneCanvass.model.js";
@@ -182,6 +182,8 @@ export class PhoneCanvassSimulator {
     if (delayMs === undefined) {
       return { succeeded: false };
     }
+
+    console.log("ADVANCING ", call.id, " to INITIATED");
     await this.#advanceStatus({
       call,
       status: "INITIATED",
@@ -191,6 +193,8 @@ export class PhoneCanvassSimulator {
     if (delayMs === undefined) {
       return { succeeded: false };
     }
+
+    console.log("ADVANCING ", call.id, " to RINGING");
     await this.#advanceStatus({
       call,
       status: "RINGING",
@@ -200,6 +204,8 @@ export class PhoneCanvassSimulator {
     if (delayMs === undefined) {
       return { succeeded: false };
     }
+
+    console.log("ADVANCING ", call.id, " to IN_PROGRESS");
     await this.#advanceStatus({
       call,
       status: "IN_PROGRESS",
@@ -219,10 +225,13 @@ export class PhoneCanvassSimulator {
   }
 
   simulateCalls(debug: boolean): void {
-    const simulateCallsSubscription = this.phoneCanvassModel.calls$.subscribe(
-      (call) => {
+    const simulateCallsSubscription = this.phoneCanvassModel.calls$
+      // The model moves calls from NOT_STARTED TO QUEUED.
+      .pipe(filter((call) => call.status === "QUEUED"))
+      .subscribe((call) => {
         runPromise(
           (async (): Promise<void> => {
+            console.log("GOT A NEW CALL TO PROCEED WITH", call.id, call);
             const result = await this.#advanceCallThroughToCompletion(call);
             if (!result.succeeded) {
               await delay(callFailedDelta());
@@ -241,8 +250,7 @@ export class PhoneCanvassSimulator {
           })(),
           debug,
         );
-      },
-    );
+      });
     this.#subscriptions.push(simulateCallsSubscription);
   }
 
@@ -275,6 +283,7 @@ export class PhoneCanvassSimulator {
               break;
             }
             case "status_change": {
+              console.log("STATUS CHANGE EVENT WITH STATUS", event.status);
               const call = this.phoneCanvassModel.getCallBySid(event.sid);
               call.update(event.status, event);
               break;

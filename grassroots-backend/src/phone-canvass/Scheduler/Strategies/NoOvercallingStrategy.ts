@@ -9,6 +9,9 @@ export class NoOvercallingStrategy extends PhoneCanvassSchedulerStrategy {
     super(metricsLogger);
     this.nextCall$ = metricsLogger.idleCallerCountObservable.pipe(
       pairwise(),
+      tap(([prev, curr]) => {
+        console.log("IDLE CALL COUNT GOING FROM", prev, curr);
+      }),
       // Any time there's an increase in the idleCallerCount, emit.
       filter(([prev, curr]) => curr > prev),
 

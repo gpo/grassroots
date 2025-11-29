@@ -136,6 +136,9 @@ export class PhoneCanvassService {
   }
 
   async getDetails(id: string): Promise<PhoneCanvassDetailsDTO> {
+    // TODO: this is a terrible way to ensure we have a live model for
+    // any canvass folks are viewing.
+    await this.getInitiatedModelFor({ phoneCanvassId: id });
     const canvass = await this.getPhoneCanvassByIdOrFail(id);
     return PhoneCanvassDetailsDTO.from({
       name: canvass.name,

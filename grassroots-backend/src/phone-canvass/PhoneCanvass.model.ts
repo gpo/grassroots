@@ -1,5 +1,12 @@
 /* eslint-disable grassroots/entity-use */
-import { combineLatest, map, Observable, scan, startWith, tap } from "rxjs";
+import {
+  combineLatest,
+  debounceTime,
+  map,
+  Observable,
+  scan,
+  startWith,
+} from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -49,6 +56,7 @@ export class PhoneCanvassModel {
     this.phoneCanvassId = params.phoneCanvassId;
     this.scheduler = params.scheduler;
     this.calls$ = params.calls$;
+
     // Filtering at this stage means that the progress indicator starts at 0% if you exit
     // and restart a phone canvass that's partway through.
     this.#contacts = params.contacts
@@ -71,7 +79,6 @@ export class PhoneCanvassModel {
               this.#simulator?.phoneCanvassId !== call.canvassId
                 ? await this.#twilioService.makeCall(call)
                 : simulateMakeCall(call);
-            console.log("UPDATING WITH STATUS", status);
             call.update(status, { twilioSid: sid });
           })(),
           false,
@@ -115,9 +122,7 @@ export class PhoneCanvassModel {
 
     const callsByContactId$ = this.calls$.pipe(
       scan((acc, call) => {
-        if (call.callerId !== undefined) {
-          acc.set(call.phoneCanvassContactId, call);
-        }
+        acc.set(call.phoneCanvassContactId, call);
         return acc;
       }, new Map<number, Call>()),
       startWith(new Map<number, Call>()),
@@ -126,7 +131,7 @@ export class PhoneCanvassModel {
     console.log("SUBSCRIBING");
 
     callsByContactId$.subscribe((x) => {
-      console.log("CALLS BY CONTACT ID", x);
+      console.log("CALLS BY CONTACT ID", x.size);
     });
 
     const completedCallCount$ = this.calls$.pipe(
@@ -138,7 +143,8 @@ export class PhoneCanvassModel {
       }, 0),
     );
 
-    // Every time the list of calls updates, we go through the list of contacts.
+    // Every time the list of calls updates, we go through the list of contacts to update
+    // their statuses.
     const contactSummaries$: Observable<ContactSummary[]> =
       callsByContactId$.pipe(
         map((callsByCallerId) => {
@@ -158,7 +164,7 @@ export class PhoneCanvassModel {
                 contactSummary,
               };
             })
-            .filter((contact) => contact.status !== "NOT_STARTED")
+            .filter((contact) => contact.status !== "COMPLETED")
             .sort((a, b) => -callStatusSort(a.status, b.status))
             .slice(0, 20)
             .map((contact) => contact.contactSummary);
@@ -169,28 +175,27 @@ export class PhoneCanvassModel {
       callers: callerSummaries$.pipe(startWith([])),
       contacts: contactSummaries$,
       callsCompleted: completedCallCount$.pipe(startWith(0)),
-    }).pipe(
-      tap((data) => {
-        console.log("NEW SYNC DATA", data);
-      }),
-    );
-
-    console.log("SUBSCRIBING");
-
-    syncData$.subscribe((syncData) => {
-      console.log("ON SYNC DATA UPDATE");
-      runPromise(
-        this.#twilioService.setSyncData(this.phoneCanvassId, {
-          callers: syncData.callers,
-          contacts: syncData.contacts,
-          serverInstanceUUID: this.#serverMetaService.instanceUUID,
-          phoneCanvassId: this.phoneCanvassId,
-          totalContacts: this.#contacts.length,
-          doneContacts: this.#contacts.length - syncData.callsCompleted,
-        }),
-        false,
-      );
     });
+
+    syncData$
+      .pipe(
+        // When there are multiple changes, don't spam updates.
+        // Wait until we've seen half a ms with no change.
+        debounceTime(0.5),
+      )
+      .subscribe((syncData) => {
+        runPromise(
+          this.#twilioService.setSyncData(this.phoneCanvassId, {
+            callers: syncData.callers,
+            contacts: syncData.contacts,
+            serverInstanceUUID: this.#serverMetaService.instanceUUID,
+            phoneCanvassId: this.phoneCanvassId,
+            totalContacts: this.#contacts.length,
+            doneContacts: syncData.callsCompleted,
+          }),
+          false,
+        );
+      });
   }
 
   async startSimulating(): Promise<void> {
