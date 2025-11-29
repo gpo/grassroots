@@ -109,7 +109,8 @@ describe("PhoneCanvass (e2e)", () => {
     expect(mock.setSyncData).toBeCalledWith(
       result.id,
       expect.objectContaining({
-        doneContacts: 4,
+        totalContacts: 4,
+        doneContacts: 0,
       }),
     );
 

@@ -118,21 +118,25 @@ describe("PhoneCanvassScheduler", () => {
 
     expect(callsById).toHaveLength(1);
     console.log(callsById);
-    const call = callsById.get(1) ?? fail();
+    let call = callsById.get(1) ?? fail();
 
-    call.update("QUEUED", { twilioSid: "Test" });
-    call.update("INITIATED", {});
-    call.update("RINGING", {});
-    call.update("IN_PROGRESS", {});
+    call = call
+      .update("QUEUED", { twilioSid: "Test" })
+      .update("INITIATED", {})
+      .update("RINGING", {})
+      .update("IN_PROGRESS", {});
 
     await scheduler.waitForIdleForTest();
     expect(callsById).toHaveLength(1);
 
+    console.log("MARKING COMPLETED");
     const completedCall = call.update("COMPLETED", {
       result: "COMPLETED",
     });
+    console.log("MARKED COMPLETED");
 
     await scheduler.waitForIdleForTest();
+    console.log(callsById.values());
     expect(callsById).toHaveLength(2);
 
     // This is no longer the case, as we're waiting for the "answered" callback.
