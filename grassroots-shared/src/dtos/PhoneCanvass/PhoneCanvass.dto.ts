@@ -90,6 +90,9 @@ export class PhoneCanvassContactDTO extends createDTOBase(
   @Type(() => ContactDTO)
   contact!: ContactDTO;
 
+  @IsNumber()
+  phoneCanvassContactId!: number;
+
   @IsJSON()
   metadata!: string;
 

@@ -1,4 +1,10 @@
-import { Entity, ManyToOne, PrimaryKey, Property } from "@mikro-orm/core";
+import {
+  Entity,
+  ManyToOne,
+  OptionalProps,
+  PrimaryKey,
+  Property,
+} from "@mikro-orm/core";
 
 import type { Opt, Rel } from "@mikro-orm/core";
 import { createEntityBase } from "../../util/CreateEntityBase.js";
@@ -12,11 +18,15 @@ export class PhoneCanvassContactEntity extends createEntityBase<
   "PhoneCanvassContact",
   PhoneCanvassContactDTO
 >("PhoneCanvassContact") {
-  @PrimaryKey()
-  id!: number;
+  // TODO: this shouldn't be required.
+  [OptionalProps]?: "phoneCanvassContactId";
+
+  // Named distinctly from the contact's id, to prevent confusion.
+  @PrimaryKey({ autoincrement: true })
+  phoneCanvassContactId!: number;
 
   @ManyToOne(() => PhoneCanvassEntity)
-  phoneCanvas!: Rel<PhoneCanvassEntity>;
+  phoneCanvass!: Rel<PhoneCanvassEntity>;
 
   // TODO: Most of this should probably into real fields on the ContactEntity.
   @Property({ type: "json" })
@@ -39,6 +49,7 @@ export class PhoneCanvassContactEntity extends createEntityBase<
       contact: this.contact.toDTO(),
       metadata: this.metadata,
       callStatus: this.beenCalled ? "COMPLETED" : "NOT_STARTED",
+      phoneCanvassContactId: this.phoneCanvassContactId,
     });
   }
 }
