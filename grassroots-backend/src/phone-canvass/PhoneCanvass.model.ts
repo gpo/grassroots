@@ -5,6 +5,7 @@ import {
   map,
   Observable,
   scan,
+  share,
   startWith,
 } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
@@ -122,6 +123,7 @@ export class PhoneCanvassModel {
 
     const callsByContactId$ = this.calls$.pipe(
       scan((acc, call) => {
+        console.log("PHONE CANVASS CONTACT IS IS", call.phoneCanvassContactId);
         acc.set(call.phoneCanvassContactId, call);
         return acc;
       }, new Map<number, Call>()),
@@ -147,10 +149,15 @@ export class PhoneCanvassModel {
     // their statuses.
     const contactSummaries$: Observable<ContactSummary[]> =
       callsByContactId$.pipe(
-        map((callsByCallerId) => {
+        map((callsByContactId) => {
+          console.log(
+            "By contactId",
+            callsByContactId.keys(),
+            callsByContactId.values(),
+          );
           return this.#contacts
             .map((contact) => {
-              const call = callsByCallerId.get(contact.phoneCanvassContactId);
+              const call = callsByContactId.get(contact.phoneCanvassContactId);
               const status = call?.status ?? "NOT_STARTED";
               const contactSummary = {
                 contactDisplayName: contact.contact.formatName(),

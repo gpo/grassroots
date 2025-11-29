@@ -8,6 +8,7 @@ import { Observable, Subject } from "rxjs";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
+// TODO: we shouldn't emit the same object multiple times, we should emit copies.
 export class PhoneCanvassCallersModel {
   #nextId = 0;
   #callersById = new Map<number, PhoneCanvassCallerDTO>();

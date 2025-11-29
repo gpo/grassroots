@@ -35,9 +35,19 @@ export class PhoneCanvassMetricsTracker {
     this.#committedCallsCountObservable = calls$.pipe(
       scan((committedCalls: number, call: Call): number => {
         if (call.status === "NOT_STARTED") {
+          console.log(
+            "UPDATING COMMITTED CALLS FROM",
+            committedCalls,
+            call.status,
+          );
           return committedCalls + 1;
         }
         if (call.status === "COMPLETED") {
+          console.log(
+            "UPDATING COMMITTED CALLS FROM",
+            committedCalls,
+            call.status,
+          );
           return committedCalls - 1;
         }
         return committedCalls;

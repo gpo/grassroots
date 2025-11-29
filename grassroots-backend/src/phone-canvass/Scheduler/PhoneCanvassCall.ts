@@ -49,13 +49,20 @@ export class Call {
   static #currentId = 0;
 
   readonly state: CallState & MutableCallState;
+  #updated = false;
   status: CallStatus;
 
-  constructor(status: CallStatus, params: Omit<ImmutableCallState, "id">) {
+  constructor(
+    status: CallStatus,
+    // id should be missing if this is a new call, otherwise it should be present.
+    params: Omit<ImmutableCallState, "id"> & { id?: number },
+  ) {
     this.status = status;
-    this.state = { ...params, id: ++Call.#currentId };
-    console.log("EMITTING FROM CONSTRUCTOR", this.id, this.status);
-    this.state.emit(this);
+    this.state = { ...params, id: params.id ?? ++Call.#currentId };
+    if (params.id === undefined) {
+      console.log("EMITTING FROM CONSTRUCTOR", this.id, this.status);
+      this.state.emit(this);
+    }
   }
 
   async log(): Promise<void> {
@@ -98,7 +105,14 @@ export class Call {
     return this.state.twilioSid;
   }
 
-  update(status: CallStatus, props: MutableCallState): this {
+  update(status: CallStatus, props: MutableCallState): Call {
+    console.log("CALL UPDATE", this.id);
+    if (this.#updated) {
+      throw new Error(
+        `Calls should only be updated once. ${String(this.id)}, current status ${this.status}`,
+      );
+    }
+    this.#updated = true;
     if (callStatusSort(this.status, status) > 0) {
       throw new Error(
         `Call status can't go backwards from ${this.status} to ${status} (id ${String(this.id)}/${String(this.phoneCanvassContactId)})`,
@@ -109,11 +123,11 @@ export class Call {
         throw new Error("Can't unset call information");
       }
     }
-    this.status = status;
-    Object.assign(this.state, props);
-    console.log("EMITTING FROM UPDATE", this.id, this.status);
-    this.state.emit(this);
-    return this;
+    const newCall = new Call(status, this.state);
+    Object.assign(newCall.state, props);
+    console.log("EMITTING FROM UPDATE", newCall.id, newCall.status);
+    newCall.state.emit(newCall);
+    return newCall;
     /*
     if (
       !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)

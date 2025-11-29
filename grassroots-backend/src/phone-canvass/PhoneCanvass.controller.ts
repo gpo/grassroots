@@ -127,7 +127,6 @@ export class PhoneCanvassController {
     @UploadedFile() voiceMailAudioFile: Express.Multer.File,
     @Request() req: GrassrootsRequest,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    console.log("CREATE");
     const email = getEmail(req);
 
     const HANDLED_FIELDS = new Set([
