@@ -283,7 +283,12 @@ export class PhoneCanvassSimulator {
               break;
             }
             case "status_change": {
-              console.log("STATUS CHANGE EVENT WITH STATUS", event.status);
+              console.log(
+                "STATUS CHANGE EVENT WITH STATUS",
+                event.status,
+                "SID",
+                event.sid,
+              );
               const call = this.phoneCanvassModel.getCallBySid(event.sid);
               call.update(event.status, event);
               break;
