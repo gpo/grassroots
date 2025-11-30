@@ -8,6 +8,7 @@ import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entit
 import { appendFile } from "fs/promises";
 import { LOG_DIR } from "../PhoneCanvass.module.js";
 import { keys } from "grassroots-shared/util/Keys";
+import { EntityManager } from "@mikro-orm/core";
 
 export type AnsweredBy =
   | "machine_end_beep"
@@ -60,22 +61,28 @@ export class Call {
     this.status = status;
     this.state = { ...params, id: params.id ?? ++Call.#currentId };
     if (params.id === undefined) {
-      console.log("EMITTING FROM CONSTRUCTOR", this.id, this.status);
       this.state.emit(this);
     }
   }
 
   async log(): Promise<void> {
-    const undefinedRemoved: Record<string, unknown> = {};
+    const filteredValues: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(this.state)) {
-      if (value !== undefined) {
-        undefinedRemoved[key] = value;
+      if (
+        value instanceof PhoneCanvassContactEntity ||
+        value instanceof Function
+      ) {
+        continue;
       }
+      if (value === undefined || value === null) {
+        continue;
+      }
+      filteredValues[key] = value;
     }
     const blob = {
       status: this.status,
-      ...undefinedRemoved,
+      ...filteredValues,
       // TODO: pull the timestamp from twilio.
       ts: Date.now(),
     };
@@ -83,6 +90,34 @@ export class Call {
       `${LOG_DIR}/${this.canvassId}.log`,
       JSON.stringify(blob) + "\n",
     );
+  }
+
+  async updateContactIfNeeded(entityManager: EntityManager): Promise<void> {
+    const contact = await entityManager.findOneOrFail(
+      PhoneCanvassContactEntity,
+      {
+        phoneCanvassContactId: this.phoneCanvassContactId,
+      },
+    );
+    const beenCalled =
+      this.status === "RINGING" ||
+      this.status === "IN_PROGRESS" ||
+      this.status === "COMPLETED";
+
+    let dirty = false;
+    if (beenCalled !== contact.beenCalled) {
+      dirty = true;
+      contact.beenCalled = beenCalled;
+    }
+
+    if (this.status === "COMPLETED") {
+      dirty = true;
+      contact.callResult = this.result;
+    }
+
+    if (dirty) {
+      await entityManager.flush();
+    }
   }
 
   get phoneCanvassContactId(): number {
@@ -106,7 +141,6 @@ export class Call {
   }
 
   update(status: CallStatus, props: MutableCallState): Call {
-    console.log("CALL UPDATE", this.id);
     if (this.#updated) {
       throw new Error(
         `Calls should only be updated once. ${String(this.id)}, current status ${this.status}`,
@@ -125,49 +159,8 @@ export class Call {
     }
     const newCall = new Call(status, this.state);
     Object.assign(newCall.state, props);
-    console.log("EMITTING FROM UPDATE", newCall.id, newCall.status);
     newCall.state.emit(newCall);
     return newCall;
-    /*
-    if (
-      !this.state.scheduler.callsByStatus[this.status].delete(this.state.id)
-    ) {
-      throw new Error(
-        `Couldn't remove call with id ${String(this.state.id)} and status ${this.status}`,
-      );
-    }
-
-    // Sadly typescript has a rough time deducing these types.
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    const calls = this.state.scheduler.callsByStatus[call.status] as Map<
-      number,
-      Call
-    >;
-    calls.set(call.state.id, call);
-
-    // Contacts were grabbed during another request, so they will have detached.
-    // Push them into this entityManager again, or the flush below does nothing.
-    this.state.entityManager.merge(call.state.contact);
-
-    call.state.contact.callStatus = call.status;
-    if (call.status === "COMPLETED") {
-      call.state.contact.callResult = call.state.result;
-      if (call.callerId !== undefined) {
-        const becameUnready = this.state.onCallCompleteForCaller(
-          call.canvassId,
-          call.callerId,
-        );
-        if (becameUnready.becameUnready) {
-          this.state.scheduler.removeCaller(call.callerId);
-        }
-      }
-    }
-
-    await this.state.entityManager.flush();
-
-    this.state.scheduler.metricsTracker.onCallsByStatusUpdate(
-      this.state.scheduler.callsByStatus,
-    );*/
   }
 
   get id(): number {

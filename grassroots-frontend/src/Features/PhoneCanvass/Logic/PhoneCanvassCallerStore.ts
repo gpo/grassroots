@@ -4,6 +4,7 @@ import { propsOf, PropsOf } from "grassroots-shared/util/TypeUtils";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
+import { grassrootsAPI } from "../../../GrassRootsAPI.js";
 
 export type RefreshCaller = UseMutateAsyncFunction<
   PhoneCanvassCallerDTO,
@@ -46,6 +47,7 @@ export async function getPhoneCanvassCaller(params: {
   refreshCaller: RefreshCaller;
   activePhoneCanvassId: string;
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
+  forceRefresh?: boolean;
 }): Promise<PhoneCanvassCallerDTO | undefined> {
   const { refreshCaller, activePhoneCanvassId, phoneCanvassCallerStore } =
     params;
@@ -63,7 +65,7 @@ export async function getPhoneCanvassCaller(params: {
 
   // If the auth token has expired, we need to refresh it.
   const { exp } = jwtDecode<{ exp: number }>(props.authToken);
-  if (exp * 1000 - Date.now() < 0) {
+  if (exp * 1000 - Date.now() < 0 || params.forceRefresh === true) {
     const refreshed = await refreshCaller(PhoneCanvassCallerDTO.from(props));
     phoneCanvassCallerStore.setCaller(refreshed);
     return refreshed;

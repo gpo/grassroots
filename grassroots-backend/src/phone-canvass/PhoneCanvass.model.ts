@@ -5,7 +5,6 @@ import {
   map,
   Observable,
   scan,
-  share,
   startWith,
 } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
@@ -31,6 +30,20 @@ import {
   PhoneCanvassCallerDTO,
   PhoneCanvassContactDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { EntityManager } from "@mikro-orm/core";
+
+async function makeCall(params: {
+  call: Call;
+  simulator?: PhoneCanvassSimulator;
+  twilioService: TwilioService;
+}): Promise<void> {
+  const { call, simulator, twilioService } = params;
+  const { sid, status } =
+    simulator?.phoneCanvassId !== call.canvassId
+      ? await twilioService.makeCall(call)
+      : simulateMakeCall(call);
+  call.update(status, { twilioSid: sid });
+}
 
 export class PhoneCanvassModel {
   readonly phoneCanvassId: string;
@@ -44,12 +57,14 @@ export class PhoneCanvassModel {
   #simulator: PhoneCanvassSimulator | undefined;
   #phoneCanvassCallersModel: PhoneCanvassCallersModel;
   #callsBySid = new Map<string, Call>();
+  #entityManager: EntityManager;
 
   constructor(params: {
     phoneCanvassId: string;
     scheduler: PhoneCanvassScheduler;
     calls$: Observable<Call>;
     contacts: PhoneCanvassContactEntity[];
+    entityManager: EntityManager;
     twilioService: TwilioService;
     phoneCanvassCallersModel: PhoneCanvassCallersModel;
     serverMetaService: ServerMetaService;
@@ -58,11 +73,12 @@ export class PhoneCanvassModel {
     this.scheduler = params.scheduler;
     this.calls$ = params.calls$;
 
-    // Filtering at this stage means that the progress indicator starts at 0% if you exit
-    // and restart a phone canvass that's partway through.
+    // Filtering at this stage means that the progress indicator starts at 0% with a lower
+    // total number of contacts if you exit and restart a phone canvass that's partway through.
     this.#contacts = params.contacts
       .filter((x) => !x.beenCalled)
       .map((x) => x.toDTO());
+    this.#entityManager = params.entityManager;
     this.#twilioService = params.twilioService;
     this.#phoneCanvassCallersModel = params.phoneCanvassCallersModel;
     this.#serverMetaService = params.serverMetaService;
@@ -72,21 +88,30 @@ export class PhoneCanvassModel {
         this.#callsBySid.set(call.twilioSid, call);
       }
 
-      // TODO(mvp), handle call complete for caller, update database, etc.
+      runPromise(call.log(), false);
+      runPromise(call.updateContactIfNeeded(this.#entityManager), false);
+
+      if (call.status === "COMPLETED" && call.callerId !== undefined) {
+        const becameUnready =
+          this.#phoneCanvassCallersModel.onCallCompleteForCaller(call.callerId);
+        if (becameUnready.becameUnready) {
+          this.scheduler.removeCaller(call.callerId);
+        }
+      }
+
       if (call.status === "NOT_STARTED") {
         runPromise(
-          (async (): Promise<void> => {
-            const { sid, status } =
-              this.#simulator?.phoneCanvassId !== call.canvassId
-                ? await this.#twilioService.makeCall(call)
-                : simulateMakeCall(call);
-            call.update(status, { twilioSid: sid });
-          })(),
+          makeCall({
+            call,
+            simulator: this.#simulator,
+            twilioService: this.#twilioService,
+          }),
           false,
         );
       }
     });
 
+    // TODO: the scheduler should just observe callers$.
     // Add and remove callers from the scheduler.
     this.#phoneCanvassCallersModel.callers$.subscribe((caller) => {
       switch (caller.ready) {
@@ -123,18 +148,11 @@ export class PhoneCanvassModel {
 
     const callsByContactId$ = this.calls$.pipe(
       scan((acc, call) => {
-        console.log("PHONE CANVASS CONTACT IS IS", call.phoneCanvassContactId);
         acc.set(call.phoneCanvassContactId, call);
         return acc;
       }, new Map<number, Call>()),
       startWith(new Map<number, Call>()),
     );
-
-    console.log("SUBSCRIBING");
-
-    callsByContactId$.subscribe((x) => {
-      console.log("CALLS BY CONTACT ID", x.size);
-    });
 
     const completedCallCount$ = this.calls$.pipe(
       scan((completed, call) => {
@@ -150,11 +168,6 @@ export class PhoneCanvassModel {
     const contactSummaries$: Observable<ContactSummary[]> =
       callsByContactId$.pipe(
         map((callsByContactId) => {
-          console.log(
-            "By contactId",
-            callsByContactId.keys(),
-            callsByContactId.values(),
-          );
           return this.#contacts
             .map((contact) => {
               const call = callsByContactId.get(contact.phoneCanvassContactId);
@@ -232,7 +245,7 @@ export class PhoneCanvassModel {
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     const refreshedCaller =
-      await this.#phoneCanvassCallersModel.refreshOrCreateCaller(
+      await this.#phoneCanvassCallersModel.updateOrCreateCaller(
         caller,
         async (id) => await this.#twilioService.getAuthToken(id),
       );

@@ -23,6 +23,8 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
       refreshCaller,
       activePhoneCanvassId: params.phoneCanvassId,
       phoneCanvassCallerStore,
+      // This ensures the server knows this client exists.
+      forceRefresh: true,
     });
 
     if (caller === undefined) {

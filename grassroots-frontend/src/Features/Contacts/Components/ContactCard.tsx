@@ -21,7 +21,7 @@ import {
 export interface ContactCardProps {
   // TODO: This should just take a ContactDTO, but right now some of the fields
   // are only in PhoneCanvassContactDTO.
-  phoneCanvassContact: PhoneCanvassContactDTO;
+  phoneCanvassContact: PhoneCanvassContactDTO | undefined;
   style?: React.CSSProperties;
 }
 
@@ -51,6 +51,20 @@ function getVotedColor(voter: string | undefined): string {
 
 export function ContactCard(props: ContactCardProps): JSX.Element {
   const { phoneCanvassContact, style } = props;
+
+  if (phoneCanvassContact === undefined) {
+    return (
+      <Paper
+        style={style}
+        h={"28em"}
+        shadow="sm"
+        p="xl"
+        radius="md"
+        withBorder
+      ></Paper>
+    );
+  }
+
   const contact = phoneCanvassContact.contact;
 
   const name =

@@ -57,24 +57,10 @@ export class PhoneCanvassMetricsTracker {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
-    this.#callerCountObservable.subscribe((callerCount) => {
-      console.log("CALLER COUNT ", callerCount);
-    });
-    this.#committedCallsCountObservable.subscribe((committedCalls) => {
-      console.log("COMMITTED CALLS ", committedCalls);
-    });
-
     this.#idleCallerCountObservable = combineLatest([
       this.#callerCountObservable,
       this.#committedCallsCountObservable,
     ]).pipe(
-      tap(([callerCount, committedCallsCount]) => {
-        console.log(
-          // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-          `IDLE COUNT: ${callerCount - committedCallsCount}, callers: ${callerCount}, calls: ${committedCallsCount}`,
-        );
-      }),
-
       map(
         ([callerCount, committedCallsCount]) =>
           callerCount - committedCallsCount,
@@ -83,7 +69,6 @@ export class PhoneCanvassMetricsTracker {
   }
 
   onCallerCountUpdate(callerCount: number): void {
-    console.log("CALLER COUNT IS ", callerCount);
     this.#callerCountObservable.next(callerCount);
   }
 }

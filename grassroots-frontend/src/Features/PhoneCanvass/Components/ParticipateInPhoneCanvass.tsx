@@ -89,8 +89,9 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   // If the user navigates away, we need to mark them as not ready.
   useEffect(() => {
     window.onbeforeunload = (event: BeforeUnloadEvent): string | undefined => {
-      event.preventDefault();
       if (readyForCalls === "becomingReady" || readyForCalls === "ready") {
+        event.preventDefault();
+
         setReadyForCalls("unready");
         runPromise(
           markLastCall({
@@ -114,7 +115,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const currentContact = usePhoneCanvassContact(currentContactId).data;
 
-  const currentContactDetails = currentContact ? (
+  const currentContactDetails = (
     <Group>
       <ContactCard
         style={{ flex: "2 1 0" }}
@@ -124,8 +125,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         <Text>TODO: notes go here.</Text>
       </Box>
     </Group>
-  ) : null;
-
+  );
   const onNewContact = (contact: ContactSummary | undefined): void => {
     setCurrentContactId(contact?.contactId);
   };

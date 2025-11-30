@@ -12,6 +12,7 @@ import { ServerMetaService } from "../../server-meta/ServerMeta.service.js";
 import { TwilioService } from "../Twilio.service.js";
 import { plainToInstance } from "class-transformer";
 import { ContactEntity } from "../../contacts/entities/Contact.entity.js";
+import { EntityManager } from "@mikro-orm/core";
 
 function makeContact(id: number): ContactEntity {
   return plainToInstance(ContactEntity, { id });
@@ -47,6 +48,16 @@ function getModel(): PhoneCanvassModel {
     phoneCanvassId: "fake phone canvass id",
     contacts: FAKE_CONTACTS,
     serverMetaService: new ServerMetaService(),
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    entityManager: {
+      findOneOrFail: () => {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        return { beenCalled: false } as PhoneCanvassContactEntity;
+      },
+      flush: () => {
+        // ignore
+      },
+    } as unknown as EntityManager,
   });
 
   const currentTimeMock = vi.fn(() => {

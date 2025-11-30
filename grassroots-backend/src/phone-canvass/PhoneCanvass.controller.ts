@@ -89,7 +89,7 @@ export class PhoneCanvassController {
             map((callback) => {
               const status = twilioCallStatusToCallStatus(callback.CallStatus);
               console.log("status callback", callback.CallStatus, status);
-              console.log("Answered by ", callback);
+              console.log("Answered by ", callback.AnsweredBy);
               const call = this.phoneCanvassService.getCallBySid(
                 callback.CallSid,
               );
@@ -242,7 +242,7 @@ export class PhoneCanvassController {
     return `
       <Response>
         <Dial>
-          <Conference>${conferenceName}</Conference>
+          <Conference endConferenceOnExit="true">${conferenceName}</Conference>
         </Dial>
       </Response>
     `;

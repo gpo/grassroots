@@ -60,7 +60,7 @@ export class TwilioService {
     sid: string;
     status: CallStatus;
   }> {
-    if (call.status === "NOT_STARTED") {
+    if (call.status !== "NOT_STARTED") {
       throw new Error("Can only make calls that aren't started.");
     }
     const envVars = await getEnvVars();
@@ -160,7 +160,6 @@ export class TwilioService {
 
     const response = new VoiceResponse();
     response.hangup();
-    console.log(response.toString());
     return response.toString();
   }
 
@@ -201,7 +200,6 @@ export class TwilioService {
     phoneCanvassId: string,
     data: PhoneCanvassSyncData,
   ): Promise<void> {
-    console.log("SET SYNC DATA CALLED");
     const envVars = await getEnvVars();
     const client = await this.#getClient();
 

@@ -10,6 +10,7 @@ import { TwilioService } from "../Twilio.service.js";
 import { PhoneCanvassModel } from "../PhoneCanvass.model.js";
 import { PhoneCanvassCallersModel } from "../PhoneCanvassCallers.model.js";
 import { ServerMetaService } from "../../server-meta/ServerMeta.service.js";
+import { EntityManager } from "@mikro-orm/core";
 
 @Injectable()
 export class PhoneCanvassModelFactory {
@@ -17,6 +18,7 @@ export class PhoneCanvassModelFactory {
     twilioService: TwilioService;
     phoneCanvassId: string;
     contacts: PhoneCanvassContactEntity[];
+    entityManager: EntityManager;
     serverMetaService: ServerMetaService;
   }): PhoneCanvassModel {
     // Creating this observable here avoid a cyclic dependency.
@@ -36,6 +38,7 @@ export class PhoneCanvassModelFactory {
       scheduler,
       twilioService: params.twilioService,
       phoneCanvassCallersModel,
+      entityManager: params.entityManager,
       serverMetaService: params.serverMetaService,
     });
   }

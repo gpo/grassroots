@@ -23,7 +23,8 @@ export async function markLastCall(
 ): Promise<void> {
   const { caller } = params;
 
-  VoidDTO.fromFetchOrThrow(
+  console.log("CALLING UPDATE CALLER");
+  PhoneCanvassCallerDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/update-caller", {
       body: PhoneCanvassCallerDTO.from({
         ...propsOf(caller),
@@ -32,6 +33,7 @@ export async function markLastCall(
       keepalive: params.keepalive,
     }),
   );
+  console.log("DONE UPDATE CALLER");
 }
 
 export async function markReadyForCalls(
@@ -41,7 +43,7 @@ export async function markReadyForCalls(
   let { device } = params;
 
   // TODO(mvp): use tanstack.
-  VoidDTO.fromFetchOrThrow(
+  PhoneCanvassCallerDTO.fromFetchOrThrow(
     await grassrootsAPI.POST("/phone-canvass/update-caller", {
       body: PhoneCanvassCallerDTO.from({
         ...propsOf(caller),

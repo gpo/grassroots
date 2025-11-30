@@ -8,7 +8,6 @@ import { Observable, Subject } from "rxjs";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
-// TODO: we shouldn't emit the same object multiple times, we should emit copies.
 export class PhoneCanvassCallersModel {
   #nextId = 0;
   #callersById = new Map<number, PhoneCanvassCallerDTO>();
@@ -44,65 +43,78 @@ export class PhoneCanvassCallersModel {
       ...propsOf(caller),
       ready: "unready",
       id,
+      // In some cases we'll refresh the auth token more than is necessary,
+      // but it appears to be ~synchronous and fast, so this is fine.
       authToken: await getAuthToken(String(id)),
     });
+    console.log(
+      "Registering new caller with authToken",
+      withId.authToken.slice(-10, -1),
+    );
     this.#callers$.next(withId);
     return withId;
   }
 
   // This is as secure as the authToken is. If a user could guess someone else's
   // authToken, they could use that to update their data, but we'd already have bigger problems.
-  #findCaller(params: {
+  // TODO: this currently doesn't use the auth token.
+  // We need a more resilient secure identifier, as when the auth token rotates, comparing
+  // to it here breaks.
+  #authenticateCaller(params: {
     id: number;
     authToken: string;
   }): PhoneCanvassCallerDTO | undefined {
-    const { id, authToken } = params;
-    const existingCaller = this.#callersById.get(id);
-    // TODO: we need a more resilient secure identifier, as when the auth token rotates, this breaks.
-    void authToken;
-    return existingCaller;
+    const caller = this.#callersById.get(params.id);
+    if (caller?.authToken === undefined) {
+      // TODO: we could persist the authtoken somewhere, but
+      // security in the face of a restarting server is probably pretty
+      // low priority.
+      // If we don't have a recorded authToken for this user
+      return caller;
+    }
+    if (caller.authToken !== params.authToken) {
+      console.log("AUTHTOKEN NOT MATCHING.");
+      console.log("EXISTING", caller.authToken.slice(-10, -1));
+      console.log("LOOKING FOR", params.authToken.slice(-10, -1));
+
+      return undefined;
+    }
+    return caller;
   }
 
-  async refreshOrCreateCaller(
-    caller: PhoneCanvassCallerDTO,
-    getAuthToken: GetAuthToken,
-  ): Promise<PhoneCanvassCallerDTO> {
-    const existingCaller = this.#findCaller(caller);
-    if (existingCaller !== undefined) {
-      existingCaller.authToken = await getAuthToken(String(caller.id));
-      this.#callers$.next(existingCaller);
-      return existingCaller;
-    }
-
-    return this.registerCaller(
-      CreatePhoneCanvassCallerDTO.from(propsOf(caller)),
-      getAuthToken,
-    );
+  #findCaller(params: { id: number }): PhoneCanvassCallerDTO | undefined {
+    return this.#callersById.get(params.id);
   }
 
   async updateOrCreateCaller(
     updatedCaller: PhoneCanvassCallerDTO,
     getAuthToken: GetAuthToken,
   ): Promise<PhoneCanvassCallerDTO> {
-    const existingCaller = this.#findCaller(updatedCaller);
+    const existingCaller = this.#authenticateCaller(updatedCaller);
     if (existingCaller !== undefined) {
-      Object.assign(existingCaller, updatedCaller);
-      this.#callers$.next(existingCaller);
-      return existingCaller;
+      const newCaller = PhoneCanvassCallerDTO.from({
+        ...propsOf(existingCaller),
+        ...propsOf(updatedCaller),
+        authToken: await getAuthToken(String(existingCaller.id)),
+      });
+
+      console.log(
+        "Have existing caller, giving authToken",
+        newCaller.authToken.slice(-10, -1),
+      );
+
+      this.#callers$.next(newCaller);
+      return newCaller;
     }
 
-    return await this.registerCaller(
+    return this.registerCaller(
       CreatePhoneCanvassCallerDTO.from(propsOf(updatedCaller)),
       getAuthToken,
     );
   }
 
-  /*onCallCompleteForCaller(
-    phoneCanvassId: string,
-    callerId: number,
-  ): { becameUnready: boolean } {
-    const callers = this.#phoneCanvassIdToCaller.get(phoneCanvassId) ?? [];
-    const existingCaller = callers.find((x) => x.id === callerId);
+  onCallCompleteForCaller(callerId: number): { becameUnready: boolean } {
+    const existingCaller = this.#findCaller({ id: callerId });
     if (existingCaller === undefined) {
       throw new Error(
         "Trying to mark call completed for caller that doesn't exist",
@@ -113,9 +125,5 @@ export class PhoneCanvassCallersModel {
     }
     existingCaller.ready = "unready";
     return { becameUnready: true };
-}*/
-
-  /*listCallers(phoneCanvassId: string): PhoneCanvassCallerDTO[] {
-    return this.#phoneCanvassIdToCaller.get(phoneCanvassId) ?? [];
-  }*/
+  }
 }
