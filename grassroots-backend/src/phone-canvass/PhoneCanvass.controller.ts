@@ -336,20 +336,6 @@ export class PhoneCanvassController {
     return newCaller;
   }
 
-  @Post("refresh-caller")
-  async refreshCaller(
-    @Body() caller: PhoneCanvassCallerDTO,
-    @Session() session: expressSession.SessionData,
-  ): Promise<PhoneCanvassCallerDTO> {
-    console.log("REFRESH CALLER");
-    const model = await this.phoneCanvassService.getInitiatedModelFor({
-      phoneCanvassId: caller.activePhoneCanvassId,
-    });
-    caller = await model.refreshOrCreateCaller(caller);
-    session.phoneCanvassCaller = caller;
-    return caller;
-  }
-
   @Post("update-caller")
   async updateCaller(
     @Body() caller: PhoneCanvassCallerDTO,
@@ -360,8 +346,12 @@ export class PhoneCanvassController {
     const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
-    caller = await model.updateOrCreateCaller(caller);
-    session.phoneCanvassCaller = caller;
+    const newCaller = await model.updateOrCreateCaller(caller);
+    console.log(
+      "IN UPDATE CALLER, newCaller authtoken is",
+      caller.authToken.slice(-10, -1),
+    );
+    session.phoneCanvassCaller = newCaller;
     return caller;
   }
 

@@ -7,6 +7,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   ValidateNested,
 } from "class-validator";
 import { createDTOBase } from "../../util/CreateDTOBase.js";
@@ -236,8 +237,8 @@ enum ReadyEnum {
 
 // (displayName, activePhoneCanvassId) is globally unique.
 export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
-  @IsNumber()
-  id!: number;
+  @IsUUID()
+  id!: string;
 
   @Trim()
   @IsNotEmpty()

@@ -1,8 +1,6 @@
 import { Device } from "@twilio/voice-sdk";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
-import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
-import { propsOf } from "grassroots-shared/util/TypeUtils";
-import { grassrootsAPI } from "../../../GrassRootsAPI.js";
+import { UpdateCallerMutation } from "./UseUpdateCaller.js";
 
 /*
 Flow is:
@@ -15,24 +13,16 @@ Flow is:
 export interface UpdateReadyStateForCallsParams {
   caller: PhoneCanvassCallerDTO;
   device: Device | undefined;
-  keepalive?: true;
+  updateCallerMutation: UpdateCallerMutation;
 }
 
 export async function markLastCall(
   params: UpdateReadyStateForCallsParams,
 ): Promise<void> {
   const { caller } = params;
-
-  console.log("CALLING UPDATE CALLER");
-  PhoneCanvassCallerDTO.fromFetchOrThrow(
-    await grassrootsAPI.POST("/phone-canvass/update-caller", {
-      body: PhoneCanvassCallerDTO.from({
-        ...propsOf(caller),
-        ready: "last call",
-      }),
-      keepalive: params.keepalive,
-    }),
-  );
+  console.log("UPDATING CALLER");
+  caller.ready = "last call";
+  await params.updateCallerMutation(caller);
   console.log("DONE UPDATE CALLER");
 }
 
@@ -41,16 +31,8 @@ export async function markReadyForCalls(
 ): Promise<{ device: Device }> {
   const { caller } = params;
   let { device } = params;
-
-  // TODO(mvp): use tanstack.
-  PhoneCanvassCallerDTO.fromFetchOrThrow(
-    await grassrootsAPI.POST("/phone-canvass/update-caller", {
-      body: PhoneCanvassCallerDTO.from({
-        ...propsOf(caller),
-        ready: "ready",
-      }),
-    }),
-  );
+  caller.ready = "ready";
+  await params.updateCallerMutation(caller);
 
   if (device !== undefined) {
     return { device };

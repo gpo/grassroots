@@ -25,6 +25,7 @@ import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
 import { ContactCard } from "../../Contacts/Components/ContactCard.js";
 import { notifications } from "@mantine/notifications";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
+import { useUpdateCaller } from "../Logic/UseUpdateCaller.js";
 
 const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
   NOT_STARTED: " ",
@@ -82,6 +83,18 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     phoneCanvassCallerStore,
   });
 
+  const updateCallerKeepAlive = useUpdateCaller({
+    phoneCanvassId,
+    phoneCanvassCallerStore,
+    keepAlive: true,
+  });
+
+  const updateCallerNoKeepAlive = useUpdateCaller({
+    phoneCanvassId,
+    phoneCanvassCallerStore,
+    keepAlive: false,
+  });
+
   // TODO: initialCaller's ready bit is often stale.
   const { refreshCaller, initialCaller } =
     ParticipateInPhoneCanvassRoute.useRouteContext();
@@ -97,7 +110,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
           markLastCall({
             caller: initialCaller,
             device: currentDevice,
-            keepalive: true,
+            updateCallerMutation: updateCallerKeepAlive,
           }),
           false,
         );
@@ -185,6 +198,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
                 await markLastCall({
                   caller: initialCaller,
                   device: currentDevice,
+                  updateCallerMutation: updateCallerNoKeepAlive,
                 });
                 setReadyForCalls("unready");
               })(),
@@ -207,6 +221,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
                   await markReadyForCalls({
                     caller: initialCaller,
                     device: currentDevice,
+                    updateCallerMutation: updateCallerNoKeepAlive,
                   })
                 ).device;
                 setCurrentDevice(device);

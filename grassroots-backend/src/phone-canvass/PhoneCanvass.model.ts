@@ -241,25 +241,13 @@ export class PhoneCanvassModel {
     return newCaller;
   }
 
-  async refreshOrCreateCaller(
-    caller: PhoneCanvassCallerDTO,
-  ): Promise<PhoneCanvassCallerDTO> {
-    const refreshedCaller =
-      await this.#phoneCanvassCallersModel.updateOrCreateCaller(
-        caller,
-        async (id) => await this.#twilioService.getAuthToken(id),
-      );
-    return refreshedCaller;
-  }
-
   async updateOrCreateCaller(
     caller: PhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
-    await this.#phoneCanvassCallersModel.updateOrCreateCaller(
+    return await this.#phoneCanvassCallersModel.updateOrCreateCaller(
       caller,
       async (id) => await this.#twilioService.getAuthToken(id),
     );
-    return caller;
   }
 
   getCallBySid(sid: string): Call {

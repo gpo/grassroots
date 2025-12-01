@@ -9,7 +9,6 @@ import { Observable, Subject } from "rxjs";
 type GetAuthToken = (id: string) => Promise<string>;
 
 export class PhoneCanvassCallersModel {
-  #nextId = 0;
   #callersById = new Map<number, PhoneCanvassCallerDTO>();
   #callers$: Subject<PhoneCanvassCallerDTO>;
 
@@ -17,6 +16,12 @@ export class PhoneCanvassCallersModel {
     this.#callers$ = new Subject<PhoneCanvassCallerDTO>();
 
     this.#callers$.subscribe((caller) => {
+      console.log(
+        "GIVING CALLER WITH ID",
+        caller.id,
+        "authtoken",
+        caller.authToken.slice(-10, -1),
+      );
       this.#callersById.set(caller.id, caller);
     });
   }

@@ -7,7 +7,6 @@ import {
   scan,
   shareReplay,
   startWith,
-  tap,
 } from "rxjs";
 import { Call } from "./PhoneCanvassCall.js";
 import { Injectable } from "@nestjs/common";

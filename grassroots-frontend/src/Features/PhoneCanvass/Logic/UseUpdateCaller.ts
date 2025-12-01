@@ -13,9 +13,15 @@ export interface UseRegisterCallerParams {
   keepAlive: boolean;
 }
 
+export type UpdateCallerMutation = UseMutateAsyncFunction<
+  PhoneCanvassCallerDTO,
+  Error,
+  PhoneCanvassCallerDTO
+>;
+
 export function useUpdateCaller(
   params: UseRegisterCallerParams,
-): UseMutateAsyncFunction<PhoneCanvassCallerDTO, Error, PhoneCanvassCallerDTO> {
+): UpdateCallerMutation {
   const queryClient = useQueryClient();
   const { phoneCanvassCallerStore } = params;
   const { mutateAsync } = useMutation({
@@ -29,6 +35,7 @@ export function useUpdateCaller(
     },
     retry: 1,
     onSuccess: async (caller: PhoneCanvassCallerDTO) => {
+      console.log("SETTING AUTHTOKEN TO ", caller.authToken.slice(-10, -1));
       phoneCanvassCallerStore.setCaller(PhoneCanvassCallerDTO.from(caller));
       await queryClient.invalidateQueries({ queryKey: ["caller"] });
     },

@@ -9,16 +9,24 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
   component: ParticipateInPhoneCanvass,
   staticData: { isPublic: true },
   beforeLoad: async ({ context, params }) => {
+    const phoneCanvassCallerStore = context.getPhoneCanvassCallerStore();
+
     const refreshCaller = async (
       caller: PhoneCanvassCallerDTO,
     ): Promise<PhoneCanvassCallerDTO> => {
-      return PhoneCanvassCallerDTO.fromFetchOrThrow(
-        await grassrootsAPI.POST("/phone-canvass/refresh-caller", {
+      const refreshedCaller = PhoneCanvassCallerDTO.fromFetchOrThrow(
+        await grassrootsAPI.POST("/phone-canvass/update-caller", {
           body: caller,
         }),
       );
+      console.log(
+        "ROUTE REFRESH to auth token",
+        refreshedCaller.authToken.slice(-10, -1),
+      );
+
+      phoneCanvassCallerStore.setCaller(refreshedCaller);
+      return refreshedCaller;
     };
-    const phoneCanvassCallerStore = context.getPhoneCanvassCallerStore();
     const caller = await getPhoneCanvassCaller({
       refreshCaller,
       activePhoneCanvassId: params.phoneCanvassId,

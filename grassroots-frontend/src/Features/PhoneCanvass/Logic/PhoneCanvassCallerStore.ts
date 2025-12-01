@@ -4,7 +4,6 @@ import { propsOf, PropsOf } from "grassroots-shared/util/TypeUtils";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
-import { grassrootsAPI } from "../../../GrassRootsAPI.js";
 
 export type RefreshCaller = UseMutateAsyncFunction<
   PhoneCanvassCallerDTO,
