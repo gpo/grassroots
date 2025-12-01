@@ -24,10 +24,10 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
 
   #strategy: PhoneCanvassSchedulerStrategy;
   readonly phoneCanvassId: string;
-  readonly #busyCallerIds = new Set<number>();
+  readonly #busyCallerIds = new Set<string>();
 
   // From caller id.
-  #callers = new Map<number, Caller>();
+  #callers = new Map<string, Caller>();
   #pendingContacts$: Observable<PhoneCanvassContactEntity>;
 
   #getCurrentTime: () => number;
@@ -109,7 +109,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     );
   }
 
-  getNextIdleCallerId(): number | undefined {
+  getNextIdleCallerId(): string | undefined {
     // Find the idle caller who has been available for the longest time.
     const availableCallers = [...this.#callers.values()].filter((caller) => {
       return !this.#busyCallerIds.has(caller.id);
@@ -132,7 +132,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     return oldestAvailableCaller.id;
   }
 
-  addCaller(id: number): void {
+  addCaller(id: string): void {
     this.#callers.set(id, {
       id,
       availabilityStartTime: this.#getCurrentTime(),
@@ -140,7 +140,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     this.metricsTracker.onCallerCountUpdate(this.#callers.size);
   }
 
-  removeCaller(id: number): void {
+  removeCaller(id: string): void {
     const removed = this.#callers.delete(id);
     if (!removed) {
       // This can happen due to a server restart, causing us to forget this caller exists.

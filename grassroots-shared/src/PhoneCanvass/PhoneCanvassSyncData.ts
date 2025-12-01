@@ -5,11 +5,11 @@ export interface ContactSummary {
   contactId: number;
   status: CallStatus;
   result?: CallResult;
-  callerId: number | undefined;
+  callerId: string | undefined;
 }
 
 export interface CallerSummary {
-  callerId: number;
+  callerId: string;
   ready: "ready" | "unready" | "last call";
   displayName: string;
 }

@@ -184,6 +184,8 @@ export class TwilioService {
       }),
     );
 
+    console.log("MAKING A NEW TOKEN: ", token.toJwt().slice(-10, -1));
+
     return token.toJwt();
   }
 

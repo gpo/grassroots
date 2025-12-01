@@ -85,7 +85,7 @@ describe("PhoneCanvassScheduler", () => {
     expect(callsById).toHaveLength(0);
 
     currentTime = 11;
-    scheduler.addCaller(1);
+    scheduler.addCaller("1");
     console.log("BEFORE IDLE WAIT");
     await scheduler.waitForIdleForTest();
     console.log("AFTER IDLE WAIT");
@@ -93,19 +93,19 @@ describe("PhoneCanvassScheduler", () => {
     expect(callsById).toHaveLength(1);
     expect(callsById.get(1)).toBeDefined();
 
-    scheduler.addCaller(2);
+    scheduler.addCaller("2");
     await scheduler.waitForIdleForTest();
 
     expect(callsById).toHaveLength(2);
     expect(callsById.get(2)).toBeDefined();
 
-    scheduler.addCaller(3);
+    scheduler.addCaller("3");
     await scheduler.waitForIdleForTest();
 
     expect(callsById).toHaveLength(3);
     expect(callsById.get(3)).toBeDefined();
 
-    scheduler.addCaller(4);
+    scheduler.addCaller("4");
     await scheduler.waitForIdleForTest();
     // There's no new contact to call.
     expect(callsById).toHaveLength(3);
@@ -116,7 +116,7 @@ describe("PhoneCanvassScheduler", () => {
     const model = getModel();
     const scheduler = model.scheduler;
 
-    const CALLER_ID = 101;
+    const CALLER_ID = "fakeuuid";
     currentTime = 1;
 
     const callsById = new Map<number, Call>();

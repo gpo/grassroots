@@ -37,7 +37,7 @@ export type MutableCallState = Partial<{
   playedVoicemail: boolean;
   answeredBy: AnsweredBy;
   result: CallResult;
-  callerId: number;
+  callerId: string;
 }>;
 
 type CallState = ImmutableCallState & MutableCallState;
@@ -124,7 +124,7 @@ export class Call {
     return this.state.contact.phoneCanvassContactId;
   }
 
-  get callerId(): number | undefined {
+  get callerId(): string | undefined {
     return this.state.callerId;
   }
 

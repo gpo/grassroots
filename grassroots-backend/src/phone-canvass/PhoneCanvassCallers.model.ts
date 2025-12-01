@@ -5,11 +5,17 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
 import { Observable, Subject } from "rxjs";
+import { v4 as uuidv4 } from "uuid";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
+// We keep caller ids stable across server restarts, as it
+// simplifies book-keeping. A client provides their uuid and most recent auth token,
+// and if we already have them registered, we consider them authenticated.
+// If we don't have that UUID yet (because the server restarted), we
+// just register them as though they were a new user.
 export class PhoneCanvassCallersModel {
-  #callersById = new Map<number, PhoneCanvassCallerDTO>();
+  #callersById = new Map<string, PhoneCanvassCallerDTO>();
   #callers$: Subject<PhoneCanvassCallerDTO>;
 
   constructor() {
@@ -30,10 +36,12 @@ export class PhoneCanvassCallersModel {
     return this.#callers$;
   }
 
-  async registerCaller(
-    caller: CreatePhoneCanvassCallerDTO,
-    getAuthToken: GetAuthToken,
-  ): Promise<PhoneCanvassCallerDTO> {
+  async registerCaller(params: {
+    caller: CreatePhoneCanvassCallerDTO;
+    getAuthToken: GetAuthToken;
+    idForReuse?: string;
+  }): Promise<PhoneCanvassCallerDTO> {
+    const { caller, getAuthToken, idForReuse } = params;
     if (
       [...this.#callersById.values()].some(
         (existingCaller) => caller.displayName === existingCaller.displayName,
@@ -42,7 +50,7 @@ export class PhoneCanvassCallersModel {
       throw new ConflictException("Display name already taken.");
     }
 
-    const id = ++this.#nextId;
+    const id = idForReuse ?? uuidv4();
 
     const withId = PhoneCanvassCallerDTO.from({
       ...propsOf(caller),
@@ -66,7 +74,7 @@ export class PhoneCanvassCallersModel {
   // We need a more resilient secure identifier, as when the auth token rotates, comparing
   // to it here breaks.
   #authenticateCaller(params: {
-    id: number;
+    id: string;
     authToken: string;
   }): PhoneCanvassCallerDTO | undefined {
     const caller = this.#callersById.get(params.id);
@@ -87,7 +95,7 @@ export class PhoneCanvassCallersModel {
     return caller;
   }
 
-  #findCaller(params: { id: number }): PhoneCanvassCallerDTO | undefined {
+  #findCaller(params: { id: string }): PhoneCanvassCallerDTO | undefined {
     return this.#callersById.get(params.id);
   }
 
@@ -112,13 +120,14 @@ export class PhoneCanvassCallersModel {
       return newCaller;
     }
 
-    return this.registerCaller(
-      CreatePhoneCanvassCallerDTO.from(propsOf(updatedCaller)),
+    return this.registerCaller({
+      caller: CreatePhoneCanvassCallerDTO.from(propsOf(updatedCaller)),
       getAuthToken,
-    );
+      idForReuse: updatedCaller.id,
+    });
   }
 
-  onCallCompleteForCaller(callerId: number): { becameUnready: boolean } {
+  onCallCompleteForCaller(callerId: string): { becameUnready: boolean } {
     const existingCaller = this.#findCaller({ id: callerId });
     if (existingCaller === undefined) {
       throw new Error(

@@ -1,7 +1,7 @@
 import { PhoneCanvassMetricsTracker as PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 
 export interface Caller {
-  id: number;
+  id: string;
   availabilityStartTime: number /* Relative to Date.now()*/;
 }
 
@@ -10,7 +10,7 @@ export abstract class PhoneCanvassScheduler {
   abstract addCaller(id: string): void;
   abstract removeCaller(id: string): void;
   abstract waitForIdleForTest(): Promise<void>;
-  abstract getNextIdleCallerId(): number | undefined;
+  abstract getNextIdleCallerId(): string | undefined;
   abstract get metricsTracker(): PhoneCanvassMetricsTracker;
   abstract get phoneCanvassId(): string;
   abstract mockCurrentTime(getTime: () => number): void;

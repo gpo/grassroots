@@ -89,6 +89,7 @@ export class PhoneCanvassController {
             map((callback) => {
               const status = twilioCallStatusToCallStatus(callback.CallStatus);
               console.log("status callback", callback.CallStatus, status);
+              // @ts-expect-error TODO do the thing okay
               console.log("Answered by ", callback.AnsweredBy);
               const call = this.phoneCanvassService.getCallBySid(
                 callback.CallSid,
@@ -323,6 +324,7 @@ export class PhoneCanvassController {
   }
 
   @Post("register-caller")
+  @PublicRoute()
   async registerCaller(
     @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
@@ -337,6 +339,7 @@ export class PhoneCanvassController {
   }
 
   @Post("update-caller")
+  @PublicRoute()
   async updateCaller(
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
@@ -349,10 +352,10 @@ export class PhoneCanvassController {
     const newCaller = await model.updateOrCreateCaller(caller);
     console.log(
       "IN UPDATE CALLER, newCaller authtoken is",
-      caller.authToken.slice(-10, -1),
+      newCaller.authToken.slice(-10, -1),
     );
     session.phoneCanvassCaller = newCaller;
-    return caller;
+    return newCaller;
   }
 
   @Get("start-simulation/:id")

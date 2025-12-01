@@ -129,7 +129,7 @@ export class PhoneCanvassModel {
       }
     });
 
-    const callerSummariesById$: Observable<Map<number, CallerSummary>> =
+    const callerSummariesById$: Observable<Map<string, CallerSummary>> =
       this.#phoneCanvassCallersModel.callers$.pipe(
         // Keep the most recent update per caller.
         scan((acc, caller) => {
@@ -139,7 +139,7 @@ export class PhoneCanvassModel {
             callerId: caller.id,
           } satisfies CallerSummary);
           return acc;
-        }, new Map<number, CallerSummary>()),
+        }, new Map<string, CallerSummary>()),
       );
 
     const callerSummaries$ = callerSummariesById$.pipe(
@@ -234,10 +234,10 @@ export class PhoneCanvassModel {
   async registerCaller(
     caller: CreatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
-    const newCaller = await this.#phoneCanvassCallersModel.registerCaller(
+    const newCaller = await this.#phoneCanvassCallersModel.registerCaller({
       caller,
-      async (id) => await this.#twilioService.getAuthToken(id),
-    );
+      getAuthToken: async (id) => await this.#twilioService.getAuthToken(id),
+    });
     return newCaller;
   }
 
