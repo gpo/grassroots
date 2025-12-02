@@ -380,6 +380,16 @@
           "nullable": false,
           "mappedType": "json"
         },
+        "notes": {
+          "name": "notes",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 255,
+          "mappedType": "string"
+        },
         "been_called": {
           "name": "been_called",
           "type": "boolean",

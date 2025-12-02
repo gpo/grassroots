@@ -2,7 +2,6 @@ import twilio from "twilio";
 
 import { Injectable } from "@nestjs/common";
 import AccessToken from "twilio/lib/jwt/AccessToken.js";
-import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { getEnvVars } from "../GetEnvVars.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import {

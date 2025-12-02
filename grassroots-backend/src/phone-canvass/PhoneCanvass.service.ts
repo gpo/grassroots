@@ -78,6 +78,7 @@ export class PhoneCanvassService {
         metadata: canvasContact.metadata,
         beenCalled: false,
         contact,
+        notes: "",
       });
     }
 

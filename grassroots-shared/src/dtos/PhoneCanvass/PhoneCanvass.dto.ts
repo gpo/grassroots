@@ -97,6 +97,9 @@ export class PhoneCanvassContactDTO extends createDTOBase(
   @IsJSON()
   metadata!: string;
 
+  @IsString()
+  notes!: string;
+
   getMetadataByKey(key: string): undefined | string | string[] {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const metadata = JSON.parse(this.metadata) as [string, string | string[]][];

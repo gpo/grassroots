@@ -156,6 +156,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       </Box>
     </Group>
   );
+
   const onNewContact = (contact: ContactSummary | undefined): void => {
     setCurrentContactId(contact?.contactId);
   };

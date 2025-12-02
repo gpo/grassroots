@@ -25,7 +25,6 @@ only to convince typescript that these types shouldn't be castable to one anothe
 
 import { plainToInstance } from "class-transformer";
 import { PropsOf } from "./TypeUtils.js";
-import { HttpException } from "@nestjs/common";
 
 export interface FetchResponse<T, E> {
   data?: T;
@@ -35,6 +34,22 @@ export interface FetchResponse<T, E> {
 
 interface DTOConvertible {
   toDTO(): unknown;
+}
+
+export interface HttpErrorData {
+  status: number;
+  statusText: string;
+  message: string | undefined;
+  body?: unknown;
+}
+
+export class HttpError extends Error {
+  data: HttpErrorData;
+
+  constructor(data: HttpErrorData) {
+    super(data.message);
+    this.data = data;
+  }
 }
 
 function hasToDTO(value: unknown): value is DTOConvertible {
@@ -90,14 +105,23 @@ export function createDTOBase<TBrand extends string>(brand: TBrand) {
       if (fetchResult.response.ok) {
         return plainToInstance(this, fetchResult.data);
       }
-      throw new HttpException(
-        fetchResult.response.statusText,
-        fetchResult.response.status,
-        {
-          cause: new Error(JSON.stringify(fetchResult.error, null, 2)),
-        },
-      );
+      throw new HttpError({
+        status: fetchResult.response.status,
+        statusText: fetchResult.response.statusText,
+        message: getErrorMessage(fetchResult.error),
+        body: JSON.stringify(fetchResult),
+      });
     }
   }
   return Branded;
+}
+
+function getErrorMessage(error: unknown): string | undefined {
+  if (error === undefined || error === null) {
+    return undefined;
+  }
+  if (error instanceof Object && "message" in error) {
+    return String(error.message);
+  }
+  return undefined;
 }

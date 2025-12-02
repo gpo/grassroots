@@ -1,7 +1,6 @@
 /* eslint-disable grassroots/entity-use */
 import {
   combineLatest,
-  debounceTime,
   distinctUntilChanged,
   map,
   Observable,
@@ -210,7 +209,7 @@ export class PhoneCanvassModel {
         }),
       );
 
-    const syncData$ = combineLatest({
+    combineLatest({
       callers: callerSummaries$.pipe(startWith([])),
       contacts: contactSummaries$,
       callsCompleted: completedCallCount$.pipe(startWith(0)),

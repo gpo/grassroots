@@ -33,6 +33,9 @@ export class PhoneCanvassContactEntity extends createEntityBase<
   metadata!: string;
 
   @Property()
+  notes!: string;
+
+  @Property()
   beenCalled!: boolean;
 
   @Property({ nullable: true })
@@ -50,6 +53,7 @@ export class PhoneCanvassContactEntity extends createEntityBase<
       metadata: this.metadata,
       callStatus: this.beenCalled ? "COMPLETED" : "NOT_STARTED",
       phoneCanvassContactId: this.phoneCanvassContactId,
+      notes: this.notes,
     });
   }
 }
