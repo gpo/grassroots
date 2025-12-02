@@ -29,6 +29,7 @@ import {
   PhoneCanvassDetailsDTO,
   PhoneCanvassContactDTO,
   PhoneCanvasTwilioVoiceCallbackDTO,
+  UpdatePhoneCanvassContactNotesDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -352,17 +353,29 @@ export class PhoneCanvassController {
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    console.log("UPDATE CALLER");
-
     const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });
     const newCaller = await model.updateOrCreateCaller(caller);
-    console.log(
-      "IN UPDATE CALLER, newCaller authtoken is",
-      newCaller.authToken.slice(-10, -1),
-    );
     session.phoneCanvassCaller = newCaller;
+    return newCaller;
+  }
+
+  @Post("update-caller-notes")
+  @PublicRoute()
+  async updateCallerNotes(
+    @Body() update: UpdatePhoneCanvassContactNotesDTO,
+  ): Promise<PhoneCanvassCallerDTO> {
+    console.log("UPDATE CALLER");
+    if (
+      !this.phoneCanvassService.hasModelFor({
+        phoneCanvassId: update.phoneCanvassId,
+      })
+    ) {
+      throw new NotFoundException("Unknown phone canvass");
+    }
+
+    const newCaller = await model.updateOrCreateCaller(caller);
     return newCaller;
   }
 

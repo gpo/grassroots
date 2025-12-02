@@ -157,6 +157,22 @@ export class PhoneCanvassService {
     return contact.toDTO();
   }
 
+  async updateContactNotes(
+    phoneCanvassContactId: number,
+    notes: string,
+  ): Promise<PhoneCanvassContactDTO> {
+    const contact = await this.repo
+      .getEntityManager()
+      .findOneOrFail(
+        PhoneCanvassContactEntity,
+        { phoneCanvassContactId },
+        { populate: ["contact"] },
+      );
+    contact.notes = notes;
+    contact.flush();
+    return contact.toDTO();
+  }
+
   async list({
     phoneCanvassId,
     paginated,

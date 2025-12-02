@@ -2,6 +2,7 @@ import { ConflictException } from "@nestjs/common";
 import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
+  UpdatePhoneCanvassContactNotesDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
 import { Observable, Subject } from "rxjs";

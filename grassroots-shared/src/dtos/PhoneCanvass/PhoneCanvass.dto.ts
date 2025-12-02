@@ -81,7 +81,21 @@ export class CreatePhoneCanvasCSVRequestDTO extends createDTOBase(
 export class CreatePhoneCanvassResponseDTO extends createDTOBase(
   "CreatePhoneCanvassResponse",
 ) {
+  @IsString()
   id!: string;
+}
+
+export class UpdatePhoneCanvassContactNotesDTO extends createDTOBase(
+  "UpdatePhoneCanvassContactNotes",
+) {
+  @IsString()
+  contactId!: string;
+
+  @IsString()
+  phoneCanvassId!: string;
+
+  @IsString()
+  notes!: string;
 }
 
 export class PhoneCanvassContactDTO extends createDTOBase(
