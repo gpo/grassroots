@@ -318,8 +318,16 @@ export class PhoneCanvassController {
     return await this.phoneCanvassService.list(request);
   }
 
-  @Get("contact/:id")
-  async getContact(@Param("id") id: number): Promise<PhoneCanvassContactDTO> {
+  // Requiring the phone canvass id is the only security to prevent scraping of contacts.
+  @PublicRoute()
+  @Get("contact/:phoneCanvassId/:id")
+  async getContact(
+    @Param("id") id: number,
+    @Param("phoneCanvassId") phoneCanvassId: string,
+  ): Promise<PhoneCanvassContactDTO> {
+    if (!this.phoneCanvassService.hasModelFor({ phoneCanvassId })) {
+      throw new NotFoundException("Unknown phone canvass");
+    }
     return await this.phoneCanvassService.getContact(id);
   }
 

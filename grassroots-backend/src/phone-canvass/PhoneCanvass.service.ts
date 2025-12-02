@@ -179,6 +179,10 @@ export class PhoneCanvassService {
     });
   }
 
+  hasModelFor(params: { phoneCanvassId: string }): boolean {
+    return this.#models.get(params.phoneCanvassId) !== undefined;
+  }
+
   async getInitiatedModelFor(params: {
     phoneCanvassId: string;
   }): Promise<PhoneCanvassModel> {

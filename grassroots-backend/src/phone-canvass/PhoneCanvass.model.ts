@@ -2,6 +2,7 @@
 import {
   combineLatest,
   debounceTime,
+  distinctUntilChanged,
   map,
   Observable,
   scan,
@@ -31,6 +32,7 @@ import {
   PhoneCanvassContactDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { EntityManager } from "@mikro-orm/core";
+import { propsOf } from "grassroots-shared/util/TypeUtils";
 
 async function makeCall(params: {
   call: Call;
@@ -91,11 +93,26 @@ export class PhoneCanvassModel {
       runPromise(call.log(), false);
       runPromise(call.updateContactIfNeeded(this.#entityManager), false);
 
+      console.log(
+        "SEEING CALL WITH STATUS",
+        call.status,
+        "callerId",
+        call.callerId,
+      );
+
       if (call.status === "COMPLETED" && call.callerId !== undefined) {
-        const becameUnready =
-          this.#phoneCanvassCallersModel.onCallCompleteForCaller(call.callerId);
-        if (becameUnready.becameUnready) {
-          this.scheduler.removeCaller(call.callerId);
+        const caller = this.#phoneCanvassCallersModel.getCaller(call.callerId);
+
+        if (caller.ready === "last call") {
+          runPromise(
+            this.updateOrCreateCaller(
+              PhoneCanvassCallerDTO.from({
+                ...propsOf(caller),
+                ready: "unready",
+              }),
+            ),
+            false,
+          );
         }
       }
 
@@ -155,12 +172,14 @@ export class PhoneCanvassModel {
     );
 
     const completedCallCount$ = this.calls$.pipe(
+      // If we update a completed call for some reason, we don't want to double count it.
       scan((completed, call) => {
         if (call.status === "COMPLETED") {
-          return completed + 1;
+          completed.add(call.id);
         }
         return completed;
-      }, 0),
+      }, new Set<number>()),
+      map((completedCalls) => completedCalls.size),
     );
 
     // Every time the list of calls updates, we go through the list of contacts to update
@@ -195,24 +214,26 @@ export class PhoneCanvassModel {
       callers: callerSummaries$.pipe(startWith([])),
       contacts: contactSummaries$,
       callsCompleted: completedCallCount$.pipe(startWith(0)),
-    });
-
-    syncData$
+    })
       .pipe(
-        // When there are multiple changes, don't spam updates.
-        // Wait until we've seen half a ms with no change.
-        debounceTime(0.5),
-      )
-      .subscribe((syncData) => {
-        runPromise(
-          this.#twilioService.setSyncData(this.phoneCanvassId, {
+        map((syncData) => {
+          return {
             callers: syncData.callers,
             contacts: syncData.contacts,
             serverInstanceUUID: this.#serverMetaService.instanceUUID,
             phoneCanvassId: this.phoneCanvassId,
             totalContacts: this.#contacts.length,
             doneContacts: syncData.callsCompleted,
-          }),
+          };
+        }),
+        // Stringify here as it makes the distinctUntilChanged compare into a string compare
+        // instead of a complicated nested object compare.
+        map((syncData) => JSON.stringify(syncData)),
+        distinctUntilChanged(),
+      )
+      .subscribe((syncData) => {
+        runPromise(
+          this.#twilioService.setSyncData(this.phoneCanvassId, syncData),
           false,
         );
       });

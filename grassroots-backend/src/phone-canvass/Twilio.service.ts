@@ -198,10 +198,8 @@ export class TwilioService {
       .remove();
   }
 
-  async setSyncData(
-    phoneCanvassId: string,
-    data: PhoneCanvassSyncData,
-  ): Promise<void> {
+  async setSyncData(phoneCanvassId: string, data: string): Promise<void> {
+    console.log("SET SYNC DATA");
     const envVars = await getEnvVars();
     const client = await this.#getClient();
 
@@ -216,7 +214,10 @@ export class TwilioService {
     } catch {
       await client.sync.v1
         .services(envVars.TWILIO_SYNC_SERVICE_SID)
-        .documents.create({ uniqueName: phoneCanvassId, data });
+        .documents.create({
+          uniqueName: phoneCanvassId,
+          data,
+        });
     }
   }
 }

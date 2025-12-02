@@ -16,7 +16,7 @@ type GetAuthToken = (id: string) => Promise<string>;
 // just register them as though they were a new user.
 export class PhoneCanvassCallersModel {
   #callersById = new Map<string, PhoneCanvassCallerDTO>();
-  #callers$: Subject<PhoneCanvassCallerDTO>;
+  #callers$: Subject<Readonly<PhoneCanvassCallerDTO>>;
 
   constructor() {
     this.#callers$ = new Subject<PhoneCanvassCallerDTO>();
@@ -52,7 +52,7 @@ export class PhoneCanvassCallersModel {
 
     const id = idForReuse ?? uuidv4();
 
-    const withId = PhoneCanvassCallerDTO.from({
+    const withId: Readonly<PhoneCanvassCallerDTO> = PhoneCanvassCallerDTO.from({
       ...propsOf(caller),
       ready: "unready",
       id,
@@ -70,13 +70,10 @@ export class PhoneCanvassCallersModel {
 
   // This is as secure as the authToken is. If a user could guess someone else's
   // authToken, they could use that to update their data, but we'd already have bigger problems.
-  // TODO: this currently doesn't use the auth token.
-  // We need a more resilient secure identifier, as when the auth token rotates, comparing
-  // to it here breaks.
   #authenticateCaller(params: {
     id: string;
     authToken: string;
-  }): PhoneCanvassCallerDTO | undefined {
+  }): Readonly<PhoneCanvassCallerDTO> | undefined {
     const caller = this.#callersById.get(params.id);
     if (caller?.authToken === undefined) {
       // TODO: we could persist the authtoken somewhere, but
@@ -95,21 +92,24 @@ export class PhoneCanvassCallersModel {
     return caller;
   }
 
-  #findCaller(params: { id: string }): PhoneCanvassCallerDTO | undefined {
+  #findCaller(params: {
+    id: string;
+  }): Readonly<PhoneCanvassCallerDTO> | undefined {
     return this.#callersById.get(params.id);
   }
 
   async updateOrCreateCaller(
-    updatedCaller: PhoneCanvassCallerDTO,
+    updatedCaller: Readonly<PhoneCanvassCallerDTO>,
     getAuthToken: GetAuthToken,
   ): Promise<PhoneCanvassCallerDTO> {
     const existingCaller = this.#authenticateCaller(updatedCaller);
     if (existingCaller !== undefined) {
-      const newCaller = PhoneCanvassCallerDTO.from({
-        ...propsOf(existingCaller),
-        ...propsOf(updatedCaller),
-        authToken: await getAuthToken(String(existingCaller.id)),
-      });
+      const newCaller: Readonly<PhoneCanvassCallerDTO> =
+        PhoneCanvassCallerDTO.from({
+          ...propsOf(existingCaller),
+          ...propsOf(updatedCaller),
+          authToken: await getAuthToken(String(existingCaller.id)),
+        });
 
       console.log(
         "Have existing caller, giving authToken",
@@ -127,17 +127,14 @@ export class PhoneCanvassCallersModel {
     });
   }
 
-  onCallCompleteForCaller(callerId: string): { becameUnready: boolean } {
+  getCaller(callerId: string): Readonly<PhoneCanvassCallerDTO> {
+    console.log("onCallCompleteForCaller");
     const existingCaller = this.#findCaller({ id: callerId });
     if (existingCaller === undefined) {
       throw new Error(
         "Trying to mark call completed for caller that doesn't exist",
       );
     }
-    if (existingCaller.ready !== "last call") {
-      return { becameUnready: false };
-    }
-    existingCaller.ready = "unready";
-    return { becameUnready: true };
+    return existingCaller;
   }
 }

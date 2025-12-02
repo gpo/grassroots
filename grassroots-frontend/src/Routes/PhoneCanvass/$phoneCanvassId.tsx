@@ -42,9 +42,7 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
         params: { phoneCanvassId: params.phoneCanvassId },
       });
     }
-    // TODO: this caller's "ready" bit is frequently stale.
-    // I think we probably want to pull "ready"ness out of the caller object.
-    return { initialCaller: caller, refreshCaller };
+    return { refreshCaller, initialCaller: caller };
   },
   head: () => ({
     meta: [

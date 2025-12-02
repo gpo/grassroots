@@ -4,6 +4,8 @@ import { propsOf, PropsOf } from "grassroots-shared/util/TypeUtils";
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import { jwtDecode } from "jwt-decode";
+import { useEffect, useState } from "react";
+import { runPromise } from "grassroots-shared/util/RunPromise";
 
 export type RefreshCaller = UseMutateAsyncFunction<
   PhoneCanvassCallerDTO,
@@ -40,6 +42,23 @@ export const usePhoneCanvassCallerStore = create<PhoneCanvassCallerStore>()(
     ),
   ),
 );
+
+export function usePhoneCanvassCaller(params: {
+  refreshCaller: RefreshCaller;
+  activePhoneCanvassId: string;
+  phoneCanvassCallerStore: PhoneCanvassCallerStore;
+}): PhoneCanvassCallerDTO | undefined {
+  const [caller, setCaller] = useState<PhoneCanvassCallerDTO>();
+  useEffect(() => {
+    runPromise(
+      (async (): Promise<void> => {
+        setCaller(await getPhoneCanvassCaller({ ...params }));
+      })(),
+      false,
+    );
+  }, [params.activePhoneCanvassId, params.phoneCanvassCallerStore.callerProps]);
+  return caller;
+}
 
 // Needs to be able to refresh a caller in case the authToken has expired.
 export async function getPhoneCanvassCaller(params: {

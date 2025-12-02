@@ -7,6 +7,7 @@ import {
   ThemeIcon,
   Text,
   Button,
+  Center,
 } from "@mantine/core";
 import { PhoneCanvassContactDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { JSX } from "react";
@@ -54,14 +55,13 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
 
   if (phoneCanvassContact === undefined) {
     return (
-      <Paper
-        style={style}
-        h={"28em"}
-        shadow="sm"
-        p="xl"
-        radius="md"
-        withBorder
-      ></Paper>
+      <Paper style={style} h={"28em"} shadow="sm" p="xl" radius="md" withBorder>
+        <Center h="100%">
+          <Text style={{ fontSize: "100px" }} c="lightgrey">
+            No active call
+          </Text>
+        </Center>
+      </Paper>
     );
   }
 

@@ -1,5 +1,8 @@
 import { JSX, useEffect, useRef, useState } from "react";
-import { usePhoneCanvassCallerStore } from "../Logic/PhoneCanvassCallerStore.js";
+import {
+  usePhoneCanvassCaller,
+  usePhoneCanvassCallerStore,
+} from "../Logic/PhoneCanvassCallerStore.js";
 import {
   Accordion,
   Box,
@@ -9,6 +12,10 @@ import {
   Stack,
   Table,
   Text,
+  Title,
+  Image,
+  Paper,
+  Center,
 } from "@mantine/core";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
@@ -95,9 +102,15 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     keepAlive: false,
   });
 
-  // TODO: initialCaller's ready bit is often stale.
   const { refreshCaller, initialCaller } =
     ParticipateInPhoneCanvassRoute.useRouteContext();
+
+  const caller =
+    usePhoneCanvassCaller({
+      refreshCaller,
+      activePhoneCanvassId: phoneCanvassId,
+      phoneCanvassCallerStore,
+    }) ?? initialCaller;
 
   // If the user navigates away, we need to mark them as not ready.
   useEffect(() => {
@@ -108,12 +121,13 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         setReadyForCalls("unready");
         runPromise(
           markLastCall({
-            caller: initialCaller,
+            caller,
             device: currentDevice,
             updateCallerMutation: updateCallerKeepAlive,
           }),
           false,
         );
+
         notifications.show({
           title: "Marked as unready",
           message: "Marked as unready for additional calls",
@@ -126,7 +140,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     };
   }, [readyForCalls, currentContactId]);
 
-  const currentContact = usePhoneCanvassContact(currentContactId).data;
+  const currentContact = usePhoneCanvassContact({
+    id: currentContactId,
+    phoneCanvassId,
+  }).data;
 
   const currentContactDetails = (
     <Group>
@@ -154,7 +171,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   useEffect(() => {
     runPromise(
       joinTwilioSyncGroup({
-        caller: initialCaller,
+        caller,
         callPartyStateStore,
         phoneCanvassCallerStore,
         registerCaller,
@@ -196,7 +213,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
             runPromise(
               (async (): Promise<void> => {
                 await markLastCall({
-                  caller: initialCaller,
+                  caller,
                   device: currentDevice,
                   updateCallerMutation: updateCallerNoKeepAlive,
                 });
@@ -219,7 +236,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
               (async (): Promise<void> => {
                 const device = (
                   await markReadyForCalls({
-                    caller: initialCaller,
+                    caller,
                     device: currentDevice,
                     updateCallerMutation: updateCallerNoKeepAlive,
                   })
@@ -237,15 +254,45 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     }
   };
 
+  const title = (
+    <Title order={1}> Call Party: {phoneCanvassDetails?.name ?? ""} </Title>
+  );
+
+  const remainingContacts =
+    callPartyStateStore.totalContacts - callPartyStateStore.doneContacts;
+
+  const complete = (
+    <Paper shadow="sm" p="xl" radius="md" withBorder>
+      <Center>
+        <Stack>
+          <Title order={3}>Call Party Complete!!!</Title>
+          <Image
+            w={400}
+            src="https://cataas.com/cat/cute?width=400&height=400"
+          />
+        </Stack>
+      </Center>
+    </Paper>
+  );
+
+  // using callers.length as a proxy for "are we fully loaded"
+  const mainContent =
+    callPartyStateStore.callers.length > 0 && remainingContacts == 0 ? (
+      complete
+    ) : (
+      <>
+        <ToggleReadyButton></ToggleReadyButton>
+        {currentContactDetails}
+      </>
+    );
+
   return (
     <>
-      <h1> Call Party: {phoneCanvassDetails?.name ?? ""} </h1>
-
+      {title}
       <Group align="start">
         <Stack style={{ flex: 1 }}>
-          <h2> Welcome {initialCaller.displayName}</h2>
-          <ToggleReadyButton></ToggleReadyButton>
-          {currentContactDetails}
+          <h2> Welcome {caller.displayName}</h2>
+          {mainContent}
         </Stack>
         <Stack w={300}>
           <Accordion variant="contained">

@@ -2,9 +2,11 @@ import { UseQueryResult, useQuery } from "@tanstack/react-query";
 import { PhoneCanvassContactDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { grassrootsAPI } from "../../../GrassRootsAPI.js";
 
-export function usePhoneCanvassContact(
-  id: number | undefined,
-): UseQueryResult<PhoneCanvassContactDTO> {
+export function usePhoneCanvassContact(params: {
+  id: number | undefined;
+  phoneCanvassId: string;
+}): UseQueryResult<PhoneCanvassContactDTO> {
+  const { id, phoneCanvassId } = params;
   return useQuery<PhoneCanvassContactDTO>({
     // TODO: clean up these query keys.
     queryKey: ["phone-canvass-contact", id],
@@ -15,9 +17,12 @@ export function usePhoneCanvassContact(
       if (id === undefined) {
         throw new Error("Query should be disabled");
       }
-      const result = await grassrootsAPI.GET("/phone-canvass/contact/{id}", {
-        params: { path: { id } },
-      });
+      const result = await grassrootsAPI.GET(
+        "/phone-canvass/contact/{phoneCanvassId}/{id}",
+        {
+          params: { path: { id, phoneCanvassId } },
+        },
+      );
       return PhoneCanvassContactDTO.fromFetchOrThrow(result);
     },
   });

@@ -23,24 +23,26 @@ interface ImmutableCallState {
   id: number;
   phoneCanvassId: string;
   emit: (call: Call) => void;
-  //scheduler: PhoneCanvassScheduler;
-  /*onCallCompleteForCaller: (
-    phoneCanvassId: string,
-    callerId: number,
-  ) => { becameUnready: boolean };*/
   contact: PhoneCanvassContactEntity;
 }
 
-export type MutableCallState = Partial<{
+// Can't use Partial<T> because of https://github.com/microsoft/TypeScript/issues/48587 .
+interface UpdateableCallState {
   // Call SID, provided by twilio.
-  twilioSid: string;
-  playedVoicemail: boolean;
-  answeredBy: AnsweredBy;
-  result: CallResult;
-  callerId: string;
-}>;
+  twilioSid: string | undefined;
+  playedVoicemail: boolean | undefined;
+  answeredBy: AnsweredBy | undefined;
+  result: CallResult | undefined;
+  callerId: string | undefined;
+}
 
-type CallState = ImmutableCallState & MutableCallState;
+const emptyUpdateableCallState: UpdateableCallState = {
+  twilioSid: undefined,
+  playedVoicemail: undefined,
+  answeredBy: undefined,
+  result: undefined,
+  callerId: undefined,
+};
 
 export function resetPhoneCanvasCallIdsForTest(): void {
   Call.resetIdsForTest();
@@ -49,7 +51,7 @@ export function resetPhoneCanvasCallIdsForTest(): void {
 export class Call {
   static #currentId = 0;
 
-  readonly state: CallState & MutableCallState;
+  readonly state: Readonly<ImmutableCallState & UpdateableCallState>;
   #updated = false;
   status: CallStatus;
 
@@ -59,7 +61,11 @@ export class Call {
     params: Omit<ImmutableCallState, "id"> & { id?: number },
   ) {
     this.status = status;
-    this.state = { ...params, id: params.id ?? ++Call.#currentId };
+    this.state = {
+      ...emptyUpdateableCallState,
+      ...params,
+      id: params.id ?? ++Call.#currentId,
+    };
     if (params.id === undefined) {
       this.state.emit(this);
     }
@@ -69,13 +75,14 @@ export class Call {
     const filteredValues: Record<string, unknown> = {};
 
     for (const [key, value] of Object.entries(this.state)) {
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      if ((value as unknown) === undefined || (value as unknown) === null) {
+        continue;
+      }
       if (
         value instanceof PhoneCanvassContactEntity ||
         value instanceof Function
       ) {
-        continue;
-      }
-      if (value === undefined || value === null) {
         continue;
       }
       filteredValues[key] = value;
@@ -140,7 +147,7 @@ export class Call {
     return this.state.twilioSid;
   }
 
-  update(status: CallStatus, props: MutableCallState): Call {
+  update(status: CallStatus, props: Partial<UpdateableCallState>): Call {
     if (this.#updated) {
       throw new Error(
         `Calls should only be updated once. ${String(this.id)}, current status ${this.status}`,

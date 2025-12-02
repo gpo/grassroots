@@ -41,6 +41,7 @@ class SyncGroupManager {
   #registerCaller: RegisterCaller;
   #refreshCaller: RefreshCaller;
   #lastContact: ContactSummary | undefined;
+  #currentRevision: string | undefined = undefined;
   #onNewContact: (contact: ContactSummary | undefined) => void;
 
   static instance: SyncGroupManager | undefined;
@@ -56,7 +57,15 @@ class SyncGroupManager {
     this.#lastContact = undefined;
   }
 
-  async #onUpdate(data: PhoneCanvassSyncData): Promise<void> {
+  async #onUpdate(data: PhoneCanvassSyncData, revision: string): Promise<void> {
+    if (revision === this.#currentRevision) {
+      // Avoid repeated updates.
+      return;
+    }
+    this.#currentRevision = revision;
+
+    console.log("ON UPDATE");
+
     if (
       data.phoneCanvassId !=
       SyncGroupManager.instance?.caller.activePhoneCanvassId
@@ -64,8 +73,6 @@ class SyncGroupManager {
       // TODO: figure out why this keeps receiving onUpdates.
       return;
     }
-
-    console.log(data.callers);
 
     let caller = await getPhoneCanvassCaller({
       refreshCaller: this.#refreshCaller,
@@ -83,6 +90,7 @@ class SyncGroupManager {
         CreatePhoneCanvassCallerDTO.from(caller),
       );
     }
+
     this.#callPartyStateStore.setData(data);
     if (caller === undefined) {
       throw new Error("We should have a caller.");
@@ -100,19 +108,28 @@ class SyncGroupManager {
     );
     this.#doc = doc;
     this.#syncClient.on("connectionStateChanged", () => {
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData), false);
+      runPromise(
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        this.#onUpdate(doc.data as PhoneCanvassSyncData, doc.revision),
+        false,
+      );
     });
 
     this.#doc.on("updated", () => {
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData), false);
+      runPromise(
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        this.#onUpdate(doc.data as PhoneCanvassSyncData, doc.revision),
+        false,
+      );
     });
 
-    // Trying to fix a flaky bug where sometimes the sync data isn't initialized
-    // on page visit. Maybe this fixes it?
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    runPromise(this.#onUpdate(this.#doc.data as PhoneCanvassSyncData), false);
+    // This addresses a flaky bug where sometimes the sync data isn't initialized
+    // on page visit.
+    runPromise(
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      this.#onUpdate(this.#doc.data as PhoneCanvassSyncData, doc.revision),
+      false,
+    );
   }
 
   async stop(): Promise<void> {
