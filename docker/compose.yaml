@@ -32,6 +32,7 @@ services:
 
   grassroots_dev:
     container_name: grassroots_dev
+    command: ["sleep", "inf"]
     build: ".."
     volumes:
       - ../:/app

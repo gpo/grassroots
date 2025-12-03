@@ -1,5 +1,5 @@
 ARG NODE_VERSION=23.0.0
-FROM node:${NODE_VERSION}
+FROM --platform=linux/amd64 node:${NODE_VERSION}
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -28,7 +28,8 @@ RUN wget -qO- https://twilio-cli-prod.s3.amazonaws.com/twilio_pub.asc | apt-key 
   echo 'deb https://twilio-cli-prod.s3.amazonaws.com/apt/ /' | tee /etc/apt/sources.list.d/twilio.list && \
   apt-get update && \
   apt-get install -y sudo && \
-  apt install -y twilio
+  apt install -y twilio && \
+  apt-get clean
 
 # First remove the node user to avoid uid/gid conflicts, then we create our user.
 RUN deluser node --remove-home \
@@ -51,6 +52,7 @@ USER ${UNAME}
 
 RUN pnpm add turbo --global
 RUN pnpm install --frozen-lockfile
+RUN turbo build
 
 # Vite
 EXPOSE 5173
@@ -61,4 +63,4 @@ EXPOSE 3000
 # we'd want to:
 # CMD ["pnpm", "run", "dev"]
 
-CMD ["sleep", "infinity"]
+CMD ["pnpm", "run", "start:prod"]
