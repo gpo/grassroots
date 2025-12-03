@@ -145,17 +145,17 @@ const SAFE_TO_LOG: (keyof Environment)[] = [
 
 function logEnvVars(envVariables: Environment, varSources: VarSources): void {
   const blob: Partial<
-    Record<keyof Environment, { value: string; source: string }>
+    Record<keyof Environment, { value?: string; source: string }>
   > = {};
 
   for (const keyUntyped of Object.keys(envVariables)) {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     const key = keyUntyped as keyof Environment;
-    let value = "REDACTED";
     if (SAFE_TO_LOG.includes(key)) {
-      value = String(envVariables[key]);
+      blob[key] = { value: String(envVariables[key]), source: varSources[key] };
+    } else {
+      blob[key] = { source: varSources[key] };
     }
-    blob[key] = { value, source: varSources[key] };
   }
 
   console.log(blob);
