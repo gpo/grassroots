@@ -81,6 +81,8 @@ export class Environment {
   VALID_LOGIN_EMAIL_REGEX!: string;
 }
 
+type VarSources = Record<keyof Environment, string>;
+
 // Earlier files take priority.
 function getEnvFilePaths(): string[] {
   if (process.env.GITHUB_ACTIONS == "true") {
@@ -118,6 +120,46 @@ async function readSingleEnvironmentFile(
 
 // Cache environment variables.
 let envVariables: Environment | undefined = undefined;
+let varSources: VarSources | undefined = undefined;
+
+const SAFE_TO_LOG: (keyof Environment)[] = [
+  "IS_DEBUG",
+  "POSTGRES_USER",
+  "POSTGRES_HOST",
+  "POSTGRES_DATABASE",
+  "POSTGRES_PORT",
+  "VITE_BACKEND_HOST",
+  "VITE_FRONTEND_HOST",
+  "GOOGLE_AUTH_CALLBACK_URL",
+  "GOOGLE_CLIENT_ID",
+  "TWILIO_SID",
+  "TWILIO_APP_SID",
+  "TEST_APPROVED_PHONE_NUMBER",
+  "TWILIO_OUTGOING_NUMBER",
+  "TWILIO_API_KEY_SID",
+  "TWILIO_SYNC_SERVICE_SID",
+  "WEBHOOK_HOST",
+  "ENABLE_PHONE_CANVASS_SIMULATION",
+  "VALID_LOGIN_EMAIL_REGEX",
+];
+
+function logEnvVars(envVariables: Environment, varSources: VarSources): void {
+  const blob: Partial<
+    Record<keyof Environment, { value?: string; source: string }>
+  > = {};
+
+  for (const keyUntyped of Object.keys(envVariables)) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const key = keyUntyped as keyof Environment;
+    if (SAFE_TO_LOG.includes(key)) {
+      blob[key] = { value: String(envVariables[key]), source: varSources[key] };
+    } else {
+      blob[key] = { source: varSources[key] };
+    }
+  }
+
+  console.log(blob);
+}
 
 export async function getEnvVars(): Promise<Environment> {
   if (envVariables) {
@@ -138,14 +180,30 @@ export async function getEnvVars(): Promise<Environment> {
   const fileResults = await Promise.all(filePromises);
 
   const allEnvironmentVariables: Partial<Environment> = {};
+  const allVariableSources: Partial<VarSources> = {};
 
-  for (const result of fileResults) {
+  for (let i = 0; i < fileResults.length; ++i) {
+    const result = fileResults[i];
+    if (result === undefined) {
+      continue;
+    }
     Object.assign(allEnvironmentVariables, result);
+    const filePath = environmentFilePaths[i];
+    for (const key of Object.keys(result)) {
+      // TODO: we need a typesafe Object.keys utility.
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      allVariableSources[key as keyof Environment] = filePath;
+    }
   }
 
   envVariables = plainToInstance(Environment, allEnvironmentVariables, {
     enableImplicitConversion: true,
   });
+  // TODO: make this safer.
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  varSources = allVariableSources as VarSources;
+
+  logEnvVars(envVariables, varSources);
 
   // In test contexts, we may not have all environment variables present.
   const skipMissingProperties =
@@ -153,9 +211,7 @@ export async function getEnvVars(): Promise<Environment> {
     process.env.CI === "true" ||
     process.env.VITEST === "true";
 
-  const errors = validateSync(envVariables, {
-    skipMissingProperties,
-  });
+  const errors = validateSync(envVariables, { skipMissingProperties });
   if (errors.length > 0) {
     throw new Error("Invalid environment variables: " + errors.join("\n"));
   }
