@@ -8,17 +8,6 @@ import {
   validateSync,
 } from "class-validator";
 import { plainToInstance } from "class-transformer";
-import { createHash } from "crypto";
-
-// May be undefined in a test environment.
-function sha1(s: string | undefined): string {
-  if (s === undefined) {
-    return "undefined";
-  }
-  const hash = createHash("sha1");
-  hash.update(s);
-  return hash.digest("hex");
-}
 
 export class Environment {
   @IsNotEmpty()
@@ -92,6 +81,8 @@ export class Environment {
   VALID_LOGIN_EMAIL_REGEX!: string;
 }
 
+type VarSources = Record<keyof Environment, string>;
+
 // Earlier files take priority.
 function getEnvFilePaths(): string[] {
   if (process.env.GITHUB_ACTIONS == "true") {
@@ -129,34 +120,45 @@ async function readSingleEnvironmentFile(
 
 // Cache environment variables.
 let envVariables: Environment | undefined = undefined;
+let varSources: VarSources | undefined = undefined;
 
-function logEnvVars(envVariables: Environment): void {
-  console.log({
-    IS_DEBUG: envVariables.IS_DEBUG,
-    POSTGRES_USER: envVariables.POSTGRES_USER,
-    POSTGRES_PASSWORD: sha1(envVariables.POSTGRES_PASSWORD),
-    POSTGRES_HOST: envVariables.POSTGRES_HOST,
-    POSTGRES_DATABASE: envVariables.POSTGRES_DATABASE,
-    POSTGRES_PORT: envVariables.POSTGRES_PORT,
-    VITE_BACKEND_HOST: envVariables.VITE_BACKEND_HOST,
-    VITE_FRONTEND_HOST: envVariables.VITE_FRONTEND_HOST,
-    GOOGLE_AUTH_CALLBACK_URL: envVariables.GOOGLE_AUTH_CALLBACK_URL,
-    SESSION_SECRET: sha1(envVariables.SESSION_SECRET),
-    GOOGLE_CLIENT_ID: envVariables.GOOGLE_CLIENT_ID,
-    GOOGLE_CLIENT_SECRET: sha1(envVariables.GOOGLE_CLIENT_SECRET),
-    TWILIO_SID: envVariables.TWILIO_SID,
-    TWILIO_APP_SID: envVariables.TWILIO_APP_SID,
-    TWILIO_AUTH_TOKEN: sha1(envVariables.TWILIO_AUTH_TOKEN),
-    TEST_APPROVED_PHONE_NUMBER: envVariables.TEST_APPROVED_PHONE_NUMBER,
-    TWILIO_OUTGOING_NUMBER: envVariables.TWILIO_OUTGOING_NUMBER,
-    TWILIO_API_KEY_SID: envVariables.TWILIO_API_KEY_SID,
-    TWILIO_API_KEY_SECRET: sha1(envVariables.TWILIO_API_KEY_SECRET),
-    TWILIO_SYNC_SERVICE_SID: envVariables.TWILIO_SYNC_SERVICE_SID,
-    WEBHOOK_HOST: envVariables.WEBHOOK_HOST,
-    ENABLE_PHONE_CANVASS_SIMULATION:
-      envVariables.ENABLE_PHONE_CANVASS_SIMULATION,
-    VALID_LOGIN_EMAIL_REGEX: envVariables.VALID_LOGIN_EMAIL_REGEX,
-  });
+const SAFE_TO_LOG: (keyof Environment)[] = [
+  "IS_DEBUG",
+  "POSTGRES_USER",
+  "POSTGRES_HOST",
+  "POSTGRES_DATABASE",
+  "POSTGRES_PORT",
+  "VITE_BACKEND_HOST",
+  "VITE_FRONTEND_HOST",
+  "GOOGLE_AUTH_CALLBACK_URL",
+  "GOOGLE_CLIENT_ID",
+  "TWILIO_SID",
+  "TWILIO_APP_SID",
+  "TEST_APPROVED_PHONE_NUMBER",
+  "TWILIO_OUTGOING_NUMBER",
+  "TWILIO_API_KEY_SID",
+  "TWILIO_SYNC_SERVICE_SID",
+  "WEBHOOK_HOST",
+  "ENABLE_PHONE_CANVASS_SIMULATION",
+  "VALID_LOGIN_EMAIL_REGEX",
+];
+
+function logEnvVars(envVariables: Environment, varSources: VarSources): void {
+  const blob: Partial<
+    Record<keyof Environment, { value: string; source: string }>
+  > = {};
+
+  for (const keyUntyped of Object.keys(envVariables)) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const key = keyUntyped as keyof Environment;
+    let value = "REDACTED";
+    if (SAFE_TO_LOG.includes(key)) {
+      value = String(envVariables[key]);
+    }
+    blob[key] = { value, source: varSources[key] };
+  }
+
+  console.log(blob);
 }
 
 export async function getEnvVars(): Promise<Environment> {
@@ -178,16 +180,30 @@ export async function getEnvVars(): Promise<Environment> {
   const fileResults = await Promise.all(filePromises);
 
   const allEnvironmentVariables: Partial<Environment> = {};
+  const allVariableSources: Partial<VarSources> = {};
 
-  for (const result of fileResults) {
+  for (let i = 0; i < fileResults.length; ++i) {
+    const result = fileResults[i];
+    if (result === undefined) {
+      continue;
+    }
     Object.assign(allEnvironmentVariables, result);
+    const filePath = environmentFilePaths[i];
+    for (const key of Object.keys(result)) {
+      // TODO: we need a typesafe Object.keys utility.
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      allVariableSources[key as keyof Environment] = filePath;
+    }
   }
 
   envVariables = plainToInstance(Environment, allEnvironmentVariables, {
     enableImplicitConversion: true,
   });
+  // TODO: make this safer.
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  varSources = allVariableSources as VarSources;
 
-  logEnvVars(envVariables);
+  logEnvVars(envVariables, varSources);
 
   // In test contexts, we may not have all environment variables present.
   const skipMissingProperties =
