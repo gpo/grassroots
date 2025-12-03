@@ -8,6 +8,13 @@ import {
   validateSync,
 } from "class-validator";
 import { plainToInstance } from "class-transformer";
+import { createHash } from "crypto";
+
+function sha1(s: string): string {
+  const hash = createHash("sha1");
+  hash.update(s);
+  return hash.digest("hex");
+}
 
 export class Environment {
   @IsNotEmpty()
@@ -119,6 +126,35 @@ async function readSingleEnvironmentFile(
 // Cache environment variables.
 let envVariables: Environment | undefined = undefined;
 
+function logEnvVars(envVariables: Environment): void {
+  console.log({
+    IS_DEBUG: envVariables.IS_DEBUG,
+    POSTGRES_USER: envVariables.POSTGRES_USER,
+    POSTGRES_PASSWORD: sha1(envVariables.POSTGRES_PASSWORD),
+    POSTGRES_HOST: envVariables.POSTGRES_HOST,
+    POSTGRES_DATABASE: envVariables.POSTGRES_DATABASE,
+    POSTGRES_PORT: envVariables.POSTGRES_PORT,
+    VITE_BACKEND_HOST: envVariables.VITE_BACKEND_HOST,
+    VITE_FRONTEND_HOST: envVariables.VITE_FRONTEND_HOST,
+    GOOGLE_AUTH_CALLBACK_URL: envVariables.GOOGLE_AUTH_CALLBACK_URL,
+    SESSION_SECRET: sha1(envVariables.SESSION_SECRET),
+    GOOGLE_CLIENT_ID: envVariables.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: sha1(envVariables.GOOGLE_CLIENT_SECRET),
+    TWILIO_SID: envVariables.TWILIO_SID,
+    TWILIO_APP_SID: envVariables.TWILIO_APP_SID,
+    TWILIO_AUTH_TOKEN: sha1(envVariables.TWILIO_AUTH_TOKEN),
+    TEST_APPROVED_PHONE_NUMBER: envVariables.TEST_APPROVED_PHONE_NUMBER,
+    TWILIO_OUTGOING_NUMBER: envVariables.TWILIO_OUTGOING_NUMBER,
+    TWILIO_API_KEY_SID: envVariables.TWILIO_API_KEY_SID,
+    TWILIO_API_KEY_SECRET: sha1(envVariables.TWILIO_API_KEY_SECRET),
+    TWILIO_SYNC_SERVICE_SID: envVariables.TWILIO_SYNC_SERVICE_SID,
+    WEBHOOK_HOST: envVariables.WEBHOOK_HOST,
+    ENABLE_PHONE_CANVASS_SIMULATION:
+      envVariables.ENABLE_PHONE_CANVASS_SIMULATION,
+    VALID_LOGIN_EMAIL_REGEX: envVariables.VALID_LOGIN_EMAIL_REGEX,
+  });
+}
+
 export async function getEnvVars(): Promise<Environment> {
   if (envVariables) {
     return envVariables;
@@ -147,15 +183,15 @@ export async function getEnvVars(): Promise<Environment> {
     enableImplicitConversion: true,
   });
 
+  logEnvVars(envVariables);
+
   // In test contexts, we may not have all environment variables present.
   const skipMissingProperties =
     process.env.GITHUB_ACTIONS == "true" ||
     process.env.CI === "true" ||
     process.env.VITEST === "true";
 
-  const errors = validateSync(envVariables, {
-    skipMissingProperties,
-  });
+  const errors = validateSync(envVariables, { skipMissingProperties });
   if (errors.length > 0) {
     throw new Error("Invalid environment variables: " + errors.join("\n"));
   }
