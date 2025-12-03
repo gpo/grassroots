@@ -89,7 +89,7 @@ export class UpdatePhoneCanvassContactNotesDTO extends createDTOBase(
   "UpdatePhoneCanvassContactNotes",
 ) {
   @IsString()
-  contactId!: string;
+  contactId!: number;
 
   @IsString()
   phoneCanvassId!: string;

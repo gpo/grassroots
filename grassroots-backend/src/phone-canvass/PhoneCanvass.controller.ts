@@ -326,10 +326,10 @@ export class PhoneCanvassController {
     @Param("id") id: number,
     @Param("phoneCanvassId") phoneCanvassId: string,
   ): Promise<PhoneCanvassContactDTO> {
-    if (!this.phoneCanvassService.hasModelFor({ phoneCanvassId })) {
-      throw new NotFoundException("Unknown phone canvass");
-    }
-    return await this.phoneCanvassService.getContact(id);
+    return await this.phoneCanvassService.getContact({
+      phoneCanvassId,
+      phoneCanvassContactId: id,
+    });
   }
 
   @Post("register-caller")
@@ -361,22 +361,16 @@ export class PhoneCanvassController {
     return newCaller;
   }
 
-  @Post("update-caller-notes")
+  @Post("update-contact-notes")
   @PublicRoute()
-  async updateCallerNotes(
+  async updateContactNotes(
     @Body() update: UpdatePhoneCanvassContactNotesDTO,
-  ): Promise<PhoneCanvassCallerDTO> {
-    console.log("UPDATE CALLER");
-    if (
-      !this.phoneCanvassService.hasModelFor({
-        phoneCanvassId: update.phoneCanvassId,
-      })
-    ) {
-      throw new NotFoundException("Unknown phone canvass");
-    }
-
-    const newCaller = await model.updateOrCreateCaller(caller);
-    return newCaller;
+  ): Promise<PhoneCanvassContactDTO> {
+    return this.phoneCanvassService.updateContactNotes({
+      phoneCanvassContactId: update.contactId,
+      notes: update.notes,
+      phoneCanvassId: update.phoneCanvassId,
+    });
   }
 
   @Get("start-simulation/:id")

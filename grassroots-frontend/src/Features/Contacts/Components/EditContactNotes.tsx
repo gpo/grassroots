@@ -1,56 +1,66 @@
-import { UpdatePhoneCanvassContactNotesDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import {
+  PhoneCanvassContactDTO,
+  UpdatePhoneCanvassContactNotesDTO,
+} from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { useTypedForm } from "../../../Logic/UseTypedForm.js";
 import { classValidatorResolver } from "../../../Logic/ClassValidatorResolver.js";
-import { useCallback } from "react";
-import { UseMutationResult } from "@tanstack/react-query";
+import { JSX, useCallback } from "react";
+import { useMutation, UseMutationResult } from "@tanstack/react-query";
 import { grassrootsAPI } from "../../../GrassRootsAPI.js";
+import { Button, Paper, Stack, Textarea } from "@mantine/core";
 
 interface EditContactNotesProps {
   id: string;
   notes: string;
+  style?: React.CSSProperties;
 }
 
-export function useUpdateCallerNotesMutation(): UseMutationResult<
-  Record<string, never>,
+function useUpdateCallerNotesMutation(): UseMutationResult<
+  PhoneCanvassContactDTO,
   Error,
-  string
+  UpdatePhoneCanvassContactNotesDTO
 > {
   return useMutation({
-    mutationFn: async (phoneCanvassId: string, notes: string) => {
-      const result = await grassrootsAPI.GET(
-        "/phone-canvass/start-simulation/{id}",
-        {
-          params: {
-            path: {
-              id: phoneCanvassId,
-            },
-          },
-        },
+    mutationFn: async (params: UpdatePhoneCanvassContactNotesDTO) => {
+      return PhoneCanvassContactDTO.fromFetchOrThrow(
+        await grassrootsAPI.POST("/phone-canvass/update-contact-notes", {
+          body: params,
+        }),
       );
-
-      if (result.error) {
-        throw new Error(JSON.stringify(result.error));
-      }
-      return result.data;
     },
     retry: 1,
-    onSuccess: () => {
-      // TODO(mvp) - maybe track state here?
-    },
   });
 }
 
-export function EditContactNotes() {
+export function EditContactNotes(params: EditContactNotesProps): JSX.Element {
+  const updateNotes = useUpdateCallerNotesMutation();
+
   const form = useTypedForm<UpdatePhoneCanvassContactNotesDTO>({
     validate: classValidatorResolver(UpdatePhoneCanvassContactNotesDTO),
-    initialValues: UpdatePhoneCanvassContactNotesDTO.from({
-      id: "",
-      notes: "",
-    }),
   });
 
   const onSubmit = useCallback(
-    async (data: UpdatePhoneCanvassContactNotesDTO) => {},
+    async (data: UpdatePhoneCanvassContactNotesDTO): Promise<void> => {
+      await updateNotes.mutateAsync(data);
+    },
     [],
+  );
+
+  return (
+    <Paper style={params.style} shadow="sm" p="xl" radius="md" withBorder>
+      <form style={{ height: "100%" }} onSubmit={form.onSubmit(onSubmit)}>
+        <Stack h="100%">
+          <Textarea
+            h="100%"
+            label="Notes"
+            styles={{
+              wrapper: { height: "100%" },
+              input: { height: "100%" },
+            }}
+          ></Textarea>
+          <Button mt="xl">Save</Button>
+        </Stack>
+      </form>
+    </Paper>
   );
 }

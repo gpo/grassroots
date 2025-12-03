@@ -144,32 +144,41 @@ export class PhoneCanvassService {
     });
   }
 
-  async getContact(
-    phoneCanvassContactId: number,
-  ): Promise<PhoneCanvassContactDTO> {
+  // Security here comes from the comparison with the phone canvass id.
+  // If an attacker knows a phone canvass id, they can likely guess a contact id.
+  async #getContact(params: {
+    phoneCanvassId: string;
+    phoneCanvassContactId: number;
+  }): Promise<PhoneCanvassContactEntity> {
     const contact = await this.repo
       .getEntityManager()
-      .findOneOrFail(
+      .findOne(
         PhoneCanvassContactEntity,
-        { phoneCanvassContactId },
-        { populate: ["contact"] },
+        { phoneCanvassContactId: params.phoneCanvassContactId },
+        { populate: ["contact", "phoneCanvass"] },
       );
-    return contact.toDTO();
+    if (contact === null || contact.phoneCanvass.id !== params.phoneCanvassId) {
+      throw new NotFoundException("Unable to find contact.");
+    }
+    return contact;
   }
 
-  async updateContactNotes(
-    phoneCanvassContactId: number,
-    notes: string,
-  ): Promise<PhoneCanvassContactDTO> {
-    const contact = await this.repo
-      .getEntityManager()
-      .findOneOrFail(
-        PhoneCanvassContactEntity,
-        { phoneCanvassContactId },
-        { populate: ["contact"] },
-      );
-    contact.notes = notes;
-    contact.flush();
+  async getContact(params: {
+    phoneCanvassId: string;
+    phoneCanvassContactId: number;
+  }): Promise<PhoneCanvassContactDTO> {
+    return (await this.#getContact(params)).toDTO();
+  }
+
+  async updateContactNotes(params: {
+    phoneCanvassId: string;
+    phoneCanvassContactId: number;
+    notes: string;
+  }): Promise<PhoneCanvassContactDTO> {
+    const contact = await this.#getContact(params);
+    const em = this.repo.getEntityManager();
+    contact.notes = params.notes;
+    await em.flush();
     return contact.toDTO();
   }
 
@@ -194,10 +203,6 @@ export class PhoneCanvassService {
         rowsTotal,
       },
     });
-  }
-
-  hasModelFor(params: { phoneCanvassId: string }): boolean {
-    return this.#models.get(params.phoneCanvassId) !== undefined;
   }
 
   async getInitiatedModelFor(params: {

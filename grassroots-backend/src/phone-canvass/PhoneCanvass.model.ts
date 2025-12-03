@@ -29,7 +29,6 @@ import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
   PhoneCanvassContactDTO,
-  UpdatePhoneCanvassContactNotesDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { EntityManager } from "@mikro-orm/core";
 import { propsOf } from "grassroots-shared/util/TypeUtils";

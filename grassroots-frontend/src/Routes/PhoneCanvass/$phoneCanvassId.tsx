@@ -27,13 +27,18 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
       phoneCanvassCallerStore.setCaller(refreshedCaller);
       return refreshedCaller;
     };
-    const caller = await getPhoneCanvassCaller({
-      refreshCaller,
-      activePhoneCanvassId: params.phoneCanvassId,
-      phoneCanvassCallerStore,
-      // This ensures the server knows this client exists.
-      forceRefresh: true,
-    });
+    let caller: PhoneCanvassCallerDTO | undefined = undefined;
+    try {
+      caller = await getPhoneCanvassCaller({
+        refreshCaller,
+        activePhoneCanvassId: params.phoneCanvassId,
+        phoneCanvassCallerStore,
+        // This ensures the server knows this client exists.
+        forceRefresh: true,
+      });
+    } catch {
+      // If we can't get a caller safely, redirect to login.
+    }
 
     if (caller === undefined) {
       // eslint-disable-next-line @typescript-eslint/only-throw-error
