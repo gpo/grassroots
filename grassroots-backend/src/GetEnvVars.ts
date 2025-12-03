@@ -10,7 +10,11 @@ import {
 import { plainToInstance } from "class-transformer";
 import { createHash } from "crypto";
 
-function sha1(s: string): string {
+// May be undefined in a test environment.
+function sha1(s: string | undefined): string {
+  if (s === undefined) {
+    return "undefined";
+  }
   const hash = createHash("sha1");
   hash.update(s);
   return hash.digest("hex");
