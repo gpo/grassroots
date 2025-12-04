@@ -32,7 +32,6 @@ import { ContactCard } from "../../Contacts/Components/ContactCard.js";
 import { notifications } from "@mantine/notifications";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { useUpdateCaller } from "../Logic/UseUpdateCaller.js";
-import { EditContactNotes } from "../../Contacts/Components/EditContactNotes.js";
 
 const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
   NOT_STARTED: " ",
@@ -144,20 +143,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     id: currentContactId,
     phoneCanvassId,
   }).data;
-
-  const currentContactDetails = (
-    <Group align="stretch">
-      <ContactCard
-        style={{ flex: "5 1 0" }}
-        phoneCanvassContact={currentContact}
-      ></ContactCard>
-      <EditContactNotes
-        style={{ flex: "2 1 0" }}
-        id={""}
-        notes={""}
-      ></EditContactNotes>
-    </Group>
-  );
 
   const onNewContact = (contact: ContactSummary | undefined): void => {
     setCurrentContactId(contact?.contactId);
@@ -285,7 +270,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     ) : (
       <>
         <ToggleReadyButton></ToggleReadyButton>
-        {currentContactDetails}
+        <ContactCard
+          phoneCanvassContact={currentContact}
+          phoneCanvassId={phoneCanvassId}
+        ></ContactCard>
       </>
     );
 

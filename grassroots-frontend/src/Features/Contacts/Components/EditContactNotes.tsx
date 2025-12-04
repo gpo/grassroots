@@ -5,13 +5,18 @@ import {
 import { useTypedForm } from "../../../Logic/UseTypedForm.js";
 import { classValidatorResolver } from "../../../Logic/ClassValidatorResolver.js";
 import { JSX, useCallback } from "react";
-import { useMutation, UseMutationResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationResult,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { grassrootsAPI } from "../../../GrassRootsAPI.js";
 import { Button, Paper, Stack, Textarea } from "@mantine/core";
 
 interface EditContactNotesProps {
-  id: string;
-  notes: string;
+  contactId: number;
+  phoneCanvassId: string;
+  initialNotes: string;
   style?: React.CSSProperties;
 }
 
@@ -20,6 +25,8 @@ function useUpdateCallerNotesMutation(): UseMutationResult<
   Error,
   UpdatePhoneCanvassContactNotesDTO
 > {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (params: UpdatePhoneCanvassContactNotesDTO) => {
       return PhoneCanvassContactDTO.fromFetchOrThrow(
@@ -27,6 +34,12 @@ function useUpdateCallerNotesMutation(): UseMutationResult<
           body: params,
         }),
       );
+    },
+    // TODO: clean up these query keys.
+    onSuccess: async (contact: PhoneCanvassContactDTO) => {
+      await queryClient.invalidateQueries({
+        queryKey: ["phone-canvass-contact-by-raw-id", contact.contact.id],
+      });
     },
     retry: 1,
   });
@@ -37,20 +50,27 @@ export function EditContactNotes(params: EditContactNotesProps): JSX.Element {
 
   const form = useTypedForm<UpdatePhoneCanvassContactNotesDTO>({
     validate: classValidatorResolver(UpdatePhoneCanvassContactNotesDTO),
+    initialValues: UpdatePhoneCanvassContactNotesDTO.from({
+      contactId: params.contactId,
+      phoneCanvassId: params.phoneCanvassId,
+      notes: params.initialNotes,
+    }),
   });
 
   const onSubmit = useCallback(
     async (data: UpdatePhoneCanvassContactNotesDTO): Promise<void> => {
-      await updateNotes.mutateAsync(data);
+      const result = await updateNotes.mutateAsync(data);
+      console.log(result);
     },
     [],
   );
-
   return (
     <Paper style={params.style} shadow="sm" p="xl" radius="md" withBorder>
       <form style={{ height: "100%" }} onSubmit={form.onSubmit(onSubmit)}>
         <Stack h="100%">
           <Textarea
+            key={form.key("notes")}
+            {...form.getInputProps("notes")}
             h="100%"
             label="Notes"
             styles={{
@@ -58,7 +78,9 @@ export function EditContactNotes(params: EditContactNotesProps): JSX.Element {
               input: { height: "100%" },
             }}
           ></Textarea>
-          <Button mt="xl">Save</Button>
+          <Button type="submit" mt="xl">
+            Save
+          </Button>
         </Stack>
       </form>
     </Paper>

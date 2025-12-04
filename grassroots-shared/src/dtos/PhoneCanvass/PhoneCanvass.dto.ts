@@ -88,7 +88,7 @@ export class CreatePhoneCanvassResponseDTO extends createDTOBase(
 export class UpdatePhoneCanvassContactNotesDTO extends createDTOBase(
   "UpdatePhoneCanvassContactNotes",
 ) {
-  @IsString()
+  @IsNumber()
   contactId!: number;
 
   @IsString()

@@ -89,9 +89,6 @@ export class PhoneCanvassController {
           group$.pipe(
             map((callback) => {
               const status = twilioCallStatusToCallStatus(callback.CallStatus);
-              console.log("status callback", callback.CallStatus, status);
-              // @ts-expect-error TODO do the thing okay
-              console.log("Answered by ", callback.AnsweredBy);
               const call = this.phoneCanvassService.getCallBySid(
                 callback.CallSid,
               );
@@ -284,7 +281,6 @@ export class PhoneCanvassController {
     @Param("id") id: string,
     @Res() res: Response,
   ): Promise<void> {
-    console.log("GET VOICEMAIL");
     let voicemails = await readdir(VOICEMAIL_STORAGE_DIR);
     const regex = new RegExp(`${id}\\.*`);
     voicemails = voicemails.filter((x) => regex.test(x));
@@ -332,13 +328,27 @@ export class PhoneCanvassController {
     });
   }
 
+  // Requiring the phone canvass id is the only security to prevent scraping of contacts.
+  @PublicRoute()
+  @Get("contact/:phoneCanvassId/byRawContactId/:rawContactId")
+  async getContactByRawContactId(
+    @Param("rawContactId") baseContactId: number,
+    @Param("phoneCanvassId") phoneCanvassId: string,
+  ): Promise<PhoneCanvassContactDTO> {
+    return (
+      await this.phoneCanvassService.getContactByRawContactId({
+        phoneCanvassId,
+        rawContactId: baseContactId,
+      })
+    ).toDTO();
+  }
+
   @Post("register-caller")
   @PublicRoute()
   async registerCaller(
     @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    console.log("REGISTER CALLER");
     const model = await this.phoneCanvassService.getInitiatedModelFor({
       phoneCanvassId: caller.activePhoneCanvassId,
     });

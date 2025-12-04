@@ -40,6 +40,7 @@ export function OrganizationDetails(): JSX.Element {
         paginatedContactResponse={useContactSearchResults}
         setRowsToSkip={setRowsToSkip}
         rowsPerPage={ROWS_PER_PAGE}
+        phoneCanvassId="TODO"
       ></PaginatedContacts>
     </div>
   );

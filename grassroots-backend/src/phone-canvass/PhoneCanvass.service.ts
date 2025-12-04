@@ -163,6 +163,25 @@ export class PhoneCanvassService {
     return contact;
   }
 
+  // Security here comes from the comparison with the phone canvass id.
+  // If an attacker knows a phone canvass id, they can likely guess a contact id.
+  async getContactByRawContactId(params: {
+    phoneCanvassId: string;
+    rawContactId: number;
+  }): Promise<PhoneCanvassContactEntity> {
+    const contact = await this.repo
+      .getEntityManager()
+      .findOne(
+        PhoneCanvassContactEntity,
+        { contact: { id: params.rawContactId } },
+        { populate: ["contact"] },
+      );
+    if (contact === null || contact.phoneCanvass.id !== params.phoneCanvassId) {
+      throw new NotFoundException("Unable to find contact.");
+    }
+    return contact;
+  }
+
   async getContact(params: {
     phoneCanvassId: string;
     phoneCanvassContactId: number;
@@ -178,6 +197,7 @@ export class PhoneCanvassService {
     const contact = await this.#getContact(params);
     const em = this.repo.getEntityManager();
     contact.notes = params.notes;
+    console.log("SETTING NOTES TO", contact.notes);
     await em.flush();
     return contact.toDTO();
   }

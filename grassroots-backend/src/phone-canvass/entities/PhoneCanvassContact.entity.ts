@@ -1,6 +1,7 @@
 import {
   Entity,
   ManyToOne,
+  OneToOne,
   OptionalProps,
   PrimaryKey,
   Property,
@@ -44,7 +45,7 @@ export class PhoneCanvassContactEntity extends createEntityBase<
   @Property()
   playedVoicemail: boolean & Opt = false;
 
-  @ManyToOne()
+  @OneToOne()
   contact!: ContactEntity;
 
   toDTO(): PhoneCanvassContactDTO {
