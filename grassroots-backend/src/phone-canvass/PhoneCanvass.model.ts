@@ -102,7 +102,9 @@ export class PhoneCanvassModel {
       if (call.status === "COMPLETED" && call.callerId !== undefined) {
         const caller = this.#phoneCanvassCallersModel.getCaller(call.callerId);
 
+        console.log("CALLER READY IS", caller.ready);
         if (caller.ready === "last call") {
+          console.log("MARKING CALLER UNREADY");
           runPromise(
             this.updateOrCreateCaller(
               PhoneCanvassCallerDTO.from({

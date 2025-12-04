@@ -32,7 +32,6 @@ export function classValidatorResolver<DTO extends object>(
   dto: ClassConstructor<DTO>,
   additionalValidation?: (values: PropsOf<DTO>) => FormErrors,
 ): (values: PropsOf<DTO>) => FormErrors {
-  console.log("VALIDATE");
   const allowedClasses = [File];
   return (values: PropsOf<DTO>): FormErrors => {
     const validate: Record<string, unknown> = {};
