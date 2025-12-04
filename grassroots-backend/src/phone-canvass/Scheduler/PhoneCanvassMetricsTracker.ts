@@ -5,6 +5,7 @@ import {
   map,
   Observable,
   scan,
+  share,
   shareReplay,
   startWith,
 } from "rxjs";
@@ -32,25 +33,18 @@ export class PhoneCanvassMetricsTracker {
 
   constructor(calls$: Observable<Call>) {
     this.#committedCallsCountObservable = calls$.pipe(
-      scan((committedCalls: number, call: Call): number => {
+      scan((committedCalls: Set<number>, call: Call): Set<number> => {
         if (call.status === "NOT_STARTED") {
-          console.log(
-            "UPDATING COMMITTED CALLS FROM",
-            committedCalls,
-            call.status,
-          );
-          return committedCalls + 1;
+          committedCalls.add(call.id);
+          return committedCalls;
         }
         if (call.status === "COMPLETED") {
-          console.log(
-            "UPDATING COMMITTED CALLS FROM",
-            committedCalls,
-            call.status,
-          );
-          return committedCalls - 1;
+          committedCalls.delete(call.id);
+          return committedCalls;
         }
         return committedCalls;
-      }, 0),
+      }, new Set<number>()),
+      map((committedCalls) => committedCalls.size),
       distinctUntilChanged(),
       startWith(0),
       shareReplay({ bufferSize: 1, refCount: true }),
@@ -64,10 +58,12 @@ export class PhoneCanvassMetricsTracker {
         ([callerCount, committedCallsCount]) =>
           callerCount - committedCallsCount,
       ),
+      share(),
     );
   }
 
   onReadyCallerCountUpdate(callerCount: number): void {
+    console.log("SETTING READY CALLER COUNT TO ", callerCount);
     this.#readyCallerCountObservable.next(callerCount);
   }
 }

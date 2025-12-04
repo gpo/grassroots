@@ -4,8 +4,10 @@ import {
   distinctUntilChanged,
   map,
   Observable,
+  pairwise,
   scan,
   startWith,
+  tap,
 } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
@@ -44,6 +46,38 @@ async function makeCall(params: {
       ? await twilioService.makeCall(call)
       : simulateMakeCall(call);
   call.update(status, { twilioSid: sid });
+}
+
+function updateContactsInLastCallState(params: {
+  call: Call;
+  phoneCanvassCallersModel: PhoneCanvassCallersModel;
+  updateOrCreateCaller: (
+    caller: PhoneCanvassCallerDTO,
+  ) => Promise<PhoneCanvassCallerDTO>;
+}): void {
+  const { call, phoneCanvassCallersModel, updateOrCreateCaller } = params;
+  if (call.status !== "COMPLETED") {
+    return;
+  }
+
+  if (call.callerId !== undefined) {
+    const caller = phoneCanvassCallersModel.getCaller(call.callerId);
+
+    console.log("CALLER READY IS", caller.ready);
+    if (caller.ready === "last call") {
+      console.log("MARKING CALLER UNREADY");
+      runPromise(
+        updateOrCreateCaller(
+          PhoneCanvassCallerDTO.from({
+            ...propsOf(caller),
+            ready: "unready",
+          }),
+        ),
+        false,
+      );
+    }
+    return;
+  }
 }
 
 export class PhoneCanvassModel {
@@ -100,23 +134,15 @@ export class PhoneCanvassModel {
         call.callerId,
       );
 
-      if (call.status === "COMPLETED" && call.callerId !== undefined) {
-        const caller = this.#phoneCanvassCallersModel.getCaller(call.callerId);
-
-        console.log("CALLER READY IS", caller.ready);
-        if (caller.ready === "last call") {
-          console.log("MARKING CALLER UNREADY");
-          runPromise(
-            this.updateOrCreateCaller(
-              PhoneCanvassCallerDTO.from({
-                ...propsOf(caller),
-                ready: "unready",
-              }),
-            ),
-            false,
-          );
-        }
-      }
+      // When a call ends, if it was associated with a contact in the last call state, we mark them unready.
+      // That's what we're doing here.
+      // If the call wasn't associated with a contact in the last call state
+      // we just wait until we're not overcommitted, and then we can mark them ready.
+      updateContactsInLastCallState({
+        call,
+        phoneCanvassCallersModel: this.#phoneCanvassCallersModel,
+        updateOrCreateCaller: (caller) => this.updateOrCreateCaller(caller),
+      });
 
       if (call.status === "NOT_STARTED") {
         runPromise(
@@ -129,6 +155,22 @@ export class PhoneCanvassModel {
         );
       }
     });
+
+    this.scheduler.metricsTracker.idleCallerCountObservable
+      .pipe(pairwise())
+      .subscribe(([prev, next]) => {
+        console.log("CHECKING PREV & NEXT", prev, next);
+        if (prev < 0 && next >= 0) {
+          // We were overcommitted, but aren't anymore.
+          runPromise(
+            this.#phoneCanvassCallersModel.markOneLastCallCallerAsUnready(
+              [...this.#callsBySid.values()],
+              (caller) => this.updateOrCreateCaller(caller),
+            ),
+            false,
+          );
+        }
+      });
 
     const callerSummariesById$: Observable<Map<string, CallerSummary>> =
       this.#phoneCanvassCallersModel.callers$.pipe(
@@ -145,6 +187,9 @@ export class PhoneCanvassModel {
 
     const callerSummaries$ = callerSummariesById$.pipe(
       map((x) => [...x.values()]),
+      tap((summaries) => {
+        console.log(summaries);
+      }),
     );
 
     const callsByContactId$ = this.calls$.pipe(

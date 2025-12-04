@@ -31,8 +31,6 @@ export function PaginatedContacts(props: PaginatedContactsProps): JSX.Element {
     setFocusedContactId(contact.id);
   }, []);
 
-  console.log("current contact", currentContact);
-
   const contactsRows = contacts.map((x) => {
     return (
       <ContactRow

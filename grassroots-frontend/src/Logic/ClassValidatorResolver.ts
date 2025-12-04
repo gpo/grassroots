@@ -53,7 +53,6 @@ export function classValidatorResolver<DTO extends object>(
     if (additionalValidation) {
       Object.assign(errors, additionalValidation(values));
     }
-    console.log(errors);
     return errors;
   };
 }

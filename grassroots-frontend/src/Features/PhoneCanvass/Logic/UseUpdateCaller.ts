@@ -35,7 +35,6 @@ export function useUpdateCaller(
     },
     retry: 1,
     onSuccess: async (caller: PhoneCanvassCallerDTO) => {
-      console.log("SETTING AUTHTOKEN TO ", caller.authToken.slice(-10, -1));
       phoneCanvassCallerStore.setCaller(PhoneCanvassCallerDTO.from(caller));
       await queryClient.invalidateQueries({ queryKey: ["caller"] });
     },

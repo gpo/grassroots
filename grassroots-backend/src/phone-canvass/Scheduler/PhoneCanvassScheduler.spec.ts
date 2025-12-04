@@ -96,7 +96,6 @@ describe("PhoneCanvassScheduler", () => {
     resetPhoneCanvasCallIdsForTest();
   });
   it("should handle a stream of calls in series", async () => {
-    console.log("START OF TEST");
     const callsById = new Map<number, Call>();
     const { model, callers$ } = getModelWithObservables();
     const scheduler = model.scheduler;
@@ -106,9 +105,7 @@ describe("PhoneCanvassScheduler", () => {
 
     currentTime = 11;
     callers$.next(callerWithId("1"));
-    console.log("BEFORE IDLE WAIT");
     await scheduler.waitForIdleForTest();
-    console.log("AFTER IDLE WAIT");
 
     expect(callsById).toHaveLength(1);
     expect(callsById.get(1)).toBeDefined();
@@ -143,12 +140,9 @@ describe("PhoneCanvassScheduler", () => {
     model.calls$.subscribe((call) => callsById.set(call.id, call));
 
     callers$.next(callerWithId(CALLER_ID));
-    console.log("BEFORE WAIT");
     await scheduler.waitForIdleForTest();
-    console.log("AFTER IDLE");
-
     expect(callsById).toHaveLength(1);
-    console.log(callsById);
+
     let call = callsById.get(1) ?? fail();
 
     call = call
@@ -160,14 +154,11 @@ describe("PhoneCanvassScheduler", () => {
     await scheduler.waitForIdleForTest();
     expect(callsById).toHaveLength(1);
 
-    console.log("MARKING COMPLETED");
     const completedCall = call.update("COMPLETED", {
       result: "COMPLETED",
     });
-    console.log("MARKED COMPLETED");
 
     await scheduler.waitForIdleForTest();
-    console.log(callsById.values());
     expect(callsById).toHaveLength(2);
 
     // This is no longer the case, as we're waiting for the "answered" callback.

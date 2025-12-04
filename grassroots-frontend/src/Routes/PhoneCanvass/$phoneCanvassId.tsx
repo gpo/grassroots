@@ -19,10 +19,6 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
           body: caller,
         }),
       );
-      console.log(
-        "ROUTE REFRESH to auth token",
-        refreshedCaller.authToken.slice(-10, -1),
-      );
 
       phoneCanvassCallerStore.setCaller(refreshedCaller);
       return refreshedCaller;

@@ -96,6 +96,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     this.#callers$.subscribe((caller) => {
       switch (caller.ready) {
         case "ready": {
+          console.log("READY");
           this.#callerSummariesById.set(caller.id, {
             id: caller.id,
             availabilityStartTime: this.#getCurrentTime(),
@@ -104,15 +105,19 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
           break;
         }
         case "unready": {
+          console.log("UNREADY");
           this.#callerSummariesById.delete(caller.id);
           this.#readyCallerIds.delete(caller.id);
           break;
         }
         case "last call": {
+          console.log("LAST CALL");
           this.#readyCallerIds.delete(caller.id);
           break;
         }
       }
+      console.log("ALL CALLERS:", this.#callerSummariesById);
+      console.log("READY:", this.#readyCallerIds.size);
       this.metricsTracker.onReadyCallerCountUpdate(this.#readyCallerIds.size);
     });
   }

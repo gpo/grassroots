@@ -6,6 +6,7 @@ import {
 import { propsOf } from "grassroots-shared/util/TypeUtils";
 import { Observable, Subject } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
+import { Call } from "./Scheduler/PhoneCanvassCall.js";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
@@ -22,12 +23,6 @@ export class PhoneCanvassCallersModel {
     this.#callers$ = params.callers;
 
     this.#callers$.subscribe((caller) => {
-      console.log(
-        "GIVING CALLER WITH ID",
-        caller.id,
-        "authtoken",
-        caller.authToken.slice(-10, -1),
-      );
       this.#callersById.set(caller.id, caller);
     });
   }
@@ -83,10 +78,7 @@ export class PhoneCanvassCallersModel {
       return caller;
     }
     if (caller.authToken !== params.authToken) {
-      console.log("AUTHTOKEN NOT MATCHING.");
-      console.log("EXISTING", caller.authToken.slice(-10, -1));
-      console.log("LOOKING FOR", params.authToken.slice(-10, -1));
-
+      console.log("MISMATCHING AUTH TOKEN");
       return undefined;
     }
     return caller;
@@ -111,10 +103,7 @@ export class PhoneCanvassCallersModel {
           authToken: await getAuthToken(String(existingCaller.id)),
         });
 
-      console.log(
-        "Have existing caller, giving authToken",
-        newCaller.authToken.slice(-10, -1),
-      );
+      console.log("CALLER READY in update is", newCaller.ready);
 
       this.#callers$.next(newCaller);
       return newCaller;
@@ -136,5 +125,31 @@ export class PhoneCanvassCallersModel {
       );
     }
     return existingCaller;
+  }
+
+  async markOneLastCallCallerAsUnready(
+    calls: Call[],
+    updateOrCreateCaller: (
+      caller: PhoneCanvassCallerDTO,
+    ) => Promise<PhoneCanvassCallerDTO>,
+  ): Promise<void> {
+    console.log("Trying a markOneLastCallCallerAsUnready");
+
+    for (const caller of this.#callersById.values()) {
+      if (caller.ready !== "last call") {
+        continue;
+      }
+      const call = calls.find((call) => call.callerId === caller.id);
+      if (call !== undefined) {
+        // This caller will be marked unready when the current call finishes.
+        continue;
+      }
+      console.log("markOneLastCallCallerAsUnready");
+
+      await updateOrCreateCaller(
+        PhoneCanvassCallerDTO.from({ ...propsOf(caller), ready: "unready" }),
+      );
+      return;
+    }
   }
 }

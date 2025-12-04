@@ -197,7 +197,6 @@ export class PhoneCanvassService {
     const contact = await this.#getContact(params);
     const em = this.repo.getEntityManager();
     contact.notes = params.notes;
-    console.log("SETTING NOTES TO", contact.notes);
     await em.flush();
     return contact.toDTO();
   }

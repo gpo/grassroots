@@ -69,8 +69,17 @@ function CallPartyProgress(props: {
   );
 }
 
+type ToggleReadyButtonState =
+  | "unready"
+  | "ready"
+  | "becomingReady"
+  | "becomingUnready"
+  | "last call";
+
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
+
+  console.log("PAGE RERENDER");
 
   const callPartyStateStoreRef = useRef(createCallPartyStateStore());
   const callPartyStateStore = useStore(callPartyStateStoreRef.current);
@@ -80,9 +89,8 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const [currentContactId, setCurrentContactId] = useState<
     number | undefined
   >();
-  const [readyForCalls, setReadyForCalls] = useState<
-    "unready" | "ready" | "becomingReady" | "becomingUnready"
-  >("unready");
+  const [readyForCalls, setReadyForCalls] =
+    useState<ToggleReadyButtonState>("unready");
 
   const registerCaller = useRegisterCaller({
     phoneCanvassId,
@@ -111,13 +119,19 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       phoneCanvassCallerStore,
     }) ?? initialCaller;
 
+  console.log("CALLER IS", caller);
+
+  useEffect(() => {
+    console.log("CALLER UPDATED");
+    setReadyForCalls(caller.ready);
+  }, [caller]);
+
   // If the user navigates away, we need to mark them as not ready.
   useEffect(() => {
     window.onbeforeunload = (event: BeforeUnloadEvent): string | undefined => {
       if (readyForCalls === "becomingReady" || readyForCalls === "ready") {
         event.preventDefault();
 
-        setReadyForCalls("unready");
         runPromise(
           markLastCall({
             caller,
@@ -191,7 +205,18 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     );
   });
 
-  const ToggleReadyButton = (): JSX.Element => {
+  const ToggleReadyButton = (props: {
+    readyForCalls: ToggleReadyButtonState;
+  }): JSX.Element => {
+    console.log("BUTTON RERENDER");
+    const { readyForCalls } = props;
+    if (readyForCalls === "last call") {
+      return (
+        <Button color="red" disabled={true}>
+          You might still be needed!
+        </Button>
+      );
+    }
     if (readyForCalls === "ready" || readyForCalls === "becomingUnready") {
       return (
         <Button
@@ -205,7 +230,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
                   device: currentDevice,
                   updateCallerMutation: updateCallerNoKeepAlive,
                 });
-                setReadyForCalls("unready");
               })(),
               false,
             );
@@ -230,7 +254,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
                   })
                 ).device;
                 setCurrentDevice(device);
-                setReadyForCalls("ready");
               })(),
               false,
             );
@@ -269,7 +292,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       complete
     ) : (
       <>
-        <ToggleReadyButton></ToggleReadyButton>
+        <ToggleReadyButton readyForCalls={readyForCalls}></ToggleReadyButton>
         <ContactCard
           phoneCanvassContact={currentContact}
           phoneCanvassId={phoneCanvassId}

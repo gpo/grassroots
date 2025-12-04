@@ -64,8 +64,6 @@ class SyncGroupManager {
     }
     this.#currentRevision = revision;
 
-    console.log("ON UPDATE");
-
     if (
       data.phoneCanvassId !=
       SyncGroupManager.instance?.caller.activePhoneCanvassId
@@ -79,12 +77,15 @@ class SyncGroupManager {
       activePhoneCanvassId: this.caller.activePhoneCanvassId,
       phoneCanvassCallerStore: this.#phoneCanvassCallerStore,
     });
+
+    console.log("CALLER READY? ", caller?.ready);
     if (
       this.#callPartyStateStore.serverInstanceUUID &&
       this.#callPartyStateStore.serverInstanceUUID !==
         data.serverInstanceUUID &&
       caller
     ) {
+      console.log("REREGISTER");
       // The server has rebooted, we need to reregister.
       caller = await this.#registerCaller(
         CreatePhoneCanvassCallerDTO.from(caller),

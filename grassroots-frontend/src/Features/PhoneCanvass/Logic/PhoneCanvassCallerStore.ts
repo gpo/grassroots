@@ -52,6 +52,7 @@ export function usePhoneCanvassCaller(params: {
   useEffect(() => {
     runPromise(
       (async (): Promise<void> => {
+        console.log("UPDATING CALLER");
         setCaller(await getPhoneCanvassCaller({ ...params }));
       })(),
       false,
