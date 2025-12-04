@@ -2,7 +2,6 @@ import { ConflictException } from "@nestjs/common";
 import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
-  UpdatePhoneCanvassContactNotesDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
 import { Observable, Subject } from "rxjs";
@@ -19,8 +18,8 @@ export class PhoneCanvassCallersModel {
   #callersById = new Map<string, PhoneCanvassCallerDTO>();
   #callers$: Subject<Readonly<PhoneCanvassCallerDTO>>;
 
-  constructor() {
-    this.#callers$ = new Subject<PhoneCanvassCallerDTO>();
+  constructor(params: { callers: Subject<Readonly<PhoneCanvassCallerDTO>> }) {
+    this.#callers$ = params.callers;
 
     this.#callers$.subscribe((caller) => {
       console.log(

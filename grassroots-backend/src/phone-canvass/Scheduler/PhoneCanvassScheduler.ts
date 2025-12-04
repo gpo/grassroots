@@ -7,8 +7,6 @@ export interface Caller {
 
 export abstract class PhoneCanvassScheduler {
   abstract stop(): void;
-  abstract addCaller(id: string): void;
-  abstract removeCaller(id: string): void;
   abstract waitForIdleForTest(): Promise<void>;
   abstract getNextIdleCallerId(): string | undefined;
   abstract get metricsTracker(): PhoneCanvassMetricsTracker;

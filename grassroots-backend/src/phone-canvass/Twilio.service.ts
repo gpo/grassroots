@@ -198,7 +198,6 @@ export class TwilioService {
   }
 
   async setSyncData(phoneCanvassId: string, data: string): Promise<void> {
-    console.log("SET SYNC DATA");
     const envVars = await getEnvVars();
     const client = await this.#getClient();
 

@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { vi } from "vitest";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 
@@ -30,7 +29,7 @@ export class TwilioServiceMock {
   setSyncData = vi.fn(
     async (
       phoneCanvassId: string,
-      data: PhoneCanvassSyncData,
+      data: string,
       // eslint-disable-next-line @typescript-eslint/require-await
     ): Promise<void> => {
       void phoneCanvassId;

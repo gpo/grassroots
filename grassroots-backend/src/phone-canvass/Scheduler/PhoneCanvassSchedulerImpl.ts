@@ -16,6 +16,7 @@ import { Call } from "./PhoneCanvassCall.js";
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { Caller, PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
 import { PhoneCanvassSchedulerStrategy } from "./Strategies/PhoneCanvassSchedulerStrategy.js";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 @Injectable()
 export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
@@ -26,8 +27,14 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   readonly phoneCanvassId: string;
   readonly #busyCallerIds = new Set<string>();
 
-  // From caller id.
-  #callers = new Map<string, Caller>();
+  // We need to track both "ready" callers (to know if we should make more calls)
+  // and callers who are either "ready" or "last call" (to know who to assign calls to).
+  // `#callerSummariesById` includes "last call" callers.
+  #callerSummariesById = new Map<string, Caller>();
+  // `#readyCallerIds` doesn't include "last call" callers.
+  #readyCallerIds = new Set<string>();
+
+  #callers$: Observable<PhoneCanvassCallerDTO>;
   #pendingContacts$: Observable<PhoneCanvassContactEntity>;
 
   #getCurrentTime: () => number;
@@ -39,12 +46,14 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
       contacts: PhoneCanvassContactEntity[];
       phoneCanvassId: string;
       calls$: Subject<Call>;
+      callers$: Observable<PhoneCanvassCallerDTO>;
     },
   ) {
     super();
     this.#strategy = strategy;
     this.phoneCanvassId = params.phoneCanvassId;
     this.#calls$ = params.calls$;
+    this.#callers$ = params.callers$;
 
     this.#getCurrentTime = (): number => {
       return Date.now();
@@ -83,6 +92,29 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
         }
       }
     });
+
+    this.#callers$.subscribe((caller) => {
+      switch (caller.ready) {
+        case "ready": {
+          this.#callerSummariesById.set(caller.id, {
+            id: caller.id,
+            availabilityStartTime: this.#getCurrentTime(),
+          });
+          this.#readyCallerIds.add(caller.id);
+          break;
+        }
+        case "unready": {
+          this.#callerSummariesById.delete(caller.id);
+          this.#readyCallerIds.delete(caller.id);
+          break;
+        }
+        case "last call": {
+          this.#readyCallerIds.delete(caller.id);
+          break;
+        }
+      }
+      this.metricsTracker.onReadyCallerCountUpdate(this.#readyCallerIds.size);
+    });
   }
 
   stop(): void {
@@ -111,9 +143,11 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
 
   getNextIdleCallerId(): string | undefined {
     // Find the idle caller who has been available for the longest time.
-    const availableCallers = [...this.#callers.values()].filter((caller) => {
-      return !this.#busyCallerIds.has(caller.id);
-    });
+    const availableCallers = [...this.#callerSummariesById.values()].filter(
+      (caller) => {
+        return !this.#busyCallerIds.has(caller.id);
+      },
+    );
 
     const firstAvailableCaller = availableCallers.pop();
     if (firstAvailableCaller === undefined) {
@@ -130,22 +164,5 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     );
 
     return oldestAvailableCaller.id;
-  }
-
-  addCaller(id: string): void {
-    this.#callers.set(id, {
-      id,
-      availabilityStartTime: this.#getCurrentTime(),
-    });
-    this.metricsTracker.onCallerCountUpdate(this.#callers.size);
-  }
-
-  removeCaller(id: string): void {
-    const removed = this.#callers.delete(id);
-    if (!removed) {
-      // This can happen due to a server restart, causing us to forget this caller exists.
-      return;
-    }
-    this.metricsTracker.onCallerCountUpdate(this.#callers.size);
   }
 }

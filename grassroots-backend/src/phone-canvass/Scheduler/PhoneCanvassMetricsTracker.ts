@@ -13,13 +13,13 @@ import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class PhoneCanvassMetricsTracker {
-  #callerCountObservable = new BehaviorSubject<number>(0);
+  #readyCallerCountObservable = new BehaviorSubject<number>(0);
   #committedCallsCountObservable: Observable<number>;
 
   readonly #idleCallerCountObservable: Observable<number>;
 
   get callerCountObservable(): Observable<number> {
-    return this.#callerCountObservable;
+    return this.#readyCallerCountObservable;
   }
 
   get committedCallerCountObservable(): Observable<number> {
@@ -57,7 +57,7 @@ export class PhoneCanvassMetricsTracker {
     );
 
     this.#idleCallerCountObservable = combineLatest([
-      this.#callerCountObservable,
+      this.#readyCallerCountObservable,
       this.#committedCallsCountObservable,
     ]).pipe(
       map(
@@ -67,7 +67,7 @@ export class PhoneCanvassMetricsTracker {
     );
   }
 
-  onCallerCountUpdate(callerCount: number): void {
-    this.#callerCountObservable.next(callerCount);
+  onReadyCallerCountUpdate(callerCount: number): void {
+    this.#readyCallerCountObservable.next(callerCount);
   }
 }

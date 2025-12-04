@@ -5,7 +5,10 @@ import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entit
 import { Call, resetPhoneCanvasCallIdsForTest } from "./PhoneCanvassCall.js";
 import { fail } from "assert";
 import { PhoneCanvassModule } from "../PhoneCanvass.module.js";
-import { PhoneCanvassModelFactory } from "./PhoneCanvassModelFactory.js";
+import {
+  getLastObservablesForTest,
+  PhoneCanvassModelFactory,
+} from "./PhoneCanvassModelFactory.js";
 import { PhoneCanvassModel } from "../PhoneCanvass.model.js";
 import { TwilioServiceMock } from "../Twilio.service.mock.js";
 import { ServerMetaService } from "../../server-meta/ServerMeta.service.js";
@@ -13,6 +16,8 @@ import { TwilioService } from "../Twilio.service.js";
 import { plainToInstance } from "class-transformer";
 import { ContactEntity } from "../../contacts/entities/Contact.entity.js";
 import { EntityManager } from "@mikro-orm/core";
+import { Subject } from "rxjs";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 function makeContact(id: number): ContactEntity {
   return plainToInstance(ContactEntity, { id });
@@ -38,8 +43,12 @@ const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
 
 let currentTime = -1;
 
-function getModel(): PhoneCanvassModel {
-  console.log("GET MODEL");
+interface ModelWithObservablesForTest {
+  model: PhoneCanvassModel;
+  callers$: Subject<Readonly<PhoneCanvassCallerDTO>>;
+}
+
+function getModelWithObservables(): ModelWithObservablesForTest {
   const factory = new PhoneCanvassModelFactory();
 
   const model = factory.createModel({
@@ -65,7 +74,18 @@ function getModel(): PhoneCanvassModel {
   });
 
   model.mockCurrentTime(currentTimeMock);
-  return model;
+  return { model, callers$: getLastObservablesForTest().callers$ };
+}
+
+function callerWithId(id: string): PhoneCanvassCallerDTO {
+  return PhoneCanvassCallerDTO.from({
+    id,
+    displayName: "",
+    email: "",
+    activePhoneCanvassId: "",
+    authToken: "",
+    ready: "ready",
+  });
 }
 
 describe("PhoneCanvassScheduler", () => {
@@ -78,14 +98,14 @@ describe("PhoneCanvassScheduler", () => {
   it("should handle a stream of calls in series", async () => {
     console.log("START OF TEST");
     const callsById = new Map<number, Call>();
-    const model = getModel();
+    const { model, callers$ } = getModelWithObservables();
     const scheduler = model.scheduler;
     model.calls$.subscribe((call) => callsById.set(call.id, call));
 
     expect(callsById).toHaveLength(0);
 
     currentTime = 11;
-    scheduler.addCaller("1");
+    callers$.next(callerWithId("1"));
     console.log("BEFORE IDLE WAIT");
     await scheduler.waitForIdleForTest();
     console.log("AFTER IDLE WAIT");
@@ -93,19 +113,19 @@ describe("PhoneCanvassScheduler", () => {
     expect(callsById).toHaveLength(1);
     expect(callsById.get(1)).toBeDefined();
 
-    scheduler.addCaller("2");
+    callers$.next(callerWithId("2"));
     await scheduler.waitForIdleForTest();
 
     expect(callsById).toHaveLength(2);
     expect(callsById.get(2)).toBeDefined();
 
-    scheduler.addCaller("3");
+    callers$.next(callerWithId("3"));
     await scheduler.waitForIdleForTest();
 
     expect(callsById).toHaveLength(3);
     expect(callsById.get(3)).toBeDefined();
 
-    scheduler.addCaller("4");
+    callers$.next(callerWithId("4"));
     await scheduler.waitForIdleForTest();
     // There's no new contact to call.
     expect(callsById).toHaveLength(3);
@@ -113,7 +133,7 @@ describe("PhoneCanvassScheduler", () => {
   });
 
   it("should handle call updates", async () => {
-    const model = getModel();
+    const { model, callers$ } = getModelWithObservables();
     const scheduler = model.scheduler;
 
     const CALLER_ID = "fakeuuid";
@@ -122,7 +142,7 @@ describe("PhoneCanvassScheduler", () => {
     const callsById = new Map<number, Call>();
     model.calls$.subscribe((call) => callsById.set(call.id, call));
 
-    scheduler.addCaller(CALLER_ID);
+    callers$.next(callerWithId(CALLER_ID));
     console.log("BEFORE WAIT");
     await scheduler.waitForIdleForTest();
     console.log("AFTER IDLE");

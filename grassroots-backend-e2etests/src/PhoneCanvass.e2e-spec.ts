@@ -21,6 +21,7 @@ import { GVoteCSVEntry } from "grassroots-backend/phone-canvass/PhoneCanvass.con
 import Papa from "papaparse";
 import { writeFile } from "fs/promises";
 import { delay } from "grassroots-shared/util/Delay";
+import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 
 const CSV_HEADER = `id,civi_id,voter_id,seq_id,district_num,district,poll,first_name,middle_name,last_name,language_pref,unit_num,bldg_num,bldg_num_sfx,street_name,street_type,street_dir,address,town,postal_code,province,phone,do_not_phone,do_not_mail,do_not_email,support_level,party_support,volunteer_status,volunteer_tasks,volunteer_notes,description,membership_status,membership_join_date,membership_expiry_date,voted,election_voted_in,tags,email,merge_tag_token`;
 
@@ -170,8 +171,12 @@ describe("PhoneCanvass (e2e)", () => {
     );
 
     expect(mock.setSyncData).toBeCalledTimes(3);
-    expect(mock.setSyncData).toHaveBeenLastCalledWith(
-      canvass.id,
+    const [phoneCanvassId, syncData] =
+      mock.setSyncData.mock.calls[mock.setSyncData.mock.calls.length - 1] ?? [];
+    expect(phoneCanvassId).toEqual(canvass.id);
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const syncDataJson = JSON.parse(syncData ?? "") as PhoneCanvassSyncData;
+    expect(syncDataJson).toEqual(
       expect.objectContaining({
         callers: [
           expect.objectContaining({ displayName: "A", ready: "unready" }),

@@ -49,6 +49,7 @@ async function makeCall(params: {
 export class PhoneCanvassModel {
   readonly phoneCanvassId: string;
   readonly calls$: Observable<Call>;
+
   readonly scheduler: PhoneCanvassScheduler;
 
   #serverMetaService: ServerMetaService;
@@ -126,24 +127,6 @@ export class PhoneCanvassModel {
           }),
           false,
         );
-      }
-    });
-
-    // TODO: the scheduler should just observe callers$.
-    // Add and remove callers from the scheduler.
-    this.#phoneCanvassCallersModel.callers$.subscribe((caller) => {
-      switch (caller.ready) {
-        case "ready": {
-          this.scheduler.addCaller(caller.id);
-          break;
-        }
-        case "unready": {
-          this.scheduler.removeCaller(caller.id);
-          break;
-        }
-        case "last call": {
-          // We handle this when a call completes.
-        }
       }
     });
 
