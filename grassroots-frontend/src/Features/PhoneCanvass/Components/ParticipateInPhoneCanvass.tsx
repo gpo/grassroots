@@ -32,8 +32,12 @@ import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
 import { ContactCard } from "../../Contacts/Components/ContactCard.js";
 import { notifications } from "@mantine/notifications";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { useUpdateCaller } from "../Logic/UseUpdateCaller.js";
+import {
+  UpdateCallerMutation,
+  useUpdateCaller,
+} from "../Logic/UseUpdateCaller.js";
 import { MicrophoneTester } from "./MicrophoneTester.js";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
   NOT_STARTED: " ",
@@ -71,12 +75,83 @@ function CallPartyProgress(props: {
   );
 }
 
-type ToggleReadyButtonState =
-  | "unready"
-  | "ready"
-  | "becomingReady"
-  | "becomingUnready"
-  | "last call";
+type ReadyPendingState = "becomingReady" | "becomingUnready" | undefined;
+
+const ToggleReadyButton = (props: {
+  ready: "ready" | "unready" | "last call";
+  readyPendingState: ReadyPendingState;
+  setReadyPendingState: (state: ReadyPendingState) => void;
+  currentDevice: Device | undefined;
+  caller: PhoneCanvassCallerDTO;
+  updateCallerMutation: UpdateCallerMutation;
+  setCurrentDevice: React.Dispatch<React.SetStateAction<Device | undefined>>;
+}): JSX.Element => {
+  console.log("BUTTON RERENDER");
+  const {
+    ready,
+    readyPendingState,
+    setReadyPendingState,
+    caller,
+    currentDevice,
+    updateCallerMutation,
+    setCurrentDevice,
+  } = props;
+  if (ready === "last call") {
+    return (
+      <Button flex={1} color="red" disabled={true}>
+        You might still be needed!
+      </Button>
+    );
+  }
+  if (ready === "ready" || readyPendingState === "becomingUnready") {
+    return (
+      <Button
+        flex={1}
+        disabled={readyPendingState === "becomingUnready"}
+        onClick={() => {
+          setReadyPendingState("becomingUnready");
+          runPromise(
+            (async (): Promise<void> => {
+              await markLastCall({
+                caller,
+                device: currentDevice,
+                updateCallerMutation,
+              });
+            })(),
+            false,
+          );
+        }}
+      >
+        Last Call For Now
+      </Button>
+    );
+  } else {
+    return (
+      <Button
+        flex={1}
+        disabled={readyPendingState === "becomingReady"}
+        onClick={() => {
+          setReadyPendingState("becomingReady");
+          runPromise(
+            (async (): Promise<void> => {
+              const device = (
+                await markReadyForCalls({
+                  caller,
+                  device: currentDevice,
+                  updateCallerMutation,
+                })
+              ).device;
+              setCurrentDevice(device);
+            })(),
+            false,
+          );
+        }}
+      >
+        Ready for Calls
+      </Button>
+    );
+  }
+};
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
@@ -91,8 +166,11 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const [currentContactId, setCurrentContactId] = useState<
     number | undefined
   >();
-  const [readyForCalls, setReadyForCalls] =
-    useState<ToggleReadyButtonState>("unready");
+  const [ready, setReady] = useState<"ready" | "unready" | "last call">(
+    "unready",
+  );
+  const [readyPendingState, setReadyPendingState] =
+    useState<ReadyPendingState>(undefined);
   const [testingMic, setTestingMic] = useState<boolean>(false);
 
   const registerCaller = useRegisterCaller({
@@ -122,17 +200,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       phoneCanvassCallerStore,
     }) ?? initialCaller;
 
-  console.log("CALLER IS", caller);
-
-  useEffect(() => {
-    console.log("CALLER UPDATED");
-    setReadyForCalls(caller.ready);
-  }, [caller]);
-
   // If the user navigates away, we need to mark them as not ready.
   useEffect(() => {
     window.onbeforeunload = (event: BeforeUnloadEvent): string | undefined => {
-      if (readyForCalls === "becomingReady" || readyForCalls === "ready") {
+      if (readyPendingState === "becomingReady" || ready === "ready") {
         event.preventDefault();
 
         runPromise(
@@ -154,7 +225,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         return "You're in the middle of a call. Are you sure you want to leave?";
       }
     };
-  }, [readyForCalls, currentContactId]);
+  }, [ready, readyPendingState, currentContactId]);
 
   const currentContact = usePhoneCanvassContact({
     id: currentContactId,
@@ -163,6 +234,12 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const onNewContact = (contact: ContactSummary | undefined): void => {
     setCurrentContactId(contact?.contactId);
+  };
+
+  const onReadyChanged = (ready: "ready" | "unready" | "last call"): void => {
+    console.log("onReadyChanged", ready);
+    setReady(ready);
+    setReadyPendingState(undefined);
   };
 
   useEffect(() => {
@@ -182,6 +259,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         registerCaller,
         refreshCaller,
         onNewContact,
+        onReadyChanged,
       }),
       false,
     );
@@ -203,7 +281,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     return (
       <Table.Tr key={caller.callerId}>
         <Table.Td>{caller.displayName}</Table.Td>
-        <Table.Td> {CALLER_READY_EMOJIS[caller.ready]}</Table.Td>
+        <Table.Td> {CALLER_READY_EMOJIS[ready]}</Table.Td>
       </Table.Tr>
     );
   });
@@ -219,68 +297,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         Test Audio
       </Button>
     );
-  };
-
-  const ToggleReadyButton = (props: {
-    readyForCalls: ToggleReadyButtonState;
-  }): JSX.Element => {
-    console.log("BUTTON RERENDER");
-    const { readyForCalls } = props;
-    if (readyForCalls === "last call") {
-      return (
-        <Button flex={1} color="red" disabled={true}>
-          You might still be needed!
-        </Button>
-      );
-    }
-    if (readyForCalls === "ready" || readyForCalls === "becomingUnready") {
-      return (
-        <Button
-          flex={1}
-          disabled={readyForCalls === "becomingUnready"}
-          onClick={() => {
-            setReadyForCalls("becomingUnready");
-            runPromise(
-              (async (): Promise<void> => {
-                await markLastCall({
-                  caller,
-                  device: currentDevice,
-                  updateCallerMutation: updateCallerNoKeepAlive,
-                });
-              })(),
-              false,
-            );
-          }}
-        >
-          Last Call For Now
-        </Button>
-      );
-    } else {
-      return (
-        <Button
-          flex={1}
-          disabled={readyForCalls === "becomingReady"}
-          onClick={() => {
-            setReadyForCalls("becomingReady");
-            runPromise(
-              (async (): Promise<void> => {
-                const device = (
-                  await markReadyForCalls({
-                    caller,
-                    device: currentDevice,
-                    updateCallerMutation: updateCallerNoKeepAlive,
-                  })
-                ).device;
-                setCurrentDevice(device);
-              })(),
-              false,
-            );
-          }}
-        >
-          Ready for Calls
-        </Button>
-      );
-    }
   };
 
   const title = (
@@ -311,7 +327,15 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     ) : (
       <>
         <Group w={"100%"}>
-          <ToggleReadyButton readyForCalls={readyForCalls}></ToggleReadyButton>
+          <ToggleReadyButton
+            ready={ready}
+            readyPendingState={readyPendingState}
+            setReadyPendingState={setReadyPendingState}
+            currentDevice={currentDevice}
+            caller={caller}
+            updateCallerMutation={updateCallerNoKeepAlive}
+            setCurrentDevice={setCurrentDevice}
+          ></ToggleReadyButton>
           <TestMicrophoneAudioButton></TestMicrophoneAudioButton>
         </Group>
         <ContactCard

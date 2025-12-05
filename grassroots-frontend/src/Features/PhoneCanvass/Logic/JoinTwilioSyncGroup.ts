@@ -29,6 +29,7 @@ interface JoinSyncGroupParams {
   registerCaller: RegisterCaller;
   refreshCaller: RefreshCaller;
   onNewContact: (contact: ContactSummary | undefined) => void;
+  onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
 }
 
 // We don't give anyone a handle to the SyncGroup, so they can't hold onto a stale instance.
@@ -41,8 +42,10 @@ class SyncGroupManager {
   #registerCaller: RegisterCaller;
   #refreshCaller: RefreshCaller;
   #lastContact: ContactSummary | undefined;
+  #lastCallerReady: "ready" | "unready" | "last call" | undefined;
   #currentRevision: string | undefined = undefined;
   #onNewContact: (contact: ContactSummary | undefined) => void;
+  #onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
 
   static instance: SyncGroupManager | undefined;
 
@@ -54,6 +57,8 @@ class SyncGroupManager {
     this.#refreshCaller = params.refreshCaller;
     this.#phoneCanvassCallerStore = params.phoneCanvassCallerStore;
     this.#onNewContact = params.onNewContact;
+    this.#onReadyChanged = params.onReadyChanged;
+    this.#lastCallerReady = undefined;
     this.#lastContact = undefined;
   }
 
@@ -100,6 +105,18 @@ class SyncGroupManager {
     if (this.#lastContact != currentContact) {
       this.#lastContact = currentContact;
       this.#onNewContact(currentContact);
+    }
+
+    const currentCallerReady = data.callers.find(
+      (x) => x.callerId == caller.id,
+    )?.ready;
+
+    if (this.#lastCallerReady !== currentCallerReady) {
+      this.#lastCallerReady = currentCallerReady;
+      if (currentCallerReady === undefined) {
+        throw new Error("We should know if the caller is ready");
+      }
+      this.#onReadyChanged(currentCallerReady);
     }
   }
 
