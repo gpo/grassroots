@@ -30,6 +30,7 @@ import {
   PhoneCanvassContactDTO,
   PhoneCanvasTwilioVoiceCallbackDTO,
   UpdatePhoneCanvassContactNotesDTO,
+  PhoneCanvasOverrideAnsweredByMachineDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -269,6 +270,15 @@ export class PhoneCanvassController {
     @Body() body: PhoneCanvasTwilioCallAnsweredCallbackDTO,
   ): Promise<string> {
     return await this.phoneCanvassService.twilioCallAnsweredCallback(body);
+  }
+
+  @Post("override-answered-by-machine")
+  @PublicRoute()
+  overrideAnsweredByMachine(
+    @Body() call: PhoneCanvasOverrideAnsweredByMachineDTO,
+  ): VoidDTO {
+    this.phoneCanvassService.overrideAnsweredByMachine(call);
+    return VoidDTO.from({});
   }
 
   // TODO: move this logic closer to the twilioService.

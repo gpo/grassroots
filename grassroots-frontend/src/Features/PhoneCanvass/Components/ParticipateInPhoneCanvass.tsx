@@ -38,6 +38,7 @@ import {
 } from "../Logic/UseUpdateCaller.js";
 import { MicrophoneTester } from "./MicrophoneTester.js";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { useOverrideAnsweredByMachine } from "../Logic/UseOverrideAnsweredByMachine.js";
 
 const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
   NOT_STARTED: " ",
@@ -59,7 +60,6 @@ function CallPartyProgress(props: {
   done: number;
 }): JSX.Element {
   const { done, total } = props;
-  console.log("TOTAL IS", total, total === 0);
   const percent = total === 0 ? 100 : Math.round((done / total) * 100);
   return (
     <>
@@ -269,6 +269,8 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const phoneCanvassDetails = usePhoneCanvassDetails(phoneCanvassId).data;
 
+  const overrideAnsweredByMachine = useOverrideAnsweredByMachine();
+
   const contacts = callPartyStateStore.contacts.map((contact) => {
     const callDescription = CALL_STATUS_EMOJIS[contact.status];
 
@@ -339,6 +341,25 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
             setCurrentDevice={setCurrentDevice}
           ></ToggleReadyButton>
           <TestMicrophoneAudioButton></TestMicrophoneAudioButton>
+          <Button
+            disabled={currentContactId === undefined}
+            onClick={() => {
+              runPromise(
+                (async (): Promise<void> => {
+                  if (currentContactId === undefined) {
+                    throw new Error("Button should be disabld.");
+                  }
+                  await overrideAnsweredByMachine({
+                    phoneCanvassId: phoneCanvassId,
+                    contactId: currentContactId,
+                  });
+                })(),
+                true,
+              );
+            }}
+          >
+            Answered By Machine
+          </Button>
         </Group>
         <ContactCard
           phoneCanvassContact={currentContact}

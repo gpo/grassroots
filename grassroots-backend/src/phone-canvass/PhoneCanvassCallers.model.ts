@@ -63,6 +63,13 @@ export class PhoneCanvassCallersModel {
     return withId;
   }
 
+  // TODO - this doesn't currently validate at all! This means that anyone in the
+  // phone canvass can impersonate anyone else. You need to know the phone canvass id
+  // though, so this isn't too scary. It should still be fixed though!
+  // Using the authToken isn't reliable, as there are cases where the server will send
+  // an updated authToken but the user will leave the page before the browser stores it.
+  // We should use some other kind of secret.
+  // The below description is how this was intended to work...
   // This is as secure as the authToken is. If a user could guess someone else's
   // authToken, they could use that to update their data, but we'd already have bigger problems.
   #authenticateCaller(params: {
@@ -77,11 +84,9 @@ export class PhoneCanvassCallersModel {
       // If we don't have a recorded authToken for this user, we'll just make a new one.
       return caller;
     }
-    if (caller.authToken !== params.authToken) {
-      console.log("EXISTING", caller.authToken.slice(-10, -1));
-      console.log("LOOKING FOR", params.authToken.slice(-10, -1));
-      return undefined;
-    }
+    //if (caller.authToken !== params.authToken) {
+    //return undefined;
+    //}
     return caller;
   }
 

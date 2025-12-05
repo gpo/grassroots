@@ -231,6 +231,16 @@ export class PhoneCanvasTwilioCallAnsweredCallbackDTO extends createDTOBase(
   MachineDetectionDuration!: number;
 }
 
+export class PhoneCanvasOverrideAnsweredByMachineDTO extends createDTOBase(
+  "PhoneCanvasOverrideAnsweredByMachine",
+) {
+  @IsNumber()
+  contactId!: number;
+
+  @IsNotEmpty()
+  phoneCanvassId!: string;
+}
+
 // (displayName, activePhoneCanvassId) is globally unique.
 export class CreatePhoneCanvassCallerDTO extends createDTOBase(
   "CreatePhoneCanvassCaller",

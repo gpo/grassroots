@@ -63,9 +63,7 @@ function updateContactsInLastCallState(params: {
   if (call.callerId !== undefined) {
     const caller = phoneCanvassCallersModel.getCaller(call.callerId);
 
-    console.log("CALLER READY IS", caller.ready);
     if (caller.ready === "last call") {
-      console.log("MARKING CALLER UNREADY");
       runPromise(
         updateOrCreateCaller(
           PhoneCanvassCallerDTO.from({

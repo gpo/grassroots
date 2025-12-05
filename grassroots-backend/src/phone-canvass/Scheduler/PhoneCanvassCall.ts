@@ -34,6 +34,7 @@ interface UpdateableCallState {
   answeredBy: AnsweredBy | undefined;
   result: CallResult | undefined;
   callerId: string | undefined;
+  overrideAnsweredByMachine: boolean | undefined;
 }
 
 const emptyUpdateableCallState: UpdateableCallState = {
@@ -42,6 +43,7 @@ const emptyUpdateableCallState: UpdateableCallState = {
   answeredBy: undefined,
   result: undefined,
   callerId: undefined,
+  overrideAnsweredByMachine: undefined,
 };
 
 export function resetPhoneCanvasCallIdsForTest(): void {
@@ -73,6 +75,8 @@ export class Call {
 
   async log(): Promise<void> {
     const filteredValues: Record<string, unknown> = {};
+
+    console.log("LOGGING", this.state.overrideAnsweredByMachine);
 
     for (const [key, value] of Object.entries(this.state)) {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -164,8 +168,12 @@ export class Call {
         throw new Error("Can't unset call information");
       }
     }
-    const newCall = new Call(status, this.state);
-    Object.assign(newCall.state, props);
+    const newCall = new Call(status, { ...this.state, ...props });
+    console.log("EMITTING CALL WITH ", status, props.overrideAnsweredByMachine);
+    console.log(
+      "IS NEW CALL SOMEHOW BUSTED?",
+      newCall.state.overrideAnsweredByMachine,
+    );
     newCall.state.emit(newCall);
     return newCall;
   }

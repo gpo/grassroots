@@ -19,6 +19,7 @@ import {
   PhoneCanvassContactDTO,
   PhoneCanvassDetailsDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
+  PhoneCanvasOverrideAnsweredByMachineDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -37,6 +38,7 @@ export class PhoneCanvassService {
   // From phone canvass id.
   #models = new Map<string, PhoneCanvassModel>();
   #callsBySid = new Map<string, Call>();
+  #callsByContactId = new Map<number, Call>();
 
   constructor(
     private readonly entityManager: EntityManager,
@@ -245,6 +247,7 @@ export class PhoneCanvassService {
         if (call.twilioSid !== undefined) {
           this.#callsBySid.set(call.twilioSid, call);
         }
+        this.#callsByContactId.set(call.phoneCanvassContactId, call);
       });
     }
     return model;
@@ -275,6 +278,18 @@ export class PhoneCanvassService {
       call,
       model.scheduler,
     );
+  }
+
+  overrideAnsweredByMachine(
+    override: PhoneCanvasOverrideAnsweredByMachineDTO,
+  ): void {
+    const call = this.#callsByContactId.get(override.contactId);
+    if (call === undefined || call.canvassId !== override.phoneCanvassId) {
+      throw new Error("Unable find call");
+    }
+
+    console.log("UPDATING WITH OVERRIDE");
+    call.update("COMPLETED", { overrideAnsweredByMachine: true });
   }
 
   getCallBySid(sid: string): Call {
