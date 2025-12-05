@@ -67,6 +67,7 @@ class SyncGroupManager {
       // Avoid repeated updates.
       return;
     }
+
     this.#currentRevision = revision;
 
     if (
@@ -83,14 +84,12 @@ class SyncGroupManager {
       phoneCanvassCallerStore: this.#phoneCanvassCallerStore,
     });
 
-    console.log("CALLER READY? ", caller?.ready);
     if (
       this.#callPartyStateStore.serverInstanceUUID &&
       this.#callPartyStateStore.serverInstanceUUID !==
         data.serverInstanceUUID &&
       caller
     ) {
-      console.log("REREGISTER");
       // The server has rebooted, we need to reregister.
       caller = await this.#registerCaller(
         CreatePhoneCanvassCallerDTO.from(caller),
@@ -114,6 +113,9 @@ class SyncGroupManager {
     if (this.#lastCallerReady !== currentCallerReady) {
       this.#lastCallerReady = currentCallerReady;
       if (currentCallerReady === undefined) {
+        // ACTIVELY DEBUGGING: why does this happen?
+        // When we wipe the syncdata on server refresh, we end up with no information about the current
+        // caller.
         throw new Error("We should know if the caller is ready");
       }
       this.#onReadyChanged(currentCallerReady);

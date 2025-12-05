@@ -9,7 +9,6 @@ import {
   zip,
   map,
   Subject,
-  tap,
 } from "rxjs";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { Call } from "./PhoneCanvassCall.js";
@@ -96,7 +95,6 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     this.#callers$.subscribe((caller) => {
       switch (caller.ready) {
         case "ready": {
-          console.log("READY");
           this.#callerSummariesById.set(caller.id, {
             id: caller.id,
             availabilityStartTime: this.#getCurrentTime(),
@@ -105,19 +103,15 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
           break;
         }
         case "unready": {
-          console.log("UNREADY");
           this.#callerSummariesById.delete(caller.id);
           this.#readyCallerIds.delete(caller.id);
           break;
         }
         case "last call": {
-          console.log("LAST CALL");
           this.#readyCallerIds.delete(caller.id);
           break;
         }
       }
-      console.log("ALL CALLERS:", this.#callerSummariesById);
-      console.log("READY:", this.#readyCallerIds.size);
       this.metricsTracker.onReadyCallerCountUpdate(this.#readyCallerIds.size);
     });
   }
@@ -138,9 +132,6 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     // or all callers assigned to calls.
     await firstValueFrom(
       this.metricsTracker.idleCallerCountObservable.pipe(
-        tap((v) => {
-          console.log("WAITING FOR ZERO", v);
-        }),
         filter((v) => v === 0),
       ),
     );

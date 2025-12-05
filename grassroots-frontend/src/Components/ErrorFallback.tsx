@@ -9,7 +9,6 @@ interface ErrorFallBackProps {
 
 export function ErrorFallback(props: ErrorFallBackProps): JSX.Element {
   const { error } = props;
-  console.log(JSON.stringify(error));
   const errorStr = error instanceof Error ? error.message : String(error);
   const stack = error instanceof Error ? error.stack : undefined;
   const stackEl = stack !== undefined ? <Code block>{stack}</Code> : undefined;

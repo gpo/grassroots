@@ -183,7 +183,6 @@ export class PhoneCanvassSimulator {
       return { succeeded: false };
     }
 
-    console.log("ADVANCING ", call.id, " to INITIATED");
     await this.#advanceStatus({
       call,
       status: "INITIATED",
@@ -194,7 +193,6 @@ export class PhoneCanvassSimulator {
       return { succeeded: false };
     }
 
-    console.log("ADVANCING ", call.id, " to RINGING");
     await this.#advanceStatus({
       call,
       status: "RINGING",
@@ -205,7 +203,6 @@ export class PhoneCanvassSimulator {
       return { succeeded: false };
     }
 
-    console.log("ADVANCING ", call.id, " to IN_PROGRESS");
     await this.#advanceStatus({
       call,
       status: "IN_PROGRESS",
@@ -231,7 +228,6 @@ export class PhoneCanvassSimulator {
       .subscribe((call) => {
         runPromise(
           (async (): Promise<void> => {
-            console.log("GOT A NEW CALL TO PROCEED WITH", call.id, call);
             const result = await this.#advanceCallThroughToCompletion(call);
             if (!result.succeeded) {
               await delay(callFailedDelta());
@@ -283,12 +279,6 @@ export class PhoneCanvassSimulator {
               break;
             }
             case "status_change": {
-              console.log(
-                "STATUS CHANGE EVENT WITH STATUS",
-                event.status,
-                "SID",
-                event.sid,
-              );
               const call = this.phoneCanvassModel.getCallBySid(event.sid);
               call.update(event.status, event);
               break;

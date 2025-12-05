@@ -59,8 +59,7 @@ export function EditContactNotes(params: EditContactNotesProps): JSX.Element {
 
   const onSubmit = useCallback(
     async (data: UpdatePhoneCanvassContactNotesDTO): Promise<void> => {
-      const result = await updateNotes.mutateAsync(data);
-      console.log(result);
+      await updateNotes.mutateAsync(data);
     },
     [],
   );

@@ -76,8 +76,6 @@ export class Call {
   async log(): Promise<void> {
     const filteredValues: Record<string, unknown> = {};
 
-    console.log("LOGGING", this.state.overrideAnsweredByMachine);
-
     for (const [key, value] of Object.entries(this.state)) {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       if ((value as unknown) === undefined || (value as unknown) === null) {
@@ -169,11 +167,6 @@ export class Call {
       }
     }
     const newCall = new Call(status, { ...this.state, ...props });
-    console.log("EMITTING CALL WITH ", status, props.overrideAnsweredByMachine);
-    console.log(
-      "IS NEW CALL SOMEHOW BUSTED?",
-      newCall.state.overrideAnsweredByMachine,
-    );
     newCall.state.emit(newCall);
     return newCall;
   }

@@ -287,8 +287,6 @@ export class PhoneCanvassService {
     if (call === undefined || call.canvassId !== override.phoneCanvassId) {
       throw new Error("Unable find call");
     }
-
-    console.log("UPDATING WITH OVERRIDE");
     call.update("COMPLETED", { overrideAnsweredByMachine: true });
   }
 

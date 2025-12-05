@@ -35,10 +35,6 @@ export function useRegisterCaller(
     retry: 1,
     onSuccess: async (caller: PhoneCanvassCallerDTO) => {
       phoneCanvassCallerStore.setCaller(PhoneCanvassCallerDTO.from(caller));
-      console.log(
-        "SETTING AUTHTOKEN IN CREATE TO ",
-        caller.authToken.slice(-10, -1),
-      );
       await queryClient.invalidateQueries({ queryKey: ["canvass"] });
     },
   });

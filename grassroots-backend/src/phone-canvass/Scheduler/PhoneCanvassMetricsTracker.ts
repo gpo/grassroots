@@ -5,7 +5,6 @@ import {
   map,
   Observable,
   scan,
-  share,
   shareReplay,
   startWith,
 } from "rxjs";
@@ -58,12 +57,11 @@ export class PhoneCanvassMetricsTracker {
         ([callerCount, committedCallsCount]) =>
           callerCount - committedCallsCount,
       ),
-      share(),
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
   onReadyCallerCountUpdate(callerCount: number): void {
-    console.log("SETTING READY CALLER COUNT TO ", callerCount);
     this.#readyCallerCountObservable.next(callerCount);
   }
 }

@@ -20,10 +20,8 @@ export async function markLastCall(
   params: UpdateReadyStateForCallsParams,
 ): Promise<void> {
   const { caller } = params;
-  console.log("UPDATING CALLER");
   caller.ready = "last call";
   await params.updateCallerMutation(caller);
-  console.log("DONE UPDATE CALLER");
 }
 
 export async function markReadyForCalls(
@@ -51,7 +49,7 @@ export async function markReadyForCalls(
   });
 
   device.on("incoming", (e) => {
-    console.log("INCOMING CALL???", e);
+    throw new Error("We should never have an incoming call." + String(e));
   });
 
   await device.register();

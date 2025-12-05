@@ -28,7 +28,6 @@ function addCallerToCallIfNeeded(params: {
       "There's only one path to add a caller right now. This should never happen.",
     );
   }
-  console.log("ADDING CALLER ");
   const response = new VoiceResponse();
   response.dial().conference(
     {
@@ -123,12 +122,10 @@ export class TwilioService {
       throw new Error("Call answered before being in progress");
     }
     if (callback.AnsweredBy === "human" || callback.AnsweredBy === "unknown") {
-      console.log("We don't think this is a machine");
       const callerId = scheduler.getNextIdleCallerId();
       if (callerId === undefined) {
         throw new Error("TODO(mvp) handle overcalling");
       }
-      console.log("ADDING CALLER ", callerId);
       const response = addCallerToCallIfNeeded({
         sid: call.twilioSid,
         contactId: call.phoneCanvassContactId,
@@ -144,7 +141,7 @@ export class TwilioService {
       return response.toString();
     }
 
-    console.log("Picked up by machine. Hanging up.");
+    // TODO: play a voicemail.
     /*response.play(
      // "https://api.twilio.com/cowbell.mp3"
           (await getEnvVars()).WEBHOOK_HOST +
@@ -182,8 +179,6 @@ export class TwilioService {
         serviceSid: envVars.TWILIO_SYNC_SERVICE_SID,
       }),
     );
-
-    console.log("MAKING A NEW TOKEN: ", token.toJwt().slice(-10, -1));
 
     return token.toJwt();
   }

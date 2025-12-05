@@ -190,14 +190,12 @@ describe("PhoneCanvass (e2e)", () => {
     const { fixture: f, mock } = useTwilioMock();
     await OrganizationEntity.ensureRootOrganization(f.app);
 
-    console.log("CREATE IN FLAKY");
     const canvass = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass", {
         // @ts-expect-error - FormData is supported but not in types
         body: getFormDataForCSVCreation(),
       }),
     );
-    console.log("CREATE DONE FLAKY");
 
     const caller = PhoneCanvassCallerDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass/register-caller", {

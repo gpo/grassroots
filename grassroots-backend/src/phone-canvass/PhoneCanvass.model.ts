@@ -7,7 +7,6 @@ import {
   pairwise,
   scan,
   startWith,
-  tap,
 } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
@@ -125,13 +124,6 @@ export class PhoneCanvassModel {
       runPromise(call.log(), false);
       runPromise(call.updateContactIfNeeded(this.#entityManager), false);
 
-      console.log(
-        "SEEING CALL WITH STATUS",
-        call.status,
-        "callerId",
-        call.callerId,
-      );
-
       // When a call ends, if it was associated with a contact in the last call state, we mark them unready.
       // That's what we're doing here.
       // If the call wasn't associated with a contact in the last call state
@@ -157,7 +149,6 @@ export class PhoneCanvassModel {
     this.scheduler.metricsTracker.idleCallerCountObservable
       .pipe(pairwise())
       .subscribe(([prev, next]) => {
-        console.log("CHECKING PREV & NEXT", prev, next);
         if (prev < 0 && next >= 0) {
           // We were overcommitted, but aren't anymore.
           runPromise(
@@ -185,9 +176,6 @@ export class PhoneCanvassModel {
 
     const callerSummaries$ = callerSummariesById$.pipe(
       map((x) => [...x.values()]),
-      tap((summaries) => {
-        console.log(summaries);
-      }),
     );
 
     const callsByContactId$ = this.calls$.pipe(

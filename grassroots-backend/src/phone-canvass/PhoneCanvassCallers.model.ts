@@ -55,10 +55,6 @@ export class PhoneCanvassCallersModel {
       // but it appears to be ~synchronous and fast, so this is fine.
       authToken: await getAuthToken(String(id)),
     });
-    console.log(
-      "Registering new caller with authToken",
-      withId.authToken.slice(-10, -1),
-    );
     this.#callers$.next(withId);
     return withId;
   }
@@ -109,8 +105,6 @@ export class PhoneCanvassCallersModel {
           authToken: await getAuthToken(String(existingCaller.id)),
         });
 
-      console.log("CALLER READY in update is", newCaller.ready);
-
       this.#callers$.next(newCaller);
       return newCaller;
     }
@@ -123,7 +117,6 @@ export class PhoneCanvassCallersModel {
   }
 
   getCaller(callerId: string): Readonly<PhoneCanvassCallerDTO> {
-    console.log("onCallCompleteForCaller");
     const existingCaller = this.#findCaller({ id: callerId });
     if (existingCaller === undefined) {
       throw new Error(
@@ -139,8 +132,6 @@ export class PhoneCanvassCallersModel {
       caller: PhoneCanvassCallerDTO,
     ) => Promise<PhoneCanvassCallerDTO>,
   ): Promise<void> {
-    console.log("Trying a markOneLastCallCallerAsUnready");
-
     for (const caller of this.#callersById.values()) {
       if (caller.ready !== "last call") {
         continue;
@@ -150,7 +141,6 @@ export class PhoneCanvassCallersModel {
         // This caller will be marked unready when the current call finishes.
         continue;
       }
-      console.log("markOneLastCallCallerAsUnready");
 
       await updateOrCreateCaller(
         PhoneCanvassCallerDTO.from({ ...propsOf(caller), ready: "unready" }),

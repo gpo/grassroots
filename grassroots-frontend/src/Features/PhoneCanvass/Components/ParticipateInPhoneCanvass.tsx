@@ -88,7 +88,6 @@ const ToggleReadyButton = (props: {
   updateCallerMutation: UpdateCallerMutation;
   setCurrentDevice: React.Dispatch<React.SetStateAction<Device | undefined>>;
 }): JSX.Element => {
-  console.log("BUTTON RERENDER");
   const {
     ready,
     readyPendingState,
@@ -157,8 +156,6 @@ const ToggleReadyButton = (props: {
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = ParticipateInPhoneCanvassRoute.useParams();
-
-  console.log("PAGE RERENDER");
 
   const callPartyStateStoreRef = useRef(createCallPartyStateStore());
   const callPartyStateStore = useStore(callPartyStateStoreRef.current);
@@ -239,7 +236,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   };
 
   const onReadyChanged = (ready: "ready" | "unready" | "last call"): void => {
-    console.log("onReadyChanged", ready);
     setReady(ready);
     setReadyPendingState(undefined);
   };
@@ -285,7 +281,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     return (
       <Table.Tr key={caller.callerId}>
         <Table.Td>{caller.displayName}</Table.Td>
-        <Table.Td> {CALLER_READY_EMOJIS[ready]}</Table.Td>
+        <Table.Td> {CALLER_READY_EMOJIS[caller.ready]}</Table.Td>
       </Table.Tr>
     );
   });
