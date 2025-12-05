@@ -15,6 +15,7 @@ import {
   Image,
   Paper,
   Center,
+  Modal,
 } from "@mantine/core";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
@@ -32,6 +33,7 @@ import { ContactCard } from "../../Contacts/Components/ContactCard.js";
 import { notifications } from "@mantine/notifications";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { useUpdateCaller } from "../Logic/UseUpdateCaller.js";
+import { MicrophoneTester } from "./MicrophoneTester.js";
 
 const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
   NOT_STARTED: " ",
@@ -91,6 +93,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   >();
   const [readyForCalls, setReadyForCalls] =
     useState<ToggleReadyButtonState>("unready");
+  const [testingMic, setTestingMic] = useState<boolean>(false);
 
   const registerCaller = useRegisterCaller({
     phoneCanvassId,
@@ -205,6 +208,19 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     );
   });
 
+  const TestMicrophoneAudioButton = (): JSX.Element => {
+    return (
+      <Button
+        flex={1}
+        onClick={() => {
+          setTestingMic(true);
+        }}
+      >
+        Test Audio
+      </Button>
+    );
+  };
+
   const ToggleReadyButton = (props: {
     readyForCalls: ToggleReadyButtonState;
   }): JSX.Element => {
@@ -212,7 +228,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     const { readyForCalls } = props;
     if (readyForCalls === "last call") {
       return (
-        <Button color="red" disabled={true}>
+        <Button flex={1} color="red" disabled={true}>
           You might still be needed!
         </Button>
       );
@@ -220,6 +236,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     if (readyForCalls === "ready" || readyForCalls === "becomingUnready") {
       return (
         <Button
+          flex={1}
           disabled={readyForCalls === "becomingUnready"}
           onClick={() => {
             setReadyForCalls("becomingUnready");
@@ -241,6 +258,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     } else {
       return (
         <Button
+          flex={1}
           disabled={readyForCalls === "becomingReady"}
           onClick={() => {
             setReadyForCalls("becomingReady");
@@ -292,7 +310,10 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       complete
     ) : (
       <>
-        <ToggleReadyButton readyForCalls={readyForCalls}></ToggleReadyButton>
+        <Group w={"100%"}>
+          <ToggleReadyButton readyForCalls={readyForCalls}></ToggleReadyButton>
+          <TestMicrophoneAudioButton></TestMicrophoneAudioButton>
+        </Group>
         <ContactCard
           phoneCanvassContact={currentContact}
           phoneCanvassId={phoneCanvassId}
@@ -303,6 +324,15 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   return (
     <>
       {title}
+      <Modal
+        title="Test Microphone"
+        opened={testingMic}
+        onClose={() => {
+          setTestingMic(false);
+        }}
+      >
+        <MicrophoneTester></MicrophoneTester>
+      </Modal>
       <Group align="start">
         <Stack style={{ flex: 1 }}>
           <h2> Welcome {caller.displayName}</h2>
