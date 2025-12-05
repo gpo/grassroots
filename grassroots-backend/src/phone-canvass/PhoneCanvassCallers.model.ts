@@ -74,11 +74,12 @@ export class PhoneCanvassCallersModel {
       // TODO: we could persist the authtoken somewhere, but
       // security in the face of a restarting server is probably pretty
       // low priority.
-      // If we don't have a recorded authToken for this user
+      // If we don't have a recorded authToken for this user, we'll just make a new one.
       return caller;
     }
     if (caller.authToken !== params.authToken) {
-      console.log("MISMATCHING AUTH TOKEN");
+      console.log("EXISTING", caller.authToken.slice(-10, -1));
+      console.log("LOOKING FOR", params.authToken.slice(-10, -1));
       return undefined;
     }
     return caller;

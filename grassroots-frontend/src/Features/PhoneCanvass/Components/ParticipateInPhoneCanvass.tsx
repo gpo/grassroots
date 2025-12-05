@@ -59,6 +59,8 @@ function CallPartyProgress(props: {
   done: number;
 }): JSX.Element {
   const { done, total } = props;
+  console.log("TOTAL IS", total, total === 0);
+  const percent = total === 0 ? 100 : Math.round((done / total) * 100);
   return (
     <>
       <Group justify="space-between" mb="xs">
@@ -66,11 +68,11 @@ function CallPartyProgress(props: {
           {done} / {total}
         </Text>
         <Text size="sm" c="dimmed">
-          {Math.round(Math.round((done / total) * 100))}%
+          {percent}%
         </Text>
       </Group>
 
-      <Progress value={(done / total) * 100} size="lg"></Progress>
+      <Progress value={percent} size="lg"></Progress>
     </>
   );
 }

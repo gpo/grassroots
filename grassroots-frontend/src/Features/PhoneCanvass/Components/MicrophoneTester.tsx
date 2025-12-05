@@ -1,3 +1,5 @@
+// TODO: This is mostly written by v0.dev, and could use a thorough review in the future.
+
 import type React from "react";
 import { useState, useRef, useEffect } from "react";
 import {
