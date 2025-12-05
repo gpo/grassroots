@@ -1,6 +1,8 @@
 on_http_request:
-  - actions:
+  - expressions:
+      - "!(req.url.path.contains('get-voicemail')) && !(req.url.path.contains('client-joining-conference'))"
+    actions:
       - type: verify-webhook
         config:
           provider: twilio
-          secret: "{your auth token}"
+          secret: YOUR_AUTH_TOKEN

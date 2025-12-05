@@ -49,6 +49,7 @@ export function ManagePhoneCanvass(): JSX.Element {
         })}
         setRowsToSkip={setRowsToSkip}
         rowsPerPage={ROWS_PER_PAGE}
+        phoneCanvassId={phoneCanvassId}
       ></PaginatedContacts>
     </>
   );

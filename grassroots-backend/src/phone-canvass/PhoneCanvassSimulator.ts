@@ -1,4 +1,3 @@
-import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
@@ -11,11 +10,11 @@ import {
   CallResults,
   CallStatus,
 } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
-import { Call, NotStartedCall } from "./Scheduler/PhoneCanvassCall.js";
-import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
-import { concatMap, Subject, Subscription } from "rxjs";
+import { Call } from "./Scheduler/PhoneCanvassCall.js";
+import { concatMap, filter, Subject, Subscription } from "rxjs";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { getEnvVars } from "../GetEnvVars.js";
+import { PhoneCanvassModel } from "./PhoneCanvass.model.js";
 
 const MAX_CALLER_COUNT = 4;
 
@@ -83,7 +82,7 @@ interface AddCallerEvent extends BaseEvent {
 interface ChangeReadyCallerEvent extends BaseEvent {
   kind: "change_ready_caller";
   index: number;
-  ready: boolean;
+  ready: "ready" | "unready";
 }
 
 interface StatusChangeEvent extends BaseEvent {
@@ -103,19 +102,13 @@ function getFakeCallSid(call: Call): string {
   return String(call.state.id);
 }
 
-export function simulateMakeCall(call: NotStartedCall): {
+export function simulateMakeCall(call: Call): {
   sid: string;
   status: CallStatus;
-  timestamp: number;
 } {
   return {
     sid: getFakeCallSid(call),
     status: "QUEUED",
-    timestamp:
-      // Use a fixed offset from the NOT_STARTED timestamp.
-      // This is the easiest way to ensure it's determinimistic.
-      (call.state.transitionTimestamps.NOT_STARTED ??
-        fail("Can't reuse NOT_STARTED timestamp, as it isn't present")) + 5,
   };
 }
 
@@ -127,9 +120,8 @@ export class PhoneCanvassSimulator {
   #subscriptions: Subscription[] = [];
 
   constructor(
-    private readonly phoneCanvassService: PhoneCanvassService,
+    private readonly phoneCanvassModel: PhoneCanvassModel,
     readonly phoneCanvassId: string,
-    private readonly scheduler: PhoneCanvassScheduler,
   ) {
     this.#faker = new Faker({ locale: [en_CA, en] });
   }
@@ -141,20 +133,21 @@ export class PhoneCanvassSimulator {
       index,
       ts: Date.now(),
     });
+    // TODO: maybe include the "last call" state.
     while (this.#running) {
       await delay(callerReadyDelta());
       this.#events.next({
         kind: "change_ready_caller",
         index,
         ts: Date.now(),
-        ready: true,
+        ready: "ready",
       });
       await delay(callerUnreadyDelta());
       this.#events.next({
         kind: "change_ready_caller",
         index,
         ts: Date.now(),
-        ready: false,
+        ready: "unready",
       });
     }
   }
@@ -189,6 +182,7 @@ export class PhoneCanvassSimulator {
     if (delayMs === undefined) {
       return { succeeded: false };
     }
+
     await this.#advanceStatus({
       call,
       status: "INITIATED",
@@ -198,6 +192,7 @@ export class PhoneCanvassSimulator {
     if (delayMs === undefined) {
       return { succeeded: false };
     }
+
     await this.#advanceStatus({
       call,
       status: "RINGING",
@@ -207,6 +202,7 @@ export class PhoneCanvassSimulator {
     if (delayMs === undefined) {
       return { succeeded: false };
     }
+
     await this.#advanceStatus({
       call,
       status: "IN_PROGRESS",
@@ -226,28 +222,31 @@ export class PhoneCanvassSimulator {
   }
 
   simulateCalls(debug: boolean): void {
-    const simulateCallsSubscription = this.scheduler.calls.subscribe((call) => {
-      runPromise(
-        (async (): Promise<void> => {
-          const result = await this.#advanceCallThroughToCompletion(call);
-          if (!result.succeeded) {
-            await delay(callFailedDelta());
-            const result =
-              FailingCallResults[
-                Math.floor(Math.random() * FailingCallResults.length)
-              ];
-            this.#events.next({
-              kind: "status_change",
-              ts: Date.now(),
-              sid: getFakeCallSid(call),
-              status: "COMPLETED",
-              result,
-            });
-          }
-        })(),
-        debug,
-      );
-    });
+    const simulateCallsSubscription = this.phoneCanvassModel.calls$
+      // The model moves calls from NOT_STARTED TO QUEUED.
+      .pipe(filter((call) => call.status === "QUEUED"))
+      .subscribe((call) => {
+        runPromise(
+          (async (): Promise<void> => {
+            const result = await this.#advanceCallThroughToCompletion(call);
+            if (!result.succeeded) {
+              await delay(callFailedDelta());
+              const result =
+                FailingCallResults[
+                  Math.floor(Math.random() * FailingCallResults.length)
+                ];
+              this.#events.next({
+                kind: "status_change",
+                ts: Date.now(),
+                sid: getFakeCallSid(call),
+                status: "COMPLETED",
+                result,
+              });
+            }
+          })(),
+          debug,
+        );
+      });
     this.#subscriptions.push(simulateCallsSubscription);
   }
 
@@ -262,7 +261,7 @@ export class PhoneCanvassSimulator {
           switch (event.kind) {
             case "add_caller": {
               this.#callers[event.index] =
-                await this.phoneCanvassService.registerCaller(
+                await this.phoneCanvassModel.registerCaller(
                   CreatePhoneCanvassCallerDTO.from({
                     displayName: this.#faker.person.fullName(),
                     email: this.#faker.internet.email(),
@@ -276,14 +275,12 @@ export class PhoneCanvassSimulator {
                 this.#callers[event.index] ??
                 fail(`Can't update caller that doesn't exist.`);
               caller.ready = event.ready;
-              await this.phoneCanvassService.updateOrCreateCaller(caller);
+              await this.phoneCanvassModel.updateOrCreateCaller(caller);
               break;
             }
             case "status_change": {
-              await this.phoneCanvassService.updateCall({
-                ...event,
-                timestamp: event.ts,
-              });
+              const call = this.phoneCanvassModel.getCallBySid(event.sid);
+              call.update(event.status, event);
               break;
             }
             default: {

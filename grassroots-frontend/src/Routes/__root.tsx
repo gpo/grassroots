@@ -23,6 +23,7 @@ import { DevTools } from "../Features/Devtools/Components/DevTools.js";
 import { PhoneCanvassCallerStore } from "../Features/PhoneCanvass/Logic/PhoneCanvassCallerStore.js";
 import { useEffect, useState } from "react";
 import { runPromise } from "grassroots-shared/util/RunPromise";
+import { ErrorFallbackOutsideMantineProvider } from "../Components/ErrorFallback.js";
 
 interface RouterContext {
   loginState: Promise<LoginState | undefined>;
@@ -30,6 +31,7 @@ interface RouterContext {
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+  errorComponent: ErrorFallbackOutsideMantineProvider,
   component: () => {
     const context = Route.useRouteContext();
     const [loggedIn, setLoggedIn] = useState<boolean>(false);

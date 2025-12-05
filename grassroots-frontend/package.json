@@ -30,6 +30,7 @@
     "openapi-paths": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-error-boundary": "^6.0.0",
     "react-hook-form": "^7.56.1",
     "reflect-metadata": "^0.2.2",
     "twilio-sync": "^3.3.9",

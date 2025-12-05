@@ -1,23 +1,72 @@
-import { JSX } from "react";
+import { JSX, useCallback, useState } from "react";
 import { ContactRow } from "./ContactRow.js";
-import { PaginatedContactResponseDTO } from "grassroots-shared/dtos/Contact.dto";
+import {
+  ContactDTO,
+  PaginatedContactResponseDTO,
+} from "grassroots-shared/dtos/Contact.dto";
+import { Modal, Table } from "@mantine/core";
+import { usePhoneCanvassContactByRawContactId } from "../../PhoneCanvass/Logic/UsePhoneCanvassContact.js";
+import { ContactCard } from "./ContactCard.js";
 
 interface PaginatedContactsProps {
   paginatedContactResponse: PaginatedContactResponseDTO;
   setRowsToSkip: React.Dispatch<React.SetStateAction<number>>;
   rowsPerPage: number;
+  phoneCanvassId: string;
 }
 
 export function PaginatedContacts(props: PaginatedContactsProps): JSX.Element {
   const { paginatedContactResponse, setRowsToSkip } = props;
   const { paginated, contacts } = paginatedContactResponse;
-  const rows = contacts.map((x) => {
-    return <ContactRow contact={x} key={x.id}></ContactRow>;
+  const [focusedContactId, setFocusedContactId] = useState<number | undefined>(
+    undefined,
+  );
+
+  const currentContact = usePhoneCanvassContactByRawContactId({
+    rawContactId: focusedContactId,
+    phoneCanvassId: props.phoneCanvassId,
+  }).data;
+
+  const viewContactDetail = useCallback((contact: ContactDTO) => {
+    setFocusedContactId(contact.id);
+  }, []);
+
+  const contactsRows = contacts.map((x) => {
+    return (
+      <ContactRow
+        contact={x}
+        key={x.id}
+        viewContactDetail={viewContactDetail}
+      ></ContactRow>
+    );
   });
+  const contactsEl = (
+    <Table highlightOnHover>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th>Name</Table.Th>
+          <Table.Th>Email</Table.Th>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>{contactsRows}</Table.Tbody>
+    </Table>
+  );
 
   return (
     <>
-      {rows}
+      <Modal
+        size="80%"
+        opened={currentContact !== undefined}
+        onClose={() => {
+          setFocusedContactId(undefined);
+        }}
+      >
+        <ContactCard
+          phoneCanvassContact={currentContact}
+          phoneCanvassId={props.phoneCanvassId}
+        ></ContactCard>
+      </Modal>
+      {contactsEl}
       <div>
         {paginated.rowsSkipped}–{paginated.rowsSkipped + contacts.length} /{" "}
         {paginated.rowsTotal}

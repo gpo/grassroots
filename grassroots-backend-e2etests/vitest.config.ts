@@ -15,6 +15,5 @@ export default defineConfig({
     exclude: ["node_modules/**", "dist/**"],
     include: ["**/*.spec.ts", "**/*.e2e-spec.ts"],
     fileParallelism: false,
-    printConsoleTrace: true,
   },
 });

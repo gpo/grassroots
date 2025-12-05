@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "exclude": [
-    "src/testing/typetests/**",
+    "src/testing",
     "vitest.config.ts",
     "src/mikro-orm.config.ts",
     "src/Main.ts",

@@ -12,6 +12,8 @@ import {
   UploadedFile,
   Session,
   NotFoundException,
+  Res,
+  InternalServerErrorException,
 } from "@nestjs/common";
 import {
   CreatePhoneCanvasContactRequestDTO,
@@ -26,6 +28,9 @@ import {
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
   PhoneCanvassDetailsDTO,
   PhoneCanvassContactDTO,
+  PhoneCanvasTwilioVoiceCallbackDTO,
+  UpdatePhoneCanvassContactNotesDTO,
+  PhoneCanvasOverrideAnsweredByMachineDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -35,10 +40,15 @@ import { CreateContactRequestDTO } from "grassroots-shared/dtos/Contact.dto";
 import { ROOT_ORGANIZATION_ID } from "grassroots-shared/dtos/Organization.dto";
 import { validateSync, ValidationError } from "class-validator";
 import { FileInterceptor } from "@nestjs/platform-express";
-import type { Express } from "express";
+import type { Express, Response } from "express";
 import type * as expressSession from "express-session";
 import { twilioCallStatusToCallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
+import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
+import { readdir } from "fs/promises";
+import { resolve } from "path";
+import { VALID_TWILIO_AUDIO_MIME_TYPES } from "grassroots-shared/constants/ValidTwilioAudioMimeTypes";
+import { debounceTime, groupBy, map, mergeMap, Subject } from "rxjs";
 
 export interface GVoteCSVEntry {
   id: string;
@@ -69,14 +79,40 @@ function getEmail(req: GrassrootsRequest): string {
 
 @Controller("phone-canvass")
 export class PhoneCanvassController {
-  constructor(private readonly phoneCanvassService: PhoneCanvassService) {}
+  twilioCallStatusCallback$ =
+    new Subject<PhoneCanvasTwilioCallStatusCallbackDTO>();
+  constructor(private readonly phoneCanvassService: PhoneCanvassService) {
+    // We want to process twilio status callbacks serially for each call, but in parallel across calls.
+    this.twilioCallStatusCallback$
+      .pipe(
+        groupBy((x) => x.CallSid, { duration: debounceTime(60_000) }),
+        mergeMap((group$) =>
+          group$.pipe(
+            map((callback) => {
+              const status = twilioCallStatusToCallStatus(callback.CallStatus);
+              const call = this.phoneCanvassService.getCallBySid(
+                callback.CallSid,
+              );
+              call.update(status.status, {
+                result: status.result,
+                twilioSid: callback.CallSid,
+              });
+            }),
+          ),
+        ),
+      )
+      .subscribe();
+  }
 
   @Post()
   @UseInterceptors(
     FileInterceptor("voiceMailAudioFile", {
       fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith("audio/")) {
-          cb(new BadRequestException("Only audio files are allowed!"), false);
+        if (!VALID_TWILIO_AUDIO_MIME_TYPES.includes(file.mimetype)) {
+          cb(
+            new BadRequestException("Unsupported file format. Try wav or mp3."),
+            false,
+          );
           return;
         }
         cb(null, true);
@@ -188,44 +224,89 @@ export class PhoneCanvassController {
     );
   }
 
+  // The client hits this url
+  // eslint-disable-next-line grassroots/controller-routes-return-dtos
+  @Post("webhooks/client-joining-conference")
+  @PublicRoute()
+  @Header("Content-Type", "text/xml")
+  twilioVoiceCallback(@Body() body: PhoneCanvasTwilioVoiceCallbackDTO): string {
+    const conferenceName = body.conference;
+
+    if (conferenceName === undefined) {
+      return `
+        <Response>
+          <Say voice="alice">Sorry, no conference was specified. Goodbye.</Say>
+          <Hangup/>
+        </Response>`;
+    }
+    return `
+      <Response>
+        <Dial>
+          <Conference endConferenceOnExit="true">${conferenceName}</Conference>
+        </Dial>
+      </Response>
+    `;
+  }
+
   // eslint-disable-next-line grassroots/controller-routes-return-dtos
   @Post("webhooks/twilio-callstatus")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
-  async twilioCallStatusCallback(
+  twilioCallStatusCallback(
     @Body() body: PhoneCanvasTwilioCallStatusCallbackDTO,
-  ): Promise<string> {
-    const status = twilioCallStatusToCallStatus(body.CallStatus);
-    await this.phoneCanvassService.updateCall({
-      ...status,
-      sid: body.CallSid,
-      timestamp: body.Timestamp,
-    });
+  ): string {
+    this.twilioCallStatusCallback$.next(body);
     return `<Response></Response>`;
   }
 
-  // TODO: move this logic closer to the twilioService.
+  // TODO: should this be processed in sync with status callbacks?
+  // That would require flushing them, since this needs to return something different depending
+  // on the current state.
   // eslint-disable-next-line grassroots/controller-routes-return-dtos
   @Post("webhooks/twilio-call-answered")
   @PublicRoute()
   @Header("Content-Type", "text/xml")
-  twilioCallAnsweredCallback(
+  async twilioCallAnsweredCallback(
     @Body() body: PhoneCanvasTwilioCallAnsweredCallbackDTO,
-  ): string {
-    const call = this.phoneCanvassService.callsBySid.get(body.CallSid);
-    if (!call) {
-      throw new NotFoundException(`Can't find call with id ${body.CallSid}`);
+  ): Promise<string> {
+    return await this.phoneCanvassService.twilioCallAnsweredCallback(body);
+  }
+
+  @Post("override-answered-by-machine")
+  @PublicRoute()
+  overrideAnsweredByMachine(
+    @Body() call: PhoneCanvasOverrideAnsweredByMachineDTO,
+  ): VoidDTO {
+    this.phoneCanvassService.overrideAnsweredByMachine(call);
+    return VoidDTO.from({});
+  }
+
+  // TODO: move this logic closer to the twilioService.
+  // This isn't technically a webhook, but it does get hit by twilio servers, so
+  // we treat it the same.
+  // eslint-disable-next-line grassroots/controller-routes-return-dtos
+  @Get("webhooks/get-voicemail/:id")
+  @PublicRoute()
+  async getVoicemail(
+    @Param("id") id: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    let voicemails = await readdir(VOICEMAIL_STORAGE_DIR);
+    const regex = new RegExp(`${id}\\.*`);
+    voicemails = voicemails.filter((x) => regex.test(x));
+
+    if (voicemails.length > 1) {
+      throw new InternalServerErrorException(
+        "Multiple voicemails with that id",
+      );
     }
-    if (body.AnsweredBy === "human" || body.AnsweredBy === "unknown") {
-      return `<Response>
-      <Dial>
-        <Conference>
-          ${String(call.contactId())}
-        </Conference>
-      </Dial>
-    </Response>`;
+
+    const voicemail = voicemails[0];
+    if (voicemail === undefined) {
+      throw new NotFoundException("No voicemail with that id");
     }
-    throw new Error("Not handling voicemails yet.");
+
+    res.sendFile(resolve(VOICEMAIL_STORAGE_DIR + "/" + voicemail));
   }
 
   @Get("details/:id")
@@ -244,39 +325,72 @@ export class PhoneCanvassController {
     return await this.phoneCanvassService.list(request);
   }
 
-  @Get("contact/:id")
-  async getContact(@Param("id") id: number): Promise<PhoneCanvassContactDTO> {
-    return await this.phoneCanvassService.getContact(id);
+  // Requiring the phone canvass id is the only security to prevent scraping of contacts.
+  @PublicRoute()
+  @Get("contact/:phoneCanvassId/:id")
+  async getContact(
+    @Param("id") id: number,
+    @Param("phoneCanvassId") phoneCanvassId: string,
+  ): Promise<PhoneCanvassContactDTO> {
+    return await this.phoneCanvassService.getContact({
+      phoneCanvassId,
+      phoneCanvassContactId: id,
+    });
+  }
+
+  // Requiring the phone canvass id is the only security to prevent scraping of contacts.
+  @PublicRoute()
+  @Get("contact/:phoneCanvassId/byRawContactId/:rawContactId")
+  async getContactByRawContactId(
+    @Param("rawContactId") baseContactId: number,
+    @Param("phoneCanvassId") phoneCanvassId: string,
+  ): Promise<PhoneCanvassContactDTO> {
+    return (
+      await this.phoneCanvassService.getContactByRawContactId({
+        phoneCanvassId,
+        rawContactId: baseContactId,
+      })
+    ).toDTO();
   }
 
   @Post("register-caller")
+  @PublicRoute()
   async registerCaller(
     @Body() caller: CreatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    const newCaller = await this.phoneCanvassService.registerCaller(caller);
+    const model = await this.phoneCanvassService.getInitiatedModelFor({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
+    const newCaller = await model.registerCaller(caller);
     session.phoneCanvassCaller = newCaller;
     return newCaller;
   }
 
-  @Post("refresh-caller")
-  async refreshCaller(
-    @Body() caller: PhoneCanvassCallerDTO,
-    @Session() session: expressSession.SessionData,
-  ): Promise<PhoneCanvassCallerDTO> {
-    caller = await this.phoneCanvassService.refreshOrCreateCaller(caller);
-    session.phoneCanvassCaller = caller;
-    return caller;
-  }
-
   @Post("update-caller")
+  @PublicRoute()
   async updateCaller(
     @Body() caller: PhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
-    caller = await this.phoneCanvassService.updateOrCreateCaller(caller);
-    session.phoneCanvassCaller = caller;
-    return caller;
+    const model = await this.phoneCanvassService.getInitiatedModelFor({
+      phoneCanvassId: caller.activePhoneCanvassId,
+    });
+    const newCaller = await model.updateOrCreateCaller(caller);
+    session.phoneCanvassCaller = newCaller;
+    return newCaller;
+  }
+
+  @Post("update-contact-notes")
+  @PublicRoute()
+  async updateContactNotes(
+    @Body() update: UpdatePhoneCanvassContactNotesDTO,
+  ): Promise<PhoneCanvassContactDTO> {
+    return this.phoneCanvassService.updateContactNotes({
+      phoneCanvassContactId: update.contactId,
+      notes: update.notes,
+      phoneCanvassId: update.phoneCanvassId,
+    });
   }
 
   @Get("start-simulation/:id")

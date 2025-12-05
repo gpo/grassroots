@@ -47,7 +47,7 @@
 ```mermaid
 erDiagram
 
-"public.phone_canvass_contact_entity" }o--|| "public.contact_entity" : ""
+"public.phone_canvass_contact_entity" |o--|| "public.contact_entity" : ""
 "public.contact_entity" }o--|| "public.organization_entity" : ""
 
 "public.contact_entity" {
@@ -69,13 +69,14 @@ erDiagram
   varchar_255_ province
 }
 "public.phone_canvass_contact_entity" {
-  integer id
-  uuid phone_canvas_id FK
+  integer phone_canvass_contact_id
+  uuid phone_canvass_id FK
   jsonb metadata
-  varchar_255_ call_status
   integer contact_id FK
   varchar_255_ call_result
   boolean played_voicemail
+  boolean been_called
+  varchar_255_ notes
 }
 "public.organization_entity" {
   integer id

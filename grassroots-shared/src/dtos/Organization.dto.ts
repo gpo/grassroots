@@ -8,6 +8,8 @@ import {
 } from "class-validator";
 import { createDTOBase } from "../util/CreateDTOBase.js";
 import { Type } from "class-transformer";
+// TODO: why does this need to be imported here?
+import "reflect-metadata";
 
 export const ROOT_ORGANIZATION_ID = 1;
 

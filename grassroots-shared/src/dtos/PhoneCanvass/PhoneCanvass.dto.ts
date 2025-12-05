@@ -1,12 +1,13 @@
 import {
   IsArray,
-  IsBoolean,
   IsEmail,
+  IsEnum,
   IsJSON,
   IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   ValidateNested,
 } from "class-validator";
 import { createDTOBase } from "../../util/CreateDTOBase.js";
@@ -19,6 +20,7 @@ import { Transform, Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
 import { Trim } from "../../decorators/Trim.decorator.js";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class PhoneCanvassDTO extends createDTOBase("PhoneCanvass") {
   @IsString()
@@ -79,7 +81,21 @@ export class CreatePhoneCanvasCSVRequestDTO extends createDTOBase(
 export class CreatePhoneCanvassResponseDTO extends createDTOBase(
   "CreatePhoneCanvassResponse",
 ) {
+  @IsString()
   id!: string;
+}
+
+export class UpdatePhoneCanvassContactNotesDTO extends createDTOBase(
+  "UpdatePhoneCanvassContactNotes",
+) {
+  @IsNumber()
+  contactId!: number;
+
+  @IsString()
+  phoneCanvassId!: string;
+
+  @IsString()
+  notes!: string;
 }
 
 export class PhoneCanvassContactDTO extends createDTOBase(
@@ -89,8 +105,14 @@ export class PhoneCanvassContactDTO extends createDTOBase(
   @Type(() => ContactDTO)
   contact!: ContactDTO;
 
+  @IsNumber()
+  phoneCanvassContactId!: number;
+
   @IsJSON()
   metadata!: string;
+
+  @IsString()
+  notes!: string;
 
   getMetadataByKey(key: string): undefined | string | string[] {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -151,6 +173,16 @@ export class PaginatedPhoneCanvassContactResponseDTO extends createDTOBase(
   }
 }
 
+export class PhoneCanvasTwilioVoiceCallbackDTO extends createDTOBase(
+  "PhoneCanvasTwilioVoiceCallback",
+) {
+  @IsString()
+  // We require this to be present, but don't want to use default error handling with twilio responses, so
+  // we mark it optional and manually handle the case where it's missing.
+  @IsOptional()
+  conference?: string;
+}
+
 export class PhoneCanvasTwilioCallStatusCallbackDTO extends createDTOBase(
   "PhoneCanvasTwilioCallStatusCallback",
 ) {
@@ -199,6 +231,16 @@ export class PhoneCanvasTwilioCallAnsweredCallbackDTO extends createDTOBase(
   MachineDetectionDuration!: number;
 }
 
+export class PhoneCanvasOverrideAnsweredByMachineDTO extends createDTOBase(
+  "PhoneCanvasOverrideAnsweredByMachine",
+) {
+  @IsNumber()
+  contactId!: number;
+
+  @IsNotEmpty()
+  phoneCanvassId!: string;
+}
+
 // (displayName, activePhoneCanvassId) is globally unique.
 export class CreatePhoneCanvassCallerDTO extends createDTOBase(
   "CreatePhoneCanvassCaller",
@@ -214,10 +256,16 @@ export class CreatePhoneCanvassCallerDTO extends createDTOBase(
   activePhoneCanvassId!: string;
 }
 
+enum ReadyEnum {
+  unready = "unready",
+  ready = "ready",
+  lastCall = "last call",
+}
+
 // (displayName, activePhoneCanvassId) is globally unique.
 export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
-  @IsNumber()
-  id!: number;
+  @IsUUID()
+  id!: string;
 
   @Trim()
   @IsNotEmpty()
@@ -241,6 +289,7 @@ export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
     );
   }
 
-  @IsBoolean()
-  ready!: boolean;
+  @IsEnum(ReadyEnum)
+  @ApiProperty({ enum: ReadyEnum })
+  ready!: "ready" | "unready" | "last call";
 }

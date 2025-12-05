@@ -23,6 +23,6 @@ export class PhoneCanvassEntity extends createEntityBase<
   @Property()
   name!: string;
 
-  @OneToMany(() => PhoneCanvassContactEntity, (contact) => contact.phoneCanvas)
+  @OneToMany(() => PhoneCanvassContactEntity, (contact) => contact.phoneCanvass)
   contacts = new Collection<PhoneCanvassContactEntity>(this);
 }

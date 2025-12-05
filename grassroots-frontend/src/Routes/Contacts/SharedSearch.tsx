@@ -40,6 +40,7 @@ function SharedSearch(): JSX.Element {
       paginatedContactResponse={paginatedContactResponse}
       setRowsToSkip={setRowsToSkip}
       rowsPerPage={ROWS_PER_PAGE}
+      phoneCanvassId={"TODO"}
     ></PaginatedContacts>
   );
 }

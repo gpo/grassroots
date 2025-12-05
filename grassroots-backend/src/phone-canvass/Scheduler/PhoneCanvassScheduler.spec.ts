@@ -2,60 +2,90 @@
 
 import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
-import {
-  NotStartedCall,
-  resetPhoneCanvasCallIdsForTest,
-} from "./PhoneCanvassCall.js";
+import { Call, resetPhoneCanvasCallIdsForTest } from "./PhoneCanvassCall.js";
 import { fail } from "assert";
-import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
-import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
-import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
-import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
-import { EntityManager } from "@mikro-orm/postgresql";
 import { PhoneCanvassModule } from "../PhoneCanvass.module.js";
+import {
+  getLastObservablesForTest,
+  PhoneCanvassModelFactory,
+} from "./PhoneCanvassModelFactory.js";
+import { PhoneCanvassModel } from "../PhoneCanvass.model.js";
+import { TwilioServiceMock } from "../Twilio.service.mock.js";
+import { ServerMetaService } from "../../server-meta/ServerMeta.service.js";
+import { TwilioService } from "../Twilio.service.js";
+import { plainToInstance } from "class-transformer";
+import { ContactEntity } from "../../contacts/entities/Contact.entity.js";
+import { EntityManager } from "@mikro-orm/core";
+import { Subject } from "rxjs";
+import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+function makeContact(id: number): ContactEntity {
+  return plainToInstance(ContactEntity, { id });
+}
+
 const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
   {
     id: 10,
     callStatus: "NOT_STARTED",
-    contact: { contact: { id: 0 } },
+    contact: makeContact(0),
   },
   {
     id: 20,
     callStatus: "NOT_STARTED",
-    contact: { contact: { id: 1 } },
+    contact: makeContact(1),
   },
   {
     id: 30,
     callStatus: "NOT_STARTED",
-    contact: { contact: { id: 2 } },
+    contact: makeContact(2),
   },
-] as unknown as PhoneCanvassContactEntity[];
+].map((x) => plainToInstance(PhoneCanvassContactEntity, x));
 
 let currentTime = -1;
 
-function getScheduler(): PhoneCanvassScheduler {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const entityManager = {
-    flush: vi.fn().mockResolvedValue(undefined),
-  } as unknown as EntityManager;
-  const metricsTracker = new PhoneCanvassMetricsTracker();
-  const scheduler = new PhoneCanvassSchedulerImpl(
-    new NoOvercallingStrategy(metricsTracker),
-    metricsTracker,
-    {
-      contacts: FAKE_CONTACTS,
-      phoneCanvassId: "fake phone canvass id",
-      entityManager,
-    },
-  );
+interface ModelWithObservablesForTest {
+  model: PhoneCanvassModel;
+  callers$: Subject<Readonly<PhoneCanvassCallerDTO>>;
+}
+
+function getModelWithObservables(): ModelWithObservablesForTest {
+  const factory = new PhoneCanvassModelFactory();
+
+  const model = factory.createModel({
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    twilioService: new TwilioServiceMock() as unknown as TwilioService,
+    phoneCanvassId: "fake phone canvass id",
+    contacts: FAKE_CONTACTS,
+    serverMetaService: new ServerMetaService(),
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    entityManager: {
+      findOneOrFail: () => {
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        return { beenCalled: false } as PhoneCanvassContactEntity;
+      },
+      flush: () => {
+        // ignore
+      },
+    } as unknown as EntityManager,
+  });
 
   const currentTimeMock = vi.fn(() => {
     return currentTime;
   });
-  scheduler.getCurrentTime = currentTimeMock;
-  return scheduler;
+
+  model.mockCurrentTime(currentTimeMock);
+  return { model, callers$: getLastObservablesForTest().callers$ };
+}
+
+function callerWithId(id: string): PhoneCanvassCallerDTO {
+  return PhoneCanvassCallerDTO.from({
+    id,
+    displayName: "",
+    email: "",
+    activePhoneCanvassId: "",
+    authToken: "",
+    ready: "ready",
+  });
 }
 
 describe("PhoneCanvassScheduler", () => {
@@ -66,111 +96,74 @@ describe("PhoneCanvassScheduler", () => {
     resetPhoneCanvasCallIdsForTest();
   });
   it("should handle a stream of calls in series", async () => {
-    const calls: NotStartedCall[] = [];
-    const scheduler = getScheduler();
-    scheduler.calls.subscribe((call) => calls.push(call));
+    const callsById = new Map<number, Call>();
+    const { model, callers$ } = getModelWithObservables();
+    const scheduler = model.scheduler;
+    model.calls$.subscribe((call) => callsById.set(call.id, call));
 
-    expect(calls).toHaveLength(0);
-    void scheduler.startIfNeeded();
+    expect(callsById).toHaveLength(0);
 
     currentTime = 11;
-    scheduler.addCaller(1);
+    callers$.next(callerWithId("1"));
     await scheduler.waitForIdleForTest();
 
-    expect(calls).toStrictEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 1,
-        }),
-      ]),
-    );
+    expect(callsById).toHaveLength(1);
+    expect(callsById.get(1)).toBeDefined();
 
-    expect(calls[0]?.state.transitionTimestamps.NOT_STARTED).toBe(11);
-    expect(calls[0]?.state.transitionTimestamps.INITIATED).toBe(undefined);
-
-    calls.length = 0;
-
-    scheduler.addCaller(2);
+    callers$.next(callerWithId("2"));
     await scheduler.waitForIdleForTest();
-    expect(calls).toStrictEqual([
-      expect.objectContaining({
-        id: 2,
-      }),
-    ]);
-    calls.length = 0;
 
-    scheduler.addCaller(3);
-    await scheduler.waitForIdleForTest();
-    expect(calls).toStrictEqual([
-      expect.objectContaining({
-        id: 3,
-      }),
-    ]);
-    calls.length = 0;
+    expect(callsById).toHaveLength(2);
+    expect(callsById.get(2)).toBeDefined();
 
-    scheduler.addCaller(4);
+    callers$.next(callerWithId("3"));
     await scheduler.waitForIdleForTest();
-    // There's no contact to call.
-    expect(calls).toHaveLength(0);
+
+    expect(callsById).toHaveLength(3);
+    expect(callsById.get(3)).toBeDefined();
+
+    callers$.next(callerWithId("4"));
+    await scheduler.waitForIdleForTest();
+    // There's no new contact to call.
+    expect(callsById).toHaveLength(3);
     scheduler.stop();
   });
 
   it("should handle call updates", async () => {
-    const scheduler = getScheduler();
-    const CALLER_ID = 101;
+    const { model, callers$ } = getModelWithObservables();
+    const scheduler = model.scheduler;
+
+    const CALLER_ID = "fakeuuid";
     currentTime = 1;
 
-    const calls: NotStartedCall[] = [];
-    scheduler.calls.subscribe((call) => calls.push(call));
+    const callsById = new Map<number, Call>();
+    model.calls$.subscribe((call) => callsById.set(call.id, call));
 
-    void scheduler.startIfNeeded();
-    scheduler.addCaller(CALLER_ID);
+    callers$.next(callerWithId(CALLER_ID));
     await scheduler.waitForIdleForTest();
+    expect(callsById).toHaveLength(1);
 
-    expect(calls).toStrictEqual([
-      expect.objectContaining({
-        id: 1,
-      }),
-    ]);
-    const call = calls[0] ?? fail();
-    expect(call.id).toBe(1);
+    let call = callsById.get(1) ?? fail();
 
-    const queued = await call.advanceStatusToQueued({
-      currentTime: 2,
-      twilioSid: "Test",
-    });
-    const initiated = await queued.advanceStatusToInitiated({
-      currentTime: 3,
-    });
-    const ringing = await initiated.advanceStatusToRinging({
-      currentTime: 4,
-    });
-    const inProgress = await ringing.advanceStatusToInProgress({
-      callerId:
-        scheduler.getNextIdleCallerId() ?? fail("Missing next caller id"),
-      currentTime: 5,
-    });
+    call = call
+      .update("QUEUED", { twilioSid: "Test" })
+      .update("INITIATED", {})
+      .update("RINGING", {})
+      .update("IN_PROGRESS", {});
 
     await scheduler.waitForIdleForTest();
-    expect(calls).toHaveLength(1);
+    expect(callsById).toHaveLength(1);
 
-    const completedCall = await inProgress.advanceStatusToCompleted({
-      currentTime: 6,
+    const completedCall = call.update("COMPLETED", {
       result: "COMPLETED",
     });
 
     await scheduler.waitForIdleForTest();
-    expect(calls).toHaveLength(2);
+    expect(callsById).toHaveLength(2);
 
-    expect(completedCall.state.transitionTimestamps).toStrictEqual({
-      NOT_STARTED: 1,
-      QUEUED: 2,
-      INITIATED: 3,
-      RINGING: 4,
-      IN_PROGRESS: 5,
-      COMPLETED: 6,
-    });
-    expect(completedCall.callerId).toBe(CALLER_ID);
+    // This is no longer the case, as we're waiting for the "answered" callback.
+    //expect(completedCall.callerId).toBe(CALLER_ID);
+    void completedCall;
     scheduler.stop();
   });
 });

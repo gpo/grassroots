@@ -1,22 +1,25 @@
-import { BehaviorSubject, combineLatest, map, Observable, Subject } from "rxjs";
-import { Call, CompletedCall } from "./PhoneCanvassCall.js";
-import { PhoneCanvassScheduler } from "./PhoneCanvassScheduler.js";
+import {
+  BehaviorSubject,
+  combineLatest,
+  distinctUntilChanged,
+  map,
+  Observable,
+  scan,
+  shareReplay,
+  startWith,
+} from "rxjs";
+import { Call } from "./PhoneCanvassCall.js";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class PhoneCanvassMetricsTracker {
-  #endingCallsObservable = new Subject<CompletedCall>();
-  #callerCountObservable = new BehaviorSubject<number>(0);
-  #committedCallsCountObservable = new BehaviorSubject<number>(0);
+  #readyCallerCountObservable = new BehaviorSubject<number>(0);
+  #committedCallsCountObservable: Observable<number>;
 
-  readonly #idleCallerCountObservable = new Observable<number>();
-
-  get endingCalls(): Observable<CompletedCall> {
-    return this.endingCalls;
-  }
+  readonly #idleCallerCountObservable: Observable<number>;
 
   get callerCountObservable(): Observable<number> {
-    return this.#callerCountObservable;
+    return this.#readyCallerCountObservable;
   }
 
   get committedCallerCountObservable(): Observable<number> {
@@ -27,39 +30,38 @@ export class PhoneCanvassMetricsTracker {
     return this.#idleCallerCountObservable;
   }
 
-  constructor() {
+  constructor(calls$: Observable<Call>) {
+    this.#committedCallsCountObservable = calls$.pipe(
+      scan((committedCalls: Set<number>, call: Call): Set<number> => {
+        if (call.status === "NOT_STARTED") {
+          committedCalls.add(call.id);
+          return committedCalls;
+        }
+        if (call.status === "COMPLETED") {
+          committedCalls.delete(call.id);
+          return committedCalls;
+        }
+        return committedCalls;
+      }, new Set<number>()),
+      map((committedCalls) => committedCalls.size),
+      distinctUntilChanged(),
+      startWith(0),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
     this.#idleCallerCountObservable = combineLatest([
-      this.#callerCountObservable,
+      this.#readyCallerCountObservable,
       this.#committedCallsCountObservable,
     ]).pipe(
       map(
         ([callerCount, committedCallsCount]) =>
           callerCount - committedCallsCount,
       ),
-    );
-
-    this.#endingCallsObservable.subscribe((call: Call) => {
-      console.log(`Recording metrics about ${String(call.id)}`);
-    });
-  }
-
-  onEndingCall(call: CompletedCall): void {
-    this.#endingCallsObservable.next(call);
-  }
-
-  onCallsByStatusUpdate(
-    callsByStatus: PhoneCanvassScheduler["callsByStatus"],
-  ): void {
-    this.#committedCallsCountObservable.next(
-      callsByStatus.NOT_STARTED.size +
-        callsByStatus.INITIATED.size +
-        callsByStatus.QUEUED.size +
-        callsByStatus.RINGING.size +
-        callsByStatus.IN_PROGRESS.size,
+      shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
-  onCallerCountUpdate(callerCount: number): void {
-    this.#callerCountObservable.next(callerCount);
+  onReadyCallerCountUpdate(callerCount: number): void {
+    this.#readyCallerCountObservable.next(callerCount);
   }
 }

@@ -9,6 +9,8 @@ import {
   LoginStateContext,
 } from "../Features/Auth/Logic/LoginStateContext.js";
 import { usePhoneCanvassCallerStore } from "../Features/PhoneCanvass/Logic/PhoneCanvassCallerStore.js";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "./ErrorFallback.js";
 
 // Create a new router instance
 const router = createRouter({
@@ -36,11 +38,13 @@ export function App(): JSX.Element {
   const loginState = getLoginState();
   return (
     <StrictMode>
-      <LoginStateContext.Provider value={loginState}>
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} context={{ loginState }} />
-        </QueryClientProvider>
-      </LoginStateContext.Provider>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <LoginStateContext.Provider value={loginState}>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} context={{ loginState }} />
+          </QueryClientProvider>
+        </LoginStateContext.Provider>
+      </ErrorBoundary>
     </StrictMode>
   );
 }
