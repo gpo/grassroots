@@ -302,7 +302,7 @@ export class PhoneCanvassSimulator {
   }
 
   async start(): Promise<void> {
-    const debug = (await getEnvVars()).IS_DEBUG;
+    const debug = (await getEnvVars()).IS_DEBUG === "true";
     this.simulateCalls(debug);
     this.simulateCallers(debug);
 
