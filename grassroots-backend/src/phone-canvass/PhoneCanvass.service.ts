@@ -240,6 +240,7 @@ export class PhoneCanvassService {
         twilioService: this.twilioService,
         serverMetaService: this.serverMetaService,
         entityManager: this.entityManager,
+        strategyName: "expected failure rate",
       });
       this.#models.set(phoneCanvassId, model);
 
