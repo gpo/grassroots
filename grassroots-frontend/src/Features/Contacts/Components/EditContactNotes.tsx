@@ -11,13 +11,12 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { grassrootsAPI } from "../../../GrassRootsAPI.js";
-import { Button, Paper, Stack, Textarea } from "@mantine/core";
+import { Button, Stack, Textarea } from "@mantine/core";
 
 interface EditContactNotesProps {
   contactId: number;
   phoneCanvassId: string;
   initialNotes: string;
-  style?: React.CSSProperties;
 }
 
 function useUpdateCallerNotesMutation(): UseMutationResult<
@@ -64,24 +63,22 @@ export function EditContactNotes(params: EditContactNotesProps): JSX.Element {
     [],
   );
   return (
-    <Paper style={params.style} shadow="sm" p="xl" radius="md" withBorder>
-      <form style={{ height: "100%" }} onSubmit={form.onSubmit(onSubmit)}>
-        <Stack h="100%">
-          <Textarea
-            key={form.key("notes")}
-            {...form.getInputProps("notes")}
-            h="100%"
-            label="Notes"
-            styles={{
-              wrapper: { height: "100%" },
-              input: { height: "100%" },
-            }}
-          ></Textarea>
-          <Button type="submit" mt="xl">
-            Save
-          </Button>
-        </Stack>
-      </form>
-    </Paper>
+    <form style={{ flex: 1 }} onSubmit={form.onSubmit(onSubmit)}>
+      <Stack h="100%">
+        <Textarea
+          key={form.key("notes")}
+          flex="1"
+          {...form.getInputProps("notes")}
+          label="Notes"
+          styles={{
+            wrapper: { height: "100%" },
+            input: { height: "100%" },
+          }}
+        ></Textarea>
+        <Button type="submit" mt="lg">
+          Save
+        </Button>
+      </Stack>
+    </form>
   );
 }

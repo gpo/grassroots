@@ -1,4 +1,4 @@
-import { JSX, useEffect, useRef, useState } from "react";
+import { forwardRef, JSX, useEffect, useRef, useState } from "react";
 import {
   usePhoneCanvassCaller,
   usePhoneCanvassCallerStore,
@@ -16,6 +16,7 @@ import {
   Paper,
   Center,
   Modal,
+  ButtonProps,
 } from "@mantine/core";
 import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$phoneCanvassId.js";
 import { useStore } from "zustand";
@@ -39,6 +40,14 @@ import {
 import { MicrophoneTester } from "./MicrophoneTester.js";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { useOverrideAnsweredByMachine } from "../Logic/UseOverrideAnsweredByMachine.js";
+import { useHangup } from "../Logic/UseHangup.js";
+import {
+  IconMicrophone,
+  IconPhone,
+  IconPhoneCheck,
+  IconPhoneOff,
+  IconRobot,
+} from "@tabler/icons-react";
 
 const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
   NOT_STARTED: " ",
@@ -58,6 +67,7 @@ const CALLER_READY_EMOJIS: Record<"ready" | "unready" | "last call", string> = {
 function CallPartyProgress(props: {
   total: number;
   done: number;
+  phoneCanvassId: string;
 }): JSX.Element {
   const { done, total } = props;
   const percent = total === 0 ? 100 : Math.round((done / total) * 100);
@@ -72,12 +82,46 @@ function CallPartyProgress(props: {
         </Text>
       </Group>
 
-      <Progress value={percent} size="lg"></Progress>
+      <Progress
+        key={
+          props.phoneCanvassId /*
+      This is required to prevent the progress bar from animating from the prior phone canvass state.
+      TODO: I'm still seeing the bug sometimes though.
+      */
+        }
+        value={percent}
+        size="lg"
+      ></Progress>
     </>
   );
 }
 
 type ReadyPendingState = "becomingReady" | "becomingUnready" | undefined;
+
+type CallStateButtonProps = ButtonProps & {
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+};
+
+export const CallStateButton = forwardRef<
+  HTMLButtonElement,
+  CallStateButtonProps
+>(({ children, ...props }, ref) => {
+  return (
+    <Button
+      ref={ref}
+      justify="flex-start"
+      {...props}
+      fullWidth
+      style={{
+        justifyContent: "flex-start",
+      }}
+    >
+      {children}
+    </Button>
+  );
+});
+
+CallStateButton.displayName = "CallStateButton";
 
 const ToggleReadyButton = (props: {
   ready: "ready" | "unready" | "last call";
@@ -99,15 +143,16 @@ const ToggleReadyButton = (props: {
   } = props;
   if (ready === "last call") {
     return (
-      <Button flex={1} color="red" disabled={true}>
+      <CallStateButton color="red" disabled={true}>
         You might still be needed!
-      </Button>
+      </CallStateButton>
     );
   }
   if (ready === "ready" || readyPendingState === "becomingUnready") {
     return (
-      <Button
-        flex={1}
+      <CallStateButton
+        color="orange"
+        leftSection={<IconPhoneCheck />}
         disabled={readyPendingState === "becomingUnready"}
         onClick={() => {
           setReadyPendingState("becomingUnready");
@@ -124,12 +169,13 @@ const ToggleReadyButton = (props: {
         }}
       >
         Last Call For Now
-      </Button>
+      </CallStateButton>
     );
   } else {
     return (
-      <Button
-        flex={1}
+      <CallStateButton
+        color="green"
+        leftSection={<IconPhone />}
         disabled={readyPendingState === "becomingReady"}
         onClick={() => {
           setReadyPendingState("becomingReady");
@@ -149,7 +195,7 @@ const ToggleReadyButton = (props: {
         }}
       >
         Ready for Calls
-      </Button>
+      </CallStateButton>
     );
   }
 };
@@ -266,6 +312,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const phoneCanvassDetails = usePhoneCanvassDetails(phoneCanvassId).data;
 
   const overrideAnsweredByMachine = useOverrideAnsweredByMachine();
+  const hangup = useHangup();
 
   const contacts = callPartyStateStore.contacts.map((contact) => {
     const callDescription = CALL_STATUS_EMOJIS[contact.status];
@@ -288,19 +335,76 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
 
   const TestMicrophoneAudioButton = (): JSX.Element => {
     return (
-      <Button
-        flex={1}
+      <CallStateButton
+        leftSection={<IconMicrophone />}
         onClick={() => {
           setTestingMic(true);
         }}
       >
         Test Audio
-      </Button>
+      </CallStateButton>
+    );
+  };
+
+  const AnsweredByMachineButton = (): JSX.Element => {
+    return (
+      <CallStateButton
+        leftSection={<IconRobot />}
+        disabled={currentContactId === undefined}
+        onClick={() => {
+          runPromise(
+            (async (): Promise<void> => {
+              if (currentContactId === undefined) {
+                throw new Error("Button should be disabld.");
+              }
+              await overrideAnsweredByMachine({
+                phoneCanvassId: phoneCanvassId,
+                contactId: currentContactId,
+              });
+            })(),
+            true,
+          );
+        }}
+      >
+        Answered By Machine
+      </CallStateButton>
+    );
+  };
+
+  const HangupButton = (): JSX.Element => {
+    return (
+      <CallStateButton
+        color="red"
+        leftSection={<IconPhoneOff />}
+        disabled={currentContactId === undefined}
+        onClick={() => {
+          runPromise(
+            (async (): Promise<void> => {
+              if (currentContactId === undefined) {
+                throw new Error("Button should be disabld.");
+              }
+              await hangup({
+                phoneCanvassId: phoneCanvassId,
+                contactId: currentContactId,
+              });
+            })(),
+            true,
+          );
+        }}
+      >
+        Hangup
+      </CallStateButton>
     );
   };
 
   const title = (
-    <Title order={1}> Call Party: {phoneCanvassDetails?.name ?? ""} </Title>
+    <Title order={1} mb="xs">
+      {" "}
+      Call Party: {phoneCanvassDetails?.name ?? ""} –{" "}
+      <span style={{ color: "var(--mantine-color-dimmed)" }}>
+        Welcome {caller.displayName}
+      </span>
+    </Title>
   );
 
   const remainingContacts =
@@ -325,43 +429,23 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     callPartyStateStore.callers.length > 0 && remainingContacts == 0 ? (
       complete
     ) : (
-      <>
-        <Group w={"100%"}>
-          <ToggleReadyButton
-            ready={ready}
-            readyPendingState={readyPendingState}
-            setReadyPendingState={setReadyPendingState}
-            currentDevice={currentDevice}
-            caller={caller}
-            updateCallerMutation={updateCallerNoKeepAlive}
-            setCurrentDevice={setCurrentDevice}
-          ></ToggleReadyButton>
-          <TestMicrophoneAudioButton></TestMicrophoneAudioButton>
-          <Button
-            disabled={currentContactId === undefined}
-            onClick={() => {
-              runPromise(
-                (async (): Promise<void> => {
-                  if (currentContactId === undefined) {
-                    throw new Error("Button should be disabld.");
-                  }
-                  await overrideAnsweredByMachine({
-                    phoneCanvassId: phoneCanvassId,
-                    contactId: currentContactId,
-                  });
-                })(),
-                true,
-              );
-            }}
-          >
-            Answered By Machine
-          </Button>
-        </Group>
-        <ContactCard
-          phoneCanvassContact={currentContact}
-          phoneCanvassId={phoneCanvassId}
-        ></ContactCard>
-      </>
+      <ContactCard
+        phoneCanvassContact={currentContact}
+        phoneCanvassId={phoneCanvassId}
+      >
+        <ToggleReadyButton
+          ready={ready}
+          readyPendingState={readyPendingState}
+          setReadyPendingState={setReadyPendingState}
+          currentDevice={currentDevice}
+          caller={caller}
+          updateCallerMutation={updateCallerNoKeepAlive}
+          setCurrentDevice={setCurrentDevice}
+        ></ToggleReadyButton>
+        <HangupButton></HangupButton>
+        <AnsweredByMachineButton></AnsweredByMachineButton>
+        <TestMicrophoneAudioButton></TestMicrophoneAudioButton>
+      </ContactCard>
     );
 
   return (
@@ -377,10 +461,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         <MicrophoneTester></MicrophoneTester>
       </Modal>
       <Group align="start">
-        <Stack style={{ flex: 1 }}>
-          <h2> Welcome {caller.displayName}</h2>
-          {mainContent}
-        </Stack>
+        <Stack style={{ flex: 1 }}>{mainContent}</Stack>
         <Stack w={300}>
           <Accordion variant="contained">
             <Accordion.Item value={"Callers"}>
@@ -400,6 +481,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
                 <CallPartyProgress
                   total={callPartyStateStore.totalContacts}
                   done={callPartyStateStore.doneContacts}
+                  phoneCanvassId={phoneCanvassId}
                 ></CallPartyProgress>
               </Accordion.Control>
               <Accordion.Panel>

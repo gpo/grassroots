@@ -1,7 +1,9 @@
 import { access, readFile } from "fs/promises";
 import * as dotenv from "dotenv";
 import {
+  IsBooleanString,
   IsNotEmpty,
+  IsOptional,
   IsPositive,
   IsString,
   IsUrl,
@@ -10,8 +12,9 @@ import {
 import { plainToInstance } from "class-transformer";
 
 export class Environment {
-  @IsNotEmpty()
-  IS_DEBUG!: boolean;
+  @IsOptional()
+  @IsBooleanString()
+  IS_DEBUG!: string | undefined;
 
   @IsNotEmpty()
   POSTGRES_USER!: string;
@@ -79,6 +82,11 @@ export class Environment {
 
   @IsString()
   VALID_LOGIN_EMAIL_REGEX!: string;
+
+  // Separated by ;
+  @IsString()
+  @IsOptional()
+  TWILIO_TEST_NUMBERS!: string | undefined;
 }
 
 type VarSources = Record<keyof Environment, string>;
@@ -89,7 +97,7 @@ function getEnvFilePaths(): string[] {
     return ["../.env.test.ci", "../.env.test"];
   }
   if (process.env.MODE == "test") {
-    return ["../.env.test"];
+    return ["../.env.test.local", "../.env.test"];
   }
   return ["../.env.development.local", "../.env.development"];
 }

@@ -3,7 +3,6 @@ import { Injectable } from "@nestjs/common";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
-import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
 import { ReplaySubject, Subject } from "rxjs";
 import { Call } from "./PhoneCanvassCall.js";
 import { TwilioService } from "../Twilio.service.js";
@@ -12,6 +11,7 @@ import { PhoneCanvassCallersModel } from "../PhoneCanvassCallers.model.js";
 import { ServerMetaService } from "../../server-meta/ServerMeta.service.js";
 import { EntityManager } from "@mikro-orm/core";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { ExpectedFailureRateStrategy } from "./Strategies/ExpectedFailureRateStrategy.js";
 
 interface ObservablesForTest {
   callers$: Subject<Readonly<PhoneCanvassCallerDTO>>;
@@ -39,7 +39,8 @@ export class PhoneCanvassModelFactory {
     };
 
     const metricsTracker = new PhoneCanvassMetricsTracker(calls$);
-    const strategy = new NoOvercallingStrategy(metricsTracker);
+    //const strategy = new NoOvercallingStrategy(metricsTracker);
+    const strategy = new ExpectedFailureRateStrategy(metricsTracker, 0.6);
     const scheduler = new PhoneCanvassSchedulerImpl(strategy, metricsTracker, {
       phoneCanvassId: params.phoneCanvassId,
       contacts: params.contacts,

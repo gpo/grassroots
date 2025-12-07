@@ -30,7 +30,7 @@ import {
   PhoneCanvassContactDTO,
   PhoneCanvasTwilioVoiceCallbackDTO,
   UpdatePhoneCanvassContactNotesDTO,
-  PhoneCanvasOverrideAnsweredByMachineDTO,
+  PhoneCanvassCallIdentifierDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -93,6 +93,10 @@ export class PhoneCanvassController {
               const call = this.phoneCanvassService.getCallBySid(
                 callback.CallSid,
               );
+              // This probably means the server died while there were pending callbacks.
+              if (call === undefined) {
+                return;
+              }
               call.update(status.status, {
                 result: status.result,
                 twilioSid: callback.CallSid,
@@ -242,7 +246,7 @@ export class PhoneCanvassController {
     return `
       <Response>
         <Dial>
-          <Conference endConferenceOnExit="true">${conferenceName}</Conference>
+          <Conference beep="false" endConferenceOnExit="true">${conferenceName}</Conference>
         </Dial>
       </Response>
     `;
@@ -269,15 +273,23 @@ export class PhoneCanvassController {
   async twilioCallAnsweredCallback(
     @Body() body: PhoneCanvasTwilioCallAnsweredCallbackDTO,
   ): Promise<string> {
-    return await this.phoneCanvassService.twilioCallAnsweredCallback(body);
+    await this.phoneCanvassService.twilioCallAnsweredCallback(body);
+    return "<Response></Response>";
   }
 
   @Post("override-answered-by-machine")
   @PublicRoute()
-  overrideAnsweredByMachine(
-    @Body() call: PhoneCanvasOverrideAnsweredByMachineDTO,
-  ): VoidDTO {
-    this.phoneCanvassService.overrideAnsweredByMachine(call);
+  async overrideAnsweredByMachine(
+    @Body() call: PhoneCanvassCallIdentifierDTO,
+  ): Promise<VoidDTO> {
+    await this.phoneCanvassService.overrideAnsweredByMachine(call);
+    return VoidDTO.from({});
+  }
+
+  @Post("hangup")
+  @PublicRoute()
+  async hangup(@Body() call: PhoneCanvassCallIdentifierDTO): Promise<VoidDTO> {
+    await this.phoneCanvassService.hangup(call);
     return VoidDTO.from({});
   }
 

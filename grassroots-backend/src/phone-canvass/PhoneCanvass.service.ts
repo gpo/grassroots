@@ -19,7 +19,7 @@ import {
   PhoneCanvassContactDTO,
   PhoneCanvassDetailsDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
-  PhoneCanvasOverrideAnsweredByMachineDTO,
+  PhoneCanvassCallIdentifierDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { ContactEntity } from "../contacts/entities/Contact.entity.js";
 import { TwilioService } from "./Twilio.service.js";
@@ -268,32 +268,47 @@ export class PhoneCanvassService {
 
   async twilioCallAnsweredCallback(
     callback: PhoneCanvasTwilioCallAnsweredCallbackDTO,
-  ): Promise<string> {
+  ): Promise<void> {
     const call = this.getCallBySid(callback.CallSid);
+    if (call === undefined) {
+      return;
+    }
     const model = await this.getInitiatedModelFor({
       phoneCanvassId: call.canvassId,
     });
-    return this.twilioService.twilioCallAnsweredCallback(
-      callback,
-      call,
-      model.scheduler,
-    );
+    model.twilioCallAnsweredCallback(callback, call);
   }
 
-  overrideAnsweredByMachine(
-    override: PhoneCanvasOverrideAnsweredByMachineDTO,
-  ): void {
+  async overrideAnsweredByMachine(
+    override: PhoneCanvassCallIdentifierDTO,
+  ): Promise<void> {
     const call = this.#callsByContactId.get(override.contactId);
     if (call === undefined || call.canvassId !== override.phoneCanvassId) {
       throw new Error("Unable find call");
     }
-    call.update("COMPLETED", { overrideAnsweredByMachine: true });
+    call.update(call.status, { overrideAnsweredByMachine: true });
+    if (call.twilioSid === undefined) {
+      throw new Error("Can't hangup call without sid");
+    }
+    await this.twilioService.hangup(call.twilioSid);
   }
 
-  getCallBySid(sid: string): Call {
+  async hangup(callID: PhoneCanvassCallIdentifierDTO): Promise<void> {
+    const call = this.#callsByContactId.get(callID.contactId);
+    if (call === undefined || call.canvassId !== callID.phoneCanvassId) {
+      throw new Error("Unable find call");
+    }
+    if (call.twilioSid === undefined) {
+      throw new Error("Can't hangup call without sid");
+    }
+    await this.twilioService.hangup(call.twilioSid);
+  }
+
+  getCallBySid(sid: string): Call | undefined {
     const call = this.#callsBySid.get(sid);
     if (call === undefined) {
-      throw new NotFoundException(`Can't find call with sid ${sid}`);
+      // This is likely a call from a prior launch of the server.
+      console.error(`Can't find call with sid ${sid}`);
     }
     return call;
   }
