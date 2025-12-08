@@ -1,6 +1,7 @@
 import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
+  PhoneCanvasTwilioCallAnsweredCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { Faker, en, en_CA } from "@faker-js/faker";
 import { delay } from "grassroots-shared/util/Delay";
@@ -25,6 +26,8 @@ function callerJoinDelta(): number {
 function callerReadyDelta(): number {
   return sampleLogNormalFromCI(1000, 10_000);
 }
+// Used when we want to model callers becoming unready.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function callerUnreadyDelta(): number {
   return sampleLogNormalFromCI(20_000, 100_000);
 }
@@ -55,6 +58,10 @@ function callInProgressDelta(): number | undefined {
 
 function callCompletedDelta(): number | undefined {
   return modelStateTransition(5_000, 30_000);
+}
+
+function machineDetectionDoneDelta(): number | undefined {
+  return modelStateTransition(500, 1_000);
 }
 
 function callFailedDelta(): number {
@@ -92,10 +99,16 @@ interface StatusChangeEvent extends BaseEvent {
   result?: CallResult;
 }
 
+interface AMDCompleteEvent extends BaseEvent {
+  kind: "amd_complete";
+  callback: PhoneCanvasTwilioCallAnsweredCallbackDTO;
+}
+
 type SimulationEvent =
   | AddCallerEvent
   | ChangeReadyCallerEvent
-  | StatusChangeEvent;
+  | StatusChangeEvent
+  | AMDCompleteEvent;
 
 // This doesn't follow the format of real twilio call sids, but is good enough for the simulation.
 function getFakeCallSid(call: Call): string {
@@ -116,7 +129,6 @@ export class PhoneCanvassSimulator {
   #faker: Faker;
   #events = new Subject<SimulationEvent>();
   #callers: PhoneCanvassCallerDTO[] = [];
-  #running = true;
   #subscriptions: Subscription[] = [];
 
   constructor(
@@ -133,8 +145,17 @@ export class PhoneCanvassSimulator {
       index,
       ts: Date.now(),
     });
+
+    await delay(callerReadyDelta());
+    this.#events.next({
+      kind: "change_ready_caller",
+      index,
+      ts: Date.now(),
+      ready: "ready",
+    });
+
     // TODO: maybe include the "last call" state.
-    while (this.#running) {
+    /*while (this.#running) {
       await delay(callerReadyDelta());
       this.#events.next({
         kind: "change_ready_caller",
@@ -149,7 +170,7 @@ export class PhoneCanvassSimulator {
         ts: Date.now(),
         ready: "unready",
       });
-    }
+    }*/
   }
 
   simulateCallers(debug: boolean): void {
@@ -208,10 +229,40 @@ export class PhoneCanvassSimulator {
       status: "IN_PROGRESS",
       delayMs,
     });
+    delayMs = machineDetectionDoneDelta();
+    if (delayMs === undefined) {
+      return { succeeded: false };
+    }
+
+    if (call.twilioSid === undefined) {
+      throw new Error("MISSING SID");
+    }
+
+    this.#events.next({
+      kind: "amd_complete",
+      ts: Date.now(),
+      callback: PhoneCanvasTwilioCallAnsweredCallbackDTO.from({
+        CallSid: call.twilioSid,
+        AnsweredBy: "human",
+        MachineDetectionDuration: 1000,
+      }),
+    });
+
+    /*
+    answeredBy:
+      | "machine_end_beep"
+      | "machine_end_silence"
+      | "machine_end_other"
+      | "human"
+      | "fax"
+      | "unknown";
+    callerId: string;*/
+
     delayMs = callCompletedDelta();
     if (delayMs === undefined) {
       return { succeeded: false };
     }
+
     await this.#advanceStatus({
       call,
       status: "COMPLETED",
@@ -251,7 +302,7 @@ export class PhoneCanvassSimulator {
   }
 
   async start(): Promise<void> {
-    const debug = (await getEnvVars()).IS_DEBUG;
+    const debug = (await getEnvVars()).IS_DEBUG === "true";
     this.simulateCalls(debug);
     this.simulateCallers(debug);
 
@@ -283,6 +334,24 @@ export class PhoneCanvassSimulator {
               call.update(event.status, event);
               break;
             }
+            case "amd_complete": {
+              const call = this.phoneCanvassModel.getCallBySid(
+                event.callback.CallSid,
+              );
+              if (call.twilioSid === undefined) {
+                throw new Error("Call must have sid by now");
+              }
+
+              this.phoneCanvassModel.twilioCallAnsweredCallback(
+                PhoneCanvasTwilioCallAnsweredCallbackDTO.from({
+                  CallSid: call.twilioSid,
+                  AnsweredBy: "human",
+                  MachineDetectionDuration: 1000,
+                }),
+                call,
+              );
+              break;
+            }
             default: {
               const _exhaustiveCheck: never = event;
               void _exhaustiveCheck;
@@ -295,7 +364,6 @@ export class PhoneCanvassSimulator {
   }
 
   stop(): void {
-    this.#running = false;
     for (const subscription of this.#subscriptions) {
       subscription.unsubscribe();
     }

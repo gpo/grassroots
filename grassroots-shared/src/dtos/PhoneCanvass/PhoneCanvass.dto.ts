@@ -231,8 +231,8 @@ export class PhoneCanvasTwilioCallAnsweredCallbackDTO extends createDTOBase(
   MachineDetectionDuration!: number;
 }
 
-export class PhoneCanvasOverrideAnsweredByMachineDTO extends createDTOBase(
-  "PhoneCanvasOverrideAnsweredByMachine",
+export class PhoneCanvassCallIdentifierDTO extends createDTOBase(
+  "PhoneCanvassCallIdentifier",
 ) {
   @IsNumber()
   contactId!: number;

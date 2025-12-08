@@ -104,11 +104,9 @@ export class PhoneCanvassCallersModel {
           ...propsOf(updatedCaller),
           authToken: await getAuthToken(String(existingCaller.id)),
         });
-
       this.#callers$.next(newCaller);
       return newCaller;
     }
-
     return this.registerCaller({
       caller: CreatePhoneCanvassCallerDTO.from(propsOf(updatedCaller)),
       getAuthToken,

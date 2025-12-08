@@ -67,6 +67,7 @@ function getModelWithObservables(): ModelWithObservablesForTest {
         // ignore
       },
     } as unknown as EntityManager,
+    strategyName: "no overcalling",
   });
 
   const currentTimeMock = vi.fn(() => {

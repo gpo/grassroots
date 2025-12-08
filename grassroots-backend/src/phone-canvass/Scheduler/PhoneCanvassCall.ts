@@ -35,6 +35,7 @@ interface UpdateableCallState {
   result: CallResult | undefined;
   callerId: string | undefined;
   overrideAnsweredByMachine: boolean | undefined;
+  overcalled: boolean | undefined;
 }
 
 const emptyUpdateableCallState: UpdateableCallState = {
@@ -44,6 +45,7 @@ const emptyUpdateableCallState: UpdateableCallState = {
   result: undefined,
   callerId: undefined,
   overrideAnsweredByMachine: undefined,
+  overcalled: undefined,
 };
 
 export function resetPhoneCanvasCallIdsForTest(): void {

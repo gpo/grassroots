@@ -30,6 +30,7 @@ import {
   CreatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
   PhoneCanvassContactDTO,
+  PhoneCanvasTwilioCallAnsweredCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { EntityManager } from "@mikro-orm/core";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
@@ -227,7 +228,7 @@ export class PhoneCanvassModel {
 
     combineLatest({
       callers: callerSummaries$.pipe(startWith([])),
-      contacts: contactSummaries$,
+      contacts: contactSummaries$.pipe(startWith([])),
       callsCompleted: completedCallCount$.pipe(startWith(0)),
     })
       .pipe(
@@ -292,6 +293,53 @@ export class PhoneCanvassModel {
       throw new Error(`Unable to get call. sid ${sid} doesn't exist.`);
     }
     return call;
+  }
+
+  twilioCallAnsweredCallback(
+    callback: PhoneCanvasTwilioCallAnsweredCallbackDTO,
+    call: Call,
+  ): void {
+    if (call.twilioSid === undefined) {
+      throw new Error("Call answered before it was queued.");
+    }
+    if (call.status !== "IN_PROGRESS") {
+      throw new Error(
+        `Call answered before being in progress ${JSON.stringify(call)}`,
+      );
+    }
+    if (callback.AnsweredBy === "human" || callback.AnsweredBy === "unknown") {
+      const callerId = this.scheduler.getNextIdleCallerId();
+      if (callerId === undefined) {
+        // Uh oh, we've overcalled.
+        if (this.#simulator === undefined) {
+          runPromise(this.#twilioService.hangup(call.twilioSid), true);
+        }
+        call.update("COMPLETED", {
+          answeredBy: callback.AnsweredBy,
+          overcalled: true,
+        });
+        return;
+      }
+      // The caller's client will respond to this call update and dial into the conference.
+      call.update(call.status, {
+        answeredBy: callback.AnsweredBy,
+        callerId,
+      });
+      return;
+    }
+
+    // TODO: play a voicemail.
+    /*response.play(
+       // "https://api.twilio.com/cowbell.mp3"
+            (await getEnvVars()).WEBHOOK_HOST +
+              "/phone-canvass/webhooks/get-voicemail/" +
+              call.canvassId(),,
+      );*/
+    call.update("COMPLETED", {
+      result: "COMPLETED",
+      playedVoicemail: false,
+      answeredBy: callback.AnsweredBy,
+    });
   }
 
   mockCurrentTime(getTime: () => number): void {

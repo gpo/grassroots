@@ -25,6 +25,7 @@ export interface ContactCardProps {
   // are only in PhoneCanvassContactDTO.
   phoneCanvassContact: PhoneCanvassContactDTO | undefined;
   phoneCanvassId: string;
+  children?: React.ReactNode;
 }
 
 const getSupportLevelColor = (level: number | undefined): string => {
@@ -54,33 +55,29 @@ function getVotedColor(voter: string | undefined): string {
 export function ContactCard(props: ContactCardProps): JSX.Element {
   const { phoneCanvassContact } = props;
 
-  if (phoneCanvassContact === undefined) {
-    return (
-      <Paper h={"28em"} shadow="sm" p="xl" radius="md" withBorder>
-        <Center h="100%">
-          <Text style={{ fontSize: "100px" }} c="lightgrey">
-            No active call
-          </Text>
-        </Center>
-      </Paper>
-    );
-  }
+  let mainCard = (
+    <Center h="100%">
+      <Text style={{ fontSize: "100px" }} c="lightgrey">
+        No active call
+      </Text>
+    </Center>
+  );
 
-  const contact = phoneCanvassContact.contact;
+  if (phoneCanvassContact !== undefined) {
+    const contact = phoneCanvassContact.contact;
 
-  const name =
-    contact.firstName +
-    (contact.middleName == undefined ? "" : " " + contact.middleName) +
-    " " +
-    contact.lastName;
+    const name =
+      contact.firstName +
+      (contact.middleName == undefined ? "" : " " + contact.middleName) +
+      " " +
+      contact.lastName;
 
-  const tags: string[] = [
-    phoneCanvassContact.getMetadataByKey("tags") ?? [],
-  ].flat();
+    const tags: string[] = [
+      phoneCanvassContact.getMetadataByKey("tags") ?? [],
+    ].flat();
 
-  return (
-    <Group h="100%" align="stretch">
-      <Paper flex={5} shadow="sm" p="xl" radius="md" withBorder>
+    mainCard = (
+      <>
         <Group justify="space-between" mb="lg">
           <Group>
             <Avatar size="lg" color="blue">
@@ -128,7 +125,6 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
             </Group>
           </div>
         </Group>
-
         <Group mb="lg">
           <Text size="sm" fw={500}>
             Membership Status:
@@ -178,13 +174,27 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
             </Group>
           </div>
         )}
+      </>
+    );
+  }
+
+  return (
+    <Group h="100%" align="stretch">
+      <Paper flex={5} shadow="sm" p="xl" radius="md" withBorder mih={"25em"}>
+        {mainCard}
       </Paper>
-      <EditContactNotes
-        style={{ flex: 2 }}
-        contactId={phoneCanvassContact.phoneCanvassContactId}
-        initialNotes={phoneCanvassContact.notes}
-        phoneCanvassId={props.phoneCanvassId}
-      ></EditContactNotes>
+      <Paper flex={2} shadow="sm" p="sm" radius="md" withBorder>
+        <Stack h="100%">
+          {props.children}
+          {phoneCanvassContact && (
+            <EditContactNotes
+              contactId={phoneCanvassContact.phoneCanvassContactId}
+              initialNotes={phoneCanvassContact.notes}
+              phoneCanvassId={props.phoneCanvassId}
+            ></EditContactNotes>
+          )}
+        </Stack>
+      </Paper>
     </Group>
   );
 }

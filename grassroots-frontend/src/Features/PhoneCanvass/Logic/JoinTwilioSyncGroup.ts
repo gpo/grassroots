@@ -113,12 +113,12 @@ class SyncGroupManager {
     if (this.#lastCallerReady !== currentCallerReady) {
       this.#lastCallerReady = currentCallerReady;
       if (currentCallerReady === undefined) {
-        // ACTIVELY DEBUGGING: why does this happen?
-        // When we wipe the syncdata on server refresh, we end up with no information about the current
-        // caller.
-        throw new Error("We should know if the caller is ready");
+        // This can happen if the server restarts and we lose track of this caller.
+        // Use "unready" until the caller resyncs.
+        this.#onReadyChanged("unready");
+      } else {
+        this.#onReadyChanged(currentCallerReady);
       }
-      this.#onReadyChanged(currentCallerReady);
     }
   }
 

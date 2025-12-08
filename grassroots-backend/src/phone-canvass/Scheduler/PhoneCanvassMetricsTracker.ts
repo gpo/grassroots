@@ -13,25 +13,30 @@ import { Injectable } from "@nestjs/common";
 
 @Injectable()
 export class PhoneCanvassMetricsTracker {
-  #readyCallerCountObservable = new BehaviorSubject<number>(0);
-  #committedCallsCountObservable: Observable<number>;
+  #readyCallerCount$ = new BehaviorSubject<number>(0);
+  #committedCallsCount$: Observable<number>;
+  #activeSuccessfulCallsCount$: Observable<number>;
 
-  readonly #idleCallerCountObservable: Observable<number>;
+  readonly #idleCallerCount$: Observable<number>;
 
-  get callerCountObservable(): Observable<number> {
-    return this.#readyCallerCountObservable;
+  get readyCallerCount$(): Observable<number> {
+    return this.#readyCallerCount$;
   }
 
-  get committedCallerCountObservable(): Observable<number> {
-    return this.#committedCallsCountObservable;
+  get committedCallsCount(): Observable<number> {
+    return this.#committedCallsCount$;
+  }
+
+  get activeSuccessfulCallsCount$(): Observable<number> {
+    return this.#activeSuccessfulCallsCount$;
   }
 
   get idleCallerCountObservable(): Observable<number> {
-    return this.#idleCallerCountObservable;
+    return this.#idleCallerCount$;
   }
 
   constructor(calls$: Observable<Call>) {
-    this.#committedCallsCountObservable = calls$.pipe(
+    this.#committedCallsCount$ = calls$.pipe(
       scan((committedCalls: Set<number>, call: Call): Set<number> => {
         if (call.status === "NOT_STARTED") {
           committedCalls.add(call.id);
@@ -49,9 +54,28 @@ export class PhoneCanvassMetricsTracker {
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
-    this.#idleCallerCountObservable = combineLatest([
-      this.#readyCallerCountObservable,
-      this.#committedCallsCountObservable,
+    // TODO: refactor this and committedCallsCountObservable.
+    this.#activeSuccessfulCallsCount$ = calls$.pipe(
+      scan((successfulCalls: Set<number>, call: Call): Set<number> => {
+        if (call.status === "IN_PROGRESS") {
+          successfulCalls.add(call.id);
+          return successfulCalls;
+        }
+        if (call.status === "COMPLETED") {
+          successfulCalls.delete(call.id);
+          return successfulCalls;
+        }
+        return successfulCalls;
+      }, new Set<number>()),
+      map((successfulCalls) => successfulCalls.size),
+      distinctUntilChanged(),
+      startWith(0),
+      shareReplay({ bufferSize: 1, refCount: true }),
+    );
+
+    this.#idleCallerCount$ = combineLatest([
+      this.#readyCallerCount$,
+      this.#committedCallsCount$,
     ]).pipe(
       map(
         ([callerCount, committedCallsCount]) =>
@@ -62,6 +86,6 @@ export class PhoneCanvassMetricsTracker {
   }
 
   onReadyCallerCountUpdate(callerCount: number): void {
-    this.#readyCallerCountObservable.next(callerCount);
+    this.#readyCallerCount$.next(callerCount);
   }
 }

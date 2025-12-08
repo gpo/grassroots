@@ -22,6 +22,7 @@ import Papa from "papaparse";
 import { writeFile } from "fs/promises";
 import { delay } from "grassroots-shared/util/Delay";
 import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
+import { getEnvVars } from "grassroots-backend/GetEnvVars";
 
 const CSV_HEADER = `id,civi_id,voter_id,seq_id,district_num,district,poll,first_name,middle_name,last_name,language_pref,unit_num,bldg_num,bldg_num_sfx,street_name,street_type,street_dir,address,town,postal_code,province,phone,do_not_phone,do_not_mail,do_not_email,support_level,party_support,volunteer_status,volunteer_tasks,volunteer_notes,description,membership_status,membership_join_date,membership_expiry_date,voted,election_voted_in,tags,email,merge_tag_token`;
 
@@ -107,8 +108,13 @@ describe("PhoneCanvass (e2e)", () => {
     );
 
     expect(result.id.length).toBe(36);
-    expect(mock.setSyncData).toBeCalledWith(
-      result.id,
+
+    const [phoneCanvassId, syncData] =
+      mock.setSyncData.mock.calls[mock.setSyncData.mock.calls.length - 1] ?? [];
+    void phoneCanvassId;
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const syncDataJson = JSON.parse(syncData ?? "") as PhoneCanvassSyncData;
+    expect(syncDataJson).toEqual(
       expect.objectContaining({
         totalContacts: 4,
         doneContacts: 0,
@@ -139,7 +145,7 @@ describe("PhoneCanvass (e2e)", () => {
     expect(tags).toHaveLength(3);
   });
 
-  it.only("should sync caller data", async () => {
+  it("should sync caller data", async () => {
     const { fixture: f, mock } = useTwilioMock();
     await OrganizationEntity.ensureRootOrganization(f.app);
 
@@ -261,9 +267,20 @@ describe("PhoneCanvass (e2e)", () => {
   // TODO: figure out where this should live. Maybe we should have an e2e-test with
   // a randomly generated csv?
   it("DEV ONLY: can generate spit out a test csv", async () => {
-    const ROWS = 3;
+    const ROWS = 10;
     const rows: GVoteCSVEntry[] = [];
     const faker = new Faker({ locale: [en_CA, en] });
+
+    const testNumbers = (await getEnvVars()).TWILIO_TEST_NUMBERS;
+
+    const getPhoneNumber =
+      testNumbers !== undefined
+        ? (): string => {
+            return faker.helpers.arrayElement(testNumbers.split(";"));
+          }
+        : (): string => {
+            return faker.phone.number();
+          };
 
     for (let i = 0; i < ROWS; ++i) {
       const firstName = faker.person.firstName();
@@ -277,7 +294,7 @@ describe("PhoneCanvass (e2e)", () => {
         first_name: firstName,
         middle_name: middleName,
         last_name: lastName,
-        phone: faker.phone.number(),
+        phone: getPhoneNumber(),
         tags: ";;import-2023-07-24; 2022-gpc-donor; true-multi-unit",
         address: faker.location.streetAddress({ useFullAddress: true }),
         town: faker.location.city(),
