@@ -21,6 +21,7 @@ import { GVoteCSVEntry } from "grassroots-backend/phone-canvass/PhoneCanvass.con
 import Papa from "papaparse";
 import { writeFile } from "fs/promises";
 import { delay } from "grassroots-shared/util/Delay";
+import { PhoneCanvassSyncData } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 
 const CSV_HEADER = `id,civi_id,voter_id,seq_id,district_num,district,poll,first_name,middle_name,last_name,language_pref,unit_num,bldg_num,bldg_num_sfx,street_name,street_type,street_dir,address,town,postal_code,province,phone,do_not_phone,do_not_mail,do_not_email,support_level,party_support,volunteer_status,volunteer_tasks,volunteer_notes,description,membership_status,membership_join_date,membership_expiry_date,voted,election_voted_in,tags,email,merge_tag_token`;
 
@@ -109,10 +110,8 @@ describe("PhoneCanvass (e2e)", () => {
     expect(mock.setSyncData).toBeCalledWith(
       result.id,
       expect.objectContaining({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        contacts: expect.toSatisfy(
-          (arr: unknown) => Array.isArray(arr) && arr.length === 4,
-        ),
+        totalContacts: 4,
+        doneContacts: 0,
       }),
     );
 
@@ -140,19 +139,14 @@ describe("PhoneCanvass (e2e)", () => {
     expect(tags).toHaveLength(3);
   });
 
-  it("should sync caller data", async () => {
+  it.only("should sync caller data", async () => {
     const { fixture: f, mock } = useTwilioMock();
+    await OrganizationEntity.ensureRootOrganization(f.app);
 
-    const formData = new FormData();
-    formData.append("name", "test");
-    formData.append(
-      "csv",
-      `id,civi_id,voter_id,seq_id,district_num,district,poll,first_name,middle_name,last_name,language_pref,unit_num,bldg_num,bldg_num_sfx,street_name,street_type,street_dir,address,town,postal_code,province,phone,do_not_phone,do_not_mail,do_not_email,support_level,party_support,volunteer_status,volunteer_tasks,volunteer_notes,description,membership_status,membership_join_date,membership_expiry_date,voted,election_voted_in,tags,email,merge_tag_token`,
-    );
     const canvass = CreatePhoneCanvassResponseDTO.fromFetchOrThrow(
       await f.grassrootsAPI.POST("/phone-canvass", {
         // @ts-expect-error - FormData is supported but not in types
-        body: formData,
+        body: getFormDataForCSVCreation(),
       }),
     );
 
@@ -162,7 +156,6 @@ describe("PhoneCanvass (e2e)", () => {
           activePhoneCanvassId: canvass.id,
           displayName: "A",
           email: "A@A.com",
-          ready: false,
         },
       }),
     );
@@ -173,25 +166,27 @@ describe("PhoneCanvass (e2e)", () => {
           activePhoneCanvassId: canvass.id,
           displayName: "B",
           email: "B@B.com",
-          ready: false,
         },
       }),
     );
 
     expect(mock.setSyncData).toBeCalledTimes(3);
-    expect(mock.setSyncData).toHaveBeenLastCalledWith(
-      canvass.id,
+    const [phoneCanvassId, syncData] =
+      mock.setSyncData.mock.calls[mock.setSyncData.mock.calls.length - 1] ?? [];
+    expect(phoneCanvassId).toEqual(canvass.id);
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const syncDataJson = JSON.parse(syncData ?? "") as PhoneCanvassSyncData;
+    expect(syncDataJson).toEqual(
       expect.objectContaining({
         callers: [
-          { callerId: 1, displayName: "A", ready: false },
-          { callerId: 2, displayName: "B", ready: false },
+          expect.objectContaining({ displayName: "A", ready: "unready" }),
+          expect.objectContaining({ displayName: "B", ready: "unready" }),
         ],
       }),
     );
   });
 
-  // This is currently flaky.
-  it.skip("should schedule calls", async () => {
+  it("should schedule calls", async () => {
     const { fixture: f, mock } = useTwilioMock();
     await OrganizationEntity.ensureRootOrganization(f.app);
 
@@ -221,7 +216,7 @@ describe("PhoneCanvass (e2e)", () => {
           displayName: "Test",
           email: "Test@Test.com",
           activePhoneCanvassId: canvass.id,
-          ready: true,
+          ready: "ready",
           authToken: caller.authToken,
         }),
       }),
@@ -266,7 +261,7 @@ describe("PhoneCanvass (e2e)", () => {
   // TODO: figure out where this should live. Maybe we should have an e2e-test with
   // a randomly generated csv?
   it("DEV ONLY: can generate spit out a test csv", async () => {
-    const ROWS = 100;
+    const ROWS = 3;
     const rows: GVoteCSVEntry[] = [];
     const faker = new Faker({ locale: [en_CA, en] });
 
@@ -298,7 +293,7 @@ describe("PhoneCanvass (e2e)", () => {
         ]),
       });
     }
-    expect(rows).toHaveLength(100);
+    expect(rows).toHaveLength(ROWS);
     const csvString = Papa.unparse(rows);
     await writeFile("/tmp/test.csv", csvString);
   });

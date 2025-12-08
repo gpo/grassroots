@@ -28,7 +28,8 @@ interface JoinSyncGroupParams {
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
   registerCaller: RegisterCaller;
   refreshCaller: RefreshCaller;
-  onNewContact: (contact: ContactSummary) => void;
+  onNewContact: (contact: ContactSummary | undefined) => void;
+  onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
 }
 
 // We don't give anyone a handle to the SyncGroup, so they can't hold onto a stale instance.
@@ -41,7 +42,10 @@ class SyncGroupManager {
   #registerCaller: RegisterCaller;
   #refreshCaller: RefreshCaller;
   #lastContact: ContactSummary | undefined;
-  #onNewContact: (contact: ContactSummary) => void;
+  #lastCallerReady: "ready" | "unready" | "last call" | undefined;
+  #currentRevision: string | undefined = undefined;
+  #onNewContact: (contact: ContactSummary | undefined) => void;
+  #onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
 
   static instance: SyncGroupManager | undefined;
 
@@ -53,10 +57,19 @@ class SyncGroupManager {
     this.#refreshCaller = params.refreshCaller;
     this.#phoneCanvassCallerStore = params.phoneCanvassCallerStore;
     this.#onNewContact = params.onNewContact;
+    this.#onReadyChanged = params.onReadyChanged;
+    this.#lastCallerReady = undefined;
     this.#lastContact = undefined;
   }
 
-  async #onUpdate(data: PhoneCanvassSyncData): Promise<void> {
+  async #onUpdate(data: PhoneCanvassSyncData, revision: string): Promise<void> {
+    if (revision === this.#currentRevision) {
+      // Avoid repeated updates.
+      return;
+    }
+
+    this.#currentRevision = revision;
+
     if (
       data.phoneCanvassId !=
       SyncGroupManager.instance?.caller.activePhoneCanvassId
@@ -64,11 +77,13 @@ class SyncGroupManager {
       // TODO: figure out why this keeps receiving onUpdates.
       return;
     }
+
     let caller = await getPhoneCanvassCaller({
       refreshCaller: this.#refreshCaller,
       activePhoneCanvassId: this.caller.activePhoneCanvassId,
       phoneCanvassCallerStore: this.#phoneCanvassCallerStore,
     });
+
     if (
       this.#callPartyStateStore.serverInstanceUUID &&
       this.#callPartyStateStore.serverInstanceUUID !==
@@ -80,14 +95,30 @@ class SyncGroupManager {
         CreatePhoneCanvassCallerDTO.from(caller),
       );
     }
+
     this.#callPartyStateStore.setData(data);
     if (caller === undefined) {
       throw new Error("We should have a caller.");
     }
     const currentContact = data.contacts.find((x) => x.callerId == caller.id);
-    if (currentContact && this.#lastContact != currentContact) {
+    if (this.#lastContact != currentContact) {
       this.#lastContact = currentContact;
       this.#onNewContact(currentContact);
+    }
+
+    const currentCallerReady = data.callers.find(
+      (x) => x.callerId == caller.id,
+    )?.ready;
+
+    if (this.#lastCallerReady !== currentCallerReady) {
+      this.#lastCallerReady = currentCallerReady;
+      if (currentCallerReady === undefined) {
+        // ACTIVELY DEBUGGING: why does this happen?
+        // When we wipe the syncdata on server refresh, we end up with no information about the current
+        // caller.
+        throw new Error("We should know if the caller is ready");
+      }
+      this.#onReadyChanged(currentCallerReady);
     }
   }
 
@@ -97,19 +128,28 @@ class SyncGroupManager {
     );
     this.#doc = doc;
     this.#syncClient.on("connectionStateChanged", () => {
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData), false);
+      runPromise(
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        this.#onUpdate(doc.data as PhoneCanvassSyncData, doc.revision),
+        false,
+      );
     });
 
     this.#doc.on("updated", () => {
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      runPromise(this.#onUpdate(doc.data as PhoneCanvassSyncData), false);
+      runPromise(
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        this.#onUpdate(doc.data as PhoneCanvassSyncData, doc.revision),
+        false,
+      );
     });
 
-    // Trying to fix a flaky bug where sometimes the sync data isn't initialized
-    // on page visit. Maybe this fixes it?
-    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-    runPromise(this.#onUpdate(this.#doc.data as PhoneCanvassSyncData), false);
+    // This addresses a flaky bug where sometimes the sync data isn't initialized
+    // on page visit.
+    runPromise(
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      this.#onUpdate(this.#doc.data as PhoneCanvassSyncData, doc.revision),
+      false,
+    );
   }
 
   async stop(): Promise<void> {

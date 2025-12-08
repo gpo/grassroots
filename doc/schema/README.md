@@ -10,7 +10,7 @@
 | [public.contact_entity](public.contact_entity.md)                             | 16      |         | BASE TABLE |
 | [public.user_role_entity](public.user_role_entity.md)                         | 5       |         | BASE TABLE |
 | [public.phone_canvass_entity](public.phone_canvass_entity.md)                 | 3       |         | BASE TABLE |
-| [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) | 7       |         | BASE TABLE |
+| [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) | 8       |         | BASE TABLE |
 
 ## Relations
 
@@ -21,7 +21,7 @@ erDiagram
 "public.contact_entity" }o--|| "public.organization_entity" : ""
 "public.user_role_entity" }o--|| "public.user_entity" : ""
 "public.user_role_entity" }o--|| "public.organization_entity" : ""
-"public.phone_canvass_contact_entity" }o--|| "public.contact_entity" : ""
+"public.phone_canvass_contact_entity" |o--|| "public.contact_entity" : ""
 "public.phone_canvass_contact_entity" }o--|| "public.phone_canvass_entity" : ""
 
 "public.mikro_orm_migrations" {
@@ -74,13 +74,14 @@ erDiagram
   varchar_255_ name
 }
 "public.phone_canvass_contact_entity" {
-  integer id
-  uuid phone_canvas_id FK
+  integer phone_canvass_contact_id
+  uuid phone_canvass_id FK
   jsonb metadata
-  varchar_255_ call_status
   integer contact_id FK
   varchar_255_ call_result
   boolean played_voicemail
+  boolean been_called
+  varchar_255_ notes
 }
 ```
 

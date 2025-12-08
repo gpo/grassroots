@@ -1,6 +1,3 @@
-// TODO (https://github.com/gpo/grassroots/issues/233): this and other
-// tests for grassroots-shared should move into grassroots-backend.
-
 import { createDTOBase } from "grassroots-shared/util/CreateDTOBase";
 import { describe, expect, it } from "vitest";
 

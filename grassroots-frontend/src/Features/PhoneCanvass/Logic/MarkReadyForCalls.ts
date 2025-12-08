@@ -1,8 +1,6 @@
 import { Device } from "@twilio/voice-sdk";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
-import { VoidDTO } from "grassroots-shared/dtos/Void.dto";
-import { propsOf } from "grassroots-shared/util/TypeUtils";
-import { grassrootsAPI } from "../../../GrassRootsAPI.js";
+import { UpdateCallerMutation } from "./UseUpdateCaller.js";
 
 /*
 Flow is:
@@ -15,21 +13,15 @@ Flow is:
 export interface UpdateReadyStateForCallsParams {
   caller: PhoneCanvassCallerDTO;
   device: Device | undefined;
+  updateCallerMutation: UpdateCallerMutation;
 }
 
-export async function markUnreadyForCalls(
+export async function markLastCall(
   params: UpdateReadyStateForCallsParams,
 ): Promise<void> {
   const { caller } = params;
-
-  VoidDTO.fromFetchOrThrow(
-    await grassrootsAPI.POST("/phone-canvass/update-caller", {
-      body: PhoneCanvassCallerDTO.from({
-        ...propsOf(caller),
-        ready: false,
-      }),
-    }),
-  );
+  caller.ready = "last call";
+  await params.updateCallerMutation(caller);
 }
 
 export async function markReadyForCalls(
@@ -37,16 +29,8 @@ export async function markReadyForCalls(
 ): Promise<{ device: Device }> {
   const { caller } = params;
   let { device } = params;
-
-  // TODO(mvp): use tanstack.
-  VoidDTO.fromFetchOrThrow(
-    await grassrootsAPI.POST("/phone-canvass/update-caller", {
-      body: PhoneCanvassCallerDTO.from({
-        ...propsOf(caller),
-        ready: true,
-      }),
-    }),
-  );
+  caller.ready = "ready";
+  await params.updateCallerMutation(caller);
 
   if (device !== undefined) {
     return { device };
@@ -62,6 +46,10 @@ export async function markReadyForCalls(
 
   device.on("error", (error) => {
     throw new Error("Twilio Device Error: " + JSON.stringify(error));
+  });
+
+  device.on("incoming", (e) => {
+    throw new Error("We should never have an incoming call." + String(e));
   });
 
   await device.register();

@@ -9,21 +9,32 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
   component: ParticipateInPhoneCanvass,
   staticData: { isPublic: true },
   beforeLoad: async ({ context, params }) => {
+    const phoneCanvassCallerStore = context.getPhoneCanvassCallerStore();
+
     const refreshCaller = async (
       caller: PhoneCanvassCallerDTO,
     ): Promise<PhoneCanvassCallerDTO> => {
-      return PhoneCanvassCallerDTO.fromFetchOrThrow(
-        await grassrootsAPI.POST("/phone-canvass/refresh-caller", {
+      const refreshedCaller = PhoneCanvassCallerDTO.fromFetchOrThrow(
+        await grassrootsAPI.POST("/phone-canvass/update-caller", {
           body: caller,
         }),
       );
+
+      phoneCanvassCallerStore.setCaller(refreshedCaller);
+      return refreshedCaller;
     };
-    const phoneCanvassCallerStore = context.getPhoneCanvassCallerStore();
-    const caller = await getPhoneCanvassCaller({
-      refreshCaller,
-      activePhoneCanvassId: params.phoneCanvassId,
-      phoneCanvassCallerStore,
-    });
+    let caller: PhoneCanvassCallerDTO | undefined = undefined;
+    try {
+      caller = await getPhoneCanvassCaller({
+        refreshCaller,
+        activePhoneCanvassId: params.phoneCanvassId,
+        phoneCanvassCallerStore,
+        // This ensures the server knows this client exists.
+        forceRefresh: true,
+      });
+    } catch {
+      // If we can't get a caller safely, redirect to login.
+    }
 
     if (caller === undefined) {
       // eslint-disable-next-line @typescript-eslint/only-throw-error
@@ -32,7 +43,7 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
         params: { phoneCanvassId: params.phoneCanvassId },
       });
     }
-    return { caller, refreshCaller };
+    return { refreshCaller, initialCaller: caller };
   },
   head: () => ({
     meta: [
