@@ -8,7 +8,8 @@
     "build": "vite build",
     "type-check": "tsc -b --noEmit",
     "test": "echo \"TODO: test frontend\" && exit 0",
-    "preview": "vite build && vite preview --host --port=5173"
+    "preview-local": "vite preview --host --strictPort --port=5173",
+    "preview": "vite preview --host --strictPort --port=80"
   },
   "dependencies": {
     "@faker-js/faker": "^9.9.0",
