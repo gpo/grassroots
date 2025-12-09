@@ -1,0 +1,43 @@
+name: grassroots
+
+services:
+  caddy:
+    container_name: caddy
+    volumes:
+      - ./data/caddy:/data
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+    image: caddy
+    ports:
+      - "8080:80"
+      - "8443:443"
+      # For ngrok.
+      - "3003:3003"
+
+  grassroots_dev:
+    build:
+      context: ".."
+      dockerfile: Dockerfile
+    volumes:
+      - ../:/app
+      - /app/node_modules
+      - ../logs:/app/logs
+      - ../storage:/app/storage
+    ports:
+    - "3000:3000"
+    - "5173:5173"
+
+  ngrok:
+    container_name: ngrok
+    network_mode: host
+    stdin_open: true
+    tty: true
+    env_file:
+      # Last file wins.
+      - ../.env.development
+      - ../.env.development.local
+    image: ngrok/ngrok:latest
+    volumes:
+      - ./ngrok/traffic-policy.yml:/etc/traffic-policy.yml
+    command: http localhost:3003 --traffic-policy-file /etc/traffic-policy.yml
+    profiles:
+      - ngrok

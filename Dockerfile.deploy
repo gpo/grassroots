@@ -1,0 +1,12 @@
+FROM grassroots_intermediary:latest
+
+ENV PNPM_HOME="/pnpm"
+
+ADD grassroots-backend/dist/ /app/grassroots-backend/dist
+ADD grassroots-frontend/dist /app/grassroots-frontend/dist
+ADD grassroots-shared-net/dist /app/grassroots-shared-net/dist
+ADD grassroots-shared/dist /app/grassroots-shared/dist
+
+EXPOSE 5173
+# Nest
+EXPOSE 3000

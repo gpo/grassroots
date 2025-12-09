@@ -1,0 +1,28 @@
+name: grassroots
+
+services:
+  grassroots_backend:
+    image: grassroots_build:latest
+    ports:
+      - "3000:3000"
+
+    working_dir: /app/grassroots-backend
+    command: ["node", "dist/Main.js"]
+
+  grassroots_frontend:
+    image: grassroots_build:latest
+    ports:
+      - "5173:5173"
+
+    working_dir: /app/grassroots-frontend
+    command: ["pnpm", "run", "preview-local"]
+
+  caddy:
+    container_name: caddy
+    volumes:
+      - ./data/caddy:/data
+      - ./caddy/Caddyfile.run:/etc/caddy/Caddyfile
+    image: caddy
+    ports:
+      - "8080:80"
+      - "8443:443"
