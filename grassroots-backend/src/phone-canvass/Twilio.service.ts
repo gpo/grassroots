@@ -45,8 +45,9 @@ export class TwilioService {
       String(call.phoneCanvassContactId),
     );
 
+    console.log("HARD CODING NUMBER");
     const callInstance = await client.calls.create({
-      to: call.state.contact.contact.phoneNumber,
+      to: "226-989-2922" /*call.state.contact.contact.phoneNumber*/,
       from: envVars.TWILIO_OUTGOING_NUMBER,
       record: true,
       statusCallback:
@@ -111,7 +112,7 @@ export class TwilioService {
     await client.sync.v1
       .services(envVars.TWILIO_SYNC_SERVICE_SID)
       .documents(phoneCanvassId)
-      .update({});
+      .update({ data: {} });
   }
 
   async setSyncData(phoneCanvassId: string, data: string): Promise<void> {
@@ -126,7 +127,8 @@ export class TwilioService {
         .services(envVars.TWILIO_SYNC_SERVICE_SID)
         .documents(phoneCanvassId)
         .update({ data });
-    } catch {
+    } catch (e: unknown) {
+      console.log("ERROR IS", e);
       await client.sync.v1
         .services(envVars.TWILIO_SYNC_SERVICE_SID)
         .documents.create({

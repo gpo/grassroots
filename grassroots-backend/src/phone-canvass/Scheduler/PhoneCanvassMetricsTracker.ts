@@ -7,6 +7,7 @@ import {
   scan,
   shareReplay,
   startWith,
+  tap,
 } from "rxjs";
 import { Call } from "./PhoneCanvassCall.js";
 import { Injectable } from "@nestjs/common";
@@ -37,6 +38,9 @@ export class PhoneCanvassMetricsTracker {
 
   constructor(calls$: Observable<Call>) {
     this.#committedCallsCount$ = calls$.pipe(
+      tap(() => {
+        console.log("++COMMITTED");
+      }),
       scan((committedCalls: Set<number>, call: Call): Set<number> => {
         if (call.status === "NOT_STARTED") {
           committedCalls.add(call.id);
@@ -53,6 +57,9 @@ export class PhoneCanvassMetricsTracker {
       startWith(0),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+    // TODO: does forcing an early subscribe get this to happen earlier, avoiding an
+    // issue with ordering in the expected faiure rate strategy?
+    this.#committedCallsCount$.subscribe();
 
     // TODO: refactor this and committedCallsCountObservable.
     this.#activeSuccessfulCallsCount$ = calls$.pipe(

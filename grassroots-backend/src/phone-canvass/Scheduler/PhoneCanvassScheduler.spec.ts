@@ -100,7 +100,12 @@ describe("PhoneCanvassScheduler", () => {
     const callsById = new Map<number, Call>();
     const { model, callers$ } = getModelWithObservables();
     const scheduler = model.scheduler;
-    model.calls$.subscribe((call) => callsById.set(call.id, call));
+    model.calls$.subscribe({
+      next: (call) => callsById.set(call.id, call),
+      error: (error: unknown) => {
+        console.log(error);
+      },
+    });
 
     expect(callsById).toHaveLength(0);
 
@@ -138,7 +143,12 @@ describe("PhoneCanvassScheduler", () => {
     currentTime = 1;
 
     const callsById = new Map<number, Call>();
-    model.calls$.subscribe((call) => callsById.set(call.id, call));
+    model.calls$.subscribe({
+      next: (call) => callsById.set(call.id, call),
+      error: (error: unknown) => {
+        console.log(error);
+      },
+    });
 
     callers$.next(callerWithId(CALLER_ID));
     await scheduler.waitForIdleForTest();

@@ -71,6 +71,7 @@ export class Call {
       id: params.id ?? ++Call.#currentId,
     };
     if (params.id === undefined) {
+      console.log("EMITTING", this);
       this.state.emit(this);
     }
   }

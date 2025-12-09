@@ -331,6 +331,16 @@
           "nullable": false,
           "length": 255,
           "mappedType": "string"
+        },
+        "last_sync_update": {
+          "name": "last_sync_update",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
         }
       },
       "name": "phone_canvass_entity",

@@ -119,6 +119,7 @@ export default tseslint.config(
       // These have false positives in our repo.
       "import/no-unresolved": "off",
       "import/namespace": "off",
+      "rxjs/no-ignored-error": "error",
     },
     settings: {
       vitest: {

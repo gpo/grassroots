@@ -1,9 +1,9 @@
-import { combineLatest, filter, map, Observable } from "rxjs";
+import { combineLatest, concatMap, filter, map, of, Subject, tap } from "rxjs";
 import { PhoneCanvassSchedulerStrategy } from "./PhoneCanvassSchedulerStrategy.js";
 import { PhoneCanvassMetricsTracker } from "../PhoneCanvassMetricsTracker.js";
 
 export class ExpectedFailureRateStrategy extends PhoneCanvassSchedulerStrategy {
-  nextCall$: Observable<undefined>;
+  nextCall$ = new Subject<undefined>();
 
   constructor(
     metricsLogger: PhoneCanvassMetricsTracker,
@@ -25,13 +25,40 @@ export class ExpectedFailureRateStrategy extends PhoneCanvassSchedulerStrategy {
         const targetCallsThatMightFail = Math.floor(
           availableCallers / expectedSuccessRate,
         );
+        console.log({
+          readyCallers,
+          activeSuccessfulCalls,
+          committedCalls,
+          targetCallsThatMightFail,
+          currentCallsThatMightFail,
+        });
+        console.log("COMMITTED", committedCalls);
+        console.log("TARGET CALLS THAT MIGHT FAIL", targetCallsThatMightFail);
         return targetCallsThatMightFail - currentCallsThatMightFail;
       }),
     );
 
-    this.nextCall$ = callsToMake$.pipe(
-      filter((x) => x > 0),
-      map(() => undefined),
-    );
+    callsToMake$
+      .pipe(
+        filter((x) => x > 0),
+        tap(() => {
+          console.log("FOO");
+        }),
+        concatMap(() => {
+          return of(undefined).pipe(
+            tap(() => {
+              this.nextCall$.next(undefined);
+            }),
+          );
+        }),
+        tap(() => {
+          console.log("MAKING CALL");
+        }),
+      )
+      .subscribe({
+        error: (error: unknown) => {
+          throw error;
+        },
+      });
   }
 }

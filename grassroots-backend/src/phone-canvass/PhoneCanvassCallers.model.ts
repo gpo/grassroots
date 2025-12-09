@@ -1,6 +1,6 @@
 import { ConflictException } from "@nestjs/common";
 import {
-  CreatePhoneCanvassCallerDTO,
+  CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
@@ -22,8 +22,13 @@ export class PhoneCanvassCallersModel {
   constructor(params: { callers: Subject<Readonly<PhoneCanvassCallerDTO>> }) {
     this.#callers$ = params.callers;
 
-    this.#callers$.subscribe((caller) => {
-      this.#callersById.set(caller.id, caller);
+    this.#callers$.subscribe({
+      next: (caller) => {
+        this.#callersById.set(caller.id, caller);
+      },
+      error: (error: unknown) => {
+        console.log(error);
+      },
     });
   }
 
@@ -32,7 +37,7 @@ export class PhoneCanvassCallersModel {
   }
 
   async registerCaller(params: {
-    caller: CreatePhoneCanvassCallerDTO;
+    caller: CreateOrUpdatePhoneCanvassCallerDTO;
     getAuthToken: GetAuthToken;
     idForReuse?: string;
   }): Promise<PhoneCanvassCallerDTO> {
@@ -69,10 +74,14 @@ export class PhoneCanvassCallersModel {
   // This is as secure as the authToken is. If a user could guess someone else's
   // authToken, they could use that to update their data, but we'd already have bigger problems.
   #authenticateCaller(params: {
-    id: string;
-    authToken: string;
+    id?: string;
+    authToken?: string;
   }): Readonly<PhoneCanvassCallerDTO> | undefined {
-    const caller = this.#callersById.get(params.id);
+    const { id, authToken } = params;
+    if (id === undefined || authToken === undefined) {
+      return undefined;
+    }
+    const caller = this.#callersById.get(id);
     if (caller?.authToken === undefined) {
       // TODO: we could persist the authtoken somewhere, but
       // security in the face of a restarting server is probably pretty
@@ -93,7 +102,7 @@ export class PhoneCanvassCallersModel {
   }
 
   async updateOrCreateCaller(
-    updatedCaller: Readonly<PhoneCanvassCallerDTO>,
+    updatedCaller: Readonly<CreateOrUpdatePhoneCanvassCallerDTO>,
     getAuthToken: GetAuthToken,
   ): Promise<PhoneCanvassCallerDTO> {
     const existingCaller = this.#authenticateCaller(updatedCaller);
@@ -108,7 +117,7 @@ export class PhoneCanvassCallersModel {
       return newCaller;
     }
     return this.registerCaller({
-      caller: CreatePhoneCanvassCallerDTO.from(propsOf(updatedCaller)),
+      caller: CreateOrUpdatePhoneCanvassCallerDTO.from(propsOf(updatedCaller)),
       getAuthToken,
       idForReuse: updatedCaller.id,
     });
@@ -134,6 +143,7 @@ export class PhoneCanvassCallersModel {
       if (caller.ready !== "last call") {
         continue;
       }
+      console.log("THINKING ABOUT MARKING LAST CALL");
       const call = calls.find((call) => call.callerId === caller.id);
       if (call !== undefined) {
         // This caller will be marked unready when the current call finishes.

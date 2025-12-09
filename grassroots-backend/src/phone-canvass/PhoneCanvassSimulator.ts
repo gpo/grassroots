@@ -1,5 +1,5 @@
 import {
-  CreatePhoneCanvassCallerDTO,
+  CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
@@ -276,27 +276,32 @@ export class PhoneCanvassSimulator {
     const simulateCallsSubscription = this.phoneCanvassModel.calls$
       // The model moves calls from NOT_STARTED TO QUEUED.
       .pipe(filter((call) => call.status === "QUEUED"))
-      .subscribe((call) => {
-        runPromise(
-          (async (): Promise<void> => {
-            const result = await this.#advanceCallThroughToCompletion(call);
-            if (!result.succeeded) {
-              await delay(callFailedDelta());
-              const result =
-                FailingCallResults[
-                  Math.floor(Math.random() * FailingCallResults.length)
-                ];
-              this.#events.next({
-                kind: "status_change",
-                ts: Date.now(),
-                sid: getFakeCallSid(call),
-                status: "COMPLETED",
-                result,
-              });
-            }
-          })(),
-          debug,
-        );
+      .subscribe({
+        next: (call) => {
+          runPromise(
+            (async (): Promise<void> => {
+              const result = await this.#advanceCallThroughToCompletion(call);
+              if (!result.succeeded) {
+                await delay(callFailedDelta());
+                const result =
+                  FailingCallResults[
+                    Math.floor(Math.random() * FailingCallResults.length)
+                  ];
+                this.#events.next({
+                  kind: "status_change",
+                  ts: Date.now(),
+                  sid: getFakeCallSid(call),
+                  status: "COMPLETED",
+                  result,
+                });
+              }
+            })(),
+            debug,
+          );
+        },
+        error: (error: unknown) => {
+          console.log(error);
+        },
       });
     this.#subscriptions.push(simulateCallsSubscription);
   }
@@ -313,7 +318,7 @@ export class PhoneCanvassSimulator {
             case "add_caller": {
               this.#callers[event.index] =
                 await this.phoneCanvassModel.registerCaller(
-                  CreatePhoneCanvassCallerDTO.from({
+                  CreateOrUpdatePhoneCanvassCallerDTO.from({
                     displayName: this.#faker.person.fullName(),
                     email: this.#faker.internet.email(),
                     activePhoneCanvassId: this.phoneCanvassId,
@@ -326,7 +331,9 @@ export class PhoneCanvassSimulator {
                 this.#callers[event.index] ??
                 fail(`Can't update caller that doesn't exist.`);
               caller.ready = event.ready;
-              await this.phoneCanvassModel.updateOrCreateCaller(caller);
+              await this.phoneCanvassModel.updateOrCreateCaller(
+                caller.toUpdate(),
+              );
               break;
             }
             case "status_change": {

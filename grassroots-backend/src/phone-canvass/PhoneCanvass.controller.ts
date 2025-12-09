@@ -23,14 +23,14 @@ import {
   PaginatedPhoneCanvassContactListRequestDTO,
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassCallerDTO,
-  CreatePhoneCanvassCallerDTO,
+  CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvasTwilioCallStatusCallbackDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
   PhoneCanvassDetailsDTO,
   PhoneCanvassContactDTO,
   PhoneCanvasTwilioVoiceCallbackDTO,
-  UpdatePhoneCanvassContactNotesDTO,
   PhoneCanvassCallIdentifierDTO,
+  UpdatePhoneCanvassContactNotesDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { PhoneCanvassService } from "./PhoneCanvass.service.js";
 import type { GrassrootsRequest } from "../../types/GrassrootsRequest.js";
@@ -365,24 +365,10 @@ export class PhoneCanvassController {
     ).toDTO();
   }
 
-  @Post("register-caller")
+  @Post("create-or-update-caller")
   @PublicRoute()
-  async registerCaller(
-    @Body() caller: CreatePhoneCanvassCallerDTO,
-    @Session() session: expressSession.SessionData,
-  ): Promise<PhoneCanvassCallerDTO> {
-    const model = await this.phoneCanvassService.getInitiatedModelFor({
-      phoneCanvassId: caller.activePhoneCanvassId,
-    });
-    const newCaller = await model.registerCaller(caller);
-    session.phoneCanvassCaller = newCaller;
-    return newCaller;
-  }
-
-  @Post("update-caller")
-  @PublicRoute()
-  async updateCaller(
-    @Body() caller: PhoneCanvassCallerDTO,
+  async createOrUpdateCaller(
+    @Body() caller: CreateOrUpdatePhoneCanvassCallerDTO,
     @Session() session: expressSession.SessionData,
   ): Promise<PhoneCanvassCallerDTO> {
     const model = await this.phoneCanvassService.getInitiatedModelFor({

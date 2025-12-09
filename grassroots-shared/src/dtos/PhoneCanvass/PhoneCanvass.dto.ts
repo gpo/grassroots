@@ -20,7 +20,8 @@ import { Transform, Type } from "class-transformer";
 import { ContactDTO, CreateContactRequestDTO } from "../Contact.dto.js";
 import { PaginatedRequestDTO, PaginatedResponseDTO } from "../Paginated.dto.js";
 import { Trim } from "../../decorators/Trim.decorator.js";
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { propsOf } from "../../util/TypeUtils.js";
 
 export class PhoneCanvassDTO extends createDTOBase("PhoneCanvass") {
   @IsString()
@@ -241,10 +242,20 @@ export class PhoneCanvassCallIdentifierDTO extends createDTOBase(
   phoneCanvassId!: string;
 }
 
+enum ReadyEnum {
+  unready = "unready",
+  ready = "ready",
+  lastCall = "last call",
+}
+
 // (displayName, activePhoneCanvassId) is globally unique.
-export class CreatePhoneCanvassCallerDTO extends createDTOBase(
-  "CreatePhoneCanvassCaller",
+export class CreateOrUpdatePhoneCanvassCallerDTO extends createDTOBase(
+  "CreateOrUpdatePhoneCanvassCaller",
 ) {
+  @IsUUID()
+  @IsOptional()
+  id?: string;
+
   @Trim()
   @IsNotEmpty()
   displayName!: string;
@@ -254,12 +265,15 @@ export class CreatePhoneCanvassCallerDTO extends createDTOBase(
 
   @IsNotEmpty()
   activePhoneCanvassId!: string;
-}
 
-enum ReadyEnum {
-  unready = "unready",
-  ready = "ready",
-  lastCall = "last call",
+  @IsString()
+  @IsOptional()
+  authToken?: string;
+
+  @IsEnum(ReadyEnum)
+  @IsOptional()
+  @ApiPropertyOptional({ enum: ReadyEnum })
+  ready?: "ready" | "unready" | "last call";
 }
 
 // (displayName, activePhoneCanvassId) is globally unique.
@@ -292,4 +306,8 @@ export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
   @IsEnum(ReadyEnum)
   @ApiProperty({ enum: ReadyEnum })
   ready!: "ready" | "unready" | "last call";
+
+  toUpdate(): CreateOrUpdatePhoneCanvassCallerDTO {
+    return CreateOrUpdatePhoneCanvassCallerDTO.from(propsOf(this));
+  }
 }
