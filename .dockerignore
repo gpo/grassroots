@@ -1,4 +1,2 @@
-node_modules
-**/node_modules
 docker/data
 .pnpm-store
