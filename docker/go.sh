@@ -1,12 +1,22 @@
 #!/bin/bash
 
 wait() {
+  echo "waiting"
+
   while true; do
-    # wait until the intermediary build container finishes running `turbo build`
-    rc=$(docker logs grassroots-grassroots_intermediary-1 | grep "FULL TURBO")
-    if [[ $rc -eq 0 ]]; then
-      break
+    # wait until the intermediary build container exits with RC=0
+    container_status=$(docker inspect grassroots-grassroots_intermediary-1 | jq '.[].State.Status' -r)
+
+    if [[ $container_status = "exited" ]]; then
+      rc=$(docker inspect grassroots-grassroots_intermediary-1 | jq '.[].State.ExitCode' -r)
+      if [[ $rc -eq 0 ]]; then
+        break
+      else
+        echo "Intermediary build container exited with nonzero code. Aborting."
+        exit $rc
+      fi
     else
+      echo "still waiting"
       sleep 1
     fi
   done
