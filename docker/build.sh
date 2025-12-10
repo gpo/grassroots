@@ -28,7 +28,7 @@ find ../ -type d -name dist -exec rm -rf {} \;
 # bring up dbs and grassroots with local source mounted as volumes, this runs turbo build
 docker compose --file compose.yaml --file compose.build.yaml up --build --remove-orphans -d
 
-wait # I'm not sure if this is necessary, or sufficient to detect the successful finish of the build
+wait
 
 # bring the intermediary build composition down
 docker compose --file compose.yaml --file compose.build.yaml down
