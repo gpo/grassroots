@@ -8,8 +8,8 @@ services:
       - ./caddy/Caddyfile:/etc/caddy/Caddyfile
     image: caddy
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "80:80"
+      - "443:443"
       # For ngrok.
       - "3003:3003"
 
