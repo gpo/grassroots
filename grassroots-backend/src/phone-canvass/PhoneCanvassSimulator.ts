@@ -300,7 +300,7 @@ export class PhoneCanvassSimulator {
           );
         },
         error: (error: unknown) => {
-          console.log(error);
+          throw error;
         },
       });
     this.#subscriptions.push(simulateCallsSubscription);

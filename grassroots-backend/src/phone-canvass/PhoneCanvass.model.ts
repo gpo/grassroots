@@ -59,16 +59,13 @@ function updateContactsInLastCallState(params: {
 }): void {
   const { call, phoneCanvassCallersModel, updateOrCreateCaller } = params;
   if (call.status !== "COMPLETED") {
-    console.log("BAILING, call wasn't complete");
     return;
   }
 
   if (call.callerId !== undefined) {
     const caller = phoneCanvassCallersModel.getCaller(call.callerId);
 
-    console.log("MARK AS UNREADY (was in call)");
     if (caller.ready === "last call") {
-      console.log("VERIFIED CALLER WAS in last call state");
       runPromise(
         updateOrCreateCaller(
           PhoneCanvassCallerDTO.from({

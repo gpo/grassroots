@@ -7,7 +7,6 @@ import {
   scan,
   shareReplay,
   startWith,
-  tap,
 } from "rxjs";
 import { Call } from "./PhoneCanvassCall.js";
 import { Injectable } from "@nestjs/common";
@@ -38,9 +37,6 @@ export class PhoneCanvassMetricsTracker {
 
   constructor(calls$: Observable<Call>) {
     this.#committedCallsCount$ = calls$.pipe(
-      tap(() => {
-        console.log("++COMMITTED");
-      }),
       scan((committedCalls: Set<number>, call: Call): Set<number> => {
         if (call.status === "NOT_STARTED") {
           committedCalls.add(call.id);

@@ -27,7 +27,7 @@ export class PhoneCanvassCallersModel {
         this.#callersById.set(caller.id, caller);
       },
       error: (error: unknown) => {
-        console.log(error);
+        throw error;
       },
     });
   }
@@ -143,7 +143,6 @@ export class PhoneCanvassCallersModel {
       if (caller.ready !== "last call") {
         continue;
       }
-      console.log("THINKING ABOUT MARKING LAST CALL");
       const call = calls.find((call) => call.callerId === caller.id);
       if (call !== undefined) {
         // This caller will be marked unready when the current call finishes.

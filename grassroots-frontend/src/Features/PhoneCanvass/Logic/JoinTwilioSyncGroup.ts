@@ -62,23 +62,19 @@ class SyncGroupManager {
   async #onUpdate(data: PhoneCanvassSyncData): Promise<void> {
     const { timestamp } = data;
     const callPartyStateStore = this.#callPartyStateStore.getState();
-    console.log("UPDATE", data.callers);
-    console.log("TS", data.timestamp);
 
     if (
       data.phoneCanvassId !=
       SyncGroupManager.instance?.caller.activePhoneCanvassId
     ) {
       // TODO: figure out why this keeps receiving onUpdates.
-      console.log("INSTANCE ID IS NOT THE SAME");
+      // Has this gone away now that we prevent out of order messages?
       this.#lastTimestamp = 0;
       return;
     }
 
     if (this.#lastTimestamp >= timestamp) {
-      // Avoid repeated updates.
-      console.log("timestamp IS THE SAME or out of order");
-      console.log({ current: this.#lastTimestamp, new: timestamp });
+      // Avoid stale or repeated updates.
       return;
     }
 

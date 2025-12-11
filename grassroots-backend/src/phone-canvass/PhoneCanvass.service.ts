@@ -278,10 +278,8 @@ export class PhoneCanvassService {
         return (async (): Promise<void> => {
           // With 5 minutes without any update, we assume no one is active.
           if (canvass.lastSyncUpdate.getTime() > Date.now() - 5 * 60_000) {
-            console.log("INITIATING", canvass.id);
             await this.getInitiatedModelFor({ phoneCanvassId: canvass.id });
           } else {
-            console.log("CLEARING", canvass.id);
             await this.twilioService.clearSyncData(canvass.id);
           }
         })();

@@ -93,7 +93,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
         }
       },
       error: (error: unknown) => {
-        console.log(error);
+        throw error;
       },
     });
 
@@ -121,7 +121,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
         this.metricsTracker.onReadyCallerCountUpdate(this.#readyCallerIds.size);
       },
       error: (error: unknown) => {
-        console.log(error);
+        throw error;
       },
     });
   }

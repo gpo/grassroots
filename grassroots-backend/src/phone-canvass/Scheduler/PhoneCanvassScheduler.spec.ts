@@ -103,7 +103,7 @@ describe("PhoneCanvassScheduler", () => {
     model.calls$.subscribe({
       next: (call) => callsById.set(call.id, call),
       error: (error: unknown) => {
-        console.log(error);
+        throw error;
       },
     });
 
@@ -146,7 +146,7 @@ describe("PhoneCanvassScheduler", () => {
     model.calls$.subscribe({
       next: (call) => callsById.set(call.id, call),
       error: (error: unknown) => {
-        console.log(error);
+        throw error;
       },
     });
 
