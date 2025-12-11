@@ -16,7 +16,11 @@ export default defineConfig({
   ],
   server: {
     strictPort: true,
-    allowedHosts: ["grassroots.org", "grassroots.gpotoolsstage.ca", "grassroots.gpotools.ca"],
+    allowedHosts: [
+      "grassroots.org",
+      "grassroots.gpotoolsstage.ca",
+      "grassroots.gpotools.ca",
+    ],
   },
   // Must be in tsconfig.json as well as here: [https://github.com/vitejs/vite/issues/6828](https://github.com/vitejs/vite/issues/6828).
   // tsconfig.json is more standard, and required for editor support.
