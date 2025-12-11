@@ -1,0 +1,26 @@
+https://grassroots.org {
+    tls internal
+    log {
+        level DEBUG
+    }
+    handle_path /api/* {
+        reverse_proxy grassroots_backend:3000
+    }
+    handle_path /* {
+        reverse_proxy grassroots_frontend:5173
+    }
+}
+
+http://grassroots.org {
+    redir https://grassroots.org{uri} permanent
+}
+
+:3003 {
+	handle /phone-canvass/webhooks/* {
+		reverse_proxy grassroots_backend:3000
+	}
+
+  respond "Not available via ngrok" 404
+}
+
+

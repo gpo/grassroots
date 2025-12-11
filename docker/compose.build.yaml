@@ -1,0 +1,14 @@
+name: grassroots
+
+services:
+  grassroots_intermediary:
+    image: grassroots_intermediary
+    platform: linux/amd64
+    build:
+      context: ".."
+      dockerfile: Dockerfile.intermediary
+    volumes:
+      - ../:/app
+      - /app/node_modules
+      - ../logs:/app/logs
+      - ../storage:/app/storage
