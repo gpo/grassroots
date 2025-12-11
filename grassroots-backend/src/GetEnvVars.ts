@@ -94,12 +94,12 @@ type VarSources = Record<keyof Environment, string>;
 // Earlier files take priority.
 function getEnvFilePaths(): string[] {
   if (process.env.GITHUB_ACTIONS == "true") {
-    return ["../.env.test.ci", "../.env.test"];
+    return ["/config/.env.test.ci", "/config/.env.test"];
   }
   if (process.env.MODE == "test") {
-    return ["../.env.test.local", "../.env.test"];
+    return ["/config/.env.test.local", "/config/.env.test"];
   }
-  return ["../.env.development.local", "../.env.development"];
+  return ["/config/.env.development.local", "/config/.env.development", "/config/.env.production"];
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
