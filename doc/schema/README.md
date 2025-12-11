@@ -9,7 +9,7 @@
 | [public.organization_entity](public.organization_entity.md)                   | 5       |         | BASE TABLE |
 | [public.contact_entity](public.contact_entity.md)                             | 16      |         | BASE TABLE |
 | [public.user_role_entity](public.user_role_entity.md)                         | 5       |         | BASE TABLE |
-| [public.phone_canvass_entity](public.phone_canvass_entity.md)                 | 3       |         | BASE TABLE |
+| [public.phone_canvass_entity](public.phone_canvass_entity.md)                 | 4       |         | BASE TABLE |
 | [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) | 8       |         | BASE TABLE |
 
 ## Relations
@@ -72,6 +72,7 @@ erDiagram
   uuid id
   varchar_255_ creator_email
   varchar_255_ name
+  timestamp_with_time_zone last_sync_update
 }
 "public.phone_canvass_contact_entity" {
   integer phone_canvass_contact_id
