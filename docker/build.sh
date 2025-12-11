@@ -34,4 +34,4 @@ wait
 docker compose --file compose.yaml --file compose.build.yaml down
 
 # now we manually ADD the ./dist dirs to the final build
-docker build .. -f ../Dockerfile.deploy -t grassroots_build:latest
+docker build --platform linux/amd64 .. -f ../Dockerfile.deploy -t grassroots_build:latest
