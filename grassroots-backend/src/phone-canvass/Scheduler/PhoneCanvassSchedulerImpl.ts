@@ -82,37 +82,47 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
       )
       .subscribe();
 
-    this.#calls$.subscribe((call) => {
-      if (call.callerId !== undefined) {
-        if (call.status === "COMPLETED") {
-          this.#busyCallerIds.delete(call.callerId);
-        } else {
-          this.#busyCallerIds.add(call.callerId);
+    this.#calls$.subscribe({
+      next: (call) => {
+        if (call.callerId !== undefined) {
+          if (call.status === "COMPLETED") {
+            this.#busyCallerIds.delete(call.callerId);
+          } else {
+            this.#busyCallerIds.add(call.callerId);
+          }
         }
-      }
+      },
+      error: (error: unknown) => {
+        throw error;
+      },
     });
 
-    this.#callers$.subscribe((caller) => {
-      switch (caller.ready) {
-        case "ready": {
-          this.#callerSummariesById.set(caller.id, {
-            id: caller.id,
-            availabilityStartTime: this.#getCurrentTime(),
-          });
-          this.#readyCallerIds.add(caller.id);
-          break;
+    this.#callers$.subscribe({
+      next: (caller) => {
+        switch (caller.ready) {
+          case "ready": {
+            this.#callerSummariesById.set(caller.id, {
+              id: caller.id,
+              availabilityStartTime: this.#getCurrentTime(),
+            });
+            this.#readyCallerIds.add(caller.id);
+            break;
+          }
+          case "unready": {
+            this.#callerSummariesById.delete(caller.id);
+            this.#readyCallerIds.delete(caller.id);
+            break;
+          }
+          case "last call": {
+            this.#readyCallerIds.delete(caller.id);
+            break;
+          }
         }
-        case "unready": {
-          this.#callerSummariesById.delete(caller.id);
-          this.#readyCallerIds.delete(caller.id);
-          break;
-        }
-        case "last call": {
-          this.#readyCallerIds.delete(caller.id);
-          break;
-        }
-      }
-      this.metricsTracker.onReadyCallerCountUpdate(this.#readyCallerIds.size);
+        this.metricsTracker.onReadyCallerCountUpdate(this.#readyCallerIds.size);
+      },
+      error: (error: unknown) => {
+        throw error;
+      },
     });
   }
 

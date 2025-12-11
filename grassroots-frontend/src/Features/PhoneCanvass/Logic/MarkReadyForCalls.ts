@@ -1,6 +1,6 @@
 import { Device } from "@twilio/voice-sdk";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
-import { UpdateCallerMutation } from "./UseUpdateCaller.js";
+import { CreateOrUpdateCallerMutation } from "./UseCreateOrUpdateCaller.js";
 
 /*
 Flow is:
@@ -13,7 +13,7 @@ Flow is:
 export interface UpdateReadyStateForCallsParams {
   caller: PhoneCanvassCallerDTO;
   device: Device | undefined;
-  updateCallerMutation: UpdateCallerMutation;
+  createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
 }
 
 export async function markLastCall(
@@ -21,7 +21,7 @@ export async function markLastCall(
 ): Promise<void> {
   const { caller } = params;
   caller.ready = "last call";
-  await params.updateCallerMutation(caller);
+  await params.createOrUpdateCallerMutation(caller.toUpdate());
 }
 
 export async function markReadyForCalls(
@@ -30,7 +30,7 @@ export async function markReadyForCalls(
   const { caller } = params;
   let { device } = params;
   caller.ready = "ready";
-  await params.updateCallerMutation(caller);
+  await params.createOrUpdateCallerMutation(caller.toUpdate());
 
   if (device !== undefined) {
     return { device };

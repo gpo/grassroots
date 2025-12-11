@@ -4,20 +4,22 @@
 
 ## Columns
 
-| Name          | Type         | Default           | Nullable | Children                                                                      | Parents | Comment |
-| ------------- | ------------ | ----------------- | -------- | ----------------------------------------------------------------------------- | ------- | ------- |
-| id            | uuid         | gen_random_uuid() | false    | [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) |         |         |
-| creator_email | varchar(255) |                   | false    |                                                                               |         |         |
-| name          | varchar(255) |                   | false    |                                                                               |         |         |
+| Name             | Type                     | Default           | Nullable | Children                                                                      | Parents | Comment |
+| ---------------- | ------------------------ | ----------------- | -------- | ----------------------------------------------------------------------------- | ------- | ------- |
+| id               | uuid                     | gen_random_uuid() | false    | [public.phone_canvass_contact_entity](public.phone_canvass_contact_entity.md) |         |         |
+| creator_email    | varchar(255)             |                   | false    |                                                                               |         |         |
+| name             | varchar(255)             |                   | false    |                                                                               |         |         |
+| last_sync_update | timestamp with time zone |                   | false    |                                                                               |         |         |
 
 ## Constraints
 
-| Name                                        | Type        | Definition             |
-| ------------------------------------------- | ----------- | ---------------------- |
-| phone_canvass_entity_creator_email_not_null | n           | NOT NULL creator_email |
-| phone_canvass_entity_id_not_null            | n           | NOT NULL id            |
-| phone_canvass_entity_name_not_null          | n           | NOT NULL name          |
-| phone_canvass_entity_pkey                   | PRIMARY KEY | PRIMARY KEY (id)       |
+| Name                                           | Type        | Definition                |
+| ---------------------------------------------- | ----------- | ------------------------- |
+| phone_canvass_entity_creator_email_not_null    | n           | NOT NULL creator_email    |
+| phone_canvass_entity_id_not_null               | n           | NOT NULL id               |
+| phone_canvass_entity_last_sync_update_not_null | n           | NOT NULL last_sync_update |
+| phone_canvass_entity_name_not_null             | n           | NOT NULL name             |
+| phone_canvass_entity_pkey                      | PRIMARY KEY | PRIMARY KEY (id)          |
 
 ## Indexes
 
@@ -36,6 +38,7 @@ erDiagram
   uuid id
   varchar_255_ creator_email
   varchar_255_ name
+  timestamp_with_time_zone last_sync_update
 }
 "public.phone_canvass_contact_entity" {
   integer phone_canvass_contact_id

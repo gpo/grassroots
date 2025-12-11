@@ -1,7 +1,7 @@
 import { SyncClient, SyncDocument } from "twilio-sync";
 import { CallPartyStateStore } from "./CallPartyStateStore.js";
 import {
-  CreatePhoneCanvassCallerDTO,
+  CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import {
@@ -11,23 +11,22 @@ import {
 import {
   getPhoneCanvassCaller,
   PhoneCanvassCallerStore,
-  RefreshCaller,
 } from "./PhoneCanvassCallerStore.js";
 import { UseMutateAsyncFunction } from "@tanstack/react-query";
 import { runPromise } from "grassroots-shared/util/RunPromise";
+import { StoreApi } from "zustand";
 
-type RegisterCaller = UseMutateAsyncFunction<
+type CreateOrUpdateCallerMutation = UseMutateAsyncFunction<
   PhoneCanvassCallerDTO,
   Error,
-  CreatePhoneCanvassCallerDTO
+  CreateOrUpdatePhoneCanvassCallerDTO
 >;
 
 interface JoinSyncGroupParams {
   caller: PhoneCanvassCallerDTO;
-  callPartyStateStore: CallPartyStateStore;
+  callPartyStateStore: StoreApi<CallPartyStateStore>;
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
-  registerCaller: RegisterCaller;
-  refreshCaller: RefreshCaller;
+  createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
   onNewContact: (contact: ContactSummary | undefined) => void;
   onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
 }
@@ -37,13 +36,12 @@ class SyncGroupManager {
   #syncClient: SyncClient;
   #doc: SyncDocument | undefined;
   caller: PhoneCanvassCallerDTO;
-  #callPartyStateStore: CallPartyStateStore;
+  #callPartyStateStore: StoreApi<CallPartyStateStore>;
   #phoneCanvassCallerStore: PhoneCanvassCallerStore;
-  #registerCaller: RegisterCaller;
-  #refreshCaller: RefreshCaller;
+  #createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
   #lastContact: ContactSummary | undefined;
   #lastCallerReady: "ready" | "unready" | "last call" | undefined;
-  #currentRevision: string | undefined = undefined;
+  #lastTimestamp = 0;
   #onNewContact: (contact: ContactSummary | undefined) => void;
   #onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
 
@@ -53,8 +51,7 @@ class SyncGroupManager {
     this.caller = params.caller;
     this.#syncClient = new SyncClient(this.caller.authToken);
     this.#callPartyStateStore = params.callPartyStateStore;
-    this.#registerCaller = params.registerCaller;
-    this.#refreshCaller = params.refreshCaller;
+    this.#createOrUpdateCallerMutation = params.createOrUpdateCallerMutation;
     this.#phoneCanvassCallerStore = params.phoneCanvassCallerStore;
     this.#onNewContact = params.onNewContact;
     this.#onReadyChanged = params.onReadyChanged;
@@ -62,41 +59,45 @@ class SyncGroupManager {
     this.#lastContact = undefined;
   }
 
-  async #onUpdate(data: PhoneCanvassSyncData, revision: string): Promise<void> {
-    if (revision === this.#currentRevision) {
-      // Avoid repeated updates.
-      return;
-    }
-
-    this.#currentRevision = revision;
+  async #onUpdate(data: PhoneCanvassSyncData): Promise<void> {
+    const { timestamp } = data;
+    const callPartyStateStore = this.#callPartyStateStore.getState();
 
     if (
       data.phoneCanvassId !=
       SyncGroupManager.instance?.caller.activePhoneCanvassId
     ) {
       // TODO: figure out why this keeps receiving onUpdates.
+      // Has this gone away now that we prevent out of order messages?
+      this.#lastTimestamp = 0;
       return;
     }
 
+    if (this.#lastTimestamp >= timestamp) {
+      // Avoid stale or repeated updates.
+      return;
+    }
+
+    this.#lastTimestamp = timestamp;
+
     let caller = await getPhoneCanvassCaller({
-      refreshCaller: this.#refreshCaller,
+      createOrUpdateCallerMutation: this.#createOrUpdateCallerMutation,
       activePhoneCanvassId: this.caller.activePhoneCanvassId,
       phoneCanvassCallerStore: this.#phoneCanvassCallerStore,
     });
 
     if (
-      this.#callPartyStateStore.serverInstanceUUID &&
-      this.#callPartyStateStore.serverInstanceUUID !==
-        data.serverInstanceUUID &&
+      callPartyStateStore.serverInstanceUUID &&
+      callPartyStateStore.serverInstanceUUID !== data.serverInstanceUUID &&
       caller
     ) {
       // The server has rebooted, we need to reregister.
-      caller = await this.#registerCaller(
-        CreatePhoneCanvassCallerDTO.from(caller),
+      caller = await this.#createOrUpdateCallerMutation(
+        CreateOrUpdatePhoneCanvassCallerDTO.from(caller),
       );
     }
 
-    this.#callPartyStateStore.setData(data);
+    callPartyStateStore.setData(data);
     if (caller === undefined) {
       throw new Error("We should have a caller.");
     }
@@ -130,7 +131,7 @@ class SyncGroupManager {
     this.#syncClient.on("connectionStateChanged", () => {
       runPromise(
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        this.#onUpdate(doc.data as PhoneCanvassSyncData, doc.revision),
+        this.#onUpdate(doc.data as PhoneCanvassSyncData),
         false,
       );
     });
@@ -138,7 +139,7 @@ class SyncGroupManager {
     this.#doc.on("updated", () => {
       runPromise(
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-        this.#onUpdate(doc.data as PhoneCanvassSyncData, doc.revision),
+        this.#onUpdate(doc.data as PhoneCanvassSyncData),
         false,
       );
     });
@@ -147,7 +148,7 @@ class SyncGroupManager {
     // on page visit.
     runPromise(
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      this.#onUpdate(this.#doc.data as PhoneCanvassSyncData, doc.revision),
+      this.#onUpdate(this.#doc.data as PhoneCanvassSyncData),
       false,
     );
   }
@@ -175,7 +176,7 @@ export async function joinTwilioSyncGroup(
     // Make sure no one can use the instance while things are shutting down.
     SyncGroupManager.instance = undefined;
     await instance.stop();
-    params.callPartyStateStore.reset();
+    params.callPartyStateStore.getState().reset();
     instance = undefined;
   }
   if (instance === undefined) {

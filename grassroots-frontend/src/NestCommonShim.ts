@@ -9,6 +9,11 @@ export function ApiProperty(...args: unknown[]): DecoratorResult {
   return noop;
 }
 
+export function ApiPropertyOptional(...args: unknown[]): DecoratorResult {
+  void args;
+  return noop;
+}
+
 export function applyDecorators(...args: unknown[]): DecoratorResult {
   void args;
   return noop;

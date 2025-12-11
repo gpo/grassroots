@@ -60,6 +60,7 @@ erDiagram
   uuid id
   varchar_255_ creator_email
   varchar_255_ name
+  timestamp_with_time_zone last_sync_update
 }
 "public.contact_entity" {
   integer id

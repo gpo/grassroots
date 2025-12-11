@@ -1,7 +1,10 @@
 // eslint-disable-next-line check-file/filename-naming-convention
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ParticipateInPhoneCanvass } from "../../Features/PhoneCanvass/Components/ParticipateInPhoneCanvass.js";
-import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import {
+  CreateOrUpdatePhoneCanvassCallerDTO,
+  PhoneCanvassCallerDTO,
+} from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { grassrootsAPI } from "../../GrassRootsAPI.js";
 import { getPhoneCanvassCaller } from "../../Features/PhoneCanvass/Logic/PhoneCanvassCallerStore.js";
 
@@ -11,11 +14,11 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
   beforeLoad: async ({ context, params }) => {
     const phoneCanvassCallerStore = context.getPhoneCanvassCallerStore();
 
-    const refreshCaller = async (
-      caller: PhoneCanvassCallerDTO,
+    const createOrUpdateCaller = async (
+      caller: CreateOrUpdatePhoneCanvassCallerDTO,
     ): Promise<PhoneCanvassCallerDTO> => {
       const refreshedCaller = PhoneCanvassCallerDTO.fromFetchOrThrow(
-        await grassrootsAPI.POST("/phone-canvass/update-caller", {
+        await grassrootsAPI.POST("/phone-canvass/create-or-update-caller", {
           body: caller,
         }),
       );
@@ -26,7 +29,7 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
     let caller: PhoneCanvassCallerDTO | undefined = undefined;
     try {
       caller = await getPhoneCanvassCaller({
-        refreshCaller,
+        createOrUpdateCallerMutation: createOrUpdateCaller,
         activePhoneCanvassId: params.phoneCanvassId,
         phoneCanvassCallerStore,
         // This ensures the server knows this client exists.
@@ -43,7 +46,7 @@ export const Route = createFileRoute("/PhoneCanvass/$phoneCanvassId")({
         params: { phoneCanvassId: params.phoneCanvassId },
       });
     }
-    return { refreshCaller, initialCaller: caller };
+    return { initialCaller: caller };
   },
   head: () => ({
     meta: [

@@ -1,12 +1,12 @@
 /* eslint-disable grassroots/entity-use */
 import {
   combineLatest,
-  distinctUntilChanged,
   map,
   Observable,
   pairwise,
   scan,
   startWith,
+  throttleTime,
 } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
 import { PhoneCanvassScheduler } from "./Scheduler/PhoneCanvassScheduler.js";
@@ -19,6 +19,7 @@ import { callStatusSort } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.d
 import {
   CallerSummary,
   ContactSummary,
+  PhoneCanvassSyncData,
 } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { PhoneCanvassCallersModel } from "./PhoneCanvassCallers.model.js";
@@ -27,13 +28,14 @@ import { ServerMetaService } from "../server-meta/ServerMeta.service.js";
 import { getEnvVars } from "../GetEnvVars.js";
 import { ForbiddenException } from "@nestjs/common";
 import {
-  CreatePhoneCanvassCallerDTO,
+  CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
   PhoneCanvassContactDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { EntityManager } from "@mikro-orm/core";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
+import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
 
 async function makeCall(params: {
   call: Call;
@@ -117,49 +119,60 @@ export class PhoneCanvassModel {
     this.#phoneCanvassCallersModel = params.phoneCanvassCallersModel;
     this.#serverMetaService = params.serverMetaService;
 
-    this.calls$.subscribe((call) => {
-      if (call.twilioSid !== undefined) {
-        this.#callsBySid.set(call.twilioSid, call);
-      }
+    this.calls$.subscribe({
+      next: (call) => {
+        if (call.twilioSid !== undefined) {
+          this.#callsBySid.set(call.twilioSid, call);
+        }
 
-      runPromise(call.log(), false);
-      runPromise(call.updateContactIfNeeded(this.#entityManager), false);
+        runPromise(call.log(), false);
+        runPromise(call.updateContactIfNeeded(this.#entityManager), false);
 
-      // When a call ends, if it was associated with a contact in the last call state, we mark them unready.
-      // That's what we're doing here.
-      // If the call wasn't associated with a contact in the last call state
-      // we just wait until we're not overcommitted, and then we can mark them ready.
-      updateContactsInLastCallState({
-        call,
-        phoneCanvassCallersModel: this.#phoneCanvassCallersModel,
-        updateOrCreateCaller: (caller) => this.updateOrCreateCaller(caller),
-      });
+        // When a call ends, if it was associated with a contact in the last call state, we mark them unready.
+        // That's what we're doing here.
+        // If the call wasn't associated with a contact in the last call state
+        // we just wait until we're not overcommitted, and then we can mark them ready.
+        updateContactsInLastCallState({
+          call,
+          phoneCanvassCallersModel: this.#phoneCanvassCallersModel,
+          updateOrCreateCaller: (caller) =>
+            this.updateOrCreateCaller(caller.toUpdate()),
+        });
 
-      if (call.status === "NOT_STARTED") {
-        runPromise(
-          makeCall({
-            call,
-            simulator: this.#simulator,
-            twilioService: this.#twilioService,
-          }),
-          false,
-        );
-      }
+        if (call.status === "NOT_STARTED") {
+          runPromise(
+            makeCall({
+              call,
+              simulator: this.#simulator,
+              twilioService: this.#twilioService,
+            }),
+            false,
+          );
+        }
+      },
+      error: (error: unknown) => {
+        throw error;
+      },
     });
 
     this.scheduler.metricsTracker.idleCallerCountObservable
       .pipe(pairwise())
-      .subscribe(([prev, next]) => {
-        if (prev < 0 && next >= 0) {
-          // We were overcommitted, but aren't anymore.
-          runPromise(
-            this.#phoneCanvassCallersModel.markOneLastCallCallerAsUnready(
-              [...this.#callsBySid.values()],
-              (caller) => this.updateOrCreateCaller(caller),
-            ),
-            false,
-          );
-        }
+      .subscribe({
+        next: ([prev, next]) => {
+          if (prev < 0 && next >= 0) {
+            // We were overcommitted, but aren't anymore.
+            runPromise(
+              this.#phoneCanvassCallersModel.markOneLastCallCallerAsUnready(
+                [...this.#callsBySid.values()],
+                (caller) => this.updateOrCreateCaller(caller.toUpdate()),
+              ),
+              false,
+            );
+          }
+        },
+        error: (error: unknown) => {
+          throw error;
+        },
       });
 
     const callerSummariesById$: Observable<Map<string, CallerSummary>> =
@@ -226,33 +239,58 @@ export class PhoneCanvassModel {
         }),
       );
 
-    combineLatest({
+    const syncData$ = combineLatest({
       callers: callerSummaries$.pipe(startWith([])),
       contacts: contactSummaries$.pipe(startWith([])),
       callsCompleted: completedCallCount$.pipe(startWith(0)),
-    })
-      .pipe(
-        map((syncData) => {
-          return {
-            callers: syncData.callers,
-            contacts: syncData.contacts,
-            serverInstanceUUID: this.#serverMetaService.instanceUUID,
-            phoneCanvassId: this.phoneCanvassId,
-            totalContacts: this.#contacts.length,
-            doneContacts: syncData.callsCompleted,
-          };
-        }),
-        // Stringify here as it makes the distinctUntilChanged compare into a string compare
-        // instead of a complicated nested object compare.
-        map((syncData) => JSON.stringify(syncData)),
-        distinctUntilChanged(),
-      )
-      .subscribe((syncData) => {
+    }).pipe(
+      map((syncData) => {
+        return {
+          callers: syncData.callers,
+          contacts: syncData.contacts,
+          serverInstanceUUID: this.#serverMetaService.instanceUUID,
+          phoneCanvassId: this.phoneCanvassId,
+          totalContacts: this.#contacts.length,
+          doneContacts: syncData.callsCompleted,
+          timestamp: Date.now(),
+        } satisfies PhoneCanvassSyncData;
+      }),
+      // TODO: we should probably stringify later.
+      map((syncData) => JSON.stringify(syncData)),
+    );
+
+    syncData$.subscribe({
+      next: (syncData) => {
         runPromise(
           this.#twilioService.setSyncData(this.phoneCanvassId, syncData),
           false,
         );
-      });
+      },
+      error: (error: unknown) => {
+        throw error;
+      },
+    });
+
+    // We don't need to spam database updates.
+    // Just update this once a second.
+    syncData$.pipe(throttleTime(1000)).subscribe({
+      next: () => {
+        runPromise(
+          (async (): Promise<void> => {
+            const canvass = await this.#entityManager.findOneOrFail(
+              PhoneCanvassEntity,
+              { id: this.phoneCanvassId },
+            );
+            canvass.lastSyncUpdate = new Date();
+            await this.#entityManager.flush();
+          })(),
+          false,
+        );
+      },
+      error: (error: unknown) => {
+        throw error;
+      },
+    });
   }
 
   async startSimulating(): Promise<void> {
@@ -269,7 +307,7 @@ export class PhoneCanvassModel {
   }
 
   async registerCaller(
-    caller: CreatePhoneCanvassCallerDTO,
+    caller: CreateOrUpdatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     const newCaller = await this.#phoneCanvassCallersModel.registerCaller({
       caller,
@@ -279,7 +317,7 @@ export class PhoneCanvassModel {
   }
 
   async updateOrCreateCaller(
-    caller: PhoneCanvassCallerDTO,
+    caller: CreateOrUpdatePhoneCanvassCallerDTO,
   ): Promise<PhoneCanvassCallerDTO> {
     return await this.#phoneCanvassCallersModel.updateOrCreateCaller(
       caller,
@@ -302,7 +340,7 @@ export class PhoneCanvassModel {
     if (call.twilioSid === undefined) {
       throw new Error("Call answered before it was queued.");
     }
-    if (call.status !== "IN_PROGRESS") {
+    if (call.status !== "IN_PROGRESS" && call.status !== "COMPLETED") {
       throw new Error(
         `Call answered before being in progress ${JSON.stringify(call)}`,
       );

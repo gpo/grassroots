@@ -53,6 +53,9 @@ export class PhoneCanvassMetricsTracker {
       startWith(0),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
+    // TODO: does forcing an early subscribe get this to happen earlier, avoiding an
+    // issue with ordering in the expected faiure rate strategy?
+    this.#committedCallsCount$.subscribe();
 
     // TODO: refactor this and committedCallsCountObservable.
     this.#activeSuccessfulCallsCount$ = calls$.pipe(

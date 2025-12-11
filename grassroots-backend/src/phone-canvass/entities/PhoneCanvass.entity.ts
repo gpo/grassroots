@@ -25,4 +25,9 @@ export class PhoneCanvassEntity extends createEntityBase<
 
   @OneToMany(() => PhoneCanvassContactEntity, (contact) => contact.phoneCanvass)
   contacts = new Collection<PhoneCanvassContactEntity>(this);
+
+  // Last time we sent out a sync update (approximately), or
+  // creation time if we haven't sent any sync updates.
+  @Property()
+  lastSyncUpdate!: Date;
 }

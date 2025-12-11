@@ -1,18 +1,18 @@
 import { JSX, useCallback } from "react";
 import { usePhoneCanvassCallerStore } from "../Logic/PhoneCanvassCallerStore.js";
 import { Button, Stack, TextInput, Title } from "@mantine/core";
-import { CreatePhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { CreateOrUpdatePhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { useTypedForm } from "../../../Logic/UseTypedForm.js";
-import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 import { classValidatorResolver } from "../../../Logic/ClassValidatorResolver.js";
 import { useNavigate } from "@tanstack/react-router";
 import { RegisterForPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/Register.$phoneCanvassId.js";
+import { useCreateOrUpdateCallerMutation } from "../Logic/UseCreateOrUpdateCaller.js";
 
 export function RegisterForPhoneCanvass(): JSX.Element {
   const { phoneCanvassId } = RegisterForPhoneCanvassRoute.useParams();
-  const identityForm = useTypedForm<CreatePhoneCanvassCallerDTO>({
-    validate: classValidatorResolver(CreatePhoneCanvassCallerDTO),
-    initialValues: CreatePhoneCanvassCallerDTO.from({
+  const identityForm = useTypedForm<CreateOrUpdatePhoneCanvassCallerDTO>({
+    validate: classValidatorResolver(CreateOrUpdatePhoneCanvassCallerDTO),
+    initialValues: CreateOrUpdatePhoneCanvassCallerDTO.from({
       displayName: "",
       email: "",
       activePhoneCanvassId: phoneCanvassId,
@@ -21,18 +21,21 @@ export function RegisterForPhoneCanvass(): JSX.Element {
   const phoneCanvassCallerStore = usePhoneCanvassCallerStore();
   const navigate = useNavigate();
 
-  const addCaller = useRegisterCaller({
+  const addCaller = useCreateOrUpdateCallerMutation({
     phoneCanvassId: phoneCanvassId,
     phoneCanvassCallerStore: phoneCanvassCallerStore,
   });
 
-  const onSubmit = useCallback(async (data: CreatePhoneCanvassCallerDTO) => {
-    await addCaller(data);
-    await navigate({
-      to: "/PhoneCanvass/$phoneCanvassId",
-      params: { phoneCanvassId: phoneCanvassId },
-    });
-  }, []);
+  const onSubmit = useCallback(
+    async (data: CreateOrUpdatePhoneCanvassCallerDTO) => {
+      await addCaller(data);
+      await navigate({
+        to: "/PhoneCanvass/$phoneCanvassId",
+        params: { phoneCanvassId: phoneCanvassId },
+      });
+    },
+    [],
+  );
 
   return (
     <>

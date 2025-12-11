@@ -48,7 +48,7 @@ export class PhoneCanvassModelFactory {
     if (params.strategyName === "no overcalling") {
       strategy = new NoOvercallingStrategy(metricsTracker);
     } else {
-      strategy = new ExpectedFailureRateStrategy(metricsTracker, 0.6);
+      strategy = new ExpectedFailureRateStrategy(metricsTracker, 0.75);
     }
 
     const scheduler = new PhoneCanvassSchedulerImpl(strategy, metricsTracker, {

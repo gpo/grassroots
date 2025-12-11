@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { E2ETestFixture, useE2ETestFixture } from "./infra/E2eSetup.js";
 import {
-  CreatePhoneCanvassCallerDTO,
+  CreateOrUpdatePhoneCanvassCallerDTO,
   CreatePhoneCanvassResponseDTO,
   PaginatedPhoneCanvassContactResponseDTO,
   PhoneCanvassCallerDTO,
@@ -156,8 +156,8 @@ describe("PhoneCanvass (e2e)", () => {
       }),
     );
 
-    CreatePhoneCanvassCallerDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/register-caller", {
+    CreateOrUpdatePhoneCanvassCallerDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/phone-canvass/create-or-update-caller", {
         body: {
           activePhoneCanvassId: canvass.id,
           displayName: "A",
@@ -166,8 +166,8 @@ describe("PhoneCanvass (e2e)", () => {
       }),
     );
 
-    CreatePhoneCanvassCallerDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/register-caller", {
+    CreateOrUpdatePhoneCanvassCallerDTO.fromFetchOrThrow(
+      await f.grassrootsAPI.POST("/phone-canvass/create-or-update-caller", {
         body: {
           activePhoneCanvassId: canvass.id,
           displayName: "B",
@@ -204,8 +204,8 @@ describe("PhoneCanvass (e2e)", () => {
     );
 
     const caller = PhoneCanvassCallerDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/register-caller", {
-        body: CreatePhoneCanvassCallerDTO.from({
+      await f.grassrootsAPI.POST("/phone-canvass/create-or-update-caller", {
+        body: CreateOrUpdatePhoneCanvassCallerDTO.from({
           displayName: "Test",
           email: "Test@Test.com",
           activePhoneCanvassId: canvass.id,
@@ -216,8 +216,8 @@ describe("PhoneCanvass (e2e)", () => {
     expect(mock.makeCall).toBeCalledTimes(0);
 
     PhoneCanvassCallerDTO.fromFetchOrThrow(
-      await f.grassrootsAPI.POST("/phone-canvass/update-caller", {
-        body: PhoneCanvassCallerDTO.from({
+      await f.grassrootsAPI.POST("/phone-canvass/create-or-update-caller", {
+        body: CreateOrUpdatePhoneCanvassCallerDTO.from({
           id: caller.id,
           displayName: "Test",
           email: "Test@Test.com",

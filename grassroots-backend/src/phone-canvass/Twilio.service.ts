@@ -111,7 +111,7 @@ export class TwilioService {
     await client.sync.v1
       .services(envVars.TWILIO_SYNC_SERVICE_SID)
       .documents(phoneCanvassId)
-      .update({});
+      .update({ data: {} });
   }
 
   async setSyncData(phoneCanvassId: string, data: string): Promise<void> {

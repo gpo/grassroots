@@ -13,7 +13,8 @@ const initialState = {
   serverInstanceUUID: undefined,
   totalContacts: 0,
   doneContacts: 0,
-};
+  timestamp: 0,
+} satisfies Partial<PhoneCanvassSyncData>;
 
 export function createCallPartyStateStore(): StoreApi<CallPartyStateStore> {
   return createStore<CallPartyStateStore>()(

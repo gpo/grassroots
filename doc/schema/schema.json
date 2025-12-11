@@ -603,6 +603,11 @@
           "name": "name",
           "type": "varchar(255)",
           "nullable": false
+        },
+        {
+          "name": "last_sync_update",
+          "type": "timestamp with time zone",
+          "nullable": false
         }
       ],
       "indexes": [
@@ -634,6 +639,16 @@
           "referenced_table": "",
           "columns": [
             "id"
+          ]
+        },
+        {
+          "name": "phone_canvass_entity_last_sync_update_not_null",
+          "type": "n",
+          "def": "NOT NULL last_sync_update",
+          "table": "public.phone_canvass_entity",
+          "referenced_table": "",
+          "columns": [
+            "last_sync_update"
           ]
         },
         {

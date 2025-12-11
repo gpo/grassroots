@@ -1,9 +1,9 @@
-import { combineLatest, filter, map, Observable } from "rxjs";
+import { combineLatest, concatMap, filter, map, of, Subject, tap } from "rxjs";
 import { PhoneCanvassSchedulerStrategy } from "./PhoneCanvassSchedulerStrategy.js";
 import { PhoneCanvassMetricsTracker } from "../PhoneCanvassMetricsTracker.js";
 
 export class ExpectedFailureRateStrategy extends PhoneCanvassSchedulerStrategy {
-  nextCall$: Observable<undefined>;
+  nextCall$ = new Subject<undefined>();
 
   constructor(
     metricsLogger: PhoneCanvassMetricsTracker,
@@ -29,9 +29,21 @@ export class ExpectedFailureRateStrategy extends PhoneCanvassSchedulerStrategy {
       }),
     );
 
-    this.nextCall$ = callsToMake$.pipe(
-      filter((x) => x > 0),
-      map(() => undefined),
-    );
+    callsToMake$
+      .pipe(
+        filter((x) => x > 0),
+        concatMap(() => {
+          return of(undefined).pipe(
+            tap(() => {
+              this.nextCall$.next(undefined);
+            }),
+          );
+        }),
+      )
+      .subscribe({
+        error: (error: unknown) => {
+          throw error;
+        },
+      });
   }
 }

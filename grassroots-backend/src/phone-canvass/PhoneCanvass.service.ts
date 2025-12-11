@@ -6,9 +6,9 @@ import {
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
 import {
   EntityManager,
-  EntityRepository,
   Loaded,
   RequiredEntityData,
+  Transactional,
 } from "@mikro-orm/core";
 import {
   CreatePhoneCanvassRequestDTO,
@@ -26,12 +26,12 @@ import { TwilioService } from "./Twilio.service.js";
 import { PhoneCanvassContactEntity } from "./entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassModelFactory } from "./Scheduler/PhoneCanvassModelFactory.js";
 import { ServerMetaService } from "../server-meta/ServerMeta.service.js";
-import { InjectRepository } from "@mikro-orm/nestjs";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { VOICEMAIL_STORAGE_DIR } from "./PhoneCanvass.module.js";
 import { PhoneCanvassModel } from "./PhoneCanvass.model.js";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
+import { runPromise } from "grassroots-shared/util/RunPromise";
 
 @Injectable()
 export class PhoneCanvassService {
@@ -41,16 +41,27 @@ export class PhoneCanvassService {
   #callsByContactId = new Map<number, Call>();
 
   constructor(
-    private readonly entityManager: EntityManager,
+    // Needs to be called `em` for @Transactional to work.
+    private readonly em: EntityManager,
     private twilioService: TwilioService,
     private readonly phoneCanvassModelFactory: PhoneCanvassModelFactory,
     private readonly serverMetaService: ServerMetaService,
-    @InjectRepository(PhoneCanvassEntity)
-    private readonly repo: EntityRepository<PhoneCanvassEntity>,
   ) {
     twilioService.setGetCallsBySID((sid: string): Call | undefined => {
       return this.#callsBySid.get(sid);
     });
+
+    runPromise(
+      (async (): Promise<void> => {
+        try {
+          await this.updateModelsOnRestart();
+        } catch {
+          // TODO: figure out why this happens in CI.
+          console.log("Failed to update models");
+        }
+      })(),
+      true,
+    );
   }
 
   async startSimulating(phoneCanvassId: string): Promise<void> {
@@ -64,18 +75,19 @@ export class PhoneCanvassService {
     creatorEmail: string,
     audioFile: Express.Multer.File,
   ): Promise<CreatePhoneCanvassResponseDTO> {
-    const canvassEntity = this.repo.create({
+    const canvassEntity = this.em.create(PhoneCanvassEntity, {
       name: canvass.name,
       creatorEmail,
       contacts: [],
+      lastSyncUpdate: new Date(),
     });
-    await this.entityManager.flush();
+    await this.em.flush();
 
     for (const canvasContact of canvass.contacts) {
       const contact: RequiredEntityData<ContactEntity> =
         ContactEntity.fromCreateContactRequestDTO(canvasContact.contact);
 
-      this.entityManager.create(PhoneCanvassContactEntity, {
+      this.em.create(PhoneCanvassContactEntity, {
         phoneCanvass: canvassEntity,
         metadata: canvasContact.metadata,
         beenCalled: false,
@@ -84,7 +96,7 @@ export class PhoneCanvassService {
       });
     }
 
-    await this.entityManager.flush();
+    await this.em.flush();
 
     const newCanvass = CreatePhoneCanvassResponseDTO.from({
       id: canvassEntity.id,
@@ -107,7 +119,7 @@ export class PhoneCanvassService {
   async getPhoneCanvassByIdOrFail(
     id: string,
   ): Promise<Loaded<PhoneCanvassEntity>> {
-    const phoneCanvass = await this.repo.findOne({ id });
+    const phoneCanvass = await this.em.findOne(PhoneCanvassEntity, { id });
     if (phoneCanvass === null) {
       throw new UnauthorizedException("Invalid phone canvass id");
     }
@@ -117,7 +129,8 @@ export class PhoneCanvassService {
   async getPhoneCanvassContacts(
     id: string,
   ): Promise<Loaded<PhoneCanvassContactEntity, "contact">[]> {
-    const phoneCanvass = await this.repo.findOne(
+    const phoneCanvass = await this.em.findOne(
+      PhoneCanvassEntity,
       { id },
       {
         populate: ["contacts.contact"],
@@ -152,13 +165,11 @@ export class PhoneCanvassService {
     phoneCanvassId: string;
     phoneCanvassContactId: number;
   }): Promise<PhoneCanvassContactEntity> {
-    const contact = await this.repo
-      .getEntityManager()
-      .findOne(
-        PhoneCanvassContactEntity,
-        { phoneCanvassContactId: params.phoneCanvassContactId },
-        { populate: ["contact", "phoneCanvass"] },
-      );
+    const contact = await this.em.findOne(
+      PhoneCanvassContactEntity,
+      { phoneCanvassContactId: params.phoneCanvassContactId },
+      { populate: ["contact", "phoneCanvass"] },
+    );
     if (contact === null || contact.phoneCanvass.id !== params.phoneCanvassId) {
       throw new NotFoundException("Unable to find contact.");
     }
@@ -171,13 +182,11 @@ export class PhoneCanvassService {
     phoneCanvassId: string;
     rawContactId: number;
   }): Promise<PhoneCanvassContactEntity> {
-    const contact = await this.repo
-      .getEntityManager()
-      .findOne(
-        PhoneCanvassContactEntity,
-        { contact: { id: params.rawContactId } },
-        { populate: ["contact"] },
-      );
+    const contact = await this.em.findOne(
+      PhoneCanvassContactEntity,
+      { contact: { id: params.rawContactId } },
+      { populate: ["contact"] },
+    );
     if (contact === null || contact.phoneCanvass.id !== params.phoneCanvassId) {
       throw new NotFoundException("Unable to find contact.");
     }
@@ -197,9 +206,8 @@ export class PhoneCanvassService {
     notes: string;
   }): Promise<PhoneCanvassContactDTO> {
     const contact = await this.#getContact(params);
-    const em = this.repo.getEntityManager();
     contact.notes = params.notes;
-    await em.flush();
+    await this.em.flush();
     return contact.toDTO();
   }
 
@@ -207,7 +215,7 @@ export class PhoneCanvassService {
     phoneCanvassId,
     paginated,
   }: PaginatedPhoneCanvassContactListRequestDTO): Promise<PaginatedPhoneCanvassContactResponseDTO> {
-    const [result, rowsTotal] = await this.entityManager.findAndCount(
+    const [result, rowsTotal] = await this.em.findAndCount(
       PhoneCanvassContactEntity,
       { phoneCanvass: phoneCanvassId },
       {
@@ -239,29 +247,41 @@ export class PhoneCanvassService {
         phoneCanvassId: phoneCanvassId,
         twilioService: this.twilioService,
         serverMetaService: this.serverMetaService,
-        entityManager: this.entityManager,
+        entityManager: this.em,
         strategyName: "expected failure rate",
       });
       this.#models.set(phoneCanvassId, model);
 
-      model.calls$.subscribe((call) => {
-        if (call.twilioSid !== undefined) {
-          this.#callsBySid.set(call.twilioSid, call);
-        }
-        this.#callsByContactId.set(call.phoneCanvassContactId, call);
+      model.calls$.subscribe({
+        next: (call) => {
+          if (call.twilioSid !== undefined) {
+            this.#callsBySid.set(call.twilioSid, call);
+          }
+          this.#callsByContactId.set(call.phoneCanvassContactId, call);
+        },
+        error: (error: unknown) => {
+          throw error;
+        },
       });
     }
     return model;
   }
 
   // If the server dies, we could end up with a bunch of stale
-  // twilio sync data. Clear this on restart.
-  async clearTwilioSyncDatas(): Promise<void> {
-    const canvasses = await this.repo.findAll();
+  // twilio sync data. Clear or update each sync data depending on
+  // phone canvass state.
+  @Transactional()
+  async updateModelsOnRestart(): Promise<void> {
+    const canvasses = await this.em.findAll(PhoneCanvassEntity);
     await Promise.all(
       canvasses.map((canvass) => {
         return (async (): Promise<void> => {
-          await this.twilioService.clearSyncData(canvass.id);
+          // With 5 minutes without any update, we assume no one is active.
+          if (canvass.lastSyncUpdate.getTime() > Date.now() - 5 * 60_000) {
+            await this.getInitiatedModelFor({ phoneCanvassId: canvass.id });
+          } else {
+            await this.twilioService.clearSyncData(canvass.id);
+          }
         })();
       }),
     );

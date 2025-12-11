@@ -22,7 +22,6 @@ import { ParticipateInPhoneCanvassRoute } from "../../../Routes/PhoneCanvass/$ph
 import { useStore } from "zustand";
 import { createCallPartyStateStore } from "../Logic/CallPartyStateStore.js";
 import { joinTwilioSyncGroup } from "../Logic/JoinTwilioSyncGroup.js";
-import { useRegisterCaller } from "../Logic/UseRegisterCaller.js";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { ContactSummary } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { takeCall } from "../Logic/TakeCall.js";
@@ -34,9 +33,9 @@ import { ContactCard } from "../../Contacts/Components/ContactCard.js";
 import { notifications } from "@mantine/notifications";
 import { CallStatus } from "grassroots-shared/dtos/PhoneCanvass/CallStatus.dto";
 import {
-  UpdateCallerMutation,
-  useUpdateCaller,
-} from "../Logic/UseUpdateCaller.js";
+  CreateOrUpdateCallerMutation,
+  useCreateOrUpdateCallerMutation,
+} from "../Logic/UseCreateOrUpdateCaller.js";
 import { MicrophoneTester } from "./MicrophoneTester.js";
 import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { useOverrideAnsweredByMachine } from "../Logic/UseOverrideAnsweredByMachine.js";
@@ -129,7 +128,7 @@ const ToggleReadyButton = (props: {
   setReadyPendingState: (state: ReadyPendingState) => void;
   currentDevice: Device | undefined;
   caller: PhoneCanvassCallerDTO;
-  updateCallerMutation: UpdateCallerMutation;
+  createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
   setCurrentDevice: React.Dispatch<React.SetStateAction<Device | undefined>>;
 }): JSX.Element => {
   const {
@@ -138,7 +137,7 @@ const ToggleReadyButton = (props: {
     setReadyPendingState,
     caller,
     currentDevice,
-    updateCallerMutation,
+    createOrUpdateCallerMutation,
     setCurrentDevice,
   } = props;
   if (ready === "last call") {
@@ -161,7 +160,7 @@ const ToggleReadyButton = (props: {
               await markLastCall({
                 caller,
                 device: currentDevice,
-                updateCallerMutation,
+                createOrUpdateCallerMutation,
               });
             })(),
             false,
@@ -185,7 +184,7 @@ const ToggleReadyButton = (props: {
                 await markReadyForCalls({
                   caller,
                   device: currentDevice,
-                  updateCallerMutation,
+                  createOrUpdateCallerMutation,
                 })
               ).device;
               setCurrentDevice(device);
@@ -218,29 +217,24 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     useState<ReadyPendingState>(undefined);
   const [testingMic, setTestingMic] = useState<boolean>(false);
 
-  const registerCaller = useRegisterCaller({
+  const createOrUpdateCallerMutation = useCreateOrUpdateCallerMutation({
     phoneCanvassId,
     phoneCanvassCallerStore,
   });
 
-  const updateCallerKeepAlive = useUpdateCaller({
-    phoneCanvassId,
-    phoneCanvassCallerStore,
-    keepAlive: true,
-  });
+  const createOrUpdateCallerMutationKeepAlive = useCreateOrUpdateCallerMutation(
+    {
+      phoneCanvassId,
+      phoneCanvassCallerStore,
+      keepAlive: true,
+    },
+  );
 
-  const updateCallerNoKeepAlive = useUpdateCaller({
-    phoneCanvassId,
-    phoneCanvassCallerStore,
-    keepAlive: false,
-  });
-
-  const { refreshCaller, initialCaller } =
-    ParticipateInPhoneCanvassRoute.useRouteContext();
+  const { initialCaller } = ParticipateInPhoneCanvassRoute.useRouteContext();
 
   const caller =
     usePhoneCanvassCaller({
-      refreshCaller,
+      createOrUpdateCallerMutation,
       activePhoneCanvassId: phoneCanvassId,
       phoneCanvassCallerStore,
     }) ?? initialCaller;
@@ -255,7 +249,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
           markLastCall({
             caller,
             device: currentDevice,
-            updateCallerMutation: updateCallerKeepAlive,
+            createOrUpdateCallerMutation: createOrUpdateCallerMutationKeepAlive,
           }),
           false,
         );
@@ -298,10 +292,9 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     runPromise(
       joinTwilioSyncGroup({
         caller,
-        callPartyStateStore,
+        callPartyStateStore: callPartyStateStoreRef.current,
         phoneCanvassCallerStore,
-        registerCaller,
-        refreshCaller,
+        createOrUpdateCallerMutation,
         onNewContact,
         onReadyChanged,
       }),
@@ -439,7 +432,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
           setReadyPendingState={setReadyPendingState}
           currentDevice={currentDevice}
           caller={caller}
-          updateCallerMutation={updateCallerNoKeepAlive}
+          createOrUpdateCallerMutation={createOrUpdateCallerMutation}
           setCurrentDevice={setCurrentDevice}
         ></ToggleReadyButton>
         <HangupButton></HangupButton>
@@ -478,11 +471,13 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
             <Accordion.Item value={"Callers"}>
               <Accordion.Control>
                 <Text>{`Contacts`}</Text>
-                <CallPartyProgress
-                  total={callPartyStateStore.totalContacts}
-                  done={callPartyStateStore.doneContacts}
-                  phoneCanvassId={phoneCanvassId}
-                ></CallPartyProgress>
+                {callPartyStateStore.totalContacts === 0 ? undefined : (
+                  <CallPartyProgress
+                    total={callPartyStateStore.totalContacts}
+                    done={callPartyStateStore.doneContacts}
+                    phoneCanvassId={phoneCanvassId}
+                  ></CallPartyProgress>
+                )}
               </Accordion.Control>
               <Accordion.Panel>
                 <Table>
