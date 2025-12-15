@@ -277,12 +277,12 @@ export class PhoneCanvassModel {
       next: () => {
         runPromise(
           (async (): Promise<void> => {
-            const canvass = await this.#entityManager.findOneOrFail(
-              PhoneCanvassEntity,
-              { id: this.phoneCanvassId },
-            );
+            const em = this.#entityManager.fork();
+            const canvass = await em.findOneOrFail(PhoneCanvassEntity, {
+              id: this.phoneCanvassId,
+            });
             canvass.lastSyncUpdate = new Date();
-            await this.#entityManager.flush();
+            await em.flush();
           })(),
           false,
         );
