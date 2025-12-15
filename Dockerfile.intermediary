@@ -11,7 +11,7 @@ RUN corepack enable
 ENV TURBO_DAEMON=false
 
 # Use production node environment by default.
-ENV NODE_ENV=production
+# ENV NODE_ENV=production
 
 # Run the application as a non-root user, where we control the UID & GID.
 ARG UNAME=grassroots_dev
@@ -39,5 +39,6 @@ RUN chown $UNAME:$UNAME /app ${PNPM_HOME}
 USER ${UNAME}
 
 RUN pnpm add turbo --global
+RUN pnpm store prune --force
 RUN pnpm install --frozen-lockfile
-CMD ["turbo", "build"]
+CMD ["turbo", "build", "--force"]
