@@ -183,9 +183,7 @@ export function MicrophoneTester(): React.JSX.Element {
     analyserRef.current.getByteFrequencyData(dataArray);
 
     const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-    const normalizedVolume = Math.min(100, (average / 255) * 100);
-
-    setCurrentVolume(normalizedVolume);
+    setCurrentVolume(average);
 
     animationFrameRef.current = requestAnimationFrame(updateVolume);
   };
@@ -216,11 +214,12 @@ export function MicrophoneTester(): React.JSX.Element {
     };
   }, []);
 
-  const getVolumeColor = (volume: number): string => {
+  // TODO: potentially re-enable this.
+  /*const getVolumeColor = (volume: number): string => {
     if (volume < 20) return "green";
     if (volume < 60) return "yellow";
     return "red";
-  };
+  };*/
 
   return (
     <Stack gap="xl">
@@ -302,10 +301,10 @@ export function MicrophoneTester(): React.JSX.Element {
         </Group>
 
         <Progress
-          value={currentVolume}
+          value={currentVolume / 0.33}
           size="xl"
           radius="xl"
-          color={getVolumeColor(currentVolume)}
+          //color={getVolumeColor(currentVolume)}
           animated={isRecording || isReplaying}
         />
       </Stack>

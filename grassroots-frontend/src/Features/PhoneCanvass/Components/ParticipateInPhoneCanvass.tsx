@@ -330,6 +330,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     return (
       <CallStateButton
         leftSection={<IconMicrophone />}
+        disabled={ready !== "unready"}
         onClick={() => {
           setTestingMic(true);
         }}
