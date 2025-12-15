@@ -11,7 +11,7 @@
       ]
     }
   },
-  "dockerComposeFile": ["docker/compose.yaml"],
+  "dockerComposeFile": ["docker/compose.yaml", "docker/compose.dev.yaml"],
 
   "service": "grassroots_dev",
   "workspaceFolder": "/app",
