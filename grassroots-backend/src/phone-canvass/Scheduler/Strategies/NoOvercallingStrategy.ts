@@ -1,4 +1,4 @@
-import { filter, map, Observable } from "rxjs";
+import { filter, map, Observable, tap } from "rxjs";
 import { PhoneCanvassSchedulerStrategy } from "./PhoneCanvassSchedulerStrategy.js";
 import { PhoneCanvassMetricsTracker } from "../PhoneCanvassMetricsTracker.js";
 
@@ -8,6 +8,9 @@ export class NoOvercallingStrategy extends PhoneCanvassSchedulerStrategy {
   constructor(metricsLogger: PhoneCanvassMetricsTracker) {
     super(metricsLogger);
     this.nextCall$ = metricsLogger.idleCallerCountObservable.pipe(
+      tap((idleCallerCount) => {
+        console.log("idleCallerCount", { idleCallerCount });
+      }),
       // Any time we have idle callers, emit once.
       // If there are multiple idle callers, this will get triggered
       // again, so idleCallerCount will trend to 0.

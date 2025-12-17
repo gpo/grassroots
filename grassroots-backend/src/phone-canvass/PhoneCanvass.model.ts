@@ -110,12 +110,10 @@ export class PhoneCanvassModel {
           );
         } else if (call.status === "COMPLETED") {
           console.log("CALL COMPLETED");
-          console.log(call);
           if (call.callerId !== undefined) {
             const caller = this.#phoneCanvassCallersModel.getCaller(
               call.callerId,
             );
-            console.log({ caller });
             const update = caller.toUpdate();
             update.ready = "unready";
             this.#phoneCanvassCallersModel.updateCallerInternal(update);
@@ -139,6 +137,21 @@ export class PhoneCanvassModel {
           return acc;
         }, new Map<string, CallerSummary>()),
       );
+
+    callerSummariesById$.subscribe({
+      next: (callerSummariesById) => {
+        const readyCallerCount = [...callerSummariesById.values()].filter(
+          (caller) => caller.ready === "ready",
+        ).length;
+        console.log("READY CALLER COUNT", readyCallerCount);
+        this.scheduler.metricsTracker.onReadyCallerCountUpdate(
+          readyCallerCount,
+        );
+      },
+      error: (e: unknown) => {
+        throw e;
+      },
+    });
 
     const callerSummaries$ = callerSummariesById$.pipe(
       map((x) => [...x.values()]),
@@ -321,7 +334,6 @@ export class PhoneCanvassModel {
         answeredBy: callback.AnsweredBy,
         callerId,
       });
-      console.log("UPDATED CALL", call);
       return;
     }
 

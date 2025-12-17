@@ -6,25 +6,31 @@ export class ExpectedFailureRateStrategy extends PhoneCanvassSchedulerStrategy {
   nextCall$ = new Subject<undefined>();
 
   constructor(
-    metricsLogger: PhoneCanvassMetricsTracker,
+    metricsTracker: PhoneCanvassMetricsTracker,
     // The fraction of calls made we expect to reach a human.
     // We should be conservative here, as an overestimate will result in overcalling.
     expectedSuccessRate: number,
   ) {
-    super(metricsLogger);
+    super(metricsTracker);
 
     const callsToMake$ = combineLatest({
-      readyCallers: metricsLogger.readyCallerCount$,
-      activeSuccessfulCalls: metricsLogger.activeSuccessfulCallsCount$,
-      committedCalls: metricsLogger.committedCallsCount,
+      readyCallers: metricsTracker.readyCallerCount$,
+      committedAndActiveCallCounts: metricsTracker.committedAndActiveCallCounts,
     }).pipe(
-      map(({ readyCallers, activeSuccessfulCalls, committedCalls }) => {
+      map(({ readyCallers, committedAndActiveCallCounts }) => {
+        console.log({ readyCallers, committedAndActiveCallCounts });
         const currentCallsThatMightFail =
-          committedCalls - activeSuccessfulCalls;
-        const availableCallers = readyCallers - activeSuccessfulCalls;
+          committedAndActiveCallCounts.committed -
+          committedAndActiveCallCounts.active;
+        if (currentCallsThatMightFail < 0) {
+          throw new Error("Every committed call should also be active.");
+        }
+        const availableCallers =
+          readyCallers - committedAndActiveCallCounts.active;
         const targetCallsThatMightFail = Math.floor(
           availableCallers / expectedSuccessRate,
         );
+        console.log({ targetCallsThatMightFail, currentCallsThatMightFail });
         return targetCallsThatMightFail - currentCallsThatMightFail;
       }),
     );
@@ -35,6 +41,7 @@ export class ExpectedFailureRateStrategy extends PhoneCanvassSchedulerStrategy {
         concatMap(() => {
           return of(undefined).pipe(
             tap(() => {
+              console.log("EMITTING");
               this.nextCall$.next(undefined);
             }),
           );

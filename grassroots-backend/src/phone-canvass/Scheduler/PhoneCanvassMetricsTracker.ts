@@ -7,6 +7,7 @@ import {
   scan,
   shareReplay,
   startWith,
+  tap,
 } from "rxjs";
 import { Call } from "./PhoneCanvassCall.js";
 import { Injectable } from "@nestjs/common";
@@ -14,8 +15,10 @@ import { Injectable } from "@nestjs/common";
 @Injectable()
 export class PhoneCanvassMetricsTracker {
   #readyCallerCount$ = new BehaviorSubject<number>(0);
-  #committedCallsCount$: Observable<number>;
-  #activeSuccessfulCallsCount$: Observable<number>;
+  #committedAndActiveCallCounts$: Observable<{
+    committed: number;
+    active: number;
+  }>;
 
   readonly #idleCallerCount$: Observable<number>;
 
@@ -23,12 +26,11 @@ export class PhoneCanvassMetricsTracker {
     return this.#readyCallerCount$;
   }
 
-  get committedCallsCount(): Observable<number> {
-    return this.#committedCallsCount$;
-  }
-
-  get activeSuccessfulCallsCount$(): Observable<number> {
-    return this.#activeSuccessfulCallsCount$;
+  get committedAndActiveCallCounts(): Observable<{
+    committed: number;
+    active: number;
+  }> {
+    return this.#committedAndActiveCallCounts$;
   }
 
   get idleCallerCountObservable(): Observable<number> {
@@ -36,53 +38,53 @@ export class PhoneCanvassMetricsTracker {
   }
 
   constructor(calls$: Observable<Call>) {
-    this.#committedCallsCount$ = calls$.pipe(
-      scan((committedCalls: Set<number>, call: Call): Set<number> => {
-        if (call.status === "NOT_STARTED") {
-          committedCalls.add(call.id);
-          return committedCalls;
-        }
-        if (call.status === "COMPLETED") {
-          committedCalls.delete(call.id);
-          return committedCalls;
-        }
-        return committedCalls;
-      }, new Set<number>()),
-      map((committedCalls) => committedCalls.size),
-      distinctUntilChanged(),
-      startWith(0),
-      shareReplay({ bufferSize: 1, refCount: true }),
-    );
-    // TODO: does forcing an early subscribe get this to happen earlier, avoiding an
-    // issue with ordering in the expected faiure rate strategy?
-    this.#committedCallsCount$.subscribe();
+    interface CommittedAndActiveCallCounts {
+      committed: Set<number>;
+      active: Set<number>;
+    }
+    this.#committedAndActiveCallCounts$ = calls$.pipe(
+      scan(
+        (
+          counts: CommittedAndActiveCallCounts,
+          call: Call,
+        ): CommittedAndActiveCallCounts => {
+          switch (call.status) {
+            case "NOT_STARTED":
+              counts.committed.add(call.id);
+              break;
+            case "IN_PROGRESS":
+              counts.active.add(call.id);
+              break;
+            case "COMPLETED":
+              counts.committed.delete(call.id);
+              counts.active.delete(call.id);
+          }
 
-    // TODO: refactor this and committedCallsCountObservable.
-    this.#activeSuccessfulCallsCount$ = calls$.pipe(
-      scan((successfulCalls: Set<number>, call: Call): Set<number> => {
-        if (call.status === "IN_PROGRESS") {
-          successfulCalls.add(call.id);
-          return successfulCalls;
-        }
-        if (call.status === "COMPLETED") {
-          successfulCalls.delete(call.id);
-          return successfulCalls;
-        }
-        return successfulCalls;
-      }, new Set<number>()),
-      map((successfulCalls) => successfulCalls.size),
+          return counts;
+        },
+        { committed: new Set<number>(), active: new Set<number>() },
+      ),
+      map((sets) => {
+        return { committed: sets.committed.size, active: sets.active.size };
+      }),
       distinctUntilChanged(),
-      startWith(0),
+      tap((counts) => {
+        console.log("Counts", counts);
+      }),
+      startWith({ committed: 0, active: 0 }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     this.#idleCallerCount$ = combineLatest([
       this.#readyCallerCount$,
-      this.#committedCallsCount$,
+      this.#committedAndActiveCallCounts$,
     ]).pipe(
+      tap(([callerCount, committedAndActiveCallCounts]) => {
+        console.log("BWA", { callerCount, committedAndActiveCallCounts });
+      }),
       map(
-        ([callerCount, committedCallsCount]) =>
-          callerCount - committedCallsCount,
+        ([callerCount, committedAndActiveCallCounts]) =>
+          callerCount - committedAndActiveCallCounts.committed,
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );

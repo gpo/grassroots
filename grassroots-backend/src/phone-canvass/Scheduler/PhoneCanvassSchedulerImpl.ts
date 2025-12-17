@@ -24,9 +24,8 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
 
   #strategy: PhoneCanvassSchedulerStrategy;
   readonly phoneCanvassId: string;
-  readonly #busyCallerIds = new Set<string>();
 
-  #readyCallerSummariesById = new Map<string, Caller>();
+  pendingCallerSummariesById = new Map<string, Caller>();
   #callers$: Observable<PhoneCanvassCallerDTO>;
   #pendingContacts$: Observable<PhoneCanvassContactEntity>;
 
@@ -34,6 +33,8 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
 
   constructor(
     strategy: PhoneCanvassSchedulerStrategy,
+    // TODO: we shouldn't actually need a metricsTracker here.
+    // It should probably live in the model.
     public metricsTracker: PhoneCanvassMetricsTracker,
     params: {
       contacts: PhoneCanvassContactEntity[];
@@ -76,39 +77,18 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
       )
       .subscribe();
 
-    this.#calls$.subscribe({
-      next: (call) => {
-        if (call.callerId !== undefined) {
-          if (call.status === "COMPLETED") {
-            this.#busyCallerIds.delete(call.callerId);
-          } else {
-            this.#busyCallerIds.add(call.callerId);
-          }
-        }
-      },
-      error: (error: unknown) => {
-        throw error;
-      },
-    });
-
     this.#callers$.subscribe({
       next: (caller) => {
         switch (caller.ready) {
           case "ready": {
-            this.#readyCallerSummariesById.set(caller.id, {
+            console.log("ADDING ", caller.id);
+            this.pendingCallerSummariesById.set(caller.id, {
               id: caller.id,
               availabilityStartTime: this.#getCurrentTime(),
             });
             break;
           }
-          case "unready": {
-            this.#readyCallerSummariesById.delete(caller.id);
-            break;
-          }
         }
-        this.metricsTracker.onReadyCallerCountUpdate(
-          this.#readyCallerSummariesById.size,
-        );
       },
       error: (error: unknown) => {
         throw error;
@@ -138,26 +118,20 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   }
 
   getNextIdleCallerId(): string | undefined {
-    // Find the idle caller who has been available for the longest time.
-    const availableCallers = [
-      ...this.#readyCallerSummariesById.values(),
-    ].filter((caller) => {
-      return !this.#busyCallerIds.has(caller.id);
-    });
-
-    const firstAvailableCaller = availableCallers.pop();
-    if (firstAvailableCaller === undefined) {
+    if (this.pendingCallerSummariesById.size === 0) {
       return undefined;
     }
+    // Find the caller who has been available for the longest time.
+    const oldestAvailableCaller = [
+      ...this.pendingCallerSummariesById.values(),
+    ].reduce((oldest: Caller, current: Caller) => {
+      return oldest.availabilityStartTime < current.availabilityStartTime
+        ? oldest
+        : current;
+    });
 
-    const oldestAvailableCaller = availableCallers.reduce(
-      (oldest: Caller, current: Caller) => {
-        return oldest.availabilityStartTime < current.availabilityStartTime
-          ? oldest
-          : current;
-      },
-      firstAvailableCaller,
-    );
+    console.log("REMOVING ", oldestAvailableCaller.id);
+    this.pendingCallerSummariesById.delete(oldestAvailableCaller.id);
 
     return oldestAvailableCaller.id;
   }
