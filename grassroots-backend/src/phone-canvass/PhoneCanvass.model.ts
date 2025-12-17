@@ -125,7 +125,7 @@ export class PhoneCanvassModel {
           this.#callsBySid.set(call.twilioSid, call);
         }
 
-        runPromise(call.log(), false);
+        runPromise(call.log(this.#phoneCanvassCallersModel), false);
         runPromise(call.updateContactIfNeeded(this.#entityManager), false);
 
         // When a call ends, if it was associated with a contact in the last call state, we mark them unready.
@@ -346,6 +346,12 @@ export class PhoneCanvassModel {
       );
     }
     if (callback.AnsweredBy === "human" || callback.AnsweredBy === "unknown") {
+      if (call.status === "COMPLETED") {
+        call.update("COMPLETED", {
+          answeredBy: callback.AnsweredBy,
+        });
+        return;
+      }
       const callerId = this.scheduler.getNextIdleCallerId();
       if (callerId === undefined) {
         // Uh oh, we've overcalled.

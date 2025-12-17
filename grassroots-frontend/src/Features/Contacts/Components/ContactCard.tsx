@@ -42,6 +42,22 @@ const getSupportLevelColor = (level: number | undefined): string => {
   return colors[level] ?? "grey";
 };
 
+const SUPPORT_LEVEL_TEXT: Record<number, string> = {
+  1: "Strong Opposition",
+  2: "Leaning Opposition",
+  3: "Undecided",
+  4: "Leaning Green",
+  5: "Strong Green",
+};
+
+const getSupportLevelText = (level: number | undefined): string => {
+  if (level === undefined || level < 1 || level > 5) {
+    return "Unknown Support";
+  }
+
+  return SUPPORT_LEVEL_TEXT[level] ?? "Unknown Support";
+};
+
 function getVotedColor(voter: string | undefined): string {
   switch (voter) {
     case "confirmed":
@@ -109,7 +125,7 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
               size="lg"
               mb="xs"
             >
-              Support Level {contact.supportLevel}
+              {getSupportLevelText(contact.supportLevel)}
             </Badge>
             <Group gap="xs">
               <ThemeIcon
