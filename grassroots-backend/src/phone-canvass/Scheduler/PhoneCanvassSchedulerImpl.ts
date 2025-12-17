@@ -26,13 +26,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   readonly phoneCanvassId: string;
   readonly #busyCallerIds = new Set<string>();
 
-  // We need to track both "ready" callers (to know if we should make more calls)
-  // and callers who are either "ready" or "last call" (to know who to assign calls to).
-  // `#callerSummariesById` includes "last call" callers.
-  #callerSummariesById = new Map<string, Caller>();
-  // `#readyCallerIds` doesn't include "last call" callers.
-  #readyCallerIds = new Set<string>();
-
+  #readyCallerSummariesById = new Map<string, Caller>();
   #callers$: Observable<PhoneCanvassCallerDTO>;
   #pendingContacts$: Observable<PhoneCanvassContactEntity>;
 
@@ -101,24 +95,20 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
       next: (caller) => {
         switch (caller.ready) {
           case "ready": {
-            this.#callerSummariesById.set(caller.id, {
+            this.#readyCallerSummariesById.set(caller.id, {
               id: caller.id,
               availabilityStartTime: this.#getCurrentTime(),
             });
-            this.#readyCallerIds.add(caller.id);
             break;
           }
           case "unready": {
-            this.#callerSummariesById.delete(caller.id);
-            this.#readyCallerIds.delete(caller.id);
-            break;
-          }
-          case "last call": {
-            this.#readyCallerIds.delete(caller.id);
+            this.#readyCallerSummariesById.delete(caller.id);
             break;
           }
         }
-        this.metricsTracker.onReadyCallerCountUpdate(this.#readyCallerIds.size);
+        this.metricsTracker.onReadyCallerCountUpdate(
+          this.#readyCallerSummariesById.size,
+        );
       },
       error: (error: unknown) => {
         throw error;
@@ -149,11 +139,11 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
 
   getNextIdleCallerId(): string | undefined {
     // Find the idle caller who has been available for the longest time.
-    const availableCallers = [...this.#callerSummariesById.values()].filter(
-      (caller) => {
-        return !this.#busyCallerIds.has(caller.id);
-      },
-    );
+    const availableCallers = [
+      ...this.#readyCallerSummariesById.values(),
+    ].filter((caller) => {
+      return !this.#busyCallerIds.has(caller.id);
+    });
 
     const firstAvailableCaller = availableCallers.pop();
     if (firstAvailableCaller === undefined) {

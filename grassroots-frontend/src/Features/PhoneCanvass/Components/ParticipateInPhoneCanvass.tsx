@@ -25,7 +25,7 @@ import { joinTwilioSyncGroup } from "../Logic/JoinTwilioSyncGroup.js";
 import { runPromise } from "grassroots-shared/util/RunPromise";
 import { ContactSummary } from "grassroots-shared/PhoneCanvass/PhoneCanvassSyncData";
 import { takeCall } from "../Logic/TakeCall.js";
-import { markReadyForCalls, markLastCall } from "../Logic/MarkReadyForCalls.js";
+import { markReadyForCalls } from "../Logic/MarkReadyForCalls.js";
 import { Device } from "@twilio/voice-sdk";
 import { usePhoneCanvassDetails } from "../Logic/UsePhoneCanvassDetails.js";
 import { usePhoneCanvassContact } from "../Logic/UsePhoneCanvassContact.js";
@@ -37,13 +37,15 @@ import {
   useCreateOrUpdateCallerMutation,
 } from "../Logic/UseCreateOrUpdateCaller.js";
 import { MicrophoneTester } from "./MicrophoneTester.js";
-import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import {
+  CallReadyStatus,
+  PhoneCanvassCallerDTO,
+} from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { useOverrideAnsweredByMachine } from "../Logic/UseOverrideAnsweredByMachine.js";
 import { useHangup } from "../Logic/UseHangup.js";
 import {
   IconMicrophone,
   IconPhone,
-  IconPhoneCheck,
   IconPhoneOff,
   IconRobot,
 } from "@tabler/icons-react";
@@ -57,10 +59,9 @@ const CALL_STATUS_EMOJIS: Record<CallStatus, string> = {
   COMPLETED: "✅",
 };
 
-const CALLER_READY_EMOJIS: Record<"ready" | "unready" | "last call", string> = {
+const CALLER_READY_EMOJIS: Record<CallReadyStatus, string> = {
   ready: "🟢",
   unready: "🔴",
-  "last call": "🟠",
 };
 
 function CallPartyProgress(props: {
@@ -95,7 +96,7 @@ function CallPartyProgress(props: {
   );
 }
 
-type ReadyPendingState = "becomingReady" | "becomingUnready" | undefined;
+type ReadyPendingState = "becomingReady" | undefined;
 
 type CallStateButtonProps = ButtonProps & {
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -122,8 +123,8 @@ export const CallStateButton = forwardRef<
 
 CallStateButton.displayName = "CallStateButton";
 
-const ToggleReadyButton = (props: {
-  ready: "ready" | "unready" | "last call";
+const NextCallButton = (props: {
+  ready: CallReadyStatus;
   readyPendingState: ReadyPendingState;
   setReadyPendingState: (state: ReadyPendingState) => void;
   currentDevice: Device | undefined;
@@ -140,63 +141,33 @@ const ToggleReadyButton = (props: {
     createOrUpdateCallerMutation,
     setCurrentDevice,
   } = props;
-  if (ready === "last call") {
-    return (
-      <CallStateButton color="red" disabled={true}>
-        You might still be needed!
-      </CallStateButton>
-    );
-  }
-  if (ready === "ready" || readyPendingState === "becomingUnready") {
-    return (
-      <CallStateButton
-        color="orange"
-        leftSection={<IconPhoneCheck />}
-        disabled={readyPendingState === "becomingUnready"}
-        onClick={() => {
-          setReadyPendingState("becomingUnready");
-          runPromise(
-            (async (): Promise<void> => {
-              await markLastCall({
+  return (
+    <CallStateButton
+      color="green"
+      leftSection={<IconPhone />}
+      disabled={readyPendingState != undefined || ready != "unready"}
+      onClick={() => {
+        setReadyPendingState("becomingReady");
+        runPromise(
+          (async (): Promise<void> => {
+            const device = (
+              await markReadyForCalls({
                 caller,
                 device: currentDevice,
                 createOrUpdateCallerMutation,
-              });
-            })(),
-            false,
-          );
-        }}
-      >
-        Last Call For Now
-      </CallStateButton>
-    );
-  } else {
-    return (
-      <CallStateButton
-        color="green"
-        leftSection={<IconPhone />}
-        disabled={readyPendingState === "becomingReady"}
-        onClick={() => {
-          setReadyPendingState("becomingReady");
-          runPromise(
-            (async (): Promise<void> => {
-              const device = (
-                await markReadyForCalls({
-                  caller,
-                  device: currentDevice,
-                  createOrUpdateCallerMutation,
-                })
-              ).device;
-              setCurrentDevice(device);
-            })(),
-            false,
-          );
-        }}
-      >
-        Ready for Calls
-      </CallStateButton>
-    );
-  }
+              })
+            ).device;
+            setCurrentDevice(device);
+          })(),
+          false,
+        );
+      }}
+    >
+      {readyPendingState === undefined && ready === "ready"
+        ? "Calling"
+        : "Next Call"}
+    </CallStateButton>
+  );
 };
 
 export function ParticipateInPhoneCanvass(): JSX.Element {
@@ -210,9 +181,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const [currentContactId, setCurrentContactId] = useState<
     number | undefined
   >();
-  const [ready, setReady] = useState<"ready" | "unready" | "last call">(
-    "unready",
-  );
+  const [ready, setReady] = useState<CallReadyStatus>("unready");
   const [readyPendingState, setReadyPendingState] =
     useState<ReadyPendingState>(undefined);
   const [testingMic, setTestingMic] = useState<boolean>(false);
@@ -221,14 +190,6 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     phoneCanvassId,
     phoneCanvassCallerStore,
   });
-
-  const createOrUpdateCallerMutationKeepAlive = useCreateOrUpdateCallerMutation(
-    {
-      phoneCanvassId,
-      phoneCanvassCallerStore,
-      keepAlive: true,
-    },
-  );
 
   const { initialCaller } = ParticipateInPhoneCanvassRoute.useRouteContext();
 
@@ -239,29 +200,21 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       phoneCanvassCallerStore,
     }) ?? initialCaller;
 
-  // If the user navigates away, we need to mark them as not ready.
   useEffect(() => {
     window.onbeforeunload = (event: BeforeUnloadEvent): string | undefined => {
-      if (readyPendingState === "becomingReady" || ready === "ready") {
-        event.preventDefault();
-
-        runPromise(
-          markLastCall({
-            caller,
-            device: currentDevice,
-            createOrUpdateCallerMutation: createOrUpdateCallerMutationKeepAlive,
-          }),
-          false,
-        );
-
+      // TODO: This is a bit overly aggressive about preventing people from leaving.
+      if (
+        currentContactId !== undefined ||
+        readyPendingState === "becomingReady" ||
+        ready === "ready"
+      ) {
         notifications.show({
-          title: "Marked as unready",
-          message: "Marked as unready for additional calls",
+          title: "Please wait before leaving!",
+          message: "We might need your for another call or two!",
           color: "red",
         });
-      }
-      if (currentContactId !== undefined) {
-        return "You're in the middle of a call. Are you sure you want to leave?";
+        event.preventDefault();
+        return "Please wait before leaving!";
       }
     };
   }, [ready, readyPendingState, currentContactId]);
@@ -275,7 +228,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     setCurrentContactId(contact?.contactId);
   };
 
-  const onReadyChanged = (ready: "ready" | "unready" | "last call"): void => {
+  const onReadyChanged = (ready: CallReadyStatus): void => {
     setReady(ready);
     setReadyPendingState(undefined);
   };
@@ -426,7 +379,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
         phoneCanvassContact={currentContact}
         phoneCanvassId={phoneCanvassId}
       >
-        <ToggleReadyButton
+        <NextCallButton
           ready={ready}
           readyPendingState={readyPendingState}
           setReadyPendingState={setReadyPendingState}
@@ -434,7 +387,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
           caller={caller}
           createOrUpdateCallerMutation={createOrUpdateCallerMutation}
           setCurrentDevice={setCurrentDevice}
-        ></ToggleReadyButton>
+        ></NextCallButton>
         <HangupButton></HangupButton>
         <AnsweredByMachineButton></AnsweredByMachineButton>
         <TestMicrophoneAudioButton></TestMicrophoneAudioButton>

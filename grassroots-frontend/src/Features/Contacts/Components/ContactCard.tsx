@@ -8,6 +8,7 @@ import {
   Text,
   Button,
   Center,
+  List,
 } from "@mantine/core";
 import { PhoneCanvassContactDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { JSX } from "react";
@@ -91,6 +92,14 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
     const tags: string[] = [
       phoneCanvassContact.getMetadataByKey("tags") ?? [],
     ].flat();
+
+    // TODO: This technically isn't true (for tags in particular) but it works for now.
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const metadataJSON = JSON.parse(phoneCanvassContact.metadata) as [
+      string,
+      string,
+    ][];
+    const extraFields = metadataJSON.filter(([key]) => key !== "tags");
 
     mainCard = (
       <>
@@ -188,6 +197,24 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
                 </Badge>
               ))}
             </Group>
+          </div>
+        )}
+
+        {extraFields.length > 0 && (
+          <div>
+            <Text size="sm" fw={600} tt="uppercase" c="dimmed" mt="lg">
+              Additional Information
+            </Text>
+            <List listStyleType="none">
+              {extraFields.map(([key, value], index) => (
+                <List.Item tt="none" key={index} variant="light">
+                  <Text component="span" fw={700} size="sm">{`${key}: `}</Text>
+                  <Text component="span" size="sm">
+                    {value}
+                  </Text>
+                </List.Item>
+              ))}
+            </List>
           </div>
         )}
       </>

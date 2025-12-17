@@ -1,4 +1,5 @@
 import { CallResult, CallStatus } from "../dtos/PhoneCanvass/CallStatus.dto.js";
+import { CallReadyStatus } from "../dtos/PhoneCanvass/PhoneCanvass.dto.js";
 
 export interface ContactSummary {
   contactDisplayName: string;
@@ -10,7 +11,7 @@ export interface ContactSummary {
 
 export interface CallerSummary {
   callerId: string;
-  ready: "ready" | "unready" | "last call";
+  ready: CallReadyStatus;
   displayName: string;
 }
 

@@ -245,8 +245,9 @@ export class PhoneCanvassCallIdentifierDTO extends createDTOBase(
 enum ReadyEnum {
   unready = "unready",
   ready = "ready",
-  lastCall = "last call",
 }
+
+export type CallReadyStatus = `${ReadyEnum}`;
 
 // (displayName, activePhoneCanvassId) is globally unique.
 export class CreateOrUpdatePhoneCanvassCallerDTO extends createDTOBase(
@@ -273,7 +274,7 @@ export class CreateOrUpdatePhoneCanvassCallerDTO extends createDTOBase(
   @IsEnum(ReadyEnum)
   @IsOptional()
   @ApiPropertyOptional({ enum: ReadyEnum })
-  ready?: "ready" | "unready" | "last call";
+  ready?: CallReadyStatus;
 }
 
 // (displayName, activePhoneCanvassId) is globally unique.
@@ -305,7 +306,7 @@ export class PhoneCanvassCallerDTO extends createDTOBase("PhoneCanvassCaller") {
 
   @IsEnum(ReadyEnum)
   @ApiProperty({ enum: ReadyEnum })
-  ready!: "ready" | "unready" | "last call";
+  ready!: CallReadyStatus;
 
   toUpdate(): CreateOrUpdatePhoneCanvassCallerDTO {
     return CreateOrUpdatePhoneCanvassCallerDTO.from(propsOf(this));

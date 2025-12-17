@@ -6,7 +6,6 @@ import {
 import { propsOf } from "grassroots-shared/util/TypeUtils";
 import { Observable, Subject } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
-import { Call } from "./Scheduler/PhoneCanvassCall.js";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
@@ -101,6 +100,9 @@ export class PhoneCanvassCallersModel {
     return this.#callersById.get(params.id);
   }
 
+  // TODO: this is scary, because if you call this without getting the result to the client,
+  // the auth token can get out of sync.
+  // We should split this out from updating the auth token.
   async updateOrCreateCaller(
     updatedCaller: Readonly<CreateOrUpdatePhoneCanvassCallerDTO>,
     getAuthToken: GetAuthToken,
@@ -123,6 +125,22 @@ export class PhoneCanvassCallersModel {
     });
   }
 
+  updateCallerInternal(
+    updatedCaller: Readonly<CreateOrUpdatePhoneCanvassCallerDTO>,
+  ): void {
+    // TODO: we don't really need to auth here.
+    const existingCaller = this.#authenticateCaller(updatedCaller);
+    if (existingCaller === undefined) {
+      throw new Error(`"Can't find caller with id ${String(updatedCaller.id)}`);
+    }
+    const newCaller: Readonly<PhoneCanvassCallerDTO> =
+      PhoneCanvassCallerDTO.from({
+        ...propsOf(existingCaller),
+        ...propsOf(updatedCaller),
+      });
+    this.#callers$.next(newCaller);
+  }
+
   getCaller(callerId: string): Readonly<PhoneCanvassCallerDTO> {
     const existingCaller = this.#findCaller({ id: callerId });
     if (existingCaller === undefined) {
@@ -131,28 +149,5 @@ export class PhoneCanvassCallersModel {
       );
     }
     return existingCaller;
-  }
-
-  async markOneLastCallCallerAsUnready(
-    calls: Call[],
-    updateOrCreateCaller: (
-      caller: PhoneCanvassCallerDTO,
-    ) => Promise<PhoneCanvassCallerDTO>,
-  ): Promise<void> {
-    for (const caller of this.#callersById.values()) {
-      if (caller.ready !== "last call") {
-        continue;
-      }
-      const call = calls.find((call) => call.callerId === caller.id);
-      if (call !== undefined) {
-        // This caller will be marked unready when the current call finishes.
-        continue;
-      }
-
-      await updateOrCreateCaller(
-        PhoneCanvassCallerDTO.from({ ...propsOf(caller), ready: "unready" }),
-      );
-      return;
-    }
   }
 }

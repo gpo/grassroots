@@ -13,7 +13,6 @@ import { PhoneCanvassCallerStore } from "./PhoneCanvassCallerStore.js";
 export interface UseCreateOrUpdateCallerParams {
   phoneCanvassId: string;
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
-  keepAlive?: boolean;
 }
 
 export type CreateOrUpdateCallerMutation = UseMutateAsyncFunction<
@@ -32,7 +31,6 @@ export function useCreateOrUpdateCallerMutation(
       return PhoneCanvassCallerDTO.fromFetchOrThrow(
         await grassrootsAPI.POST("/phone-canvass/create-or-update-caller", {
           body: caller,
-          keepalive: params.keepAlive === true,
         }),
       );
     },

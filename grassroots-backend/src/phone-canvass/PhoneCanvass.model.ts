@@ -3,7 +3,6 @@ import {
   combineLatest,
   map,
   Observable,
-  pairwise,
   scan,
   startWith,
   throttleTime,
@@ -34,7 +33,6 @@ import {
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { EntityManager } from "@mikro-orm/core";
-import { propsOf } from "grassroots-shared/util/TypeUtils";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
 
 async function makeCall(params: {
@@ -48,36 +46,6 @@ async function makeCall(params: {
       ? await twilioService.makeCall(call)
       : simulateMakeCall(call);
   call.update(status, { twilioSid: sid });
-}
-
-function updateContactsInLastCallState(params: {
-  call: Call;
-  phoneCanvassCallersModel: PhoneCanvassCallersModel;
-  updateOrCreateCaller: (
-    caller: PhoneCanvassCallerDTO,
-  ) => Promise<PhoneCanvassCallerDTO>;
-}): void {
-  const { call, phoneCanvassCallersModel, updateOrCreateCaller } = params;
-  if (call.status !== "COMPLETED") {
-    return;
-  }
-
-  if (call.callerId !== undefined) {
-    const caller = phoneCanvassCallersModel.getCaller(call.callerId);
-
-    if (caller.ready === "last call") {
-      runPromise(
-        updateOrCreateCaller(
-          PhoneCanvassCallerDTO.from({
-            ...propsOf(caller),
-            ready: "unready",
-          }),
-        ),
-        false,
-      );
-    }
-    return;
-  }
 }
 
 export class PhoneCanvassModel {
@@ -126,18 +94,10 @@ export class PhoneCanvassModel {
         }
 
         runPromise(call.log(this.#phoneCanvassCallersModel), false);
-        runPromise(call.updateContactIfNeeded(this.#entityManager), false);
-
-        // When a call ends, if it was associated with a contact in the last call state, we mark them unready.
-        // That's what we're doing here.
-        // If the call wasn't associated with a contact in the last call state
-        // we just wait until we're not overcommitted, and then we can mark them ready.
-        updateContactsInLastCallState({
-          call,
-          phoneCanvassCallersModel: this.#phoneCanvassCallersModel,
-          updateOrCreateCaller: (caller) =>
-            this.updateOrCreateCaller(caller.toUpdate()),
-        });
+        runPromise(
+          call.updateContactEntityIfNeeded(this.#entityManager),
+          false,
+        );
 
         if (call.status === "NOT_STARTED") {
           runPromise(
@@ -148,32 +108,24 @@ export class PhoneCanvassModel {
             }),
             false,
           );
+        } else if (call.status === "COMPLETED") {
+          console.log("CALL COMPLETED");
+          console.log(call);
+          if (call.callerId !== undefined) {
+            const caller = this.#phoneCanvassCallersModel.getCaller(
+              call.callerId,
+            );
+            console.log({ caller });
+            const update = caller.toUpdate();
+            update.ready = "unready";
+            this.#phoneCanvassCallersModel.updateCallerInternal(update);
+          }
         }
       },
       error: (error: unknown) => {
         throw error;
       },
     });
-
-    this.scheduler.metricsTracker.idleCallerCountObservable
-      .pipe(pairwise())
-      .subscribe({
-        next: ([prev, next]) => {
-          if (prev < 0 && next >= 0) {
-            // We were overcommitted, but aren't anymore.
-            runPromise(
-              this.#phoneCanvassCallersModel.markOneLastCallCallerAsUnready(
-                [...this.#callsBySid.values()],
-                (caller) => this.updateOrCreateCaller(caller.toUpdate()),
-              ),
-              false,
-            );
-          }
-        },
-        error: (error: unknown) => {
-          throw error;
-        },
-      });
 
     const callerSummariesById$: Observable<Map<string, CallerSummary>> =
       this.#phoneCanvassCallersModel.callers$.pipe(
@@ -369,6 +321,7 @@ export class PhoneCanvassModel {
         answeredBy: callback.AnsweredBy,
         callerId,
       });
+      console.log("UPDATED CALL", call);
       return;
     }
 

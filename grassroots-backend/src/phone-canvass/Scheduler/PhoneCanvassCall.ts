@@ -113,7 +113,9 @@ export class Call {
     );
   }
 
-  async updateContactIfNeeded(entityManager: EntityManager): Promise<void> {
+  async updateContactEntityIfNeeded(
+    entityManager: EntityManager,
+  ): Promise<void> {
     const contact = await entityManager.findOneOrFail(
       PhoneCanvassContactEntity,
       {

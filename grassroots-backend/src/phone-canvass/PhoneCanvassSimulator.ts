@@ -1,4 +1,5 @@
 import {
+  CallReadyStatus,
   CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
@@ -89,7 +90,7 @@ interface AddCallerEvent extends BaseEvent {
 interface ChangeReadyCallerEvent extends BaseEvent {
   kind: "change_ready_caller";
   index: number;
-  ready: "ready" | "unready";
+  ready: CallReadyStatus;
 }
 
 interface StatusChangeEvent extends BaseEvent {
@@ -154,7 +155,6 @@ export class PhoneCanvassSimulator {
       ready: "ready",
     });
 
-    // TODO: maybe include the "last call" state.
     /*while (this.#running) {
       await delay(callerReadyDelta());
       this.#events.next({

@@ -1,6 +1,7 @@
 import { SyncClient, SyncDocument } from "twilio-sync";
 import { CallPartyStateStore } from "./CallPartyStateStore.js";
 import {
+  CallReadyStatus,
   CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
@@ -28,7 +29,7 @@ interface JoinSyncGroupParams {
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
   createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
   onNewContact: (contact: ContactSummary | undefined) => void;
-  onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
+  onReadyChanged: (ready: CallReadyStatus) => void;
 }
 
 // We don't give anyone a handle to the SyncGroup, so they can't hold onto a stale instance.
@@ -40,10 +41,10 @@ class SyncGroupManager {
   #phoneCanvassCallerStore: PhoneCanvassCallerStore;
   #createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
   #lastContact: ContactSummary | undefined;
-  #lastCallerReady: "ready" | "unready" | "last call" | undefined;
+  #lastCallerReady: CallReadyStatus | undefined;
   #lastTimestamp = 0;
   #onNewContact: (contact: ContactSummary | undefined) => void;
-  #onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
+  #onReadyChanged: (ready: CallReadyStatus) => void;
 
   static instance: SyncGroupManager | undefined;
 
