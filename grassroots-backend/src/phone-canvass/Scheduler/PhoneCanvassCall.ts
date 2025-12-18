@@ -9,6 +9,7 @@ import { appendFile } from "fs/promises";
 import { LOG_DIR } from "../PhoneCanvass.module.js";
 import { keys } from "grassroots-shared/util/Keys";
 import { EntityManager } from "@mikro-orm/core";
+import { PhoneCanvassCallersModel } from "../PhoneCanvassCallers.model.js";
 
 export type AnsweredBy =
   | "machine_end_beep"
@@ -56,7 +57,7 @@ export class Call {
   static #currentId = 0;
 
   readonly state: Readonly<ImmutableCallState & UpdateableCallState>;
-  #updated = false;
+  updated = false;
   status: CallStatus;
 
   constructor(
@@ -75,10 +76,19 @@ export class Call {
     }
   }
 
-  async log(): Promise<void> {
+  async log(phoneCanvassCallersModel: PhoneCanvassCallersModel): Promise<void> {
     const filteredValues: Record<string, unknown> = {};
+    const extraFields = {
+      callerEmail:
+        this.state.callerId !== undefined
+          ? phoneCanvassCallersModel.getCaller(this.state.callerId).email
+          : undefined,
+    };
 
-    for (const [key, value] of Object.entries(this.state)) {
+    for (const [key, value] of Object.entries({
+      ...this.state,
+      ...extraFields,
+    })) {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       if ((value as unknown) === undefined || (value as unknown) === null) {
         continue;
@@ -103,7 +113,9 @@ export class Call {
     );
   }
 
-  async updateContactIfNeeded(entityManager: EntityManager): Promise<void> {
+  async updateContactEntityIfNeeded(
+    entityManager: EntityManager,
+  ): Promise<void> {
     const contact = await entityManager.findOneOrFail(
       PhoneCanvassContactEntity,
       {
@@ -152,12 +164,12 @@ export class Call {
   }
 
   update(status: CallStatus, props: Partial<UpdateableCallState>): Call {
-    if (this.#updated) {
+    if (this.updated) {
       throw new Error(
         `Calls should only be updated once. ${String(this.id)}, current status ${this.status}`,
       );
     }
-    this.#updated = true;
+    this.updated = true;
     if (callStatusSort(this.status, status) > 0) {
       throw new Error(
         `Call status can't go backwards from ${this.status} to ${status} (id ${String(this.id)}/${String(this.phoneCanvassContactId)})`,
@@ -167,6 +179,16 @@ export class Call {
       if (this.state[k] != undefined && props[k] == undefined) {
         throw new Error("Can't unset call information");
       }
+    }
+    if (
+      this.status === "COMPLETED" &&
+      this.state.callerId === undefined &&
+      props.callerId !== undefined
+    ) {
+      // Assigning a caller once a call is complete can create tricky race conditions.
+      throw new Error(
+        "We should never assign a caller once a call is complete.",
+      );
     }
     const newCall = new Call(status, { ...this.state, ...props });
     newCall.state.emit(newCall);

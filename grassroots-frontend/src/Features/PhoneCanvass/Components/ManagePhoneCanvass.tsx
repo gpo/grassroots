@@ -9,7 +9,8 @@ import {
 import { LinkButton } from "../../../Components/LinkButton.js";
 import { PaginatedContacts } from "../../Contacts/Components/PaginatedContacts.js";
 import { usePhoneCanvassContactList } from "../Logic/UsePhoneCanvassContactList.js";
-import { Group, Title } from "@mantine/core";
+import { Button, Group, Title } from "@mantine/core";
+import { useClipboard } from "@mantine/hooks";
 
 const ROWS_PER_PAGE = 10;
 
@@ -28,6 +29,8 @@ export function ManagePhoneCanvass(): JSX.Element {
       }),
     ).data ?? PaginatedPhoneCanvassContactResponseDTO.empty();
 
+  const clipboard = useClipboard({ timeout: 2000 });
+
   return (
     <>
       <Group>
@@ -39,6 +42,15 @@ export function ManagePhoneCanvass(): JSX.Element {
         >
           Participate
         </LinkButton>
+        <Button
+          onClick={() => {
+            clipboard.copy(
+              `${window.location.origin}/PhoneCanvass/${phoneCanvassId}`,
+            );
+          }}
+        >
+          {clipboard.copied ? "Copied!" : "Copy Link to Canvass"}
+        </Button>
       </Group>
       <PaginatedContacts
         paginatedContactResponse={PaginatedContactResponseDTO.from({

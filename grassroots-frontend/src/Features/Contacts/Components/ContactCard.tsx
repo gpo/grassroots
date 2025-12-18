@@ -8,6 +8,7 @@ import {
   Text,
   Button,
   Center,
+  List,
 } from "@mantine/core";
 import { PhoneCanvassContactDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { JSX } from "react";
@@ -40,6 +41,22 @@ const getSupportLevelColor = (level: number | undefined): string => {
     5: "green",
   };
   return colors[level] ?? "grey";
+};
+
+const SUPPORT_LEVEL_TEXT: Record<number, string> = {
+  1: "Strong Opposition",
+  2: "Leaning Opposition",
+  3: "Undecided",
+  4: "Leaning Green",
+  5: "Strong Green",
+};
+
+const getSupportLevelText = (level: number | undefined): string => {
+  if (level === undefined || level < 1 || level > 5) {
+    return "Unknown Support";
+  }
+
+  return SUPPORT_LEVEL_TEXT[level] ?? "Unknown Support";
 };
 
 function getVotedColor(voter: string | undefined): string {
@@ -76,6 +93,14 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
       phoneCanvassContact.getMetadataByKey("tags") ?? [],
     ].flat();
 
+    // TODO: This technically isn't true (for tags in particular) but it works for now.
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    const metadataJSON = JSON.parse(phoneCanvassContact.metadata) as [
+      string,
+      string,
+    ][];
+    const extraFields = metadataJSON.filter(([key]) => key !== "tags");
+
     mainCard = (
       <>
         <Group justify="space-between" mb="lg">
@@ -109,7 +134,7 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
               size="lg"
               mb="xs"
             >
-              Support Level {contact.supportLevel}
+              {getSupportLevelText(contact.supportLevel)}
             </Badge>
             <Group gap="xs">
               <ThemeIcon
@@ -172,6 +197,24 @@ export function ContactCard(props: ContactCardProps): JSX.Element {
                 </Badge>
               ))}
             </Group>
+          </div>
+        )}
+
+        {extraFields.length > 0 && (
+          <div>
+            <Text size="sm" fw={600} tt="uppercase" c="dimmed" mt="lg">
+              Additional Information
+            </Text>
+            <List listStyleType="none">
+              {extraFields.map(([key, value], index) => (
+                <List.Item tt="none" key={index} variant="light">
+                  <Text component="span" fw={700} size="sm">{`${key}: `}</Text>
+                  <Text component="span" size="sm">
+                    {value}
+                  </Text>
+                </List.Item>
+              ))}
+            </List>
           </div>
         )}
       </>

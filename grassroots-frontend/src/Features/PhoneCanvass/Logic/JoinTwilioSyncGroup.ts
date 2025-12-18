@@ -1,6 +1,7 @@
 import { SyncClient, SyncDocument } from "twilio-sync";
 import { CallPartyStateStore } from "./CallPartyStateStore.js";
 import {
+  CallReadyStatus,
   CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
@@ -28,7 +29,7 @@ interface JoinSyncGroupParams {
   phoneCanvassCallerStore: PhoneCanvassCallerStore;
   createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
   onNewContact: (contact: ContactSummary | undefined) => void;
-  onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
+  onReadyChanged: (ready: CallReadyStatus) => void;
 }
 
 // We don't give anyone a handle to the SyncGroup, so they can't hold onto a stale instance.
@@ -40,10 +41,10 @@ class SyncGroupManager {
   #phoneCanvassCallerStore: PhoneCanvassCallerStore;
   #createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
   #lastContact: ContactSummary | undefined;
-  #lastCallerReady: "ready" | "unready" | "last call" | undefined;
-  #lastTimestamp = 0;
+  #lastCallerReady: CallReadyStatus | undefined;
+  #lastGeneration = 0;
   #onNewContact: (contact: ContactSummary | undefined) => void;
-  #onReadyChanged: (ready: "ready" | "unready" | "last call") => void;
+  #onReadyChanged: (ready: CallReadyStatus) => void;
 
   static instance: SyncGroupManager | undefined;
 
@@ -60,7 +61,7 @@ class SyncGroupManager {
   }
 
   async #onUpdate(data: PhoneCanvassSyncData): Promise<void> {
-    const { timestamp } = data;
+    const { generation } = data;
     const callPartyStateStore = this.#callPartyStateStore.getState();
 
     if (
@@ -69,16 +70,16 @@ class SyncGroupManager {
     ) {
       // TODO: figure out why this keeps receiving onUpdates.
       // Has this gone away now that we prevent out of order messages?
-      this.#lastTimestamp = 0;
+      this.#lastGeneration = 0;
       return;
     }
 
-    if (this.#lastTimestamp >= timestamp) {
+    if (this.#lastGeneration >= generation) {
       // Avoid stale or repeated updates.
       return;
     }
 
-    this.#lastTimestamp = timestamp;
+    this.#lastGeneration = generation;
 
     let caller = await getPhoneCanvassCaller({
       createOrUpdateCallerMutation: this.#createOrUpdateCallerMutation,

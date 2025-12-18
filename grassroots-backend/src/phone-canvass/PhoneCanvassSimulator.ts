@@ -1,4 +1,5 @@
 import {
+  CallReadyStatus,
   CreateOrUpdatePhoneCanvassCallerDTO,
   PhoneCanvassCallerDTO,
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
@@ -24,7 +25,8 @@ function callerJoinDelta(): number {
   return sampleLogNormalFromCI(100, 5000);
 }
 function callerReadyDelta(): number {
-  return sampleLogNormalFromCI(1000, 10_000);
+  //return sampleLogNormalFromCI(1000, 2_000);
+  return sampleLogNormalFromCI(100, 200);
 }
 // Used when we want to model callers becoming unready.
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -89,7 +91,7 @@ interface AddCallerEvent extends BaseEvent {
 interface ChangeReadyCallerEvent extends BaseEvent {
   kind: "change_ready_caller";
   index: number;
-  ready: "ready" | "unready";
+  ready: CallReadyStatus;
 }
 
 interface StatusChangeEvent extends BaseEvent {
@@ -146,15 +148,18 @@ export class PhoneCanvassSimulator {
       ts: Date.now(),
     });
 
-    await delay(callerReadyDelta());
-    this.#events.next({
-      kind: "change_ready_caller",
-      index,
-      ts: Date.now(),
-      ready: "ready",
-    });
+    while (true) {
+      // Callers are marked unready when there call finishes, and we need to remark them ready somehow.
+      // TODO: this isn't actually working.
+      await delay(callerReadyDelta());
+      this.#events.next({
+        kind: "change_ready_caller",
+        index,
+        ts: Date.now(),
+        ready: "ready",
+      });
+    }
 
-    // TODO: maybe include the "last call" state.
     /*while (this.#running) {
       await delay(callerReadyDelta());
       this.#events.next({
@@ -330,6 +335,9 @@ export class PhoneCanvassSimulator {
               const caller =
                 this.#callers[event.index] ??
                 fail(`Can't update caller that doesn't exist.`);
+              if (caller.ready == event.ready) {
+                break;
+              }
               caller.ready = event.ready;
               await this.phoneCanvassModel.updateOrCreateCaller(
                 caller.toUpdate(),
