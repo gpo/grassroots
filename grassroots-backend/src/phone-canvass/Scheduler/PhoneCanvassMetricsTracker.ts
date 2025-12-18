@@ -12,9 +12,19 @@ import {
 import { Call } from "./PhoneCanvassCall.js";
 import { Injectable } from "@nestjs/common";
 
+export interface CallerCounts {
+  ready_no_caller: number;
+  ready_with_caller: number;
+  unready: number;
+}
+
 @Injectable()
 export class PhoneCanvassMetricsTracker {
-  #readyCallerCount$ = new BehaviorSubject<number>(0);
+  #callerCounts$ = new BehaviorSubject<CallerCounts>({
+    ready_no_caller: 0,
+    ready_with_caller: 0,
+    unready: 0,
+  });
   #committedAndActiveCallCounts$: Observable<{
     committed: number;
     active: number;
@@ -22,8 +32,8 @@ export class PhoneCanvassMetricsTracker {
 
   readonly #idleCallerCount$: Observable<number>;
 
-  get readyCallerCount$(): Observable<number> {
-    return this.#readyCallerCount$;
+  get callerCounts$(): Observable<CallerCounts> {
+    return this.#callerCounts$;
   }
 
   get committedAndActiveCallCounts(): Observable<{
@@ -69,28 +79,30 @@ export class PhoneCanvassMetricsTracker {
       }),
       distinctUntilChanged(),
       tap((counts) => {
-        console.log("Counts", counts);
+        console.log("Call Counts", counts);
       }),
       startWith({ committed: 0, active: 0 }),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
 
     this.#idleCallerCount$ = combineLatest([
-      this.#readyCallerCount$,
+      this.#callerCounts$,
       this.#committedAndActiveCallCounts$,
     ]).pipe(
-      tap(([callerCount, committedAndActiveCallCounts]) => {
-        console.log("BWA", { callerCount, committedAndActiveCallCounts });
+      tap(([callerCounts, committedAndActiveCallCounts]) => {
+        console.log("BWA", { callerCounts, committedAndActiveCallCounts });
       }),
       map(
-        ([callerCount, committedAndActiveCallCounts]) =>
-          callerCount - committedAndActiveCallCounts.committed,
+        ([callerCounts, committedAndActiveCallCounts]) =>
+          callerCounts.ready_no_caller +
+          callerCounts.ready_with_caller -
+          committedAndActiveCallCounts.committed,
       ),
       shareReplay({ bufferSize: 1, refCount: true }),
     );
   }
 
-  onReadyCallerCountUpdate(callerCount: number): void {
-    this.#readyCallerCount$.next(callerCount);
+  onCallerCountUpdate(callerCounts: CallerCounts): void {
+    this.#callerCounts$.next(callerCounts);
   }
 }

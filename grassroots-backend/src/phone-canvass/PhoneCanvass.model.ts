@@ -34,6 +34,7 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { EntityManager } from "@mikro-orm/core";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
+import { CallerCounts } from "./Scheduler/PhoneCanvassMetricsTracker.js";
 
 async function makeCall(params: {
   call: Call;
@@ -140,13 +141,30 @@ export class PhoneCanvassModel {
 
     callerSummariesById$.subscribe({
       next: (callerSummariesById) => {
-        const readyCallerCount = [...callerSummariesById.values()].filter(
-          (caller) => caller.ready === "ready",
-        ).length;
-        console.log("READY CALLER COUNT", readyCallerCount);
-        this.scheduler.metricsTracker.onReadyCallerCountUpdate(
-          readyCallerCount,
+        const callerCounts = [...callerSummariesById.values()].reduce(
+          (acc: CallerCounts, caller: CallerSummary) => {
+            if (caller.ready === "unready") {
+              acc.unready++;
+            } else {
+              // TODO: this is very slow...
+              const call = [...this.#callsBySid.values()].find(
+                (call) => call.callerId == caller.callerId,
+              );
+              if (call === undefined) {
+                acc.ready_no_caller++;
+              } else {
+                acc.ready_with_caller++;
+              }
+            }
+            return acc;
+          },
+          {
+            ready_no_caller: 0,
+            ready_with_caller: 0,
+            unready: 0,
+          } satisfies CallerCounts,
         );
+        this.scheduler.metricsTracker.onCallerCountUpdate(callerCounts);
       },
       error: (e: unknown) => {
         throw e;
