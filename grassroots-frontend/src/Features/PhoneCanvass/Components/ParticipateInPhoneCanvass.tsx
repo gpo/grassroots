@@ -141,6 +141,7 @@ const NextCallButton = (props: {
     createOrUpdateCallerMutation,
     setCurrentDevice,
   } = props;
+  console.log({ readyPendingState, ready });
   return (
     <CallStateButton
       color="green"
@@ -181,6 +182,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
   const [currentContactId, setCurrentContactId] = useState<
     number | undefined
   >();
+  const [lastContactId, setLastContactId] = useState<number | undefined>();
   const [ready, setReady] = useState<CallReadyStatus>("unready");
   const [readyPendingState, setReadyPendingState] =
     useState<ReadyPendingState>(undefined);
@@ -224,13 +226,29 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
     phoneCanvassId,
   }).data;
 
+  const lastContact = usePhoneCanvassContact({
+    id: lastContactId,
+    phoneCanvassId,
+  }).data;
+
+  // TODO: this can't ready from any data, or it will be stale.
   const onNewContact = (contact: ContactSummary | undefined): void => {
-    setCurrentContactId(contact?.contactId);
+    setCurrentContactId((prior) => {
+      if (contact === prior) {
+        return;
+      }
+      setLastContactId(prior);
+      return contact?.contactId;
+    });
   };
 
   const onReadyChanged = (ready: CallReadyStatus): void => {
     setReady(ready);
     setReadyPendingState(undefined);
+    if (ready === "ready") {
+      setLastContactId(undefined);
+      setCurrentContactId(undefined);
+    }
   };
 
   useEffect(() => {
@@ -376,7 +394,7 @@ export function ParticipateInPhoneCanvass(): JSX.Element {
       complete
     ) : (
       <ContactCard
-        phoneCanvassContact={currentContact}
+        phoneCanvassContact={currentContact ?? lastContact}
         phoneCanvassId={phoneCanvassId}
       >
         <NextCallButton

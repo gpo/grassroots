@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { PhoneCanvassMetricsTracker } from "./PhoneCanvassMetricsTracker.js";
 import { PhoneCanvassSchedulerImpl } from "./PhoneCanvassSchedulerImpl.js";
-import { filter, map, Observable, ReplaySubject } from "rxjs";
+import { filter, map, ReplaySubject } from "rxjs";
 import { TwilioService } from "../Twilio.service.js";
 import { CallAndCaller, PhoneCanvassModel } from "../PhoneCanvass.model.js";
 import { PhoneCanvassCallersModel } from "../PhoneCanvassCallers.model.js";
@@ -14,12 +14,6 @@ import { ExpectedFailureRateStrategy } from "./Strategies/ExpectedFailureRateStr
 import { PhoneCanvassSchedulerStrategy } from "./Strategies/PhoneCanvassSchedulerStrategy.js";
 import { NoOvercallingStrategy } from "./Strategies/NoOvercallingStrategy.js";
 import { Call } from "./PhoneCanvassCall.js";
-
-interface ObservablesForTest {
-  callers$: Observable<Readonly<PhoneCanvassCallerDTO>>;
-}
-
-let lastObservablesForTest: ObservablesForTest | undefined;
 
 type StrategyName = "no overcalling" | "expected failure rate";
 
@@ -48,10 +42,6 @@ export class PhoneCanvassModelFactory {
       filter((x) => x !== undefined),
     );
 
-    lastObservablesForTest = {
-      callers$,
-    };
-
     function emitCallAndCaller(callAndCaller: CallAndCaller): void {
       callsAndCallers$.next(callAndCaller);
     }
@@ -61,7 +51,8 @@ export class PhoneCanvassModelFactory {
     if (params.strategyName === "no overcalling") {
       strategy = new NoOvercallingStrategy(metricsTracker);
     } else {
-      strategy = new ExpectedFailureRateStrategy(metricsTracker, 0.75);
+      //strategy = new ExpectedFailureRateStrategy(metricsTracker, 0.75);
+      strategy = new ExpectedFailureRateStrategy(metricsTracker, 0.5);
     }
 
     const scheduler = new PhoneCanvassSchedulerImpl(strategy, metricsTracker, {
@@ -98,11 +89,4 @@ export class PhoneCanvassModelFactory {
 
     return phoneCanvassModel;
   }
-}
-
-export function getLastObservablesForTest(): ObservablesForTest {
-  if (lastObservablesForTest === undefined) {
-    throw new Error("getLastObservablesForTest called before createModel");
-  }
-  return lastObservablesForTest;
 }

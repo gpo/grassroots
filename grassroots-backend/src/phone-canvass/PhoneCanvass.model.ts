@@ -5,7 +5,6 @@ import {
   Observable,
   scan,
   startWith,
-  tap,
   throttleTime,
 } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
@@ -195,9 +194,6 @@ export class PhoneCanvassModel {
       contacts: contactSummaries$.pipe(startWith([])),
       callsCompleted: completedCallCount$.pipe(startWith(0)),
     }).pipe(
-      tap((syncData) => {
-        console.log("syncData", JSON.stringify(syncData, null, 2));
-      }),
       map((syncData) => {
         return {
           callers: syncData.callers,

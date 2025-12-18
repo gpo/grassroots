@@ -82,7 +82,6 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
       next: (caller) => {
         switch (caller.ready) {
           case "ready": {
-            console.log("ADDING ", caller.id);
             this.pendingCallerSummariesById.set(caller.id, {
               id: caller.id,
               availabilityStartTime: this.#getCurrentTime(),
@@ -135,7 +134,6 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
         : current;
     });
 
-    console.log("REMOVING ", oldestAvailableCaller.id);
     this.pendingCallerSummariesById.delete(oldestAvailableCaller.id);
 
     return oldestAvailableCaller.id;

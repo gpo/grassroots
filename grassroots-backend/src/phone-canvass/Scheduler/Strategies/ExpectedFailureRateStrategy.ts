@@ -26,12 +26,6 @@ export class ExpectedFailureRateStrategy extends PhoneCanvassSchedulerStrategy {
         const targetCallsThatMightFail = Math.floor(
           availableCallers / expectedSuccessRate,
         );
-        console.log({
-          calls,
-          callers,
-          targetCallsThatMightFail,
-          currentCallsThatMightFail,
-        });
         return targetCallsThatMightFail - currentCallsThatMightFail;
       }),
     );
@@ -42,7 +36,6 @@ export class ExpectedFailureRateStrategy extends PhoneCanvassSchedulerStrategy {
         concatMap(() => {
           return of(undefined).pipe(
             tap(() => {
-              console.log("EMITTING");
               this.nextCall$.next(undefined);
             }),
           );

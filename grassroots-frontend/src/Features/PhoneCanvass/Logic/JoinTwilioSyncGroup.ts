@@ -75,14 +75,11 @@ class SyncGroupManager {
     }
 
     if (this.#lastGeneration >= generation) {
-      console.log("THROWING OUT", data);
       // Avoid stale or repeated updates.
       return;
     }
 
     this.#lastGeneration = generation;
-
-    console.log(data);
 
     let caller = await getPhoneCanvassCaller({
       createOrUpdateCallerMutation: this.#createOrUpdateCallerMutation,

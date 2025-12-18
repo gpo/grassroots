@@ -45,9 +45,8 @@ export class TwilioService {
       String(call.phoneCanvassContactId),
     );
 
-    console.log("FIX BELOW!");
     const callInstance = await client.calls.create({
-      to: "2269892922", //call.state.contact.contact.phoneNumber,
+      to: call.state.contact.contact.phoneNumber,
       from: envVars.TWILIO_OUTGOING_NUMBER,
       record: true,
       statusCallback:
