@@ -4,7 +4,7 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { useTypedForm } from "../../../Logic/UseTypedForm.js";
 import { classValidatorResolver } from "../../../Logic/ClassValidatorResolver.js";
-import { JSX, useCallback } from "react";
+import { JSX, useCallback, useState } from "react";
 import {
   useMutation,
   UseMutationResult,
@@ -12,6 +12,7 @@ import {
 } from "@tanstack/react-query";
 import { grassrootsAPI } from "../../../GrassRootsAPI.js";
 import { Button, Stack, Textarea } from "@mantine/core";
+import { IconCheck, IconDeviceFloppy, IconLoader2 } from "@tabler/icons-react";
 
 interface EditContactNotesProps {
   contactId: number;
@@ -44,8 +45,36 @@ function useUpdateCallerNotesMutation(): UseMutationResult<
   });
 }
 
+type SaveState = "idle" | "saving" | "saved";
+
+const getButtonIcon = (saveState: SaveState): JSX.Element => {
+  switch (saveState) {
+    case "idle":
+      return <IconDeviceFloppy size={16} />;
+    case "saving":
+      return <IconLoader2 size={16} className="animate-spin" />;
+    case "saved":
+      return <IconCheck size={16} />;
+  }
+};
+
+const getButtonLabel = (saveState: SaveState): string => {
+  switch (saveState) {
+    case "idle":
+      return "Save";
+    case "saving":
+      return "Saving...";
+    case "saved":
+      return "Saved!";
+  }
+};
+
 export function EditContactNotes(params: EditContactNotesProps): JSX.Element {
   const updateNotes = useUpdateCallerNotesMutation();
+  const [saveState, setSaveState] = useState<SaveState>("idle");
+  const [saveStateTimeout, setSaveStateTimeout] = useState<number | undefined>(
+    undefined,
+  );
 
   const form = useTypedForm<UpdatePhoneCanvassContactNotesDTO>({
     validate: classValidatorResolver(UpdatePhoneCanvassContactNotesDTO),
@@ -58,7 +87,17 @@ export function EditContactNotes(params: EditContactNotesProps): JSX.Element {
 
   const onSubmit = useCallback(
     async (data: UpdatePhoneCanvassContactNotesDTO): Promise<void> => {
+      if (saveStateTimeout !== undefined) {
+        window.clearTimeout(saveStateTimeout);
+      }
+      setSaveState("saving");
       await updateNotes.mutateAsync(data);
+      setSaveState("saved");
+      setSaveStateTimeout(
+        window.setTimeout(() => {
+          setSaveState("idle");
+        }, 2000),
+      );
     },
     [],
   );
@@ -75,8 +114,8 @@ export function EditContactNotes(params: EditContactNotesProps): JSX.Element {
             input: { height: "100%" },
           }}
         ></Textarea>
-        <Button type="submit" mt="lg">
-          Save
+        <Button type="submit" mt="lg" leftSection={getButtonIcon(saveState)}>
+          {getButtonLabel(saveState)}
         </Button>
       </Stack>
     </form>

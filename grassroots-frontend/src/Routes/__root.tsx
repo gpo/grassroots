@@ -19,7 +19,6 @@ import { Notifications } from "@mantine/notifications";
 import { RoutedLink } from "../Components/RoutedLink.js";
 import { navigateToBackendRoute } from "../GrassRootsAPI.js";
 import { LoginState } from "../Features/Auth/Logic/LoginStateContext.js";
-import { DevTools } from "../Features/Devtools/Components/DevTools.js";
 import { PhoneCanvassCallerStore } from "../Features/PhoneCanvass/Logic/PhoneCanvassCallerStore.js";
 import { useEffect, useState } from "react";
 import { runPromise } from "grassroots-shared/util/RunPromise";
@@ -84,7 +83,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
           <AppShell.Main>
             <Outlet />
           </AppShell.Main>
-          <DevTools></DevTools>
         </AppShell>
       </MantineProvider>
     );
