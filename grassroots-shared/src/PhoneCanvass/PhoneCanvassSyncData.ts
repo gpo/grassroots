@@ -22,5 +22,5 @@ export interface PhoneCanvassSyncData {
   phoneCanvassId: string;
   totalContacts: number;
   doneContacts: number;
-  timestamp: number;
+  generation: number;
 }

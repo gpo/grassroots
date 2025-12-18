@@ -42,7 +42,7 @@ class SyncGroupManager {
   #createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
   #lastContact: ContactSummary | undefined;
   #lastCallerReady: CallReadyStatus | undefined;
-  #lastTimestamp = 0;
+  #lastGeneration = 0;
   #onNewContact: (contact: ContactSummary | undefined) => void;
   #onReadyChanged: (ready: CallReadyStatus) => void;
 
@@ -61,7 +61,7 @@ class SyncGroupManager {
   }
 
   async #onUpdate(data: PhoneCanvassSyncData): Promise<void> {
-    const { timestamp } = data;
+    const { generation } = data;
     const callPartyStateStore = this.#callPartyStateStore.getState();
 
     if (
@@ -70,16 +70,19 @@ class SyncGroupManager {
     ) {
       // TODO: figure out why this keeps receiving onUpdates.
       // Has this gone away now that we prevent out of order messages?
-      this.#lastTimestamp = 0;
+      this.#lastGeneration = 0;
       return;
     }
 
-    if (this.#lastTimestamp >= timestamp) {
+    if (this.#lastGeneration >= generation) {
+      console.log("THROWING OUT", data);
       // Avoid stale or repeated updates.
       return;
     }
 
-    this.#lastTimestamp = timestamp;
+    this.#lastGeneration = generation;
+
+    console.log(data);
 
     let caller = await getPhoneCanvassCaller({
       createOrUpdateCallerMutation: this.#createOrUpdateCallerMutation,

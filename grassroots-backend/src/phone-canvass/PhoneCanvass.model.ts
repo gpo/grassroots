@@ -5,6 +5,7 @@ import {
   Observable,
   scan,
   startWith,
+  tap,
   throttleTime,
 } from "rxjs";
 import { Call } from "./Scheduler/PhoneCanvassCall.js";
@@ -34,7 +35,7 @@ import {
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { EntityManager } from "@mikro-orm/core";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
-import { CallerCounts } from "./Scheduler/PhoneCanvassMetricsTracker.js";
+import { propsOf } from "grassroots-shared/util/TypeUtils";
 
 async function makeCall(params: {
   call: Call;
@@ -49,9 +50,15 @@ async function makeCall(params: {
   call.update(status, { twilioSid: sid });
 }
 
+export interface CallAndCaller {
+  call: Readonly<Call> | undefined;
+  caller: Readonly<PhoneCanvassCallerDTO> | undefined;
+}
+
 export class PhoneCanvassModel {
+  static syncDataGeneration = 0;
   readonly phoneCanvassId: string;
-  readonly calls$: Observable<Call>;
+  readonly calls$: Observable<Readonly<Call>>;
 
   readonly scheduler: PhoneCanvassScheduler;
 
@@ -61,22 +68,25 @@ export class PhoneCanvassModel {
   // Only present if there's an active simulation.
   #simulator: PhoneCanvassSimulator | undefined;
   #phoneCanvassCallersModel: PhoneCanvassCallersModel;
-  #callsBySid = new Map<string, Call>();
+  #callsBySid = new Map<string, Readonly<Call>>();
   #entityManager: EntityManager;
+  #emitCallAndCaller: (callAndCaller: CallAndCaller) => void;
 
   constructor(params: {
     phoneCanvassId: string;
     scheduler: PhoneCanvassScheduler;
-    calls$: Observable<Call>;
+    calls$: Observable<Readonly<Call>>;
     contacts: PhoneCanvassContactEntity[];
     entityManager: EntityManager;
     twilioService: TwilioService;
     phoneCanvassCallersModel: PhoneCanvassCallersModel;
     serverMetaService: ServerMetaService;
+    emitCallAndCaller: (callAndCaller: CallAndCaller) => void;
   }) {
     this.phoneCanvassId = params.phoneCanvassId;
     this.scheduler = params.scheduler;
     this.calls$ = params.calls$;
+    this.#emitCallAndCaller = params.emitCallAndCaller;
 
     // Filtering at this stage means that the progress indicator starts at 0% with a lower
     // total number of contacts if you exit and restart a phone canvass that's partway through.
@@ -109,16 +119,6 @@ export class PhoneCanvassModel {
             }),
             false,
           );
-        } else if (call.status === "COMPLETED") {
-          console.log("CALL COMPLETED");
-          if (call.callerId !== undefined) {
-            const caller = this.#phoneCanvassCallersModel.getCaller(
-              call.callerId,
-            );
-            const update = caller.toUpdate();
-            update.ready = "unready";
-            this.#phoneCanvassCallersModel.updateCallerInternal(update);
-          }
         }
       },
       error: (error: unknown) => {
@@ -138,38 +138,6 @@ export class PhoneCanvassModel {
           return acc;
         }, new Map<string, CallerSummary>()),
       );
-
-    callerSummariesById$.subscribe({
-      next: (callerSummariesById) => {
-        const callerCounts = [...callerSummariesById.values()].reduce(
-          (acc: CallerCounts, caller: CallerSummary) => {
-            if (caller.ready === "unready") {
-              acc.unready++;
-            } else {
-              // TODO: this is very slow...
-              const call = [...this.#callsBySid.values()].find(
-                (call) => call.callerId == caller.callerId,
-              );
-              if (call === undefined) {
-                acc.ready_no_caller++;
-              } else {
-                acc.ready_with_caller++;
-              }
-            }
-            return acc;
-          },
-          {
-            ready_no_caller: 0,
-            ready_with_caller: 0,
-            unready: 0,
-          } satisfies CallerCounts,
-        );
-        this.scheduler.metricsTracker.onCallerCountUpdate(callerCounts);
-      },
-      error: (e: unknown) => {
-        throw e;
-      },
-    });
 
     const callerSummaries$ = callerSummariesById$.pipe(
       map((x) => [...x.values()]),
@@ -227,6 +195,9 @@ export class PhoneCanvassModel {
       contacts: contactSummaries$.pipe(startWith([])),
       callsCompleted: completedCallCount$.pipe(startWith(0)),
     }).pipe(
+      tap((syncData) => {
+        console.log("syncData", JSON.stringify(syncData, null, 2));
+      }),
       map((syncData) => {
         return {
           callers: syncData.callers,
@@ -235,7 +206,7 @@ export class PhoneCanvassModel {
           phoneCanvassId: this.phoneCanvassId,
           totalContacts: this.#contacts.length,
           doneContacts: syncData.callsCompleted,
-          timestamp: Date.now(),
+          generation: PhoneCanvassModel.syncDataGeneration++,
         } satisfies PhoneCanvassSyncData;
       }),
       // TODO: we should probably stringify later.
@@ -273,6 +244,34 @@ export class PhoneCanvassModel {
       error: (error: unknown) => {
         throw error;
       },
+    });
+  }
+
+  emitOnCallUpdate(call: Call): void {
+    let caller: PhoneCanvassCallerDTO | undefined;
+    if (call.status === "COMPLETED" && call.callerId !== undefined) {
+      const existingCaller = this.#phoneCanvassCallersModel.getCaller(
+        call.callerId,
+      );
+      caller = PhoneCanvassCallerDTO.from({
+        ...propsOf(existingCaller),
+        ready: "unready",
+      });
+    }
+
+    this.#emitCallAndCaller({
+      call,
+      caller,
+    });
+  }
+
+  emitOnCallerUpdate(caller: PhoneCanvassCallerDTO): void {
+    const call = [...this.#callsBySid.values()].find(
+      (call) => call.callerId === caller.id,
+    );
+    this.#emitCallAndCaller({
+      call,
+      caller,
     });
   }
 

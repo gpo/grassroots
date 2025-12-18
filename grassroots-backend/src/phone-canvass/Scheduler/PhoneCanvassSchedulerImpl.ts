@@ -8,7 +8,6 @@ import {
   from,
   zip,
   map,
-  Subject,
 } from "rxjs";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { Call } from "./PhoneCanvassCall.js";
@@ -19,7 +18,6 @@ import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/Phone
 
 @Injectable()
 export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
-  readonly #calls$: Subject<Call>;
   readonly callsSubscription: Subscription;
 
   #strategy: PhoneCanvassSchedulerStrategy;
@@ -28,6 +26,7 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   pendingCallerSummariesById = new Map<string, Caller>();
   #callers$: Observable<PhoneCanvassCallerDTO>;
   #pendingContacts$: Observable<PhoneCanvassContactEntity>;
+  #emitOnCallUpdate: ((call: Call) => void) | undefined;
 
   #getCurrentTime: () => number;
 
@@ -39,14 +38,13 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
     params: {
       contacts: PhoneCanvassContactEntity[];
       phoneCanvassId: string;
-      calls$: Subject<Call>;
+      calls$: Observable<Readonly<Call>>;
       callers$: Observable<PhoneCanvassCallerDTO>;
     },
   ) {
     super();
     this.#strategy = strategy;
     this.phoneCanvassId = params.phoneCanvassId;
-    this.#calls$ = params.calls$;
     this.#callers$ = params.callers$;
 
     this.#getCurrentTime = (): number => {
@@ -70,7 +68,10 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
             contact,
             phoneCanvassId: this.phoneCanvassId,
             emit: (call): void => {
-              this.#calls$.next(call);
+              if (this.#emitOnCallUpdate === undefined) {
+                throw new Error("Failed to call setEmitOnCallUpdate");
+              }
+              this.#emitOnCallUpdate(call);
             },
           });
         }),
@@ -94,6 +95,10 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
         throw error;
       },
     });
+  }
+
+  setEmitOnCallUpdate(emitOnCallUpdate: (call: Call) => void): void {
+    this.#emitOnCallUpdate = emitOnCallUpdate;
   }
 
   stop(): void {

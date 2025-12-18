@@ -57,7 +57,7 @@ export class Call {
   static #currentId = 0;
 
   readonly state: Readonly<ImmutableCallState & UpdateableCallState>;
-  #updated = false;
+  updated = false;
   status: CallStatus;
 
   constructor(
@@ -164,12 +164,12 @@ export class Call {
   }
 
   update(status: CallStatus, props: Partial<UpdateableCallState>): Call {
-    if (this.#updated) {
+    if (this.updated) {
       throw new Error(
         `Calls should only be updated once. ${String(this.id)}, current status ${this.status}`,
       );
     }
-    this.#updated = true;
+    this.updated = true;
     if (callStatusSort(this.status, status) > 0) {
       throw new Error(
         `Call status can't go backwards from ${this.status} to ${status} (id ${String(this.id)}/${String(this.phoneCanvassContactId)})`,

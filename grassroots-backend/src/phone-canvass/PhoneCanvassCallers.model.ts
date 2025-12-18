@@ -4,7 +4,7 @@ import {
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
 
 type GetAuthToken = (id: string) => Promise<string>;
@@ -16,9 +16,12 @@ type GetAuthToken = (id: string) => Promise<string>;
 // just register them as though they were a new user.
 export class PhoneCanvassCallersModel {
   #callersById = new Map<string, PhoneCanvassCallerDTO>();
-  #callers$: Subject<Readonly<PhoneCanvassCallerDTO>>;
+  #callers$: Observable<Readonly<PhoneCanvassCallerDTO>>;
+  #emitOnCallerUpdate: ((caller: PhoneCanvassCallerDTO) => void) | undefined;
 
-  constructor(params: { callers: Subject<Readonly<PhoneCanvassCallerDTO>> }) {
+  constructor(params: {
+    callers: Observable<Readonly<PhoneCanvassCallerDTO>>;
+  }) {
     this.#callers$ = params.callers;
 
     this.#callers$.subscribe({
@@ -29,6 +32,12 @@ export class PhoneCanvassCallersModel {
         throw error;
       },
     });
+  }
+
+  setEmitOnCallerUpdate(
+    emitOnCallerUpdate: (caller: PhoneCanvassCallerDTO) => void,
+  ): void {
+    this.#emitOnCallerUpdate = emitOnCallerUpdate;
   }
 
   get callers$(): Observable<PhoneCanvassCallerDTO> {
@@ -59,7 +68,10 @@ export class PhoneCanvassCallersModel {
       // but it appears to be ~synchronous and fast, so this is fine.
       authToken: await getAuthToken(String(id)),
     });
-    this.#callers$.next(withId);
+    if (this.#emitOnCallerUpdate === undefined) {
+      throw new Error("Failed to call setEmitOnCallerUpdate");
+    }
+    this.#emitOnCallerUpdate(withId);
     return withId;
   }
 
@@ -115,7 +127,10 @@ export class PhoneCanvassCallersModel {
           ...propsOf(updatedCaller),
           authToken: await getAuthToken(String(existingCaller.id)),
         });
-      this.#callers$.next(newCaller);
+      if (this.#emitOnCallerUpdate === undefined) {
+        throw new Error("Failed to call setEmitOnCallerUpdate");
+      }
+      this.#emitOnCallerUpdate(newCaller);
       return newCaller;
     }
     return this.registerCaller({
@@ -123,22 +138,6 @@ export class PhoneCanvassCallersModel {
       getAuthToken,
       idForReuse: updatedCaller.id,
     });
-  }
-
-  updateCallerInternal(
-    updatedCaller: Readonly<CreateOrUpdatePhoneCanvassCallerDTO>,
-  ): void {
-    // TODO: we don't really need to auth here.
-    const existingCaller = this.#authenticateCaller(updatedCaller);
-    if (existingCaller === undefined) {
-      throw new Error(`"Can't find caller with id ${String(updatedCaller.id)}`);
-    }
-    const newCaller: Readonly<PhoneCanvassCallerDTO> =
-      PhoneCanvassCallerDTO.from({
-        ...propsOf(existingCaller),
-        ...propsOf(updatedCaller),
-      });
-    this.#callers$.next(newCaller);
   }
 
   getCaller(callerId: string): Readonly<PhoneCanvassCallerDTO> {
