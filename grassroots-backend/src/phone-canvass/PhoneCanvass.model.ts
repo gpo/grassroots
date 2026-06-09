@@ -3,7 +3,6 @@ import {
   combineLatest,
   map,
   Observable,
-  pairwise,
   scan,
   startWith,
   throttleTime,
@@ -34,8 +33,8 @@ import {
   PhoneCanvasTwilioCallAnsweredCallbackDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { EntityManager } from "@mikro-orm/core";
-import { propsOf } from "grassroots-shared/util/TypeUtils";
 import { PhoneCanvassEntity } from "./entities/PhoneCanvass.entity.js";
+import { propsOf } from "grassroots-shared/util/TypeUtils";
 
 async function makeCall(params: {
   call: Call;
@@ -50,39 +49,15 @@ async function makeCall(params: {
   call.update(status, { twilioSid: sid });
 }
 
-function updateContactsInLastCallState(params: {
-  call: Call;
-  phoneCanvassCallersModel: PhoneCanvassCallersModel;
-  updateOrCreateCaller: (
-    caller: PhoneCanvassCallerDTO,
-  ) => Promise<PhoneCanvassCallerDTO>;
-}): void {
-  const { call, phoneCanvassCallersModel, updateOrCreateCaller } = params;
-  if (call.status !== "COMPLETED") {
-    return;
-  }
-
-  if (call.callerId !== undefined) {
-    const caller = phoneCanvassCallersModel.getCaller(call.callerId);
-
-    if (caller.ready === "last call") {
-      runPromise(
-        updateOrCreateCaller(
-          PhoneCanvassCallerDTO.from({
-            ...propsOf(caller),
-            ready: "unready",
-          }),
-        ),
-        false,
-      );
-    }
-    return;
-  }
+export interface CallAndCaller {
+  call: Readonly<Call> | undefined;
+  caller: Readonly<PhoneCanvassCallerDTO> | undefined;
 }
 
 export class PhoneCanvassModel {
+  static syncDataGeneration = 0;
   readonly phoneCanvassId: string;
-  readonly calls$: Observable<Call>;
+  readonly calls$: Observable<Readonly<Call>>;
 
   readonly scheduler: PhoneCanvassScheduler;
 
@@ -92,22 +67,25 @@ export class PhoneCanvassModel {
   // Only present if there's an active simulation.
   #simulator: PhoneCanvassSimulator | undefined;
   #phoneCanvassCallersModel: PhoneCanvassCallersModel;
-  #callsBySid = new Map<string, Call>();
+  #callsBySid = new Map<string, Readonly<Call>>();
   #entityManager: EntityManager;
+  #emitCallAndCaller: (callAndCaller: CallAndCaller) => void;
 
   constructor(params: {
     phoneCanvassId: string;
     scheduler: PhoneCanvassScheduler;
-    calls$: Observable<Call>;
+    calls$: Observable<Readonly<Call>>;
     contacts: PhoneCanvassContactEntity[];
     entityManager: EntityManager;
     twilioService: TwilioService;
     phoneCanvassCallersModel: PhoneCanvassCallersModel;
     serverMetaService: ServerMetaService;
+    emitCallAndCaller: (callAndCaller: CallAndCaller) => void;
   }) {
     this.phoneCanvassId = params.phoneCanvassId;
     this.scheduler = params.scheduler;
     this.calls$ = params.calls$;
+    this.#emitCallAndCaller = params.emitCallAndCaller;
 
     // Filtering at this stage means that the progress indicator starts at 0% with a lower
     // total number of contacts if you exit and restart a phone canvass that's partway through.
@@ -125,19 +103,11 @@ export class PhoneCanvassModel {
           this.#callsBySid.set(call.twilioSid, call);
         }
 
-        runPromise(call.log(), false);
-        runPromise(call.updateContactIfNeeded(this.#entityManager), false);
-
-        // When a call ends, if it was associated with a contact in the last call state, we mark them unready.
-        // That's what we're doing here.
-        // If the call wasn't associated with a contact in the last call state
-        // we just wait until we're not overcommitted, and then we can mark them ready.
-        updateContactsInLastCallState({
-          call,
-          phoneCanvassCallersModel: this.#phoneCanvassCallersModel,
-          updateOrCreateCaller: (caller) =>
-            this.updateOrCreateCaller(caller.toUpdate()),
-        });
+        runPromise(call.log(this.#phoneCanvassCallersModel), false);
+        runPromise(
+          call.updateContactEntityIfNeeded(this.#entityManager),
+          false,
+        );
 
         if (call.status === "NOT_STARTED") {
           runPromise(
@@ -154,26 +124,6 @@ export class PhoneCanvassModel {
         throw error;
       },
     });
-
-    this.scheduler.metricsTracker.idleCallerCountObservable
-      .pipe(pairwise())
-      .subscribe({
-        next: ([prev, next]) => {
-          if (prev < 0 && next >= 0) {
-            // We were overcommitted, but aren't anymore.
-            runPromise(
-              this.#phoneCanvassCallersModel.markOneLastCallCallerAsUnready(
-                [...this.#callsBySid.values()],
-                (caller) => this.updateOrCreateCaller(caller.toUpdate()),
-              ),
-              false,
-            );
-          }
-        },
-        error: (error: unknown) => {
-          throw error;
-        },
-      });
 
     const callerSummariesById$: Observable<Map<string, CallerSummary>> =
       this.#phoneCanvassCallersModel.callers$.pipe(
@@ -252,7 +202,7 @@ export class PhoneCanvassModel {
           phoneCanvassId: this.phoneCanvassId,
           totalContacts: this.#contacts.length,
           doneContacts: syncData.callsCompleted,
-          timestamp: Date.now(),
+          generation: PhoneCanvassModel.syncDataGeneration++,
         } satisfies PhoneCanvassSyncData;
       }),
       // TODO: we should probably stringify later.
@@ -290,6 +240,34 @@ export class PhoneCanvassModel {
       error: (error: unknown) => {
         throw error;
       },
+    });
+  }
+
+  emitOnCallUpdate(call: Call): void {
+    let caller: PhoneCanvassCallerDTO | undefined;
+    if (call.status === "COMPLETED" && call.callerId !== undefined) {
+      const existingCaller = this.#phoneCanvassCallersModel.getCaller(
+        call.callerId,
+      );
+      caller = PhoneCanvassCallerDTO.from({
+        ...propsOf(existingCaller),
+        ready: "unready",
+      });
+    }
+
+    this.#emitCallAndCaller({
+      call,
+      caller,
+    });
+  }
+
+  emitOnCallerUpdate(caller: PhoneCanvassCallerDTO): void {
+    const call = [...this.#callsBySid.values()].find(
+      (call) => call.callerId === caller.id,
+    );
+    this.#emitCallAndCaller({
+      call,
+      caller,
     });
   }
 
@@ -346,6 +324,12 @@ export class PhoneCanvassModel {
       );
     }
     if (callback.AnsweredBy === "human" || callback.AnsweredBy === "unknown") {
+      if (call.status === "COMPLETED") {
+        call.update("COMPLETED", {
+          answeredBy: callback.AnsweredBy,
+        });
+        return;
+      }
       const callerId = this.scheduler.getNextIdleCallerId();
       if (callerId === undefined) {
         // Uh oh, we've overcalled.

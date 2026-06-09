@@ -16,14 +16,6 @@ export interface UpdateReadyStateForCallsParams {
   createOrUpdateCallerMutation: CreateOrUpdateCallerMutation;
 }
 
-export async function markLastCall(
-  params: UpdateReadyStateForCallsParams,
-): Promise<void> {
-  const { caller } = params;
-  caller.ready = "last call";
-  await params.createOrUpdateCallerMutation(caller.toUpdate());
-}
-
 export async function markReadyForCalls(
   params: UpdateReadyStateForCallsParams,
 ): Promise<{ device: Device }> {

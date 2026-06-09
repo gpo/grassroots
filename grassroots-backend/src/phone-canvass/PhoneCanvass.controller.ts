@@ -97,6 +97,7 @@ export class PhoneCanvassController {
               if (call === undefined) {
                 return;
               }
+
               call.update(status.status, {
                 result: status.result,
                 twilioSid: callback.CallSid,

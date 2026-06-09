@@ -8,7 +8,6 @@ import {
   from,
   zip,
   map,
-  Subject,
 } from "rxjs";
 import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entity.js";
 import { Call } from "./PhoneCanvassCall.js";
@@ -19,39 +18,33 @@ import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/Phone
 
 @Injectable()
 export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
-  readonly #calls$: Subject<Call>;
   readonly callsSubscription: Subscription;
 
   #strategy: PhoneCanvassSchedulerStrategy;
   readonly phoneCanvassId: string;
-  readonly #busyCallerIds = new Set<string>();
 
-  // We need to track both "ready" callers (to know if we should make more calls)
-  // and callers who are either "ready" or "last call" (to know who to assign calls to).
-  // `#callerSummariesById` includes "last call" callers.
-  #callerSummariesById = new Map<string, Caller>();
-  // `#readyCallerIds` doesn't include "last call" callers.
-  #readyCallerIds = new Set<string>();
-
+  pendingCallerSummariesById = new Map<string, Caller>();
   #callers$: Observable<PhoneCanvassCallerDTO>;
   #pendingContacts$: Observable<PhoneCanvassContactEntity>;
+  #emitOnCallUpdate: ((call: Call) => void) | undefined;
 
   #getCurrentTime: () => number;
 
   constructor(
     strategy: PhoneCanvassSchedulerStrategy,
+    // TODO: we shouldn't actually need a metricsTracker here.
+    // It should probably live in the model.
     public metricsTracker: PhoneCanvassMetricsTracker,
     params: {
       contacts: PhoneCanvassContactEntity[];
       phoneCanvassId: string;
-      calls$: Subject<Call>;
+      calls$: Observable<Readonly<Call>>;
       callers$: Observable<PhoneCanvassCallerDTO>;
     },
   ) {
     super();
     this.#strategy = strategy;
     this.phoneCanvassId = params.phoneCanvassId;
-    this.#calls$ = params.calls$;
     this.#callers$ = params.callers$;
 
     this.#getCurrentTime = (): number => {
@@ -75,55 +68,36 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
             contact,
             phoneCanvassId: this.phoneCanvassId,
             emit: (call): void => {
-              this.#calls$.next(call);
+              if (this.#emitOnCallUpdate === undefined) {
+                throw new Error("Failed to call setEmitOnCallUpdate");
+              }
+              this.#emitOnCallUpdate(call);
             },
           });
         }),
       )
       .subscribe();
 
-    this.#calls$.subscribe({
-      next: (call) => {
-        if (call.callerId !== undefined) {
-          if (call.status === "COMPLETED") {
-            this.#busyCallerIds.delete(call.callerId);
-          } else {
-            this.#busyCallerIds.add(call.callerId);
-          }
-        }
-      },
-      error: (error: unknown) => {
-        throw error;
-      },
-    });
-
     this.#callers$.subscribe({
       next: (caller) => {
         switch (caller.ready) {
           case "ready": {
-            this.#callerSummariesById.set(caller.id, {
+            this.pendingCallerSummariesById.set(caller.id, {
               id: caller.id,
               availabilityStartTime: this.#getCurrentTime(),
             });
-            this.#readyCallerIds.add(caller.id);
-            break;
-          }
-          case "unready": {
-            this.#callerSummariesById.delete(caller.id);
-            this.#readyCallerIds.delete(caller.id);
-            break;
-          }
-          case "last call": {
-            this.#readyCallerIds.delete(caller.id);
             break;
           }
         }
-        this.metricsTracker.onReadyCallerCountUpdate(this.#readyCallerIds.size);
       },
       error: (error: unknown) => {
         throw error;
       },
     });
+  }
+
+  setEmitOnCallUpdate(emitOnCallUpdate: (call: Call) => void): void {
+    this.#emitOnCallUpdate = emitOnCallUpdate;
   }
 
   stop(): void {
@@ -148,26 +122,19 @@ export class PhoneCanvassSchedulerImpl extends PhoneCanvassScheduler {
   }
 
   getNextIdleCallerId(): string | undefined {
-    // Find the idle caller who has been available for the longest time.
-    const availableCallers = [...this.#callerSummariesById.values()].filter(
-      (caller) => {
-        return !this.#busyCallerIds.has(caller.id);
-      },
-    );
-
-    const firstAvailableCaller = availableCallers.pop();
-    if (firstAvailableCaller === undefined) {
+    if (this.pendingCallerSummariesById.size === 0) {
       return undefined;
     }
+    // Find the caller who has been available for the longest time.
+    const oldestAvailableCaller = [
+      ...this.pendingCallerSummariesById.values(),
+    ].reduce((oldest: Caller, current: Caller) => {
+      return oldest.availabilityStartTime < current.availabilityStartTime
+        ? oldest
+        : current;
+    });
 
-    const oldestAvailableCaller = availableCallers.reduce(
-      (oldest: Caller, current: Caller) => {
-        return oldest.availabilityStartTime < current.availabilityStartTime
-          ? oldest
-          : current;
-      },
-      firstAvailableCaller,
-    );
+    this.pendingCallerSummariesById.delete(oldestAvailableCaller.id);
 
     return oldestAvailableCaller.id;
   }

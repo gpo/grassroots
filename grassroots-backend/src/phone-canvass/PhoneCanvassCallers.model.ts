@@ -4,9 +4,8 @@ import {
   PhoneCanvassCallerDTO,
 } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 import { propsOf } from "grassroots-shared/util/TypeUtils";
-import { Observable, Subject } from "rxjs";
+import { Observable } from "rxjs";
 import { v4 as uuidv4 } from "uuid";
-import { Call } from "./Scheduler/PhoneCanvassCall.js";
 
 type GetAuthToken = (id: string) => Promise<string>;
 
@@ -17,9 +16,12 @@ type GetAuthToken = (id: string) => Promise<string>;
 // just register them as though they were a new user.
 export class PhoneCanvassCallersModel {
   #callersById = new Map<string, PhoneCanvassCallerDTO>();
-  #callers$: Subject<Readonly<PhoneCanvassCallerDTO>>;
+  #callers$: Observable<Readonly<PhoneCanvassCallerDTO>>;
+  #emitOnCallerUpdate: ((caller: PhoneCanvassCallerDTO) => void) | undefined;
 
-  constructor(params: { callers: Subject<Readonly<PhoneCanvassCallerDTO>> }) {
+  constructor(params: {
+    callers: Observable<Readonly<PhoneCanvassCallerDTO>>;
+  }) {
     this.#callers$ = params.callers;
 
     this.#callers$.subscribe({
@@ -30,6 +32,12 @@ export class PhoneCanvassCallersModel {
         throw error;
       },
     });
+  }
+
+  setEmitOnCallerUpdate(
+    emitOnCallerUpdate: (caller: PhoneCanvassCallerDTO) => void,
+  ): void {
+    this.#emitOnCallerUpdate = emitOnCallerUpdate;
   }
 
   get callers$(): Observable<PhoneCanvassCallerDTO> {
@@ -60,7 +68,10 @@ export class PhoneCanvassCallersModel {
       // but it appears to be ~synchronous and fast, so this is fine.
       authToken: await getAuthToken(String(id)),
     });
-    this.#callers$.next(withId);
+    if (this.#emitOnCallerUpdate === undefined) {
+      throw new Error("Failed to call setEmitOnCallerUpdate");
+    }
+    this.#emitOnCallerUpdate(withId);
     return withId;
   }
 
@@ -101,6 +112,9 @@ export class PhoneCanvassCallersModel {
     return this.#callersById.get(params.id);
   }
 
+  // TODO: this is scary, because if you call this without getting the result to the client,
+  // the auth token can get out of sync.
+  // We should split this out from updating the auth token.
   async updateOrCreateCaller(
     updatedCaller: Readonly<CreateOrUpdatePhoneCanvassCallerDTO>,
     getAuthToken: GetAuthToken,
@@ -113,7 +127,10 @@ export class PhoneCanvassCallersModel {
           ...propsOf(updatedCaller),
           authToken: await getAuthToken(String(existingCaller.id)),
         });
-      this.#callers$.next(newCaller);
+      if (this.#emitOnCallerUpdate === undefined) {
+        throw new Error("Failed to call setEmitOnCallerUpdate");
+      }
+      this.#emitOnCallerUpdate(newCaller);
       return newCaller;
     }
     return this.registerCaller({
@@ -131,28 +148,5 @@ export class PhoneCanvassCallersModel {
       );
     }
     return existingCaller;
-  }
-
-  async markOneLastCallCallerAsUnready(
-    calls: Call[],
-    updateOrCreateCaller: (
-      caller: PhoneCanvassCallerDTO,
-    ) => Promise<PhoneCanvassCallerDTO>,
-  ): Promise<void> {
-    for (const caller of this.#callersById.values()) {
-      if (caller.ready !== "last call") {
-        continue;
-      }
-      const call = calls.find((call) => call.callerId === caller.id);
-      if (call !== undefined) {
-        // This caller will be marked unready when the current call finishes.
-        continue;
-      }
-
-      await updateOrCreateCaller(
-        PhoneCanvassCallerDTO.from({ ...propsOf(caller), ready: "unready" }),
-      );
-      return;
-    }
   }
 }

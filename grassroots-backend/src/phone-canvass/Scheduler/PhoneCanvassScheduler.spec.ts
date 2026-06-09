@@ -5,10 +5,7 @@ import { PhoneCanvassContactEntity } from "../entities/PhoneCanvassContact.entit
 import { Call, resetPhoneCanvasCallIdsForTest } from "./PhoneCanvassCall.js";
 import { fail } from "assert";
 import { PhoneCanvassModule } from "../PhoneCanvass.module.js";
-import {
-  getLastObservablesForTest,
-  PhoneCanvassModelFactory,
-} from "./PhoneCanvassModelFactory.js";
+import { PhoneCanvassModelFactory } from "./PhoneCanvassModelFactory.js";
 import { PhoneCanvassModel } from "../PhoneCanvass.model.js";
 import { TwilioServiceMock } from "../Twilio.service.mock.js";
 import { ServerMetaService } from "../../server-meta/ServerMeta.service.js";
@@ -16,8 +13,7 @@ import { TwilioService } from "../Twilio.service.js";
 import { plainToInstance } from "class-transformer";
 import { ContactEntity } from "../../contacts/entities/Contact.entity.js";
 import { EntityManager } from "@mikro-orm/core";
-import { Subject } from "rxjs";
-import { PhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
+import { CreateOrUpdatePhoneCanvassCallerDTO } from "grassroots-shared/dtos/PhoneCanvass/PhoneCanvass.dto";
 
 function makeContact(id: number): ContactEntity {
   return plainToInstance(ContactEntity, { id });
@@ -43,12 +39,7 @@ const FAKE_CONTACTS: PhoneCanvassContactEntity[] = [
 
 let currentTime = -1;
 
-interface ModelWithObservablesForTest {
-  model: PhoneCanvassModel;
-  callers$: Subject<Readonly<PhoneCanvassCallerDTO>>;
-}
-
-function getModelWithObservables(): ModelWithObservablesForTest {
+function getModel(): PhoneCanvassModel {
   const factory = new PhoneCanvassModelFactory();
 
   const model = factory.createModel({
@@ -75,18 +66,25 @@ function getModelWithObservables(): ModelWithObservablesForTest {
   });
 
   model.mockCurrentTime(currentTimeMock);
-  return { model, callers$: getLastObservablesForTest().callers$ };
+  return model;
 }
 
-function callerWithId(id: string): PhoneCanvassCallerDTO {
-  return PhoneCanvassCallerDTO.from({
-    id,
-    displayName: "",
-    email: "",
-    activePhoneCanvassId: "",
-    authToken: "",
-    ready: "ready",
-  });
+async function addCaller(model: PhoneCanvassModel, id: string): Promise<void> {
+  // We currently don't allow registering a caller that is ready, so we
+  // need to register, then mark as ready.
+  const caller = await model.registerCaller(
+    CreateOrUpdatePhoneCanvassCallerDTO.from({
+      id,
+      displayName: id,
+      email: "",
+      activePhoneCanvassId: "",
+      authToken: "",
+      ready: "unready",
+    }),
+  );
+  const updated = caller.toUpdate();
+  updated.ready = "ready";
+  await model.updateOrCreateCaller(updated);
 }
 
 describe("PhoneCanvassScheduler", () => {
@@ -98,7 +96,7 @@ describe("PhoneCanvassScheduler", () => {
   });
   it("should handle a stream of calls in series", async () => {
     const callsById = new Map<number, Call>();
-    const { model, callers$ } = getModelWithObservables();
+    const model = getModel();
     const scheduler = model.scheduler;
     model.calls$.subscribe({
       next: (call) => callsById.set(call.id, call),
@@ -110,33 +108,35 @@ describe("PhoneCanvassScheduler", () => {
     expect(callsById).toHaveLength(0);
 
     currentTime = 11;
-    callers$.next(callerWithId("1"));
+    await addCaller(model, "1");
+
     await scheduler.waitForIdleForTest();
 
     expect(callsById).toHaveLength(1);
     expect(callsById.get(1)).toBeDefined();
 
-    callers$.next(callerWithId("2"));
+    await addCaller(model, "2");
     await scheduler.waitForIdleForTest();
 
     expect(callsById).toHaveLength(2);
     expect(callsById.get(2)).toBeDefined();
 
-    callers$.next(callerWithId("3"));
+    await addCaller(model, "3");
     await scheduler.waitForIdleForTest();
 
     expect(callsById).toHaveLength(3);
     expect(callsById.get(3)).toBeDefined();
 
-    callers$.next(callerWithId("4"));
+    await addCaller(model, "4");
     await scheduler.waitForIdleForTest();
+
     // There's no new contact to call.
     expect(callsById).toHaveLength(3);
     scheduler.stop();
   });
 
   it("should handle call updates", async () => {
-    const { model, callers$ } = getModelWithObservables();
+    const model = getModel();
     const scheduler = model.scheduler;
 
     const CALLER_ID = "fakeuuid";
@@ -150,7 +150,8 @@ describe("PhoneCanvassScheduler", () => {
       },
     });
 
-    callers$.next(callerWithId(CALLER_ID));
+    await addCaller(model, CALLER_ID);
+
     await scheduler.waitForIdleForTest();
     expect(callsById).toHaveLength(1);
 
