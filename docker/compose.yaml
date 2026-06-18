@@ -8,12 +8,12 @@ services:
     shm_size: 128mb
     env_file:
       # Last file wins.
-      - ../.env.development
-      - ../.env.development.local
+      - ../config/.env.development
+      - ../config/.env.development.local
 
   test_db:
     image: postgres
     container_name: test_db
     shm_size: 128mb
     env_file:
-      - ../.env.test
+      - ../config/.env.test

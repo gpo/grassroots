@@ -10,5 +10,5 @@ services:
       - 5432:5432
     env_file:
       # Last file wins.
-      - ../.env.test
-      - ../.env.test.ci
+      - ../config/.env.test
+      - ../config/.env.test.ci

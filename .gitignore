@@ -24,6 +24,7 @@ eslint_report.json
 
 # IDE
 .idea
+*.swp
 
 # Transient docker files
 docker/data

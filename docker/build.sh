@@ -24,6 +24,8 @@ wait() {
 
 # first we clean up leftovers to get fresh builds
 find ../ -type d -name dist -exec rm -rf {} \;
+find ../.turbo -type d -name cache -exec rm -rf {} \;
+find ../ -type d -name node_modules -exec rm -rf {} \;
 
 # bring up dbs and grassroots with local source mounted as volumes, this runs turbo build
 docker compose --file compose.yaml --file compose.build.yaml up --build --remove-orphans -d
