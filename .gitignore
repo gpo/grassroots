@@ -32,3 +32,4 @@ docker/data
 .git-branches.toml
 
 **/.turbo
+node-compile-cache/

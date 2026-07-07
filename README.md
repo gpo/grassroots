@@ -109,3 +109,13 @@ pnpm exec mikro-orm-esm migration:create
 1. Add your ngrok auth token to `docker/ngrok/traffic-policy.yml`
 1. Explicitly start the ngrok container with `docker up ngrok`.
 1. Visit localhost:4040, and copy the URL presented there into .env.development.local's WEBHOOK_HOST
+
+## Claude Code cloud environments
+
+Sessions in [Claude Code on the web](https://claude.ai/code) install this repo's dependencies at session start via `.claude/hooks/session-start.sh`. To pre-bake them into the cached environment image instead (sessions start warm, and install failures surface at environment build rather than mid-task), add this line to the environment's **Setup script** field, alongside the equivalent line from any other attached repo you want pre-built:
+
+```bash
+bash /home/user/grassroots/.claude/setup-env.sh || true
+```
+
+The path matches where Claude Code cloud environments clone this repo.
