@@ -1,0 +1,57 @@
+scan:
+  scanners:
+    - license
+
+license:
+  # File-header inspection. Catches packages that ship a LICENSE file but leave
+  # the `license` field out of package.json, at the cost of a slower scan.
+  full: true
+  confidenceLevel: 0.9
+
+  # CRITICAL. Network-copyleft and source-available licences, which can impose
+  # obligations on a hosted service, not just on distributed binaries.
+  forbidden:
+    - AGPL-1.0
+    - AGPL-3.0
+    - AGPL-3.0-only
+    - AGPL-3.0-or-later
+    - SSPL-1.0
+    - BUSL-1.1
+    - CC-BY-NC-1.0
+    - CC-BY-NC-2.0
+    - CC-BY-NC-2.5
+    - CC-BY-NC-3.0
+    - CC-BY-NC-4.0
+    - CC-BY-NC-SA-4.0
+
+  # HIGH. Strong and weak copyleft. LGPL is included because dynamic-linking
+  # relief is murky for bundled JavaScript.
+  restricted:
+    - GPL-2.0
+    - GPL-2.0-only
+    - GPL-2.0-or-later
+    - GPL-3.0
+    - GPL-3.0-only
+    - GPL-3.0-or-later
+    - LGPL-2.0
+    - LGPL-2.1
+    - LGPL-2.1-only
+    - LGPL-2.1-or-later
+    - LGPL-3.0
+    - LGPL-3.0-only
+    - LGPL-3.0-or-later
+    - OSL-3.0
+    - EUPL-1.1
+    - EUPL-1.2
+
+  # MEDIUM. File-level copyleft. Reported but does not fail CI, since these are
+  # generally safe to depend on without relicensing our own code.
+  reciprocal:
+    - MPL-1.1
+    - MPL-2.0
+    - EPL-1.0
+    - EPL-2.0
+    - CDDL-1.0
+    - CDDL-1.1
+
+  ignored: []
