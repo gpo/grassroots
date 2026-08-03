@@ -1,6 +1,10 @@
 scan:
   scanners:
     - license
+  skip-files:
+    # Our own licence. Without this, full-file inspection classifies the project
+    # under its own policy and fails the build on this repo's AGPL-3.0 grant.
+    - LICENSE
 
 license:
   # File-header inspection. Catches packages that ship a LICENSE file but leave
