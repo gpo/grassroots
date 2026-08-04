@@ -27,6 +27,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
+      # MEDIUM blocks as well as HIGH and CRITICAL: Trivy's built-in classifier
+      # files any copyleft licence missing from trivy.yaml under `reciprocal`,
+      # which is MEDIUM. Gating only on HIGH would let unlisted copyleft pass.
       - name: Scan dependencies for copyleft licenses
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -34,7 +37,7 @@ jobs:
           scan-ref: .
           scanners: license
           trivy-config: trivy.yaml
-          severity: HIGH,CRITICAL
+          severity: MEDIUM,HIGH,CRITICAL
           exit-code: 1
           format: table
 
