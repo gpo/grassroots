@@ -1,0 +1,84 @@
+# Licence policy for a dual-licensed project.
+#
+# Grassroots ships under AGPL-3.0 and under a separate commercial licence. The
+# commercial grant is the binding constraint: we can only offer proprietary
+# terms on code we are free to relicense. A copyleft dependency cannot be
+# relicensed, so it forecloses the commercial track no matter how permissive it
+# would be for a purely AGPL project. Every form of copyleft blocks here,
+# including the file-level kind that is normally considered safe to link.
+
+scan:
+  scanners:
+    - license
+  skip-files:
+    # Our own licence. Without this, full-file inspection classifies the project
+    # under its own policy and fails the build on this repo's AGPL-3.0 grant.
+    - LICENSE
+
+license:
+  # File-header inspection. Catches packages that ship a LICENSE file but leave
+  # the `license` field out of package.json, at the cost of a slower scan.
+  full: true
+  confidenceLevel: 0.9
+
+  # CRITICAL. Network copyleft, source-available, and non-commercial terms.
+  # These are incompatible with a commercial grant on their face.
+  forbidden:
+    - AGPL-1.0
+    - AGPL-3.0
+    - AGPL-3.0-only
+    - AGPL-3.0-or-later
+    - SSPL-1.0
+    - BUSL-1.1
+    - CPAL-1.0
+    - RPL-1.5
+    - CC-BY-NC-1.0
+    - CC-BY-NC-2.0
+    - CC-BY-NC-2.5
+    - CC-BY-NC-3.0
+    - CC-BY-NC-4.0
+    - CC-BY-NC-SA-3.0
+    - CC-BY-NC-SA-4.0
+    - CC-BY-SA-4.0
+
+  # HIGH. Strong copyleft, weak copyleft, and file-level copyleft alike. MPL,
+  # EPL, and CDDL sit here rather than under `reciprocal` because their
+  # per-file source obligation survives relicensing, which is precisely what
+  # the commercial grant cannot accommodate.
+  restricted:
+    - GPL-1.0
+    - GPL-2.0
+    - GPL-2.0-only
+    - GPL-2.0-or-later
+    - GPL-3.0
+    - GPL-3.0-only
+    - GPL-3.0-or-later
+    - LGPL-2.0
+    - LGPL-2.1
+    - LGPL-2.1-only
+    - LGPL-2.1-or-later
+    - LGPL-3.0
+    - LGPL-3.0-only
+    - LGPL-3.0-or-later
+    - MPL-1.0
+    - MPL-1.1
+    - MPL-2.0
+    - EPL-1.0
+    - EPL-2.0
+    - CDDL-1.0
+    - CDDL-1.1
+    - OSL-1.0
+    - OSL-2.0
+    - OSL-3.0
+    - EUPL-1.0
+    - EUPL-1.1
+    - EUPL-1.2
+    - CECILL-2.1
+    - QPL-1.0
+    - IPL-1.0
+    - Sleepycat
+    - GFDL-1.1-only
+    - GFDL-1.2-only
+    - GFDL-1.3-only
+
+  ignored: []

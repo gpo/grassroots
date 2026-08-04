@@ -1,0 +1,55 @@
+name: "License Scan"
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  schedule:
+    # Licences change under us on republish, so re-scan even when nothing merges.
+    - cron: "0 13 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  trivy-license:
+    name: Copyleft License Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js & pnpm
+        uses: pnpm/action-setup@v4
+
+      # Lockfiles carry no licence metadata. Trivy reads the `license` field from
+      # each installed package.json, so the tree has to be on disk to be scanned.
+      - name: Install dependencies
+        run: pnpm install
+
+      # MEDIUM blocks as well as HIGH and CRITICAL: Trivy's built-in classifier
+      # files any copyleft licence missing from trivy.yaml under `reciprocal`,
+      # which is MEDIUM. Gating only on HIGH would let unlisted copyleft pass.
+      - name: Scan dependencies for copyleft licenses
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: license
+          trivy-config: trivy.yaml
+          severity: MEDIUM,HIGH,CRITICAL
+          exit-code: 1
+          format: table
+
+      - name: Report full license inventory
+        if: always()
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          scanners: license
+          trivy-config: trivy.yaml
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
+          exit-code: 0
+          format: table
